@@ -34,3 +34,15 @@ permalink: /certificate/
 **  VMware Certified Professional - Data Center Virtulization 2022 (VCP)
 
 ![image tooltip here](/assets/vmware-vcp.png)
+
+
+<b>Udemy Certification</b>
+
+
+**  DevOps Deployment Automation with Terraform, AWS and Docker
+
+![image tooltip here](/assets/udm-gitlab.jpg)
+
+**  DevOps Projects | Real Time DevOps & GitOps Projects
+
+![image tooltip here](/assets/udm-20.jpg)

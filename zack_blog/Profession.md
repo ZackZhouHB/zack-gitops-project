@@ -5,6 +5,39 @@ permalink: /pro/
 ---
 
 
+<b>Cloud Infrustracture Engineer </b>  --  EVENT Cinemas,    Sydney, NSW ,       06/2020 - now 
+
+<ins>Role and Responsibility</ins> 
+
+- Collaborate within a dynamic team to oversee daily AWS cloud platform operations, supporting multiple AWS organizations and accounts.
+
+- Implement and enforce best practices for cloud resource management, VPC security controls, and housekeeping.
+
+- Drive monthly patching initiatives, ensuring the security and compliance of Event's cloud platform.
+
+- Develop and maintain automation scripts for resource and workload optimization, enhancing operational efficiency.
+
+- Work closely with development team, security teams and managed service providers to meet project and compliance requirements.
+
+<ins>Project:</ins> 
+
+•   Thredbo Kubernetes cluster deployment. (2023)
+
+- Lead the design, installation, and deployment of Kubernetes cluster architectures for the Thredbo microservices app POC (local and AWS EKS).
+
+- Orchestrated the migration of the microservices application to both on-prem Kubernetes and AWS EKS cluster environments.
+
+- Established and maintained CI/CD pipeline, automating the deployment of containerized microservices applications.
+
+•   Cloud migration for Event legacy applications (2021-now)
+
+- Lead the migration of legacy applications to AWS, implementing Infrastructure as Code (IaC) practices using Terraform.
+
+- Ensured consistent and repeatable infrastructure deployments, optimizing for efficiency and scalability.
+
+==========================================================================
+
+
 <b>System Administrator </b>  --  Bank Of China (Australia) Limited ,    Sydney, NSW ,       05/2017 - 06/2020 
 
 <ins>Role and Responsibility</ins> 
@@ -17,9 +50,9 @@ permalink: /pro/
 
 <ins>Project:</ins> 
 
-•   AML (Anti-money laundry) Redhat clustering provisioning and deployment (2020)
+•   AML (Anti-money laundry) Redhat clustering provisioning and deployment (2019)
 
-•   CDR Open banking phase 1 hybrid infrastructure implementation (2021)
+•   CDR Open banking phase 1 hybrid infrastructure implementation (2020)
 
 
 ==========================================================================
