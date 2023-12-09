@@ -4,6 +4,14 @@ title: Technical Skills
 permalink: /techskills/
 ---
 
-This is the tech
+- AWS Roadmap
+
+- DEVOPS Roadmap
+
+- Linux
+
+- Toolsets
+
+
 
 
