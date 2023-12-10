@@ -54,7 +54,7 @@ jobs:
           IMAGE_NAME=zackz001/gitops-jekyll
           docker buildx create --use
           docker buildx inspect --bootstrap
-          docker buildx build --platform linux/amd64,linux/arm64 -t zackz001/gitops-jekyll:local .
+          docker buildx build --platform linux/amd64,linux/arm64 --load -t zackz001/gitops-jekyll:local --builder=container .
           docker tag zackz001/gitops-jekyll:local zackz001/gitops-jekyll:v${{ github.ref_name}}  # Replace with your desired tag
 
       - name: Push Docker image
