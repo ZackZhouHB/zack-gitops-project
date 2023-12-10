@@ -84,6 +84,7 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy to EC2
-        run: |
-          docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-          docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+        run: docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+
+      - name: restart docker
+        run: docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
