@@ -81,7 +81,7 @@ jobs:
 
       - name: Tag Docker image
         run: |
-          docker tag zackz001/gitops-jekyll::latest zackz001/gitops-jekyll:v${{ github.ref_name}}  # Replace with your desired tag
+          docker tag zackz001/gitops-jekyll:latest zackz001/gitops-jekyll:v${{ github.ref_name}}  # Replace with your desired tag
 
 
       - name: Push Docker image
