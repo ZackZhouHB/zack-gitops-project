@@ -10,7 +10,7 @@ COPY Gemfile Gemfile.lock /app/
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Expose port 4000 for Jekyll to run ##
+# Expose port 4000 for Jekyll to run ###
 EXPOSE 4000
 
 # Build the Jekyll site
