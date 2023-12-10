@@ -21,9 +21,13 @@ env:                   # cred for AWS access, terrform is looking for
   # also can be stored in github var
 #  AWS_DEFAULT_REGION: ap-southeast-2
 #  EKS_CLUSTER: zack-gitops-eks-prod
-  EIP: "54.79.79.80"
+
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+  PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  HOSTNAME: ${{secrets.SSH_HOST}}
+  USER_NAME: ${{secrets.USER_NAME}}
 
 
 jobs: 
@@ -78,13 +82,14 @@ jobs:
 #         echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
 #          echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
 
-      - name: Set Up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - name: SSH to EC2
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+          docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+#      - name: Deploy to EC2
+#        run: docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
 
-      - name: Deploy to EC2
-        run: docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-
-      - name: restart docker
-        run: docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+#      - name: restart docker
+#        run: docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
