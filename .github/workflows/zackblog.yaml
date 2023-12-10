@@ -79,10 +79,10 @@ jobs:
           docker buildx inspect --bootstrap
           IMAGE_NAME=zackz001/gitops-jekyll
           docker buildx build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME:latest .
-          docker tag $IMAGE_NAME:latest IMAGE_NAME:v${{ github.ref_name}}  # Replace with your desired tag
+          docker tag $IMAGE_NAME:latest $IMAGE_NAME:v${{ github.ref_name}}  # Replace with your desired tag
 
       - name: Push Docker image
-        run: docker push IMAGE_NAME:v${{ github.ref_name}}
+        run: docker push $IMAGE_NAME:v${{ github.ref_name}}
 
 #      - name: Configure AWS cli on runners
 #        uses: aws-actions/setup-sam@v2
