@@ -73,15 +73,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/gitops-jekyll:v${{ github.ref_name}}
+      - name: Build Docker image
+        run: |
+          docker buildx create --use
+          docker buildx inspect --bootstrap
+          IMAGE_NAME=${{ DOCKERHUB_USERNAME }}/gitops-jekyll
+          docker buildx build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME:latest .
+          docker tag $IMAGE_NAME:latest $IMAGE_NAME:v${{ github.ref_name}}  # Replace with your desired tag
 
-
+      - name: Push Docker image
+        run: docker push $IMAGE_NAME:v${{ github.ref_name}}
 
 #      - name: Configure AWS cli on runners
 #        uses: aws-actions/setup-sam@v2
