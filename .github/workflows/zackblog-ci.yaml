@@ -84,8 +84,8 @@ jobs:
 
       - name: SSH to EC2
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          echo "$PRIVATE_KEY" > terraform-new-key1.pem && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i terraform-new-key1.pem ${USER_NAME}@${HOSTNAME} '
           docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
           docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
 #      - name: Deploy to EC2
