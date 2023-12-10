@@ -75,9 +75,9 @@ jobs:
 
       - name: Build Docker image
         run: |
+          IMAGE_NAME=zackz001/gitops-jekyll
           docker buildx create --use
           docker buildx inspect --bootstrap
-          IMAGE_NAME=zackz001/gitops-jekyll
           docker buildx build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME:latest .
           docker tag $IMAGE_NAME:latest $IMAGE_NAME:v${{ github.ref_name}}  # Replace with your desired tag
 
