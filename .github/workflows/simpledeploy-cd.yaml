@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: " Deploy to EC2 "
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
       - editing
     paths:             # any change in folder "zack_blog" 
-      - zack_blog/_site**   # for both stage and main, will trigger workflow
+      - zack_blog/**   # for both stage and main, will trigger workflow
 
 jobs:
   deploy:
