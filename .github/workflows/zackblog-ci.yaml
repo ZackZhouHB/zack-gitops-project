@@ -21,7 +21,7 @@ env:                   # cred for AWS access, terrform is looking for
   # also can be stored in github var
 #  AWS_DEFAULT_REGION: ap-southeast-2
 #  EKS_CLUSTER: zack-gitops-eks-prod
-
+  EIP: "54.79.79.80"
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
@@ -78,4 +78,12 @@ jobs:
 #         echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
 #          echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
 
+      - name: Set Up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
+      - name: Deploy to EC2
+        run: |
+          docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+          docker run -d -p --restart unless-stopped 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
