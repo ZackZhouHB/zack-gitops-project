@@ -86,12 +86,13 @@ jobs:
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            sudo -i
             CONTAINER_ID=$(cat id.txt)
-            sudo docker stop $CONTAINER_ID
-            sudo docker rm $CONTAINER_ID
-            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-            sudo NEW_CONTAINER_ID=$(sudo docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
-            echo $NEW_CONTAINER_ID > id.txt
+            docker stop $CONTAINER_ID
+            docker rm $CONTAINER_ID
+            docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+            NEW_CONTAINER_ID=$(sudo docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
+            $NEW_CONTAINER_ID > id.txt
 
 
 #      - name: Deploy to EC2
