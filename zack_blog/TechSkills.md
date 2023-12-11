@@ -4,15 +4,15 @@ title: Technical Skills
 permalink: /techskills/
 ---
 
-- AWS Roadmap
+- <b>AWS Roadmap</b>
 
 ![image tooltip here](/assets/aws-roadmap.png)
 
-- DEVOPS Roadmap
+- <b>DEVOPS Roadmap</b>
 
 ![image tooltip here](/assets/devops-roadmap.png)
 
-- Kubernetes Roadmap
+- <b>Kubernetes Roadmap</b>
 
 ![image tooltip here](/assets/kubernetes-roadmap.png)
 
