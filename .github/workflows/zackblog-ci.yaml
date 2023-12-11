@@ -88,7 +88,7 @@ jobs:
           script: |
             CONTAINER_ID=$(cat id.txt)
             sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-            sudo NEW_CONTAINER_ID=$(docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
+            sudo NEW_CONTAINER_ID=$(sudo docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
             echo $NEW_CONTAINER_ID > id.txt
 
 
