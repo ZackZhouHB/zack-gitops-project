@@ -82,12 +82,24 @@ jobs:
 #         echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
 #          echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
 
-      - name: SSH to EC2
-        run: |
-          echo "$PRIVATE_KEY" > terraform-new-key1.pem && chmod 600 terraform-new-key1.pem
-          ssh -o StrictHostKeyChecking=no -i "terraform-new-key1.pem" ${USER_NAME}@${HOSTNAME} ' 
-              docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-              docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+#      - name: SSH to EC2
+#        run: |
+#          echo "$PRIVATE_KEY" > terraform-new-key1.pem && chmod 600 terraform-new-key1.pem
+#          ssh -o StrictHostKeyChecking=no -i "terraform-new-key1.pem" ${USER_NAME}@${HOSTNAME} ' 
+#              docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+#              docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.USER_NAME}}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+            docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+
+
 #      - name: Deploy to EC2
 #        run: docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
 
