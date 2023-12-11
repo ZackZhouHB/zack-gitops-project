@@ -2,16 +2,16 @@ name: "zack gitops workflow for iaac"
 on: 
   push: 
     branches:
-      - main
+#      - main
       - stage
     paths:             # any change in folder "terraform" 
       - terraform/**   # for both stage and main, will trigger workflow
   
-  pull_request:        # no one can commit to main except approvel needed from main branch owner
-    branches:          # raise pull_request when merge from stage to main
-      - main           # will trigger workflow
-    paths:          
-      - terraform/**
+#  pull_request:        # no one can commit to main except approvel needed from main branch owner
+#    branches:          # raise pull_request when merge from stage to main
+#      - main           # will trigger workflow
+#    paths:          
+#      - terraform/**
 
 env:                   # cred for AWS access, terrform is looking for      
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -91,3 +91,9 @@ jobs:
         id: install-Ingress-controller
         if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
         run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+
+#      - name: deploy zackweb
+#        id: zackwebdeploy
+#        run: |
+#          kubectl apply -f initialdeploy/initial-deploy.yaml
+#          kubectl wait --for=condition=available deployment/zackweb
