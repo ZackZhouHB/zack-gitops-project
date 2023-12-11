@@ -43,6 +43,6 @@ permalink: /certificate/
 
 ![image tooltip here](/assets/udm-gitlab.jpg)
 
-**  DevOps Projects | Real Time DevOps & GitOps Projects
+**  DevOps Projects Real Time DevOps & GitOps Projects
 
 ![image tooltip here](/assets/udm-20.jpg)
