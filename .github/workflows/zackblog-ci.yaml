@@ -25,8 +25,8 @@ env:                   # cred for AWS access, terrform is looking for
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
-  PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-  HOSTNAME: ${{secrets.HOSTNAME}}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  HOST_NAME: ${{secrets.HOST_NAME}}
   USER_NAME: ${{secrets.USER_NAME}}
 
 
@@ -92,9 +92,9 @@ jobs:
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
-          host: ${{secrets.HOSTNAME}}
+          host: ${{secrets.HOST_NAME}}
           username: ${{secrets.USER_NAME}}
-          key: ${{ secrets.PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
             docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
