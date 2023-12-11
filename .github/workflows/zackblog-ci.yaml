@@ -86,10 +86,9 @@ jobs:
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo -i
-            systemctl restart docker
-            docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-            docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
+            sudo systemctl restart docker
+            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+            sudo docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
             
 
 
