@@ -26,7 +26,7 @@ env:                   # cred for AWS access, terrform is looking for
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
   PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-  HOSTNAME: ${{secrets.SSH_HOST}}
+  HOSTNAME: ${{secrets.HOSTNAME}}
   USER_NAME: ${{secrets.USER_NAME}}
 
 
@@ -92,7 +92,7 @@ jobs:
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
-          host: ${{secrets.SSH_HOST}}
+          host: ${{secrets.HOSTNAME}}
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
