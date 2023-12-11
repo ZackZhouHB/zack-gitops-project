@@ -88,6 +88,7 @@ jobs:
           script: |
             sudo -i
             CONTAINER_ID=$(cat id.txt)
+            echo $CONTAINER_ID
             docker stop $CONTAINER_ID
             docker rm $CONTAINER_ID
             docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
