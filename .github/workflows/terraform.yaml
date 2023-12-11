@@ -3,7 +3,7 @@ on:
   push: 
     branches:
 #      - main
-      - stage
+      - editing
     paths:             # any change in folder "terraform" 
       - terraform/**   # for both stage and main, will trigger workflow
   
