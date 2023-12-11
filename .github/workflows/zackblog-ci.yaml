@@ -58,12 +58,15 @@ jobs:
           IMAGE_NAME=zackz001/gitops-jekyll
           docker buildx create --use
           docker buildx inspect --bootstrap
-          docker build -t test:latest .
-          docker tag test:latest zackz001/gitops-jekyll:v${{ github.run_number }}  # Replace with your desired tag
+          docker build -t zackz001/gitops-jekyll:latest .
+          docker tag zackz001/gitops-jekyll:latest zackz001/gitops-jekyll:v${{ github.run_number }}  # Replace with your desired tag
 
       - name: Push Docker image
         run: docker push zackz001/gitops-jekyll:v${{ github.run_number }}
 
+
+      - name: Push Docker image latest
+        run: docker push zackz001/gitops-jekyll:latest
 #      - name: Configure AWS cli on runners
 #        uses: aws-actions/setup-sam@v2
 #       with:
@@ -96,8 +99,10 @@ jobs:
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-            sudo docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+            sudo docker stop jovial_pare
+            sudo docker rm jovial_pare
+            sudo docker pull zackz001/gitops-jekyll:latest
+            sudo docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:latest
 
 
 #      - name: Deploy to EC2
