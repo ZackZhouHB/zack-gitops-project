@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: zack-web
+  namespace: default
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/ZackZhouHB/gitops-argocd
+    targetRevision: HEAD
+    path: jekyll-deploy
+  
+  destination: # can also manage external k8s cluster
+    server: 'https://kubernetes.default.svc'  # k8s internal service, as argocd run inside this k8s
+    namespace: default # argocd will create this ns and deploy to 
+  
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:  # fetch and sync any git changes, turn off by default
+      prune: true  # argo to delete service when delete frim git
+      selfHeal: true  # undo any manual change
