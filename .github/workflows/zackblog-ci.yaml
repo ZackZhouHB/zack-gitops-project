@@ -85,9 +85,9 @@ jobs:
       - name: SSH to EC2
         run: |
           echo "$PRIVATE_KEY" > terraform-new-key1.pem && chmod 600 terraform-new-key1.pem
-          ssh -o StrictHostKeyChecking=no -i "terraform-new-key1.pem" ubuntu@ec2-54-79-79-80.ap-southeast-2.compute.amazonaws.com
-          docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-          docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+          ssh -o StrictHostKeyChecking=no -i "terraform-new-key1.pem" ${USER_NAME}@${HOSTNAME} ' 
+              docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+              docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
 #      - name: Deploy to EC2
 #        run: docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
 
