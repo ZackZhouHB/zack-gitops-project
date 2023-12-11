@@ -78,7 +78,7 @@ jobs:
 
       - name: terraform apply  # apply only when push to main branch 
         id: apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' 
+#        if: github.ref == 'refs/heads/main' && github.event_name == 'push' 
         run: terraform apply -auto-approve -input=false -parallelism=1 planfile # based on planfile
 
       - name: configure kube config on runners
