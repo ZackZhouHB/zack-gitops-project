@@ -99,10 +99,9 @@ jobs:
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo docker stop jovial_pare
-            sudo docker rm jovial_pare
             sudo docker pull zackz001/gitops-jekyll:latest
-            sudo docker run -d  --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:latest
+            sudo CONTAINER_ID=$(docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:latest)
+            echo $CONTAINER_ID > id.txt
 
 
 #      - name: Deploy to EC2
