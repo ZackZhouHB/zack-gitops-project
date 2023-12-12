@@ -1,3 +1,16 @@
+FROM jekyll/builder:latest as builder
+
+WORKDIR /srv/jekyll
+COPY Gemfile Gemfile.lock ./
+
+RUN bundle install
+COPY . .
+RUN jekyll build
+RUN jekyll server
+
+
+
+
 # Use an Nginx base image
 FROM nginx:alpine
 

@@ -6,6 +6,8 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install
 COPY . .
 RUN jekyll build
+RUN jekyll server
+
 
 
 
