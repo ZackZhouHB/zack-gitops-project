@@ -9,14 +9,14 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops" />
 <meta property="og:description" content="AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops" />
-<link rel="canonical" href="http://localhost:4000/about/" />
-<meta property="og:url" content="http://localhost:4000/about/" />
+<link rel="canonical" href="http://localhost:4000/gitrepo/" />
+<meta property="og:url" content="http://localhost:4000/gitrepo/" />
 <meta property="og:site_name" content="Zack’s Tech Stack" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Github Repos" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","description":"AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops","headline":"Github Repos","name":"Zack’s Tech Stack","url":"http://localhost:4000/about/"}</script>
+{"@context":"https://schema.org","@type":"WebPage","description":"AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops","headline":"Github Repos","url":"http://localhost:4000/gitrepo/"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Tech Stack" /></head>
 <body><header class="site-header" role="banner">
@@ -31,7 +31,7 @@
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/certificate/">Certificate</a><a class="page-link" href="/education/">Education</a><a class="page-link" href="/pro/">Professional Experiences</a><a class="page-link" href="/techskills/">Technical Skills</a><a class="page-link" href="/about/">Github Repos</a></div>
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
@@ -43,39 +43,53 @@
   </header>
 
   <div class="post-content">
-    <p>Listing some of my github repos while I was practising devops concepts and tools:</p>
+    <p>Lists of my github repos with devops concepts and tools used:</p>
 
 <p>==================================================================</p>
 
 <p><b>[Gitops-Project]: </b></p>
 
-<p>This is a self learning project using Github Action with CICD workflow to publish this <b>“Zack’s Tech Stack”</b> website onto AWS EKS</p>
+<p>Gitops project with Github Action workflow to create and practise CICD pipeline to build and deploy this <b>“Zack’s Tech Stack”</b> website onto both AWS EC2 by docker and to AWS EKS managed nodegroup sync by ArgoCD, with route53 pubilsh zone to Godaddy DNS</p>
 
-<p>Tools:  Git, Github Action workflow CI, Docker, ArgoCD, Terroform, AWS EKS, Route53 DNS, Godaddy</p>
+<p>Github action workflows:</p>
 
-<p>Git repo URL: <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a></p>
+<ul>
+  <li>
+    <p><b>Zackweb image build CI pipeline</b> : 2 layer docker inamge build, tag, push to dockerhub</p>
+  </li>
+  <li>
+    <p><b>EC2 docker web depolyment</b> : ssh to EC2 instance, pull latest image and run</p>
+  </li>
+  <li>
+    <p><b>Terraform-EKS-Argocd-pipeline</b> : Terraform create VPC &amp; EKS (module), argocd install, web app deploy and sync</p>
+  </li>
+</ul>
+
+<p><b>Tools</b>:  Git, Github Action workflow CI, Docker, ArgoCD, Terroform, AWS EKS, Route53 DNS, Godaddy</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a></p>
 
 <p>==================================================================</p>
 
 <p><b>[K8S-Project]:</b></p>
 
-<p>This is a k8s learning project to deploy 3 demo applications onto both local lab k8s cluster and AWS EKS</p>
+<p>Self K8S project to deploy 3 demo applications onto both local lab k8s cluster and AWS EKS</p>
 
 <ul>
   <li>
-    <p>Vprofile JAVA stack</p>
+    <p><b>Vprofile JAVA stack</b> (nginx, rabbitmq, memcached, mysql, JAVA tomcat)</p>
   </li>
   <li>
-    <p>Fleetman position tracker (microservice application)</p>
+    <p><b>Fleetman position tracker</b> (microservice application : api gateway, JAVA tomcat, mongoDB, rabbitmq)</p>
   </li>
   <li>
-    <p>AWS retail store sample app (microservice application)</p>
+    <p><b>Amazon retail store sample app</b> (microservice application : rabbitmq, mysql, redis, dynamodb)</p>
   </li>
 </ul>
 
-<p>Tools:  k8s deployment, statefulset, AWS EBS, AWS EKS (Kops), rook-ceph</p>
+<p><b>Tools</b>:  k8s deployment, statefulset, AWS EBS, AWS EKS (Kops), rook-ceph</p>
 
-<p>Git repo URL: <a href="https://github.com/ZackZhouHB/zz-k8s">zz-k8s</a></p>
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zz-k8s">zz-k8s</a></p>
 
 <p>==================================================================</p>
 
@@ -89,32 +103,34 @@
 
 <ul>
   <li>
-    <p>eipsode1: Local java stack deployment (tomcat webapp, nginx, rabbitmq, memcached, mysql) onto VMware Workstation VMs</p>
+    <p>E1: Local java stack deployment (tomcat webapp, nginx, rabbitmq, memcached, mysql) onto VMware Workstation VMs</p>
   </li>
   <li>
-    <p>eipsode2: Cloud migration Lift &amp; Shift Java stack to AWS using EC2</p>
+    <p>E2:  Cloud migration Lift &amp; Shift Java stack to AWS using EC2</p>
   </li>
   <li>
-    <p>eipsode3: AWS re-factor Java stack by (AWS Beabstalk, RDS, AmazonMQ, Elasticache)</p>
+    <p>E3:  AWS re-factor Java stack by (AWS Beabstalk, RDS, AmazonMQ, Elasticache)</p>
   </li>
   <li>
-    <p>eipsode3: containerization for Java stack by building docker images and test local run on docker compose and deploy to AWS ECR &amp; ECS</p>
+    <p>E3:  containerization for Java stack by building docker images and test local run on docker compose and deploy to AWS ECR &amp; ECS</p>
   </li>
   <li>
-    <p>eipsode4: Deploy JAVA stack to AWS EKS (Kops)</p>
+    <p>E4:  Deploy JAVA stack to AWS EKS (Kops)</p>
   </li>
   <li>
-    <p>eipsode5: Jenkins(ec2) with CI pipeline (Nexus, SonarQube, Slack) build artifact(.war) and upload to Nexus, create CD pipeline upload artifact to AWS S3 and deploy to Beanstalk</p>
+    <p>E5:  Jenkins(ec2) with CI pipeline (Nexus, SonarQube, Slack) build artifact(.war) and upload to Nexus, create CD pipeline upload artifact to AWS S3 and deploy to Beanstalk</p>
   </li>
   <li>
-    <p>eipsode6: Jenkins CI add docker build, upload image to ECR, create CD pipeline deploy to ECS.</p>
+    <p>E6:  Jenkins CI add docker build, upload image to ECR, create CD pipeline deploy to ECS.</p>
   </li>
   <li>
-    <p>eipsode7: Jenkins CI + CD pipeline add helm deploy to AWS EKS</p>
+    <p>E7:  Jenkins CI + CD pipeline add helm deploy to AWS EKS</p>
   </li>
 </ul>
 
-<p>Git repo URL: <a href="https://github.com/ZackZhouHB/redo20git">JAVA-Stack-CICD-DEVOPS</a></p>
+<p><b>Tools</b>: VMware, AWS managed services (IAM, VPC, EC2, S3, Beabstalk, RDS, AmazonMQ, Elasticache, CodePipeline, ECR, ECS, EKS, KOPS), Docker, Jenkins, Github webhook, SonarQube, Nexus, Slack</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/redo20git">JAVA-Stack-CICD-DEVOPS</a></p>
 
 <p>==================================================================</p>
 
@@ -140,7 +156,9 @@
   </li>
 </ul>
 
-<p>Git repo URL: <a href="https://github.com/ZackZhouHB/zackz-terraform">zackz-terraform</a></p>
+<p><b>Tools</b>: Terraform, AWS, Ansible</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zackz-terraform">zackz-terraform</a></p>
 
 <p>==================================================================</p>
 
@@ -160,7 +178,9 @@
   </li>
 </ul>
 
-<p>Git repo URL: <a href="https://github.com/ZackZhouHB/zzansible">zzansible</a></p>
+<p><b>Tools</b>: Ansible roles and mudules, AWS</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zzansible">zzansible</a></p>
 
 
   </div>

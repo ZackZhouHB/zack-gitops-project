@@ -1,8 +1,27 @@
 ---
 layout: page
-title: Certificate
+title: Education & Certificate
 permalink: /certificate/
 ---
+
+===============================================
+
+University of Wollongong  -- 2008-2010     Wollongong, NSW 
+
+     
+
+<b>Master of Information Communication Technology</b>
+
+===============================================
+
+South-Central University -- 2004-2008     China 
+     
+<b>Bachelor of Computer Science </b>
+
+===============================================
+
+
+
 <b>AWS Certification</b>
 
 

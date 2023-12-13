@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Professional Experiences
+title: Work Experiences
 permalink: /pro/
 ---
 
