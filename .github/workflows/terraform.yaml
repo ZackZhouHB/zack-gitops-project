@@ -89,21 +89,20 @@ jobs:
         if: steps.apply.outcome == 'success' 
         run: aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION}} --name ${{ env.EKS_CLUSTER}}
 
-
-      - name: install Ingress controller
-        id: install-Ingress-controller
+      - name: deploy zackwebapp
+        id: deployzackwebapp
         if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
-        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+        run: |
+          kubectl apply -f deployment.yaml -f service.yaml
 
-      - name: ssh to ec2 configure kube config on ec2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{secrets.HOST_NAME}}
-          username: ${{secrets.USER_NAME}}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION}} --name ${{ env.EKS_CLUSTER}}
-            kubectl get node
+          kubectl wait --for=condition=available deployment/zackweb
+
+#      - name: install Ingress controller
+#        id: install-Ingress-controller
+#        if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
+#        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+
+
 
 #      - name: deploy zackweb
 #        id: zackwebdeploy
