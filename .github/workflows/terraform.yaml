@@ -89,13 +89,13 @@ jobs:
         if: steps.apply.outcome == 'success' 
         run: aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION}} --name ${{ env.EKS_CLUSTER}}
 
-      - name: deploy zackwebapp
-        id: deployzackwebapp
-        if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
-        run: |
-          kubectl delete -f deployment.yaml -f service.yaml
+#      - name: deploy zackwebapp
+#        id: deployzackwebapp
+#        if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
+#        run: |
+#          kubectl delete -f deployment.yaml -f service.yaml
 
-          kubectl wait --for=condition=available deployment/zackweb
+#          kubectl wait --for=condition=available deployment/zackweb
 
       - name: deploy argocd
         id: deployeksargocd
