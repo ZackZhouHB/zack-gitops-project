@@ -79,17 +79,17 @@ jobs:
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 #          aws-region: ap-southeast-2
 
-      - name: Executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{secrets.HOST_NAME}}
-          username: ${{secrets.USER_NAME}}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            sudo usermod -aG docker ubuntu
-            sudo docker stop $(docker ps -a -q)
-            sudo docker rm $(docker ps -a -q)        
-            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
-            sudo docker run -d -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
+#      - name: Executing remote ssh commands using ssh key
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{secrets.HOST_NAME}}
+#          username: ${{secrets.USER_NAME}}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            sudo usermod -aG docker ubuntu
+#            sudo docker stop $(docker ps -a -q)
+#            sudo docker rm $(docker ps -a -q)        
+#            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
+#            sudo docker run -d -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
 #            sudo docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})
             
