@@ -1,0 +1,58 @@
+name: "zack gitops workflow for iaac"
+on: 
+  workflow_dispatch:
+  
+env:                   # cred for AWS access, terrform is looking for      
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  # also can be stored in github var
+  AWS_DEFAULT_REGION: ap-southeast-2
+  EKS_CLUSTER: zack-gitops-eks-prod
+
+
+jobs: 
+  terraform:   # create a ubuntu container, cd to terraform dir, checkout source code
+    name: "Destroy AWS resource"
+    runs-on: ubuntu-latest    # from github runners containers 
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+    
+    steps:
+
+      - name: SCM checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS cli on runners
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+          echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
+          echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
+
+      - name: setup terraform on runners
+        uses: hashicorp/setup-terraform@v3
+        #with:
+         # terraform_version: "1.1.7"
+
+      - name: terraform init
+        id: init
+        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+
+
+      - name: cleanup 
+        id: cleanup
+        run: terraform destroy -auto-approve

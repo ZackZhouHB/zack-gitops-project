@@ -8,7 +8,7 @@ spec:
     namespace: 'zackweb'
     server: 'https://kubernetes.default.svc'
   source:
-    path: k8s-deploy
+    path: eks-deploy
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
   project: default

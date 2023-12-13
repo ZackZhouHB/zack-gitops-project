@@ -1,11 +1,12 @@
-name: "zack gitops workflow for iaac"
-on: 
-  push: 
-    branches:
+name: "zack gitops workflow for EKS provison and web deployment"
+on:
+  workflow_dispatch: 
+#  push: 
+#    branches:
 #      - main
-      - editing
-    paths:             # any change in folder "terraform" 
-      - terraform/**   # for both stage and main, will trigger workflow
+#      - editing
+#    paths:             # any change in folder "terraform" 
+#      - terraform/**   # for both stage and main, will trigger workflow
   
 #  pull_request:        # no one can commit to main except approvel needed from main branch owner
 #    branches:          # raise pull_request when merge from stage to main
@@ -21,13 +22,11 @@ env:                   # cred for AWS access, terrform is looking for
   # also can be stored in github var
   AWS_DEFAULT_REGION: ap-southeast-2
   EKS_CLUSTER: zack-gitops-eks-prod
-  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-  HOST_NAME: ${{secrets.HOST_NAME}}
-  USER_NAME: ${{secrets.USER_NAME}}
+
 
 jobs: 
   terraform:   # create a ubuntu container, cd to terraform dir, checkout source code
-    name: "apply iaac code change"
+    name: "Terraform-EKS-Argocd-pipeline"
     runs-on: ubuntu-latest    # from github runners containers 
     defaults:
       run:
@@ -89,43 +88,31 @@ jobs:
         if: steps.apply.outcome == 'success' 
         run: aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION}} --name ${{ env.EKS_CLUSTER}}
 
-#      - name: deploy zackwebapp
-#        id: deployzackwebapp
-#        if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
-#        run: |
-#          kubectl delete -f deployment.yaml -f service.yaml
-
-#          kubectl wait --for=condition=available deployment/zackweb
-
-#      - name: deploy argocd
-#        id: deployeksargocd
-#        if: steps.apply.outcome == 'success' 
-#        run: |
-#          kubectl create namespace argocd
-#          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-#          kubectl wait --for=condition=available deployment/argocd-server -n argocd
-#          kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-#          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-#          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-#          rm argocd-linux-amd64
-#          echo "argocd admin initial-password -n argocd"
-#          result=$(argocd admin initial-password -n argocd)
-#          echo "Command result: $result"
+      - name: deploy argocd
+        id: deployeksargocd
+        if: steps.apply.outcome == 'success' 
+        run: |
+          kubectl create namespace argocd
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+          kubectl wait --for=condition=available deployment/argocd-server -n argocd
+          kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+          echo "argocd admin initial-password -n argocd"
+          result=$(argocd admin initial-password -n argocd)
+          echo "Command result: $result"
           
 
-#      - name: deploy zackweb via argocd
-#        id: argocd-zackweb
-#        if: steps.apply.outcome == 'success' 
-#        run: |
-#          kubectl apply -f argo-application.yaml
+      - name: deploy zackweb via argocd
+        id: argocd-zackweb
+        if: steps.apply.outcome == 'success' 
+        run: |
+          kubectl apply -f argo-application.yaml
 
-      - name: cleanup 
-        id: cleanup
-        run: terraform destroy -auto-approve
-#      - name: install Ingress controller
-#        id: install-Ingress-controller
-#        if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
-#        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+#      - name: cleanup 
+#        id: cleanup
+#        run: terraform destroy -auto-approve
 
 
 

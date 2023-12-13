@@ -1,4 +1,4 @@
-name: "zack gitops workflow for blog"
+name: "zack gitops workflow for blog CI image build"
 on: 
   push: 
     branches:
@@ -32,7 +32,7 @@ env:                   # cred for AWS access, terrform is looking for
 
 jobs: 
   terraform:   # create a ubuntu container, cd to terraform dir, checkout source code
-    name: "apply iaac code change"
+    name: "zackweb image build CI pipeline"
     runs-on: ubuntu-latest    # from github runners containers 
     defaults:
       run:
