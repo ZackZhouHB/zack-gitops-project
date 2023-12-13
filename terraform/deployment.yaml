@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zackweb
+  labels:
+    app: zackweb
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: zackweb
+  template:
+    metadata:
+      labels:
+        app: zackweb
+    spec:
+      containers:
+      - name: zackweb
+        image: zackz001/gitops-jekyll:latest
+        ports:
+        - containerPort: 80
