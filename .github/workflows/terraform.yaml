@@ -99,7 +99,7 @@ jobs:
 
       - name: deploy argocd
         id: deployeksargocd
-        if: steps.deployzackwebapp.outcome == 'success' 
+        if: steps.apply.outcome == 'success' 
         run: |
           kubectl create namespace argocd
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
