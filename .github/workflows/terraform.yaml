@@ -113,12 +113,15 @@ jobs:
 #          echo "Command result: $result"
           
 
-      - name: deploy zackweb via argocd
-        id: argocd-zackweb
-        if: steps.apply.outcome == 'success' 
-        run: |
-          kubectl apply -f argo-application.yaml
+#      - name: deploy zackweb via argocd
+#        id: argocd-zackweb
+#        if: steps.apply.outcome == 'success' 
+#        run: |
+#          kubectl apply -f argo-application.yaml
 
+      - name: cleanup 
+        id: cleanup
+        run: terraform destroy -auto-approve
 #      - name: install Ingress controller
 #        id: install-Ingress-controller
 #        if: steps.apply.outcome == 'success' && steps.getkubeconfig.outcome == 'success'
