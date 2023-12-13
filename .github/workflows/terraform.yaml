@@ -97,27 +97,27 @@ jobs:
 
 #          kubectl wait --for=condition=available deployment/zackweb
 
-      - name: deploy argocd
-        id: deployeksargocd
-        if: steps.apply.outcome == 'success' 
-        run: |
-          kubectl create namespace argocd
-          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-          kubectl wait --for=condition=available deployment/argocd-server -n argocd
-          kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-          rm argocd-linux-amd64
-          echo "argocd admin initial-password -n argocd"
-          result=$(argocd admin initial-password -n argocd)
-          echo "Command result: $result"
+#      - name: deploy argocd
+#        id: deployeksargocd
+#        if: steps.apply.outcome == 'success' 
+#        run: |
+#          kubectl create namespace argocd
+#          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+#          kubectl wait --for=condition=available deployment/argocd-server -n argocd
+#          kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+#          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+#          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+#          rm argocd-linux-amd64
+#          echo "argocd admin initial-password -n argocd"
+#          result=$(argocd admin initial-password -n argocd)
+#          echo "Command result: $result"
           
 
-#      - name: deploy zackweb via argocd
-#        id: argocd-zackweb
-#        if: steps.deployeksargocd.outcome == 'success' 
-#        run: |
-#          kubectl apply -f argo-application.yaml
+      - name: deploy zackweb via argocd
+        id: argocd-zackweb
+        if: steps.apply.outcome == 'success' 
+        run: |
+          kubectl apply -f argo-application.yaml
 
 #      - name: install Ingress controller
 #        id: install-Ingress-controller
