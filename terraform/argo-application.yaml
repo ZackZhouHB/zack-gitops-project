@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: zack-web
+  name: zackweb
 spec:
   destination:
     name: ''
-    namespace: zackapp
+    namespace: ''
     server: 'https://kubernetes.default.svc'
   source:
-    path: /jekyll-deploy
+    path: eks-deployment
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
   sources: []
