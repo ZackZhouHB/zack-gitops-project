@@ -7,7 +7,7 @@ categories: jekyll Cat2
 
 <b>Project Introduction</b>
 
-This is my first web blog using Jekyll, I wish this simple website can be an typical way by following "[Cloud Resume Challange]"(https://cloudresumechallenge.dev/docs/the-challenge/aws/) to practise cloud and devops concept and technical skillsets. 
+This is my first web blog using Jekyll, I wish this simple website can be an typical way by following [Cloud Resume Challange](https://cloudresumechallenge.dev/docs/the-challenge/aws/) to practise cloud and devops concept and technical skillsets. 
 
 <b>The Design</b>
 
