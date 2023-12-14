@@ -17,7 +17,7 @@ Check out the [AWS & K8S certs][AWS & K8S certs] for my industral certifications
 
 Check out the technical skill set and roadmap for my personal AWS, DEVOPS and K8S at [Technical Skills][Technical Skills]. 
 
-Feel free fro visit at [Github Repos][Github Repos]. If you have questions, you can ask them on .
+Feel free to visit all [Github Repos][Github Repos] which contain all my previous project and practice. If any questions, you can always reach out to me via Email address down the bottom.
 
 
 {% highlight ruby %}
