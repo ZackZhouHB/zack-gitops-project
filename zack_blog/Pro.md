@@ -8,13 +8,15 @@ permalink: /pro/
 
 I consider myself as a seasoned IT professional with a rich and versatile career spanning over a decade, marked by a continuous evolution and mastery of diverse technological domains. 
 
-Commencing in a prestigious Global 500 company Lenovo back in 2011, I acquired comprehensive expertise in traditional IT, encompassing hardware, databases, operating systems, and SAP applications. This foundational experience provided a robust understanding of enterprise-level IT ecosystems.
+Starting my career in a Fortune Global 500 company Lenovo back in 2011, I acquired comprehensive expertise in traditional IT, encompassing hardware, databases, operating systems, and SAP applications. This foundational experience provided a robust understanding of enterprise-level IT ecosystems.
 
-When family moved to Australia in 2017, I joined a foreign back in Sydney. 3 years as system administrator I immersed myself in VMware technologies, expanding my skill set from traditional IT to virtualization environment include Microsoft Active Directory and comprehensive system administration tasks. This pivotal phase equipped me with a holistic view of infrastructure management, laying the groundwork for my progression into the realm of cloud computing.
+When family moved to Australia in 2017, I joined a foreign back in Sydney. With 3 years as system administrator I immersed myself in VMware technologies, expanding my skill set from traditional IT to virtualization environment include Microsoft Active Directory and comprehensive system administration tasks. This pivotal phase equipped me with a holistic view of infrastructure management, laying the groundwork for my progression into the realm of cloud computing.
 
 My foray into AWS marked a pivotal shift towards cloud solutions design and operation when I started new journey in EVENT cinema in 2020. Playing a key role in architecting scalable and secure cloud infrastructures, I contributed to the digital transformation of organizations. This experience also ignited my journey into the agile software development lifecycle, where I learned to harmonize development and operations through automation and the design and maintenance of robust CI/CD pipelines.
 
-Embracing contemporary trends, I delved into microservices architecture and Kubernetes (K8S) by implementing EVENT's first K8S installation and microservice deployment in 2023. This venture into modern cloud-native technologies underscores my passion and commitment to staying at the forefront of industry advancements.
+![image tooltip here](/assets/k8s.png)
+
+Embracing contemporary trends, I delved into microservices architecture and Kubernetes (K8S) by implementing EVENT's first K8S cluster installation and microservice deployment in 2023. This venture into modern cloud-native technologies underscores my passion and commitment to staying at the forefront of industry advancements.
 
 =======================================================================
 
@@ -22,9 +24,9 @@ Embracing contemporary trends, I delved into microservices architecture and Kube
 
 <ins>Role and Responsibility</ins> 
 
-- Collaborate within a dynamic team to oversee daily AWS cloud platform operations, include Cloud Architecture, CI/CD Automation, Infrastructure as Code (IaC), Containerization and Orchestration, Automation Scripting and Monitoring and Logging.
+- Collaborate within a dynamic team to oversee daily AWS cloud platform operations, tasks include Cloud Architecture, CI/CD Automation, Infrastructure as Code (IaC), Containerization and Orchestration, Automation Scripting and Monitoring and Logging.
 
-- Implement and enforce best practices for cloud resource management, VPC security controls, and housekeeping. Drive monthly patching initiatives, ensuring the security and compliance of Event's cloud platform.
+- Implement and enforce best practices for cloud resource management, VPC security controls, housekeeping. Drive monthly patching initiatives, ensuring the security and compliance of Event's cloud platform.
 
 - Work closely with development team, security teams and managed service providers to meet project and compliance requirements.
 

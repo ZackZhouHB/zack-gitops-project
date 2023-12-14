@@ -6,7 +6,7 @@ categories: jekyll update
 ---
 Thanks for visiting this site.
 
-If you come all along here, pls feel free to check out more detailed version of my profile as bellow:
+If you come all along here, pls feel free to check out my detailed profile as bellow:
 
 ==========================================================
 

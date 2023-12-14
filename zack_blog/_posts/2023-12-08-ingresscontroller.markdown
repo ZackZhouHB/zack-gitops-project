@@ -6,19 +6,19 @@ categories: jekyll Cat2
 ---
 
 Topic
-Ingress-nginx Routing for local DNS (zz.local)
+
+<b>Ingress-nginx Routing for local DNS (zz.local)</b>
 
 - helm install ingress controller ingress-nginx
 
-{% highlight yaml %}
+{% highlight shell %}
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm -n ingress-nginx install ingress-nginx ingress-nginx/ingress-nginx --create-namespace
 {% endhighlight %}
 
+- create ingress to route root path to "zz.local" for "zackweb-service" 
 
-- create localhost dns zz.local
-- create ingress 
 {% highlight yaml %}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -38,8 +38,7 @@ spec:
               number: 80
 {% endhighlight %}
 
+- Browser visit "zz.local"
 
+![image tooltip here](/assets/web.png)
 
-This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project)  [Branch : editing]
-
-![image tooltip here](/assets/cicd.png)
