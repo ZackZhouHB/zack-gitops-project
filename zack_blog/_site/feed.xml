@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-14T18:05:03+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-15T09:47:42+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out more detailed version of my profile as bellow:</p>
 
@@ -16,9 +16,42 @@
   <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
 <span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">CICD with GitAction</title><link href="http://localhost:4000/jekyll/cat2/2023/11/06/CICD-with-GitAction.html" rel="alternate" type="text/html" title="CICD with GitAction" /><published>2023-11-06T11:15:29+11:00</published><updated>2023-11-06T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/06/CICD-with-GitAction</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/06/CICD-with-GitAction.html"><![CDATA[<p>This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">Ingress-nginx Routing for local DNS</title><link href="http://localhost:4000/jekyll/cat2/2023/11/06/CICD-with-GitAction.html" rel="alternate" type="text/html" title="Ingress-nginx Routing for local DNS" /><published>2023-11-06T11:15:29+11:00</published><updated>2023-11-06T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/06/CICD-with-GitAction</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/06/CICD-with-GitAction.html"><![CDATA[<p>Topic
+Ingress-nginx Routing for local DNS (zz.local)</p>
 
-<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo zack-gitops-project [Branch : editing]]]></summary></entry><entry><title type="html">About Gitops project!</title><link href="http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project.html" rel="alternate" type="text/html" title="About Gitops project!" /><published>2023-11-02T11:15:29+11:00</published><updated>2023-11-02T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project.html"><![CDATA[<p><b>Project Introduction</b></p>
+<ul>
+  <li>helm install ingress controller ingress-nginx</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="s">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx</span>
+<span class="s">helm repo update</span>
+<span class="s">helm -n ingress-nginx install ingress-nginx ingress-nginx/ingress-nginx --create-namespace</span></code></pre></figure>
+
+<ul>
+  <li>create localhost dns zz.local</li>
+  <li>create ingress</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">nginx-ingress</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">zz.local</span> 
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+        <span class="na">pathType</span><span class="pi">:</span> <span class="s">ImplementationSpecific</span>
+        <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">service</span><span class="pi">:</span>
+            <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb-service</span>
+            <span class="na">port</span><span class="pi">:</span>
+              <span class="na">number</span><span class="pi">:</span> <span class="s">80</span></code></pre></figure>
+
+<p>This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
+
+<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic Ingress-nginx Routing for local DNS (zz.local)]]></summary></entry><entry><title type="html">About Gitops project!</title><link href="http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project.html" rel="alternate" type="text/html" title="About Gitops project!" /><published>2023-11-02T11:15:29+11:00</published><updated>2023-11-02T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project.html"><![CDATA[<p><b>Project Introduction</b></p>
 
 <p>This is my first web blog using Jekyll, I wish this simple website can be an typical way by following <a href="https://cloudresumechallenge.dev/docs/the-challenge/aws/">Cloud Resume Challange</a> to practise cloud and devops concept and technical skillsets.</p>
 
@@ -58,4 +91,8 @@
 
 <p><b>The Archetecture</b></p>
 
-<p><img src="/assets/aws-ar.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry></feed>
+<p><img src="/assets/aws-ar.png" alt="image tooltip here" /></p>
+
+<p>This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
+
+<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry></feed>
