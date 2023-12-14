@@ -18,7 +18,11 @@ Github action workflows:
 
 - <b>EC2 docker web depolyment</b> : ssh to EC2 instance, pull latest image and run
 
+![image tooltip here](/assets/cicd.png)
+
 - <b>Terraform-EKS-Argocd-pipeline</b> : Terraform create VPC & EKS (module), argocd install, web app deploy and sync
+
+![image tooltip here](/assets/aws-ar.png)
 
 
 
