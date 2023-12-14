@@ -5,8 +5,32 @@ date:   2023-11-02 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-PROFESSIONAL SUMMARY  ###
+<b>Project Introduction</b>
 
-Highly skilled enterprise ICT solution implementation and troubleshooting in hybrid environment, deep understanding and hands on experience for both on-prem data center (virtualization) and public could operation (AWS), with server administration with Microsoft (AD) and Linux (RHEL), OS and software patching, lifecycle management, safeguard business continuity in mission-critical industry.
+This is my first web blog using Jekyll, I wish this simple website can be an typical way by following "[Cloud Resume Challange]"(https://cloudresumechallenge.dev/docs/the-challenge/aws/) to practise cloud and devops concept and technical skillsets. 
+
+<b>The Design</b>
+
+By design, I will create:
+
+- a web blog: with content and details to introduce myself
+
+- a github repo: to source control all code that I build and run locally by "jekyll serve", validate site and pages, then push the source code to github.
+
+- a Dockerfile to build jekyll code into a docker image running by nginx/alpine
+
+- 3 folder with manifest for staging and prod webapp deploy: 
+
+ <ins> /terrafom</ins>  for create AWS VPC and EKS to host website as production environment;
+ 
+ <ins> /k8s-local-deploy</ins>  for website image deploy to local K8S as testing;
+ 
+ <ins> /eks-deploy</ins>  for prod deployment with ArgoCD application manifest
+
+- a EC2 instance: as staging env for AWS with Godaddy domain hosting test
+
+- a EKS cluster:  as PROD environment to validate ArgoCD sync for web deployment 
+
+<b>The Archetecture</b>
 
 ![image tooltip here](/assets/aws-ar.png)
