@@ -8,29 +8,28 @@ Lists of my github repos with devops concepts and tools used:
 
 ==================================================================
 
-<b>[Gitops-Project]: </b>
+<b>[Zack-blog-Gitops-Project]: </b>
 
-Gitops project with Github Action workflow to create and practise CICD pipeline to build and deploy this <b>"Zack's Tech Stack"</b> website onto both AWS EC2 by docker and to AWS EKS managed nodegroup sync by ArgoCD, with route53 pubilsh zone to Godaddy DNS
+Gitops project with Github Action workflow to create and practise CICD pipeline to build and deploy this <b>"Zack's Tech Stack"</b> website onto both AWS EC2 by docker and to AWS EKS managed nodegroup sync by ArgoCD, with route53 public zone to Godaddy DNS
+
+![image tooltip here](/assets/aws-ar.png)
 
 Github action workflows: 
 
 - <b>Zackweb image build CI pipeline</b> : 2 layer docker inamge build, tag, push to dockerhub
 
-- <b>EC2 docker web depolyment</b> : ssh to EC2 instance, pull latest image and run
+- <b>Stagging depolyment</b> : ssh to EC2 instance, pull latest image and docker run
+
+- <b>Terraform-EKS-Argocd-pipeline for Prod</b> : Terraform create VPC & EKS (module), argocd install, web app deploy and sync
 
 ![image tooltip here](/assets/cicd.png)
-
-- <b>Terraform-EKS-Argocd-pipeline</b> : Terraform create VPC & EKS (module), argocd install, web app deploy and sync
-
-![image tooltip here](/assets/aws-ar.png)
-
 
 
 
 
 <b>Tools</b>:  Git, Github Action workflow CI, Docker, ArgoCD, Terroform, AWS EKS, Route53 DNS, Godaddy
 
-<b>Git repo URL</b>: [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project)
+<b>Git repo URL</b>: [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project)  [Branch : editing]
 
 ==================================================================
 
