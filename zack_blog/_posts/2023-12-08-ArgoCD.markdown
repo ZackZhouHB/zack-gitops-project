@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Argo CD sync local K8S deployment with Github"
+title:  "Argo CD sync K8S deployment with Github"
 date:   2023-11-07 11:15:29 +1100
 categories: jekyll Cat2
 ---
