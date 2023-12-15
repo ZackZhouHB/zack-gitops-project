@@ -7,10 +7,9 @@ categories: jekyll Cat2
 
 <b>Helm install Rook-Ceph for persistent storage</b>
 
-configure local block storage
-add 50Gb sdb to all k8s master and work node
+- Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes
 
-install rook-ceph cluster
+- install rook-ceph cluster
 
 {% highlight shell %}
 git clone --single-branch --branch master https://github.com/rook/rook.git
@@ -19,7 +18,7 @@ kubectl create -f crds.yaml -f common.yaml -f operator.yaml
 kubectl create -f cluster.yaml
 {% endhighlight %}
 
-toolbox
+- Ceph toolbox to check cluster status
 
 {% highlight shell %}
 kubectl create -f toolbox.yaml
@@ -30,7 +29,7 @@ ceph df
 rados df
 {% endhighlight %}
 
-Ceph Dashboard svc for https login
+- Ceph Dashboard svc for https login
 
 {% highlight shell %}
 kubectl create -f dashboard-external-https.yaml
@@ -38,19 +37,22 @@ kubectl patch svc rook-ceph-mgr-dashboard-external-https -p '{"spec": {"ports": 
 kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
 {% endhighlight %}
 
-Create storage pool and storageclass
+- Create storage pool and storageclass
 
 {% highlight shell %}
 cd csi/rbd
 kubectl create -f storageclass.yaml
 {% endhighlight %}
 
-set "rook-ceph-block" as default sc
+- set "rook-ceph-block" as default sc
 
 {% highlight shell %}
 kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-{% endhighlight %}
 
+kubectl get sc
+NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
+rook-ceph-block (default)   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          true                  8d
+{% endhighlight %}
 
 <b>Helm install Redis cluster</b>
 
@@ -61,5 +63,9 @@ kubectl create ns redis
 helm install my-redis-cluster bitnami/redis-cluster -n redis
 {% endhighlight %}
 
-<b>create ingress to route root path to "zz.local" for "zackweb-service" </b>
+<b>Helm install Kafka</b>
+
+<b>Helm install RabbitMQ</b>
+
+
 

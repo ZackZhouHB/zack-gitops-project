@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-15T20:56:52+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-15T21:02:27+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
 
@@ -18,17 +18,23 @@
 <span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
 <span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">Helm install Middleware (RMQ Redis Rook-Ceph Kafka)</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/Helm.html" rel="alternate" type="text/html" title="Helm install Middleware (RMQ Redis Rook-Ceph Kafka)" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/Helm.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
 
-<p>configure local block storage
-add 50Gb sdb to all k8s master and work node</p>
-
-<p>install rook-ceph cluster</p>
+<ul>
+  <li>
+    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
+  </li>
+  <li>
+    <p>install rook-ceph cluster</p>
+  </li>
+</ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
 <span class="nb">cd </span>rook/deploy/examples
 kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
 kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
 
-<p>toolbox</p>
+<ul>
+  <li>Ceph toolbox to check cluster status</li>
+</ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
 kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
@@ -37,20 +43,30 @@ ceph osd status
 ceph <span class="nb">df
 </span>rados <span class="nb">df</span></code></pre></figure>
 
-<p>Ceph Dashboard svc for https login</p>
+<ul>
+  <li>Ceph Dashboard svc for https login</li>
+</ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
 kubectl patch svc rook-ceph-mgr-dashboard-external-https <span class="nt">-p</span> <span class="s1">'{"spec": {"ports": {"type": "LoadBalancer"}}}'</span>
 kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
 
-<p>Create storage pool and storageclass</p>
+<ul>
+  <li>Create storage pool and storageclass</li>
+</ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">cd </span>csi/rbd
 kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
 
-<p>set “rook-ceph-block” as default sc</p>
+<ul>
+  <li>set “rook-ceph-block” as default sc</li>
+</ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
+
+kubectl get sc
+NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
+rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
 
 <p><b>Helm install Redis cluster</b></p>
 
@@ -59,7 +75,9 @@ helm pull bitnami/redis-cluster
 kubectl create ns redis
 helm <span class="nb">install </span>my-redis-cluster bitnami/redis-cluster <span class="nt">-n</span> redis</code></pre></figure>
 
-<p><b>create ingress to route root path to “zz.local” for “zackweb-service” </b></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Argo CD sync K8S deployment with Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync K8S deployment with Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
+<p><b>Helm install Kafka</b></p>
+
+<p><b>Helm install RabbitMQ</b></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Argo CD sync K8S deployment with Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync K8S deployment with Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
 
 <p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
 
