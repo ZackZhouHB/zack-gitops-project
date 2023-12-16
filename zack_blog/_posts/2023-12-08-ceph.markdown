@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Rook-Ceph set dynamic pv and pvc "
+title:  "Rook-Ceph for dynamic pv"
 date:   2023-11-09 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -33,13 +33,13 @@ rados df
 
 {% highlight shell %}
 kubectl create -f dashboard-external-https.yaml
-kubectl patch svc rook-ceph-mgr-dashboard-external-https -p '{"spec": {"ports": {"type": "LoadBalancer"}}}'
 kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
 {% endhighlight %}
 
 - Create storage pool and storageclass
 
 {% highlight shell %}
+kubectl create -f pool.yaml
 cd csi/rbd
 kubectl create -f storageclass.yaml
 {% endhighlight %}

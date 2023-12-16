@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-16T19:57:38+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-16T21:01:55+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
 
@@ -148,7 +148,7 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Rook-Ceph set dynamic pv and pvc</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph set dynamic pv and pvc" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
 
 <ul>
   <li>
@@ -180,14 +180,14 @@ ceph <span class="nb">df
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
-kubectl patch svc rook-ceph-mgr-dashboard-external-https <span class="nt">-p</span> <span class="s1">'{"spec": {"ports": {"type": "LoadBalancer"}}}'</span>
 kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
 
 <ul>
   <li>Create storage pool and storageclass</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">cd </span>csi/rbd
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
+<span class="nb">cd </span>csi/rbd
 kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
 
 <ul>
@@ -202,7 +202,7 @@ rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-c
 
 <p>check pool and OSDs in ceph webui</p>
 
-<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Argo CD sync K8S deployment with Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync K8S deployment with Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
+<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Argo CD sync Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
 
 <p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
 

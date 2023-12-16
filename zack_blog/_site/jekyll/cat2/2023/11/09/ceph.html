@@ -3,9 +3,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Rook-Ceph set dynamic pv and pvc | Zack’s Tech Stack</title>
+<title>Rook-Ceph for dynamic pv | Zack’s Tech Stack</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="Rook-Ceph set dynamic pv and pvc" />
+<meta property="og:title" content="Rook-Ceph for dynamic pv" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Helm install Rook-Ceph for persistent storage" />
 <meta property="og:description" content="Helm install Rook-Ceph for persistent storage" />
@@ -15,9 +15,9 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2023-11-09T11:15:29+11:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Rook-Ceph set dynamic pv and pvc" />
+<meta property="twitter:title" content="Rook-Ceph for dynamic pv" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2023-11-09T11:15:29+11:00","datePublished":"2023-11-09T11:15:29+11:00","description":"Helm install Rook-Ceph for persistent storage","headline":"Rook-Ceph set dynamic pv and pvc","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"},"url":"http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2023-11-09T11:15:29+11:00","datePublished":"2023-11-09T11:15:29+11:00","description":"Helm install Rook-Ceph for persistent storage","headline":"Rook-Ceph for dynamic pv","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"},"url":"http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Tech Stack" /></head>
 <body><header class="site-header" role="banner">
@@ -40,7 +40,7 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Rook-Ceph set dynamic pv and pvc </h1>
+    <h1 class="post-title p-name" itemprop="name headline">Rook-Ceph for dynamic pv</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2023-11-09T11:15:29+11:00" itemprop="datePublished">Nov 9, 2023
       </time></p>
@@ -79,14 +79,14 @@ ceph <span class="nb">df
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
-kubectl patch svc rook-ceph-mgr-dashboard-external-https <span class="nt">-p</span> <span class="s1">'{"spec": {"ports": {"type": "LoadBalancer"}}}'</span>
 kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
 
 <ul>
   <li>Create storage pool and storageclass</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">cd </span>csi/rbd
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
+<span class="nb">cd </span>csi/rbd
 kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
 
 <ul>
