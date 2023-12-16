@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-15T21:02:27+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-16T19:45:33+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
 
@@ -16,7 +16,139 @@
   <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
 <span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">Helm install Middleware (RMQ Redis Rook-Ceph Kafka)</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/Helm.html" rel="alternate" type="text/html" title="Helm install Middleware (RMQ Redis Rook-Ceph Kafka)" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/Helm.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">Helm install Redis cluster</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/redis.html" rel="alternate" type="text/html" title="Helm install Redis cluster" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
+
+<p>Here we use helm to install Redis cluster, then validate statefuleset storage and cluster avalibility</p>
+
+<p>Typical Redis cluster (3 master + 3 slave for slots) Topology:</p>
+
+<p><img src="/assets/redis-slot.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Helm install bitnami/redis-cluster</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">helm repo add bitnami https://charts.bitnami.com/bitnami
+helm pull bitnami/redis-cluster
+kubectl create ns redis
+helm <span class="nb">install </span>zz-redis bitnami/redis-cluster <span class="nt">-n</span> redis</code></pre></figure>
+
+<ul>
+  <li>redis-cluster status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get po | <span class="nb">grep </span>zz-redis
+zz-redis-redis-cluster-0                                 1/1     Running   3 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-1                                 1/1     Running   1 <span class="o">(</span>32m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-2                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-3                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-4                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-5                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+
+kubectl get svc
+zz-redis-redis-cluster                    ClusterIP   10.96.68.34     &lt;none&gt;        6379/TCP                        37m
+zz-redis-redis-cluster-headless           ClusterIP   None            &lt;none&gt;        6379/TCP,16379/TCP              37m
+
+kubectl get pvc
+NAME                                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+redis-data-zz-redis-redis-cluster-0   Bound    pvc-81f69c15-2f59-4704-9fec-c3ab217ebca5   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-1   Bound    pvc-871dbb68-a78b-48a8-8feb-8726eb8a795e   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-2   Bound    pvc-afd8c82e-c314-426a-a3cd-3c8d10b42bb1   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-3   Bound    pvc-e8fd5d47-dd60-4358-8cf5-a17d6574bbe2   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-4   Bound    pvc-04d4f148-b7c1-407e-b9a8-b2fa911405f0   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-5   Bound    pvc-99e8b2cc-c5d5-4636-a19b-042922eca3cc   1Gi        RWO            rook-ceph-block   37m</code></pre></figure>
+
+<ul>
+  <li>Validate cluster by set key</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-0 <span class="nt">--</span> sh
+redis-cli
+info replication
+cluster info
+cluster nodes
+054ff137e9530c0e4d8afd1d00162d01952580de 172.16.122.179:6379@16379 slave 2ebcfdf7e74aa8755250384f7efa466f4d18e9d4 0 1702703474000 3 connected
+7cfeb1d88dc3838e600a32c1e233b1c5f05006f1 172.16.58.197:6379@16379 master - 0 1702703473000 2 connected 5461-10922
+1e56bad62197062fad465bbcc6b625bea8364db2 172.16.58.224:6379@16379 slave 7cfeb1d88dc3838e600a32c1e233b1c5f05006f1 0 1702703474954 2 connected
+7e539b2209581c8375f7fb0aa9eedf5b98754b05 172.16.85.252:6379@16379 slave 889515187dbbb525fd73dc840d5bcad78305645d 0 1702703473947 1 connected
+889515187dbbb525fd73dc840d5bcad78305645d 172.16.195.10:6379@16379 myself,master - 0 1702703469000 1 connected 0-5460
+2ebcfdf7e74aa8755250384f7efa466f4d18e9d4 172.16.85.229:6379@16379 master - 0 1702703473000 3 connected 10923-16383
+
+
+127.0.0.1:6379&gt; <span class="nb">set </span>dad zack
+OK
+127.0.0.1:6379&gt; get dad
+<span class="s2">"zack"</span>
+
+kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
+redis-cli
+127.0.0.1:6379&gt; KEYS <span class="k">*</span>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Apache Kafka cluster install</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster install" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>Helm install Kafka </b></p>
+
+<p>Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer</p>
+
+<p>Typical Redis cluster (3 master + 3 slave for slots) Topology:</p>
+
+<p><img src="/assets/kafka.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Helm install bitnami/redis-cluster</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">helm repo add bitnami https://charts.bitnami.com/bitnami
+helm pull bitnami/kafka
+kubectl create ns kafka
+helm <span class="nb">install </span>zz-kafka <span class="nb">.</span> <span class="nt">-n</span> kafka</code></pre></figure>
+
+<ul>
+  <li>Kafka-cluster status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get all | <span class="nb">grep </span>zz-kaf
+pod/zz-kafka-client                                          1/1     Running   0               6m27s
+pod/zz-kafka-controller-0                                    1/1     Running   0               8m52s
+pod/zz-kafka-controller-1                                    1/1     Running   0               8m52s
+pod/zz-kafka-controller-2                                    1/1     Running   0               8m52s
+service/zz-kafka                                  ClusterIP   10.96.58.62     &lt;none&gt;        9092/TCP                        8m52s
+service/zz-kafka-controller-headless              ClusterIP   None            &lt;none&gt;        9094/TCP,9092/TCP,9093/TCP      8m52s
+statefulset.apps/zz-kafka-controller                                    3/3     8m52s
+
+kubectl get pvc
+NAME                         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+data-zz-kafka-controller-0   Bound    pvc-f3831a5c-c9cf-46bb-a47d-58ea80f82e28   8Gi        RWO            rook-ceph-block   9m19s
+data-zz-kafka-controller-1   Bound    pvc-a45fd063-7979-4c0d-8ae4-93b4b4b0bf7f   8Gi        RWO            rook-ceph-block   9m19s
+data-zz-kafka-controller-2   Bound    pvc-ed48b71d-81be-4067-b05f-9e8dc64fab04   8Gi        RWO            rook-ceph-block   9m19s</code></pre></figure>
+
+<ul>
+  <li>Validate cluster by set key
+create client.properties with SASL authentication details, copy to client</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl run zz-kafka-client <span class="nt">--restart</span><span class="o">=</span><span class="s1">'Never'</span> <span class="nt">--image</span> docker.io/bitnami/kafka:3.6.1-debian-11-r0 <span class="nt">--namespace</span> default <span class="nt">--command</span> <span class="nt">--</span> <span class="nb">sleep </span>infinity
+kubectl <span class="nb">cp</span> <span class="nt">--namespace</span> default client.properties zz-kafka-client:/tmp/client.properties</code></pre></figure>
+
+<p>open 2 bash window to access kafka client</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl <span class="nb">exec</span> <span class="nt">--tty</span> <span class="nt">-i</span> zz-kafka-client <span class="nt">--namespace</span> default <span class="nt">--</span> bash
+
+window1:
+    PRODUCER:
+        kafka-console-producer.sh <span class="se">\</span>
+            <span class="nt">--producer</span>.config /tmp/client.properties <span class="se">\</span>
+            <span class="nt">--broker-list</span> zz-kafka-controller-0.zz-kafka-controller-headless.default.svc.cluster.local:9092,zz-kafka-controller-1.zz-kafka-controller-headless.default.svc.cluster.local:9092,zz-kafka-controller-2.zz-kafka-controller-headless.default.svc.cluster.local:9092 <span class="se">\</span>
+            <span class="nt">--topic</span> <span class="nb">test
+
+</span>window2:
+    CONSUMER:
+        kafka-console-consumer.sh <span class="se">\</span>
+            <span class="nt">--consumer</span>.config /tmp/client.properties <span class="se">\</span>
+            <span class="nt">--bootstrap-server</span> zz-kafka.default.svc.cluster.local:9092 <span class="se">\</span>
+            <span class="nt">--topic</span> <span class="nb">test</span> <span class="se">\</span>
+            <span class="nt">--from-beginning</span></code></pre></figure>
+
+<p>test topic and PRODUCER with CONSUMER</p>
+
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Helm install Middleware (RMQ Redis Rook-Ceph Kafka)</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Helm install Middleware (RMQ Redis Rook-Ceph Kafka)" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
 
 <ul>
   <li>
@@ -73,7 +205,53 @@ rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-c
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">helm repo add bitnami https://charts.bitnami.com/bitnami
 helm pull bitnami/redis-cluster
 kubectl create ns redis
-helm <span class="nb">install </span>my-redis-cluster bitnami/redis-cluster <span class="nt">-n</span> redis</code></pre></figure>
+helm <span class="nb">install </span>zz-redis bitnami/redis-cluster <span class="nt">-n</span> redis
+
+kubectl get po | <span class="nb">grep </span>zz-redis
+zz-redis-redis-cluster-0                                 1/1     Running   3 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-1                                 1/1     Running   1 <span class="o">(</span>32m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-2                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-3                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-4                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+zz-redis-redis-cluster-5                                 1/1     Running   1 <span class="o">(</span>33m ago<span class="o">)</span>     36m
+
+kubectl get pvc
+zz-redis-redis-cluster                    ClusterIP   10.96.68.34     &lt;none&gt;        6379/TCP                        37m
+zz-redis-redis-cluster-headless           ClusterIP   None            &lt;none&gt;        6379/TCP,16379/TCP              37m
+
+
+
+kubectl get pvc
+NAME                                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+redis-data-zz-redis-redis-cluster-0   Bound    pvc-81f69c15-2f59-4704-9fec-c3ab217ebca5   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-1   Bound    pvc-871dbb68-a78b-48a8-8feb-8726eb8a795e   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-2   Bound    pvc-afd8c82e-c314-426a-a3cd-3c8d10b42bb1   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-3   Bound    pvc-e8fd5d47-dd60-4358-8cf5-a17d6574bbe2   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-4   Bound    pvc-04d4f148-b7c1-407e-b9a8-b2fa911405f0   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-5   Bound    pvc-99e8b2cc-c5d5-4636-a19b-042922eca3cc   1Gi        RWO            rook-ceph-block   37m
+
+kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-0 <span class="nt">--</span> sh
+redis-cli
+info replication
+cluster info
+cluster nodes
+054ff137e9530c0e4d8afd1d00162d01952580de 172.16.122.179:6379@16379 slave 2ebcfdf7e74aa8755250384f7efa466f4d18e9d4 0 1702703474000 3 connected
+7cfeb1d88dc3838e600a32c1e233b1c5f05006f1 172.16.58.197:6379@16379 master - 0 1702703473000 2 connected 5461-10922
+1e56bad62197062fad465bbcc6b625bea8364db2 172.16.58.224:6379@16379 slave 7cfeb1d88dc3838e600a32c1e233b1c5f05006f1 0 1702703474954 2 connected
+7e539b2209581c8375f7fb0aa9eedf5b98754b05 172.16.85.252:6379@16379 slave 889515187dbbb525fd73dc840d5bcad78305645d 0 1702703473947 1 connected
+889515187dbbb525fd73dc840d5bcad78305645d 172.16.195.10:6379@16379 myself,master - 0 1702703469000 1 connected 0-5460
+2ebcfdf7e74aa8755250384f7efa466f4d18e9d4 172.16.85.229:6379@16379 master - 0 1702703473000 3 connected 10923-16383
+
+
+127.0.0.1:6379&gt; <span class="nb">set </span>dad zack
+OK
+127.0.0.1:6379&gt; get dad
+<span class="s2">"zack"</span>
+
+kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
+redis-cli
+127.0.0.1:6379&gt; KEYS <span class="k">*</span>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>
 
 <p><b>Helm install Kafka</b></p>
 
