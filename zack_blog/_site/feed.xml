@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-16T21:01:55+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-12-18T12:20:22+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
 
@@ -148,7 +148,111 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Istio - Traffic Management</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/istio.html" rel="alternate" type="text/html" title="Istio - Traffic Management" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
+
+<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
+
+<p>Bookinfo Topology:</p>
+
+<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Helm install istio (istiod, istio-ingress)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
+helm pull istio/base
+helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
+
+helm pull istio/istiod
+helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
+
+kubectl create namespace istio-ingress
+helm pull istio/gateway
+helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
+NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
+istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
+istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
+NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
+
+<ul>
+  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
+kubectl apply <span class="nt">-f</span> bookinfo.yaml
+
+kubectl get po
+NAME                                                     READY   STATUS    RESTARTS       AGE
+details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
+ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
+reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
+reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
+reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
+kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
+
+<ul>
+  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
+kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
+
+<ul>
+  <li>
+    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
+<img src="/assets/kiali.png" alt="image tooltip here" /></p>
+  </li>
+  <li>
+    <p>define destinationruls and virtualservice for reviews</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
+wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
+
+kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
+kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
+
+kubectl get dr <span class="nt">-A</span>
+NAMESPACE      NAME          HOST          AGE
+istio-system   details       details       6m56s
+istio-system   productpage   productpage   6m56s
+istio-system   ratings       ratings       6m56s
+istio-system   reviews       reviews       6m56s
+kubectl get vs <span class="nt">-A</span>
+NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
+istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
+istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
+
+Spec:
+  Hosts:
+    reviews
+  Http:
+    Route:
+      Destination:
+        Host:    reviews
+        Subset:  v1
+      Weight:    10
+      Destination:
+        Host:    reviews
+        Subset:  v3
+      Weight:    90</code></pre></figure>
+
+<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
+
+<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
 
 <ul>
   <li>
