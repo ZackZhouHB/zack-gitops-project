@@ -20,25 +20,11 @@ Embracing contemporary trends, I delved into microservices architecture and Kube
 
 =======================================================================
 
-<b>Cloud Infrustracture Engineer </b>  --  EVENT Cinemas,    Sydney, NSW ,       06/2020 - now 
+<b>Cloud Infrustracture Engineer </b>  --  EVENT Cinemas,    Sydney, NSW ,       01/2023 - now 
 
 <ins>Role and Responsibility</ins> 
 
-- Collaborate within a dynamic team to oversee daily AWS cloud platform operations, tasks include Cloud Architecture, CI/CD Automation, Infrastructure as Code (IaC), Containerization and Orchestration, Automation Scripting and Monitoring and Logging.
 
-- Implement and enforce best practices for cloud resource management, VPC security controls, housekeeping. Drive monthly patching initiatives, ensuring the security and compliance of Event's cloud platform.
-
-- Work closely with development team, security teams and managed service providers to meet project and compliance requirements.
-
-<ins>Project:</ins> 
-
-•   Thredbo Kubernetes cluster deployment. (2023)
-
-- Lead the design, installation, and deployment of Kubernetes cluster architectures for the Thredbo microservices app POC (local and AWS EKS).
-
-- Orchestrated the migration of the microservices application to both on-prem Kubernetes and AWS EKS cluster environments.
-
-- Established and maintained CI/CD pipeline, automating the deployment of containerized microservices applications.
 
 
 ==========================================================================
