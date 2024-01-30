@@ -11,6 +11,3 @@ permalink: /aboutme/
 - <b>Year of work</b>:  5 years overseas (China) +  6 years domestic (Austialia)
 
 - <b>I love</b>: cooking, riding, Cristiano Ronaldo and Real Madrid
-
-- <b>My boy</b>:
-![image tooltip here](/assets/son.JPG)

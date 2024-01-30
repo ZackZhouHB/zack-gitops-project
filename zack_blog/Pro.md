@@ -20,10 +20,21 @@ Embracing contemporary trends, I delved into microservices architecture and Kube
 
 =======================================================================
 
-<b>Cloud Infrustracture Engineer </b>  --  EVENT Cinemas,    Sydney, NSW ,       01/2023 - now 
+<b>Cloud Infrustracture Engineer </b>  --  EVENT Cinemas,    Sydney, NSW ,       06/2020 - current 
 
 <ins>Role and Responsibility</ins> 
 
+- Spearheaded the oversight of the company's AWS environment, designing, implementing, and sustaining the cloud infrastructure to guarantee the day-to-day high availability of the Cinema web application within defined SLAs
+
+- Fostered collaboration with internal and external teams to proficiently manage and execute changes, releases, and CI/CD pipelines, assuming the role of level 3 technical support for in-depth issue investigation and troubleshooting
+
+- Conducted regular reviews and optimizations for cost efficiency, backup strategies, patching procedures, and monitoring protocols, while actively engaging in task automation for enhanced operational efficiency.
+
+<ins>Project:</ins> 
+
+- Played a pivotal role in supporting the digital transformation project for the cinema backend application's seamless migration to the cloud.
+
+- Lead proof-of-concept (POC) for ski resort web application microservices implementation on AWS EKS, design and deploy end to end CICD pipeline.
 
 
 
