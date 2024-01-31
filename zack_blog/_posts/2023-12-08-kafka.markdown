@@ -11,11 +11,11 @@ categories: jekyll Cat2
 Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer
 
 
-Typical Redis cluster (3 master + 3 slave for slots) Topology: 
+Typical Kafka Topology: 
 
 ![image tooltip here](/assets/kafka.png)
 
-- Helm install bitnami/redis-cluster
+- Helm install bitnami/kafka
 
 {% highlight shell %}
 helm repo add bitnami https://charts.bitnami.com/bitnami

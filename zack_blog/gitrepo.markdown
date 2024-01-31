@@ -16,7 +16,7 @@ Gitops project with Github Action workflow to create and practise CICD pipeline 
 
 Github action workflows: 
 
-- <b>Zackweb image build CI pipeline</b> : 2 layer docker inamge build, tag, push to dockerhub
+- <b>Zackweb image build CI pipeline</b> : 2 layer docker image build, tag, push to dockerhub
 
 - <b>Stagging depolyment</b> : ssh to EC2 instance, pull latest image and docker run
 

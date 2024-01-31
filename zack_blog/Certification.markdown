@@ -35,7 +35,7 @@ South-Central University -- 2004-2008     China
 
 <b>Kubernetes Certification</b>
 
-**  CNCF Certified Kubernetes Administator (CKA)
+**  CNCF Certified Kubernetes Administrator (CKA)
 
 ![image tooltip here](/assets/k8s-cka.png)
 
