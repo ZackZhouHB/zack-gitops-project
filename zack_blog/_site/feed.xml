@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-01T10:09:37+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-12-08T09:19:29+11:00</published><updated>2023-12-08T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/12/08/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-01T10:57:40+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Tech Stack</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2024-02-01T09:19:29+11:00</published><updated>2024-02-01T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
 
@@ -16,7 +16,195 @@
   <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
 <span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">Helm install Redis cluster</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/redis.html" rel="alternate" type="text/html" title="Helm install Redis cluster" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry><entry><title type="html">Ansible for AWS Dynamic Inventory</title><link href="http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html" rel="alternate" type="text/html" title="Ansible for AWS Dynamic Inventory" /><published>2024-01-22T11:15:29+11:00</published><updated>2024-01-22T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html"><![CDATA[<p><b>About Ansible AWS Dynamic Inventory </b></p>
+
+<p>When using Ansible with AWS, maintaining the inventory file will be a hectic task as AWS has frequently changed IPs, autoscaling instances, and much more.</p>
+
+<p>Here we will install and apply ansible plugin for AWS dynamic inventory which makes an API call to AWS to get the instance information in the run time. It givesthe ec2 instance details dynamically to manage the AWS infrastructure</p>
+
+<p>It supports most of the public and private cloud platforms not limited to just AWS.</p>
+
+<ul>
+  <li>The Dynamic Inventory Topology:</li>
+</ul>
+
+<p><img src="/assets/ansible-inventory.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Setup Ansible AWS Dynamic Inventory</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Ensure python3 &amp; pip3 installed in Ansible server</span>
+python3 <span class="nt">--version</span>
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3 <span class="nt">-y</span>
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip <span class="nt">-y</span>
+
+<span class="c"># Install the boto3 library for ansible boot core to make API calls to AWS to retrieve ec2 instance details</span>
+<span class="nb">sudo </span>pip3 <span class="nb">install </span>boto3
+
+fix error
+ERROR! The ec2 dynamic inventory plugin requires boto3 and botocore.
+
+
+<span class="c"># Create an inventory directory under /opt and cd into the directory</span>
+<span class="nb">sudo mkdir</span> <span class="nt">-p</span> /opt/ansible/inventory
+<span class="nb">cd</span> /opt/ansible/inventory
+<span class="nb">sudo </span>vi aws_ec2.yaml
+
+<span class="nt">---</span>
+plugin: aws_ec2
+
+aws_access_key: &lt;xxx-AWS-ACCESS-KEY-HERE&gt;
+aws_secret_key: &lt;xx-AWS-SECRET-KEY-HERE&gt;
+
+regions:
+  - us-west-2
+
+keyed_groups:  <span class="c"># key filter for listing AWS ec2 groups</span>
+  - key: tags
+    prefix: tag
+  - prefix: instance_type
+    key: instance_type
+  - key: placement.region
+    prefix: aws_region
+
+<span class="c"># edit ansible config file to enable AWS plugin and set inventory as above yaml</span>
+<span class="nb">sudo </span>vi /etc/ansible/ansible.cfg
+
+<span class="o">[</span>inventory]
+enable_plugins <span class="o">=</span> aws_ec2
+
+inventory      <span class="o">=</span> /opt/ansible/inventory/aws_ec2.yaml</code></pre></figure>
+
+<p><img src="/assets/ec2-enable.png" alt="image tooltip here" />
+<img src="/assets/ec2-inventory.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Test if Ansible is able to ping all the machines returned by the dynamic inventory</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ansible-inventory <span class="nt">-i</span> /opt/ansible/inventory/aws_ec2.yaml <span class="nt">--list</span>
+ansible all <span class="nt">-m</span> ping</code></pre></figure>
+
+<ul>
+  <li>Execute Ansible Commands With ec2 Dynamic Inventory</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ansible-inventory <span class="nt">--graph</span></code></pre></figure>
+
+<p>List all instances grouped under tags, zones, and regions with dynamic group names like</p>
+
+<p>aws_region_us_west_2</p>
+
+<p>instance_type_t2_micro</p>
+
+<p>tag_Name_Ansible</p>
+
+<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible AWS Dynamic Inventory]]></summary></entry><entry><title type="html">Istio - Traffic Management</title><link href="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html" rel="alternate" type="text/html" title="Istio - Traffic Management" /><published>2024-01-15T11:15:29+11:00</published><updated>2024-01-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/01/15/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
+
+<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
+
+<p>Bookinfo Topology:</p>
+
+<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Helm install istio (istiod, istio-ingress)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
+helm pull istio/base
+helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
+
+helm pull istio/istiod
+helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
+
+kubectl create namespace istio-ingress
+helm pull istio/gateway
+helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
+NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
+istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
+istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
+NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
+
+<ul>
+  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
+kubectl apply <span class="nt">-f</span> bookinfo.yaml
+
+kubectl get po
+NAME                                                     READY   STATUS    RESTARTS       AGE
+details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
+ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
+reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
+reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
+reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
+kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
+
+<ul>
+  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
+kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
+
+<ul>
+  <li>
+    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
+<img src="/assets/kiali.png" alt="image tooltip here" /></p>
+  </li>
+  <li>
+    <p>define destinationruls and virtualservice for reviews</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
+wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
+
+kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
+kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
+
+kubectl get dr <span class="nt">-A</span>
+NAMESPACE      NAME          HOST          AGE
+istio-system   details       details       6m56s
+istio-system   productpage   productpage   6m56s
+istio-system   ratings       ratings       6m56s
+istio-system   reviews       reviews       6m56s
+kubectl get vs <span class="nt">-A</span>
+NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
+istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
+istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
+
+Spec:
+  Hosts:
+    reviews
+  Http:
+    Route:
+      Destination:
+        Host:    reviews
+        Subset:  v1
+      Weight:    10
+      Destination:
+        Host:    reviews
+        Subset:  v3
+      Weight:    90</code></pre></figure>
+
+<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
+
+<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Helm install Redis cluster</title><link href="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html" rel="alternate" type="text/html" title="Helm install Redis cluster" /><published>2023-12-09T11:15:29+11:00</published><updated>2023-12-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/12/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
 
 <p>Here we use helm to install Redis cluster, then validate statefuleset storage and cluster avalibility</p>
 
@@ -148,111 +336,7 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Istio - Traffic Management</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/istio.html" rel="alternate" type="text/html" title="Istio - Traffic Management" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
-
-<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
-
-<p>Bookinfo Topology:</p>
-
-<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Helm install istio (istiod, istio-ingress)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
-helm pull istio/base
-helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
-
-helm pull istio/istiod
-helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
-
-kubectl create namespace istio-ingress
-helm pull istio/gateway
-helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
-NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
-istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
-istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
-NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
-istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
-
-<ul>
-  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
-kubectl apply <span class="nt">-f</span> bookinfo.yaml
-
-kubectl get po
-NAME                                                     READY   STATUS    RESTARTS       AGE
-details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
-ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
-reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
-reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
-reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
-kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
-
-<ul>
-  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
-kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
-
-<ul>
-  <li>
-    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
-<img src="/assets/kiali.png" alt="image tooltip here" /></p>
-  </li>
-  <li>
-    <p>define destinationruls and virtualservice for reviews</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
-wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
-
-kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
-kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
-
-kubectl get dr <span class="nt">-A</span>
-NAMESPACE      NAME          HOST          AGE
-istio-system   details       details       6m56s
-istio-system   productpage   productpage   6m56s
-istio-system   ratings       ratings       6m56s
-istio-system   reviews       reviews       6m56s
-kubectl get vs <span class="nt">-A</span>
-NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
-istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
-istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
-
-Spec:
-  Hosts:
-    reviews
-  Http:
-    Route:
-      Destination:
-        Host:    reviews
-        Subset:  v1
-      Weight:    10
-      Destination:
-        Host:    reviews
-        Subset:  v3
-      Weight:    90</code></pre></figure>
-
-<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
-
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
 
 <ul>
   <li>

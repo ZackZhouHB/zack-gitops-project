@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Ansible for AWS Dynamic Inventory | Zack’s Tech Stack</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Ansible for AWS Dynamic Inventory" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Ansible AWS Dynamic Inventory" />
+<meta property="og:description" content="About Ansible AWS Dynamic Inventory" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html" />
+<meta property="og:site_name" content="Zack’s Tech Stack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-01-22T11:15:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Ansible for AWS Dynamic Inventory" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-01-22T11:15:29+11:00","datePublished":"2024-01-22T11:15:29+11:00","description":"About Ansible AWS Dynamic Inventory","headline":"Ansible for AWS Dynamic Inventory","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html"},"url":"http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Tech Stack" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Tech Stack</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Ansible for AWS Dynamic Inventory</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-01-22T11:15:29+11:00" itemprop="datePublished">Jan 22, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>About Ansible AWS Dynamic Inventory </b></p>
+
+<p>When using Ansible with AWS, maintaining the inventory file will be a hectic task as AWS has frequently changed IPs, autoscaling instances, and much more.</p>
+
+<p>Here we will install and apply ansible plugin for AWS dynamic inventory which makes an API call to AWS to get the instance information in the run time. It givesthe ec2 instance details dynamically to manage the AWS infrastructure</p>
+
+<p>It supports most of the public and private cloud platforms not limited to just AWS.</p>
+
+<ul>
+  <li>The Dynamic Inventory Topology:</li>
+</ul>
+
+<p><img src="/assets/ansible-inventory.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Setup Ansible AWS Dynamic Inventory</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Ensure python3 &amp; pip3 installed in Ansible server</span>
+python3 <span class="nt">--version</span>
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3 <span class="nt">-y</span>
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip <span class="nt">-y</span>
+
+<span class="c"># Install the boto3 library for ansible boot core to make API calls to AWS to retrieve ec2 instance details</span>
+<span class="nb">sudo </span>pip3 <span class="nb">install </span>boto3
+
+fix error
+ERROR! The ec2 dynamic inventory plugin requires boto3 and botocore.
+
+
+<span class="c"># Create an inventory directory under /opt and cd into the directory</span>
+<span class="nb">sudo mkdir</span> <span class="nt">-p</span> /opt/ansible/inventory
+<span class="nb">cd</span> /opt/ansible/inventory
+<span class="nb">sudo </span>vi aws_ec2.yaml
+
+<span class="nt">---</span>
+plugin: aws_ec2
+
+aws_access_key: &lt;xxx-AWS-ACCESS-KEY-HERE&gt;
+aws_secret_key: &lt;xx-AWS-SECRET-KEY-HERE&gt;
+
+regions:
+  - us-west-2
+
+keyed_groups:  <span class="c"># key filter for listing AWS ec2 groups</span>
+  - key: tags
+    prefix: tag
+  - prefix: instance_type
+    key: instance_type
+  - key: placement.region
+    prefix: aws_region
+
+<span class="c"># edit ansible config file to enable AWS plugin and set inventory as above yaml</span>
+<span class="nb">sudo </span>vi /etc/ansible/ansible.cfg
+
+<span class="o">[</span>inventory]
+enable_plugins <span class="o">=</span> aws_ec2
+
+inventory      <span class="o">=</span> /opt/ansible/inventory/aws_ec2.yaml</code></pre></figure>
+
+<p><img src="/assets/ec2-enable.png" alt="image tooltip here" />
+<img src="/assets/ec2-inventory.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Test if Ansible is able to ping all the machines returned by the dynamic inventory</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ansible-inventory <span class="nt">-i</span> /opt/ansible/inventory/aws_ec2.yaml <span class="nt">--list</span>
+ansible all <span class="nt">-m</span> ping</code></pre></figure>
+
+<ul>
+  <li>Execute Ansible Commands With ec2 Dynamic Inventory</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ansible-inventory <span class="nt">--graph</span></code></pre></figure>
+
+<p>List all instances grouped under tags, zones, and regions with dynamic group names like</p>
+
+<p>aws_region_us_west_2</p>
+
+<p>instance_type_t2_micro</p>
+
+<p>tag_Name_Ansible</p>
+
+<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/01/22/ansible-aws.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Tech Stack</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Tech Stack</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

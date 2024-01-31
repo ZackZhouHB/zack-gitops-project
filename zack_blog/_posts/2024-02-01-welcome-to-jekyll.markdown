@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Welcome to Zack's blog!"
-date:   2023-12-08 09:19:29 +1100
+date:   2024-02-01 09:19:29 +1100
 categories: jekyll update
 ---
 Thanks for visiting this site.
