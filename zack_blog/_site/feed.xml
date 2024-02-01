@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-01T11:02:35+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2024-02-01T09:19:29+11:00</published><updated>2024-02-01T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-01T11:17:28+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2024-02-01T09:19:29+11:00</published><updated>2024-02-01T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2024/02/01/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
 
 <p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
 
@@ -271,9 +271,30 @@ OK
 kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
 redis-cli
 127.0.0.1:6379&gt; KEYS <span class="k">*</span>
-1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Apache Kafka cluster install</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster install" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>Helm install Kafka </b></p>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Apache Kafka cluster install</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster install" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
 
-<p>Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer</p>
+<p>Apache Kafka has proven to be an extremely popular event streaming platform, as its scalable distributed architecture, high performance, and  use cases, some key terms and concepts as bellow:</p>
+
+<ul>
+  <li>
+    <p>Kafka clusters and Kafka brokers</p>
+  </li>
+  <li>
+    <p>Kafka clients and servers</p>
+  </li>
+  <li>
+    <p>Producers, and Consumers, and Consumer groups</p>
+  </li>
+  <li>
+    <p>Kafka topics &amp; Kafka partitions, offsets</p>
+  </li>
+  <li>
+    <p>Kafka topic replication, leaders, and followers</p>
+  </li>
+  <li>
+    <p>ZooKeeper or not</p>
+  </li>
+</ul>
 
 <p>Typical Kafka Topology:</p>
 
@@ -282,6 +303,8 @@ redis-cli
 <ul>
   <li>Helm install bitnami/kafka</li>
 </ul>
+
+<p>Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">helm repo add bitnami https://charts.bitnami.com/bitnami
 helm pull bitnami/kafka
@@ -336,7 +359,7 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
 
 <ul>
   <li>

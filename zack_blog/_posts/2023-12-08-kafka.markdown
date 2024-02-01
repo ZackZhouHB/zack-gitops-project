@@ -6,9 +6,23 @@ categories: jekyll Cat2
 ---
 
 
-<b>Helm install Kafka </b>
+<b>About Kafka </b>
 
-Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer
+Apache Kafka has proven to be an extremely popular event streaming platform, as its scalable distributed architecture, high performance, and  use cases, some key terms and concepts as bellow: 
+
+- Kafka clusters and Kafka brokers
+
+- Kafka clients and servers
+
+- Producers, and Consumers, and Consumer groups
+
+- Kafka topics & Kafka partitions, offsets
+
+- Kafka topic replication, leaders, and followers
+
+- ZooKeeper or not
+
+
 
 
 Typical Kafka Topology: 
@@ -16,6 +30,8 @@ Typical Kafka Topology:
 ![image tooltip here](/assets/kafka.png)
 
 - Helm install bitnami/kafka
+
+Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer
 
 {% highlight shell %}
 helm repo add bitnami https://charts.bitnami.com/bitnami
