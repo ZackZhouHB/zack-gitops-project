@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-07T22:43:02+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-07T22:48:26+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
 
 <ul>
   <li>
@@ -557,7 +557,7 @@ helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>in
 
 <ul>
   <li>
-    <p>a web blog <a href="http://zackdevops.online">Zack’s Tech Stack</a> : with content and details to introduce myself</p>
+    <p>a web blog <a href="http://zackdevops.online">Zack’s Blog</a> : with content and details to introduce myself</p>
   </li>
   <li>
     <p>a github repo <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>: to source control all code that I build and run locally by “jekyll serve”, validate site and pages, then push the source code to github.</p>

@@ -10,7 +10,7 @@ Lists of my github repos with devops concepts and tools used:
 
 <b>[Zack-blog-Gitops-Project]: </b>
 
-Gitops project with Github Action workflow to create and practise CICD pipeline to build and deploy this <b>"Zack's Tech Stack"</b> website onto both AWS EC2 by docker and to AWS EKS managed nodegroup sync by ArgoCD, with route53 public zone to Godaddy DNS
+Gitops project with Github Action workflow to create and practise CICD pipeline to build and deploy this <b>"Zack's Blog"</b> website onto both AWS EC2 by docker and to AWS EKS managed nodegroup sync by ArgoCD, with route53 public zone to Godaddy DNS
 
 ![image tooltip here](/assets/aws-ar.png)
 

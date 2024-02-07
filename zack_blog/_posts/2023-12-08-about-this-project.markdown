@@ -13,7 +13,7 @@ This is my first web blog using Jekyll, as an pratical way by following [Cloud R
 
 By design, I will create:
 
-- a web blog [Zack's Tech Stack] [Zack's Tech Stack] : with content and details to introduce myself 
+- a web blog [Zack's Blog] [Zack's Blog] : with content and details to introduce myself 
 
 - a github repo [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project): to source control all code that I build and run locally by "jekyll serve", validate site and pages, then push the source code to github.
 
@@ -39,4 +39,4 @@ This is the design of CICD pipeline in GitHub Action workflow to auto build dock
 
 ![image tooltip here](/assets/cicd.png)
 
-[Zack's Tech Stack]: http://zackdevops.online
+[Zack's Blog]: http://zackdevops.online
