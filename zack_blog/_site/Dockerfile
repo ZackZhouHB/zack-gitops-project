@@ -18,11 +18,11 @@ FROM nginx:alpine
 RUN mkdir -p /etc/nginx/ssl/
 
 # Copy SSL certificate files into the image
-COPY certificate.crt /etc/ssl/nginx/certificate.crt
-COPY private.key /etc/ssl/nginx/private.key
+# COPY certificate.crt /etc/ssl/nginx/certificate.crt
+# COPY private.key /etc/ssl/nginx/private.key
 
 # Update Nginx configuration to use SSL certificates
-RUN sed -i 's|# SSL configuration|# SSL configuration\n    ssl_certificate /etc/nginx/ssl/certificate.crt;\n    ssl_certificate_key /etc/nginx/ssl/private.key;|' /etc/nginx/nginx.conf
+#RUN sed -i 's|# SSL configuration|# SSL configuration\n    ssl_certificate /etc/nginx/ssl/certificate.crt;\n    ssl_certificate_key /etc/nginx/ssl/private.key;|' /etc/nginx/nginx.conf
 
 
 # Set the working directory to /usr/share/nginx/html

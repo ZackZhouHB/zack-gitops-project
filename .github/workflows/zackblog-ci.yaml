@@ -25,9 +25,9 @@ env:                   # cred for AWS access, terrform is looking for
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
-#  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-#  HOST_NAME: ${{secrets.HOST_NAME}}
-#  USER_NAME: ${{secrets.USER_NAME}}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  HOST_NAME: ${{secrets.HOST_NAME}}
+  USER_NAME: ${{secrets.USER_NAME}}
 
 
 jobs: 
@@ -67,28 +67,32 @@ jobs:
       - name: Push Docker image latest
         run: docker push zackz001/gitops-jekyll:latest
 
-#      - name: Configure AWS cli on runners
-#        uses: aws-actions/setup-sam@v2
-#       with:
-#          use-installer: true
+      - name: Configure AWS cli on runners
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
 
-#      - name: Configure AWS Credentials
-#        uses: aws-actions/configure-aws-credentials@v2
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ap-southeast-2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
 
-#      - name: Executing remote ssh commands using ssh key
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{secrets.HOST_NAME}}
-#          username: ${{secrets.USER_NAME}}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          script: |
-#            sudo usermod -aG docker ubuntu
-#            sudo docker stop $(docker ps -a -q)
-#            sudo docker rm $(docker ps -a -q)        
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.HOST_NAME}}
+          username: ${{secrets.USER_NAME}}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/zack-gitops-project
+            git pull
+            sudo systemctl stop nginx
+            cd /usr/share/nginx/html && sudo rm -rf *
+            sudo cp ~/zack-gitops-project/zack_blog/_site/* /usr/share/nginx/html/ -r
+            sudo systemctl start nginx
+
 #            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
 #            sudo docker run -d -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }}
 #            sudo docker run -d --restart unless-stopped -p 80:80 zackz001/gitops-jekyll:v${{ github.run_number }})

@@ -1,0 +1,51 @@
+---
+layout: post
+title:  "Enable Free SSL certificate for blog"
+date:   2024-02-07 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+
+<b>HTTPS with SSL cert </b>
+
+- Generate free SSL certificate from https://zerossl.com/
+
+- Validate the Certificate with Private Key via https://www.sslshopper.com/certificate-key-matcher.html
+
+- Upload 'certificate.crt' and 'private.key' to web server /etc/nginx/ssl/
+
+
+- Setting up NGINX HTTPS Server by include the ssl parameter to the listen directive in the server block under 'http' in 'nginx.conf': 
+
+{% highlight shell %}
+
+http {
+
+    server {
+        listen 443 ssl;
+        server_name zackdevops.online;
+
+        ssl_certificate /etc/nginx/ssl/certificate.crt;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+    }
+...
+}
+
+{% endhighlight %}
+
+- fix 2 errors
+
+{% highlight shell %}
+
+2024/02/07 10:29:33 [emerg] 73175#73175: "server" directive is not allowed here in /etc/nginx/nginx.conf:11
+
+2024/02/07 10:30:25 [error] 73207#73207: *1 directory index of "/usr/share/nginx/html/" is forbidden,client: 163.53.144.82, server: zackdevops.online, request: "GET / HTTP/1.1", host: "zackdevops.online"
+2024/02/07 10:30:36 [error] 73207#73207: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 163.53.144.82, server: zackdevops.online, request: "GET / HTTP/1.1", host: "zackdevops.online"
+{% endhighlight %}
+
+
+Bingo! https://zackdevops.online connection is secure!
+
+
+
