@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Helm install Redis cluster"
+title:  "Redis cluster with Helm"
 date:   2023-12-09 11:15:29 +1100
 categories: jekyll Cat2
 ---

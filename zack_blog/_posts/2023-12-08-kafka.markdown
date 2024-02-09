@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Apache Kafka cluster install"
+title:  "Apache Kafka cluster with testing topics"
 date:   2023-11-09 11:15:29 +1100
 categories: jekyll Cat2
 ---

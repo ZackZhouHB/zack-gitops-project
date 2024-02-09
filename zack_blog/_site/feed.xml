@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-09T11:48:01+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-09T11:52:36+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
 
 <ul>
   <li>
@@ -121,7 +121,7 @@ ansible all <span class="nt">-m</span> ping</code></pre></figure>
 
 <p>tag_Name_Ansible</p>
 
-<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible AWS Dynamic Inventory]]></summary></entry><entry><title type="html">Istio - Traffic Management</title><link href="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html" rel="alternate" type="text/html" title="Istio - Traffic Management" /><published>2024-01-15T11:15:29+11:00</published><updated>2024-01-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/01/15/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
+<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible AWS Dynamic Inventory]]></summary></entry><entry><title type="html">Istio for Traffic Routing</title><link href="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html" rel="alternate" type="text/html" title="Istio for Traffic Routing" /><published>2024-01-15T11:15:29+11:00</published><updated>2024-01-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/01/15/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
 
 <p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
 
@@ -225,7 +225,7 @@ Spec:
 
 <p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
 
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Helm install Redis cluster</title><link href="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html" rel="alternate" type="text/html" title="Helm install Redis cluster" /><published>2023-12-09T11:15:29+11:00</published><updated>2023-12-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/12/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
+<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Redis cluster with Helm</title><link href="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html" rel="alternate" type="text/html" title="Redis cluster with Helm" /><published>2023-12-09T11:15:29+11:00</published><updated>2023-12-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/12/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
 
 <p>Here we use helm to install Redis cluster, then validate statefuleset storage and cluster avalibility</p>
 
@@ -292,7 +292,61 @@ OK
 kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
 redis-cli
 127.0.0.1:6379&gt; KEYS <span class="k">*</span>
-1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Apache Kafka cluster install</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster install" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+
+<ul>
+  <li>
+    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
+  </li>
+  <li>
+    <p>install rook-ceph cluster</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
+<span class="nb">cd </span>rook/deploy/examples
+kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
+kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
+
+<ul>
+  <li>Ceph toolbox to check cluster status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
+kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
+ceph status
+ceph osd status
+ceph <span class="nb">df
+</span>rados <span class="nb">df</span></code></pre></figure>
+
+<ul>
+  <li>Ceph Dashboard svc for https login</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
+kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
+
+<ul>
+  <li>Create storage pool and storageclass</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
+<span class="nb">cd </span>csi/rbd
+kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
+
+<ul>
+  <li>set “rook-ceph-block” as default sc</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
+
+kubectl get sc
+NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
+rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
+
+<p>check pool and OSDs in ceph webui</p>
+
+<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Apache Kafka cluster with testing topics</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster with testing topics" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
 
 <p>Apache Kafka has proven to be an extremely popular event streaming platform, as its scalable distributed architecture, high performance, and  use cases, some key terms and concepts as bellow:</p>
 
@@ -380,61 +434,7 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
-
-<ul>
-  <li>
-    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
-  </li>
-  <li>
-    <p>install rook-ceph cluster</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
-<span class="nb">cd </span>rook/deploy/examples
-kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
-kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
-
-<ul>
-  <li>Ceph toolbox to check cluster status</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
-kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
-ceph status
-ceph osd status
-ceph <span class="nb">df
-</span>rados <span class="nb">df</span></code></pre></figure>
-
-<ul>
-  <li>Ceph Dashboard svc for https login</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
-kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
-
-<ul>
-  <li>Create storage pool and storageclass</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
-<span class="nb">cd </span>csi/rbd
-kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
-
-<ul>
-  <li>set “rook-ceph-block” as default sc</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
-
-kubectl get sc
-NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
-rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
-
-<p>check pool and OSDs in ceph webui</p>
-
-<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Argo CD sync Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">Argo CD sync Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
 
 <p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
 
@@ -573,4 +573,22 @@ helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>in
 
 <p>This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
 
-<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry></feed>
+<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/10/09/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-10-09T09:19:29+11:00</published><updated>2023-10-09T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/10/09/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/10/09/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
+
+<p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
+
+<p>==========================================================</p>
+
+<p>Check out the <a href="http://zackdevops.online/pro">Professional experience</a> for more info about my work experiences</p>
+
+<p>Check out the <a href="http://zackdevops.online/certificate">AWS &amp; K8S certs</a> for my industral certifications.</p>
+
+<p>Check out the technical skill set and roadmap for my personal AWS, DEVOPS and K8S at <a href="http://zackdevops.online/skillroadmap">Technical Skills</a>.</p>
+
+<p>Feel free to visit all <a href="http://zackdevops.online/gitrepo">Github Repos</a> which contain all my previous project and practice. If any questions, you can always reach out to me via Email address down the bottom.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry></feed>

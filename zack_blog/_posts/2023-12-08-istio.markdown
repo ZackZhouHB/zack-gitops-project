@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Istio - Traffic Management"
+title:  "Istio for Traffic Routing"
 date:   2024-01-15 11:15:29 +1100
 categories: jekyll Cat2
 ---

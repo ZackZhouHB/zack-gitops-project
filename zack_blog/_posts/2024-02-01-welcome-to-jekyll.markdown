@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Welcome to Zack's blog!"
-date:   2024-10-02 09:19:29 +1100
+date:   2023-10-9 09:19:29 +1100
 categories: jekyll update
 pinned: true      # This field pins the post to the top
 ---
