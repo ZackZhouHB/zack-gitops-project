@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "About Zackweb Gitops project!"
+title:  "About Zack-web Gitops project!"
 date:   2023-11-02 11:15:29 +1100
 categories: jekyll Cat2
 ---
