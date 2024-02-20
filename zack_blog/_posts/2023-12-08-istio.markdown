@@ -74,7 +74,7 @@ kubectl create -f prometheus.yaml -f jaeger.yaml -f grafana.yaml
 - visit http://book.istio:31000/productpage, with review (v1, v2, v3)
 ![image tooltip here](/assets/kiali.png)
 
-- define destinationruls and virtualservice for reviews
+- define destination rules and virtual service for reviews
 {% highlight shell %}
 wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
 wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
@@ -111,6 +111,8 @@ Spec:
 {% endhighlight %}
 
 refresh bookinfo webpage, test Traffic route weight as bellow
+
+90% traffic for reviews v3  vs  10% traffic for review v1
 
 ![image tooltip here](/assets/1090.png)
 

@@ -1,4 +1,239 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-19T17:24:58+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-22T21:00:33+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Ansible Roles Deep Dive</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Roles Deep Dive" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
+
+<p>Here we talk about Ansible Roles, as Ansible is well-known for powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
+
+<ul>
+  <li>Create Ansible roles by ansible-galaxy</li>
+</ul>
+
+<p>Quickly creating a well-defined role directory structure skeleton, we can leverage the command ansible-galaxy init <role_name></role_name></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@localhost ansible]# ansible-galaxy init zack-role
+ Role zack-role was created successfully
+<span class="o">[</span>root@localhost ansible]# tree zack-role
+zack-role
+├── defaults
+│   └── main.yml
+├── files
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── README.md
+├── tasks
+│   └── main.yml
+├── templates
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
+    └── main.yml</code></pre></figure>
+
+<p><b>defaults</b>: This directory can contain default variables for the role.</p>
+
+<p><b>files</b>: This directory can contain static files that you want to copy to the target hosts.</p>
+
+<p><b>handlers</b>: This directory can contain handlers, which are tasks triggered by other tasks.</p>
+
+<p><b>meta</b>: This directory can contain metadata for the role, such as dependencies.</p>
+
+<p><b>tasks</b>: This directory contains a main.yaml file, which includes tasks specific to the “server1” role.</p>
+
+<p><b>templates</b>: This directory can contain Jinja2 templates.</p>
+
+<p><b>vars</b>: This directory can contain variables specific to the “server1” role</p>
+
+<ul>
+  <li>Setting up 2 servers ( web and backend ) group in ansible inventory file and Manually create roles (server1 &amp; server2) by create necessary folder structure:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim /etc/ansible/hosts
+<span class="c"># add group server1 as web server, server2 as backend</span>
+<span class="o">[</span>defaults]
+11.0.1.132
+11.0.1.131
+
+<span class="o">[</span>server1]
+11.0.1.131
+
+<span class="o">[</span>server2]
+11.0.1.132
+
+<span class="c"># create own roles structure server1 (web) and server2 (backend)</span>
+
+<span class="o">[</span>root@localhost ansible]# tree roles
+roles
+├── base
+│   └── tasks
+│       └── main.yaml
+├── server1
+│   ├── defaults
+│   ├── files
+│   │   └── zack.html
+│   ├── handlers
+│   ├── meta
+│   ├── tasks
+│   │   └── main.yaml
+│   ├── templates
+│   └── vars
+└── server2
+    ├── defaults
+    ├── files
+    ├── handlers
+    ├── meta
+    ├── tasks
+    │   └── main.yaml
+    ├── templates
+    └── vars</code></pre></figure>
+
+<ul>
+  <li>define tasks for role server1 and role server2</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">cat</span> /etc/ansible/roles/server1/tasks/main.yaml
+<span class="c"># web server tasks include: install httpd, enable service, open 80 port, replace index.html, restart httpd service</span>
+- name: Install HTTPD package
+  yum:
+    name: httpd
+    state: present
+
+- name: Enable HTTPD service
+  service:
+    name: httpd
+    enabled: <span class="nb">yes
+    </span>state: started
+
+- name: Open port 80 <span class="k">in </span>firewall
+  firewalld:
+    service: http
+    permanent: <span class="nb">yes
+    </span>state: enabled
+
+- name: replace index.html
+  copy:
+    src: zack.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: 0644
+  register: httpd_updated
+
+- name: restart httpd service
+  service:
+    name: httpd
+    state: restarted
+  when: httpd_updated.changed
+
+
+<span class="nb">cat</span> /etc/ansible/roles/server2/tasks/main.yaml
+
+<span class="c"># backend server2 tasks include install epel repo, install iftop and lrzsz</span>
+
+- name: Install epel-release
+  yum:
+    name:
+      - epel-release
+    state: latest
+- name: Check Yum Repository List
+  yum:
+    list: repo
+
+- name: Install usage packages
+  yum:
+    name:
+      - iftop
+      - lrzsz
+    state: latest</code></pre></figure>
+
+<ul>
+  <li>define role main playbook zack-role.yaml</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># update repo for all hosts, for server1 and server 2, execute each role server1 and server2</span>
+
+<span class="nt">---</span>
+- become: <span class="nb">true
+  </span>hosts: all
+  pre_tasks:
+  - name: update repository index
+    tags: always
+    yum:
+      update_cache: <span class="nb">yes
+    </span>changed_when: <span class="nb">false</span>
+
+- import_playbook: /etc/ansible/add-more-user.yaml
+
+- hosts: server1
+  become: <span class="nb">true
+  </span>roles:
+    - server1
+
+
+- hosts: server2
+  become: <span class="nb">true
+  </span>roles:
+    - server2</code></pre></figure>
+
+<ul>
+  <li>run playbook for zack-role.yaml</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">PLAY <span class="o">[</span>all] <span class="k">**************************************************************************************************************************</span>
+
+TASK <span class="o">[</span>Gathering Facts] <span class="k">**************************************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.132]
+ok: <span class="o">[</span>11.0.1.131]
+
+TASK <span class="o">[</span>update repository index] <span class="k">******************************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.131]
+ok: <span class="o">[</span>11.0.1.132]
+
+
+PLAY <span class="o">[</span>server1] <span class="k">**********************************************************************************************************************</span>
+
+TASK <span class="o">[</span>Gathering Facts] <span class="k">**************************************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.131]
+
+TASK <span class="o">[</span>server1 : Install HTTPD package] <span class="k">**********************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.131]
+
+TASK <span class="o">[</span>server1 : Enable HTTPD service] <span class="k">***********************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.131]
+
+TASK <span class="o">[</span>server1 : Open port 80 <span class="k">in </span>firewall] <span class="k">*******************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.131]
+
+TASK <span class="o">[</span>server1 : replace index.html] <span class="k">*************************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.131]
+
+TASK <span class="o">[</span>server1 : restart httpd service] <span class="k">**********************************************************************************************</span>
+skipping: <span class="o">[</span>11.0.1.131]
+
+PLAY <span class="o">[</span>server2] <span class="k">**********************************************************************************************************************</span>
+
+TASK <span class="o">[</span>Gathering Facts] <span class="k">**************************************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.132]
+
+TASK <span class="o">[</span>server2 : Install epel-release] <span class="k">***********************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.132]
+
+TASK <span class="o">[</span>server2 : Check Yum Repository List] <span class="k">******************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.132]
+
+TASK <span class="o">[</span>server2 : Install usage packages] <span class="k">*********************************************************************************************</span>
+ok: <span class="o">[</span>11.0.1.132]
+
+PLAY RECAP <span class="k">**************************************************************************************************************************</span>
+11.0.1.131                 : <span class="nv">ok</span><span class="o">=</span>11   <span class="nv">changed</span><span class="o">=</span>0    <span class="nv">unreachable</span><span class="o">=</span>0    <span class="nv">failed</span><span class="o">=</span>0    <span class="nv">skipped</span><span class="o">=</span>1    <span class="nv">rescued</span><span class="o">=</span>0    <span class="nv">ignored</span><span class="o">=</span>0   
+11.0.1.132                 : <span class="nv">ok</span><span class="o">=</span>10   <span class="nv">changed</span><span class="o">=</span>0    <span class="nv">unreachable</span><span class="o">=</span>0    <span class="nv">failed</span><span class="o">=</span>0    <span class="nv">skipped</span><span class="o">=</span>0    <span class="nv">rescued</span><span class="o">=</span>0    <span class="nv">ignored</span><span class="o">=</span>0   </code></pre></figure>
+
+<ul>
+  <li>Bingo! validate httpd on server1, and iftop &amp; lrzsz installed on server2 by leveraging with ansible roles</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@localhost ansible]# curl 11.0.1.131
+This is zack <span class="nb">test </span>Ansible role web <span class="o">!!!!!!!!!!!</span>   
+<span class="o">!!!!!!!!!</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible Roles]]></summary></entry><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
 
 <ul>
   <li>
@@ -188,7 +423,7 @@ kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</s
 <img src="/assets/kiali.png" alt="image tooltip here" /></p>
   </li>
   <li>
-    <p>define destinationruls and virtualservice for reviews</p>
+    <p>define destination rules and virtual service for reviews</p>
   </li>
 </ul>
 
@@ -224,6 +459,8 @@ Spec:
       Weight:    90</code></pre></figure>
 
 <p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
+
+<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
 
 <p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Redis cluster with Helm</title><link href="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html" rel="alternate" type="text/html" title="Redis cluster with Helm" /><published>2023-12-09T11:15:29+11:00</published><updated>2023-12-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/12/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
 
@@ -292,61 +529,7 @@ OK
 kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
 redis-cli
 127.0.0.1:6379&gt; KEYS <span class="k">*</span>
-1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
-
-<ul>
-  <li>
-    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
-  </li>
-  <li>
-    <p>install rook-ceph cluster</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
-<span class="nb">cd </span>rook/deploy/examples
-kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
-kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
-
-<ul>
-  <li>Ceph toolbox to check cluster status</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
-kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
-ceph status
-ceph osd status
-ceph <span class="nb">df
-</span>rados <span class="nb">df</span></code></pre></figure>
-
-<ul>
-  <li>Ceph Dashboard svc for https login</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
-kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
-
-<ul>
-  <li>Create storage pool and storageclass</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
-<span class="nb">cd </span>csi/rbd
-kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
-
-<ul>
-  <li>set “rook-ceph-block” as default sc</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
-
-kubectl get sc
-NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
-rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
-
-<p>check pool and OSDs in ceph webui</p>
-
-<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Apache Kafka cluster with testing topics</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster with testing topics" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Apache Kafka cluster with testing topics</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster with testing topics" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
 
 <p>Apache Kafka has proven to be an extremely popular event streaming platform, as its scalable distributed architecture, high performance, and  use cases, some key terms and concepts as bellow:</p>
 
@@ -434,7 +617,61 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">Argo CD sync Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic pv</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic pv" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+
+<ul>
+  <li>
+    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
+  </li>
+  <li>
+    <p>install rook-ceph cluster</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
+<span class="nb">cd </span>rook/deploy/examples
+kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
+kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
+
+<ul>
+  <li>Ceph toolbox to check cluster status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
+kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
+ceph status
+ceph osd status
+ceph <span class="nb">df
+</span>rados <span class="nb">df</span></code></pre></figure>
+
+<ul>
+  <li>Ceph Dashboard svc for https login</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
+kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
+
+<ul>
+  <li>Create storage pool and storageclass</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
+<span class="nb">cd </span>csi/rbd
+kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
+
+<ul>
+  <li>set “rook-ceph-block” as default sc</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
+
+kubectl get sc
+NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
+rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
+
+<p>check pool and OSDs in ceph webui</p>
+
+<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Argo CD sync Github</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="Argo CD sync Github" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
 
 <p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
 
@@ -573,22 +810,4 @@ helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>in
 
 <p>This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
 
-<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry><entry><title type="html">Welcome to Zack’s blog!</title><link href="http://localhost:4000/jekyll/update/2023/10/09/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Zack’s blog!" /><published>2023-10-09T09:19:29+11:00</published><updated>2023-10-09T09:19:29+11:00</updated><id>http://localhost:4000/jekyll/update/2023/10/09/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2023/10/09/welcome-to-jekyll.html"><![CDATA[<p>Thanks for visiting this site.</p>
-
-<p>If you come all along here, pls feel free to check out my detailed profile as bellow:</p>
-
-<p>==========================================================</p>
-
-<p>Check out the <a href="http://zackdevops.online/pro">Professional experience</a> for more info about my work experiences</p>
-
-<p>Check out the <a href="http://zackdevops.online/certificate">AWS &amp; K8S certs</a> for my industral certifications.</p>
-
-<p>Check out the technical skill set and roadmap for my personal AWS, DEVOPS and K8S at <a href="http://zackdevops.online/skillroadmap">Technical Skills</a>.</p>
-
-<p>Feel free to visit all <a href="http://zackdevops.online/gitrepo">Github Repos</a> which contain all my previous project and practice. If any questions, you can always reach out to me via Email address down the bottom.</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
-  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
-<span class="k">end</span>
-<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="update" /><summary type="html"><![CDATA[Thanks for visiting this site.]]></summary></entry></feed>
+<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry></feed>
