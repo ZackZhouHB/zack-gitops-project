@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-19T17:24:58+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-20T15:38:14+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
 
 <ul>
   <li>
@@ -188,7 +188,7 @@ kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</s
 <img src="/assets/kiali.png" alt="image tooltip here" /></p>
   </li>
   <li>
-    <p>define destinationruls and virtualservice for reviews</p>
+    <p>define destination rules and virtual service for reviews</p>
   </li>
 </ul>
 
@@ -224,6 +224,8 @@ Spec:
       Weight:    90</code></pre></figure>
 
 <p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
+
+<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
 
 <p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Redis cluster with Helm</title><link href="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html" rel="alternate" type="text/html" title="Redis cluster with Helm" /><published>2023-12-09T11:15:29+11:00</published><updated>2023-12-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/12/09/redis</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/12/09/redis.html"><![CDATA[<p><b>Helm install Redis cluster</b></p>
 
