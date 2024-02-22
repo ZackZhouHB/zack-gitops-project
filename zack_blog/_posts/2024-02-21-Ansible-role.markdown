@@ -217,6 +217,9 @@ cat /etc/ansible/roles/server2/tasks/main.yaml
 
 {% highlight shell %}
 
+
+[root@localhost ansible]# ansible-playbook zack-role.yaml
+
 PLAY [all] **************************************************************************************************************************
 
 TASK [Gathering Facts] **************************************************************************************************************
