@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Rook-Ceph for dynamic pv"
+title:  "Rook-Ceph for dynamic Persistent Volume"
 date:   2023-11-09 11:15:29 +1100
 categories: jekyll Cat2
 ---

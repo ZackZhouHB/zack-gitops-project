@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Ansible Roles Deep Dive"
+title:  "Ansible Advance - Roles"
 date:   2024-02-21 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -8,7 +8,7 @@ categories: jekyll Cat2
 
 <b>About Ansible Roles </b>
 
-Here we talk about Ansible Roles, as Ansible is powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.
+Here we play with Ansible Roles, as Ansible is powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.
 
 ===================================================================
 
