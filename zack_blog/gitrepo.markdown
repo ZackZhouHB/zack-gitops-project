@@ -49,6 +49,46 @@ Self K8S project to deploy 3 demo applications onto both local lab k8s cluster a
 
 ==================================================================
 
+
+<b>[Terraform-Project]:</b>
+
+Terraform full practise project to deploy :
+
+- Provision and deploy single web on AWS
+
+- Use Terrafom VPC mudole
+
+- Provisioner "file" and "exec" to upload ansible playbook deploy application on AWS
+
+- Terraform create ALB and ASG
+
+- Terraform create beanstalk staging and Prod with blue and green deployment
+
+<b>Tools</b>: Terraform, AWS, Ansible 
+
+<b>Git repo URL</b>: [zackz-terraform](https://github.com/ZackZhouHB/zackz-terraform)
+
+
+==================================================================
+
+<b>[Ansible-Project]:</b>
+
+Ansible practise project for :
+
+- Playbook for AWS simple resrouce (EC2, VPC) provision
+
+- JAVA stack provision using Ansible AWS module
+
+- Playbook for mutiple FreeNas (FreeBSD) device upgrade
+
+- Advanced with Ansible roles, modules, directives, valut, vars, handlers, templates  
+
+<b>Tools</b>: Ansible, AWS 
+
+<b>Git repo URL</b>: [zzansible](https://github.com/ZackZhouHB/zzansible)
+
+==================================================================
+
 <b>[JAVA-Stack-DEVOPS-CICD-Project]:</b>
 
 This is a full structural DEVOPS learning project follow by Udemy course to deploy a JAVA stack on:
@@ -76,41 +116,3 @@ https://www.udemy.com/course/decodingdevops/
 <b>Tools</b>: VMware, AWS managed services (IAM, VPC, EC2, S3, Beabstalk, RDS, AmazonMQ, Elasticache, CodePipeline, ECR, ECS, EKS, KOPS), Docker, Jenkins, Github webhook, SonarQube, Nexus, Slack  
 
 <b>Git repo URL</b>: [JAVA-Stack-CICD-DEVOPS](https://github.com/ZackZhouHB/redo20git)
-
-==================================================================
-
-<b>[Terraform-Project]:</b>
-
-Terraform full practise project to deploy :
-
-- Provision and deploy single web on AWS
-
-- Use Terrafom VPC mudole
-
-- Use provisioner "file" and "exec" function to upload ansible playbook deploy application on AWS
-
-- Terraform create alb and asg
-
-- Terraform create beanstalk staging and Prod with blue and green deployment
-
-<b>Tools</b>: Terraform, AWS, Ansible 
-
-<b>Git repo URL</b>: [zackz-terraform](https://github.com/ZackZhouHB/zackz-terraform)
-
-
-==================================================================
-
-<b>[Ansible-Project]:</b>
-
-Ansible practise project for :
-
-- Playbook for AWS simple resrouce (EC2, VPC) provision
-
-- JAVA stack provision using Ansible AWS module
-
-- Playbook for mutiple FreeNas (FreeBSD) device upgrade
-
-<b>Tools</b>: Ansible roles and mudules, AWS 
-
-<b>Git repo URL</b>: [zzansible](https://github.com/ZackZhouHB/zzansible)
-
