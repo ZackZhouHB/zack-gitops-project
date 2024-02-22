@@ -68,7 +68,6 @@ inventory      = /opt/ansible/inventory/aws_ec2.yaml
 {% endhighlight %}
 
 
-![image tooltip here](/assets/ec2-enable.png)
 ![image tooltip here](/assets/ec2-inventory.png)
 
 - Test if Ansible is able to ping all the machines returned by the dynamic inventory
@@ -86,11 +85,11 @@ ansible-inventory --graph
 
 List all instances grouped under tags, zones, and regions with dynamic group names like 
 
-aws_region_us_west_2 
+aws_region_ap_southeast_2
 
 instance_type_t2_micro
 
-tag_Name_Ansible
+tag_Name
 
 ![image tooltip here](/assets/list-aws-ec2.png)
 

@@ -49,7 +49,11 @@
   <div class="post-content e-content" itemprop="articleBody">
     <p><b>About Ansible Roles </b></p>
 
-<p>Here we talk about Ansible Roles, as Ansible is well-known powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
+<p>Here we talk about Ansible Roles, as Ansible is powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
+
+<p>===================================================================</p>
+
+<p>Ansible Roles can be created by:</p>
 
 <ul>
   <li>Method1: Create Ansible roles by ansible-galaxy</li>
@@ -92,8 +96,10 @@ zack-role
 
 <p><b>vars</b>: This directory can contain variables specific to the “server1” role</p>
 
+<p>===================================================================</p>
+
 <ul>
-  <li>Method2: Manually create roles (server1 &amp; server2) by create necessary folder structure and Setting up 2 servers （web and backend）group in ansible inventory file：</li>
+  <li>Method2: Manually create roles (server1 &amp; server2) by create necessary folder structure and Setting up 2 server groups in ansible inventory file：</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim /etc/ansible/hosts

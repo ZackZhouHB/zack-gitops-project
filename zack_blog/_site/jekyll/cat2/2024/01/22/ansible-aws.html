@@ -107,8 +107,7 @@ enable_plugins <span class="o">=</span> aws_ec2
 
 inventory      <span class="o">=</span> /opt/ansible/inventory/aws_ec2.yaml</code></pre></figure>
 
-<p><img src="/assets/ec2-enable.png" alt="image tooltip here" />
-<img src="/assets/ec2-inventory.png" alt="image tooltip here" /></p>
+<p><img src="/assets/ec2-inventory.png" alt="image tooltip here" /></p>
 
 <ul>
   <li>Test if Ansible is able to ping all the machines returned by the dynamic inventory</li>
@@ -125,11 +124,11 @@ ansible all <span class="nt">-m</span> ping</code></pre></figure>
 
 <p>List all instances grouped under tags, zones, and regions with dynamic group names like</p>
 
-<p>aws_region_us_west_2</p>
+<p>aws_region_ap_southeast_2</p>
 
 <p>instance_type_t2_micro</p>
 
-<p>tag_Name_Ansible</p>
+<p>tag_Name</p>
 
 <p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>
 
