@@ -79,6 +79,7 @@ vim /etc/ansible/hosts
 11.0.1.132
 
 # create own roles structure server1 (web) and server2 (backend)
+# create zack.html under role server1/files
 
 [root@localhost ansible]# tree roles
 roles
