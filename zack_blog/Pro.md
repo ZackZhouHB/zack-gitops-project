@@ -12,7 +12,7 @@ Starting my career in a Fortune Global 500 company Lenovo back in 2011, I acquir
 
 When family moved to Australia in 2017, I worked for a foreign bank and Cinema in Sydney. With years of building professinal ICT expertise, I immersed myself in VMware technologies, expanding my skill set from traditional IT to virtualization environment include Microsoft Active Directory and comprehensive system administration tasks. This pivotal phase equipped me with a holistic view of infrastructure management, laying the groundwork for my progression into the realm of cloud computing.
 
-My foray into AWS marked a pivotal shift towards cloud solutions design and operation in recent years. Playing a key role in architecting scalable and secure cloud infrastructures, I contributed to the digital transformation of organizations. This experience also ignited my journey into the agile software development lifecycle, where I learned to harmonize development and operations through automation and the design and maintenance of robust CI/CD pipelines.
+My foray into AWS marked a pivotal shift towards cloud solutions design and operation in recent years. By following AWS, DEVOPS and Kubernetes skill roadmap, which ignited my journey into the agile software development lifecycle, where I learned to harmonize development and operations through automation and the design and maintenance of robust CI/CD pipelines.
 
 ![image tooltip here](/assets/k8s.png)
 
