@@ -46,30 +46,30 @@ zack-role
 {% endhighlight %}
 
 
-<b>defaults</b>: This directory can contain default variables for the role.
+<b>defaults</b>: Contain default variables for the role.
 
 
-<b>files</b>: This directory can contain static files that you want to copy to the target hosts.
+<b>files</b>: Contain static files that you want to copy to the target hosts.
 
 
-<b>handlers</b>: This directory can contain handlers, which are tasks triggered by other tasks.
+<b>handlers</b>: Contain handlers, which are tasks triggered by other tasks.
 
 
-<b>meta</b>: This directory can contain metadata for the role, such as dependencies.
+<b>meta</b>: Contain metadata for the role, such as dependencies.
 
 
-<b>tasks</b>: This directory contains a main.yaml file, which includes tasks specific to the "server1" role.
+<b>tasks</b>: Contains a main.yaml file, which includes tasks specific to the "server1" role.
 
 
-<b>templates</b>: This directory can contain Jinja2 templates.
+<b>templates</b>: Contain Jinja2 templates.
 
 
-<b>vars</b>: This directory can contain variables specific to the "server1" role
+<b>vars</b>: Contain variables specific to the "server1" role
 
 ===================================================================
 
 
-- Method2: Manually create roles (server1 & server2) by create necessary folder structure and Setting up 2 server groups in ansible inventory file： 
+- Method2: Manually create roles (server1 & server2) by create on-demand folder structure, Setting up groups in ansible inventory file： 
 
 {% highlight shell %}
 
@@ -79,10 +79,10 @@ vim /etc/ansible/hosts
 11.0.1.132
 11.0.1.131
 
-[server1]
+[server1] # web
 11.0.1.131
 
-[server2]
+[server2]  # backend
 11.0.1.132
 
 # create own roles structure server1 (web) and server2 (backend)

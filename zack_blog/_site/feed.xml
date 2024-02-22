@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-22T23:34:08+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Ansible Advance - Roles</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Advance - Roles" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-22T23:40:49+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Ansible Advance - Roles</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Advance - Roles" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
 
 <p>Here we play with Ansible Roles, as Ansible is powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
 
@@ -33,24 +33,24 @@ zack-role
 └── vars
     └── main.yml</code></pre></figure>
 
-<p><b>defaults</b>: This directory can contain default variables for the role.</p>
+<p><b>defaults</b>: Contain default variables for the role.</p>
 
-<p><b>files</b>: This directory can contain static files that you want to copy to the target hosts.</p>
+<p><b>files</b>: Contain static files that you want to copy to the target hosts.</p>
 
-<p><b>handlers</b>: This directory can contain handlers, which are tasks triggered by other tasks.</p>
+<p><b>handlers</b>: Contain handlers, which are tasks triggered by other tasks.</p>
 
-<p><b>meta</b>: This directory can contain metadata for the role, such as dependencies.</p>
+<p><b>meta</b>: Contain metadata for the role, such as dependencies.</p>
 
-<p><b>tasks</b>: This directory contains a main.yaml file, which includes tasks specific to the “server1” role.</p>
+<p><b>tasks</b>: Contains a main.yaml file, which includes tasks specific to the “server1” role.</p>
 
-<p><b>templates</b>: This directory can contain Jinja2 templates.</p>
+<p><b>templates</b>: Contain Jinja2 templates.</p>
 
-<p><b>vars</b>: This directory can contain variables specific to the “server1” role</p>
+<p><b>vars</b>: Contain variables specific to the “server1” role</p>
 
 <p>===================================================================</p>
 
 <ul>
-  <li>Method2: Manually create roles (server1 &amp; server2) by create necessary folder structure and Setting up 2 server groups in ansible inventory file：</li>
+  <li>Method2: Manually create roles (server1 &amp; server2) by create on-demand folder structure, Setting up groups in ansible inventory file：</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim /etc/ansible/hosts
@@ -59,10 +59,10 @@ zack-role
 11.0.1.132
 11.0.1.131
 
-<span class="o">[</span>server1]
+<span class="o">[</span>server1] <span class="c"># web</span>
 11.0.1.131
 
-<span class="o">[</span>server2]
+<span class="o">[</span>server2]  <span class="c"># backend</span>
 11.0.1.132
 
 <span class="c"># create own roles structure server1 (web) and server2 (backend)</span>
