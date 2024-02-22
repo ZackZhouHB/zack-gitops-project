@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-22T21:02:43+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Ansible Roles Deep Dive</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Roles Deep Dive" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-22T21:05:55+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Ansible Roles Deep Dive</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Roles Deep Dive" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
 
-<p>Here we talk about Ansible Roles, as Ansible is well-known for powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
+<p>Here we talk about Ansible Roles, as Ansible is well-known powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
 
 <ul>
-  <li>Create Ansible roles by ansible-galaxy</li>
+  <li>Method1: Create Ansible roles by ansible-galaxy</li>
 </ul>
 
 <p>Quickly creating a well-defined role directory structure skeleton, we can leverage the command ansible-galaxy init <role_name></role_name></p>
@@ -44,7 +44,7 @@ zack-role
 <p><b>vars</b>: This directory can contain variables specific to the “server1” role</p>
 
 <ul>
-  <li>Setting up 2 servers ( web and backend ) group in ansible inventory file and Manually create roles (server1 &amp; server2) by create necessary folder structure:</li>
+  <li>Method2: Manually create roles (server1 &amp; server2) by create necessary folder structure and Setting up 2 servers （web and backend）group in ansible inventory file：</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim /etc/ansible/hosts

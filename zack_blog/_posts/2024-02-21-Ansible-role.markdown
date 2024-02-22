@@ -8,9 +8,9 @@ categories: jekyll Cat2
 
 <b>About Ansible Roles </b>
 
-Here we talk about Ansible Roles, as Ansible is well-known for powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.
+Here we talk about Ansible Roles, as Ansible is well-known powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.
 
-- Create Ansible roles by ansible-galaxy
+- Method1: Create Ansible roles by ansible-galaxy
 
 
 Quickly creating a well-defined role directory structure skeleton, we can leverage the command ansible-galaxy init <role_name>
@@ -62,7 +62,7 @@ zack-role
 
 <b>vars</b>: This directory can contain variables specific to the "server1" role
 
-- Setting up 2 servers ( web and backend ) group in ansible inventory file and Manually create roles (server1 & server2) by create necessary folder structure: 
+- Method2: Manually create roles (server1 & server2) by create necessary folder structure and Setting up 2 servers （web and backend）group in ansible inventory file： 
 
 {% highlight shell %}
 
