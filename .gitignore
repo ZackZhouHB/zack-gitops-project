@@ -1,3 +1,4 @@
 *.pem
 *.pub
-aws_ec2.yaml
+ec2-bastion/aws_ec2.yaml
+ec2-deploy/aws_ec2.yaml
