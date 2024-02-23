@@ -30,13 +30,14 @@ resource "aws_security_group" "kubernetes_sg" {
   }
 }
 
-resource "aws_security_group_rule" "ssh_ingress_rule" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = [var.my_ip]
-  security_group_id = aws_security_group.kubernetes_sg.id # Replace YOUR_SECURITY_GROUP_ID with the ID of your existing security group
+# Allow communication from bastion host
+resource "aws_security_group_rule" "bastion_to_ec2-cluster" {
+  type                     = "ingress"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.launch-wizard-1.id
+  security_group_id        = aws_security_group.kubernetes_sg.id
 }
 
 resource "aws_instance" "kubernetes_instances" {
@@ -47,10 +48,14 @@ resource "aws_instance" "kubernetes_instances" {
 
   key_name = var.key_pair # Specify the name of your key pair
 
+  security_groups = [aws_security_group.kubernetes_sg.id]
+
   tags = {
     Name = "kubernetes-instance-${count.index}"
   }
 
   # Ensure the instance gets a public IP address
   associate_public_ip_address = true
+
+  depends_on = [aws_security_group.kubernetes_sg]
 }
