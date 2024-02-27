@@ -11,7 +11,7 @@ In last post I was able to automate and create a self-owned K8S cluster on AWS E
 
 In this Scenario when deploying k8s pods and services in this K8S cluster, it will not create AWS loadbalancer even mentioned type = LoadBalancer, but this can be eaily achieved when in a AWS managed EKS cluster.
 
-By searching online, Kubernete actually provides a solution called “cloud-provider-aws”, which provides an interface between a self-owned Kubernetes cluster and AWS service APIs. This allows EC2 instances running Kubernetes node to be able to provision AWS NLB or ELB resources during service deployment by mentioning “LoadBalancer”..
+By searching online, Kubernetes actually provides such solution called “cloud-provider-aws”, which provides an interface between a self-owned Kubernetes cluster and AWS service APIs. This allows EC2 instances running Kubernetes node to be able to provision AWS NLB or ELB resources during service deployment by mentioning “LoadBalancer”..
 
 
 <b></b>
