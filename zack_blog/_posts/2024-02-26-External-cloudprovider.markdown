@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Kubernetes with External Cloud Controller Manager "
+title:  " EC2 K8S Cluster with External Cloud Controller Manager "
 date:   2024-02-26 11:15:29 +1100
 categories: jekyll Cat2
 ---
