@@ -1,4 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-23T06:52:54+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Ansible Advance - Roles</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Advance - Roles" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T14:47:18+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Kubernetes with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="Kubernetes with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b>About AWS Cloud provider </b></p>
+
+<p>The AWS Cloud provider provides the interface between a self-built Kubernetes cluster and AWS service APIs. This project allows a Kubernetes cluster to provision, monitor and remove AWS resources necessary for operation of the cluster.</p>
+
+<p><b> Scenario and Challange</b></p>
+
+<p>In a Scenario when running K8S cluster on couples of EC2 instances instead of using AWS EKS, deploy k8s services by setup type = LoadBalancer, it will not create AWS loadbalancer compare in a EKS managed k8s cluster.</p>
+
+<p>Here we need Kubernetes External Cloud Controller Manager, by configuring AWS Cloud Controller manager, it will create and update AWS loadbalancers (classic and NLB) while to expose k8s services externally and manage AWS service lifecycle accordingly.</p>
+
+<p><b> Steps</b></p>
+
+<p>There are a few steps need to be done, docs can be followed by bellow link:</p>
+
+<p>https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/getting_started.md</p>
+
+<ul>
+  <li>Change EC2 hostname from ip to FQDN</li>
+</ul>
+
+<p>To be able to communicate with AWS API, the k8s node should be changed to FQDN rather than default EC2 IP address</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">curl http://169.254.169.254/latest/meta-data/local-hostname
+hostnamectl set-hostname</code></pre></figure>
+
+<ul>
+  <li>Create and assign IAM roles to k8s nodes</li>
+</ul>
+
+<p>IAM role needed for EC2 running K8S nodes to have proper permission to interact with AWS APIs and create and maintain AWS service</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Roles for master and worker nodes can be found bellow link</span>
+https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.md </code></pre></figure>
+
+<ul>
+  <li>Tag ec2 instances as owned</li>
+</ul>
+
+<p>The K8S nodes need to be tagged as owned</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">tag kubernetes.io/cluster/your_cluster_id<span class="o">=</span>owned</code></pre></figure>
+
+<ul>
+  <li>AWS Cloud Controller manager need to be deployed into K8S, this will create a NetworkLoadbalancer in AWS</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-k</span> <span class="s1">'github.com/kubernetes/cloud-provider-aws/examples/existing-cluster/base/?ref=master</span></code></pre></figure>
+
+<ul>
+  <li>Add the –cloud-provider=external to the kube-controller-manager config, kube apiserver config and kubelet’s config</li>
+</ul>
+
+<p><b> Conclusion</b></p>
+
+<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About AWS Cloud provider]]></summary></entry><entry><title type="html">Ansible Advance - Roles</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Advance - Roles" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
 
 <p>Here we play with Ansible Roles, as Ansible is powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
 
@@ -774,48 +828,4 @@ helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>in
   <li>Browser visit “zz.local”</li>
 </ul>
 
-<p><img src="/assets/web.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry><entry><title type="html">About Zack-web Gitops project!</title><link href="http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project.html" rel="alternate" type="text/html" title="About Zack-web Gitops project!" /><published>2023-11-02T11:15:29+11:00</published><updated>2023-11-02T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/02/about-this-project.html"><![CDATA[<p><b>Project Introduction</b></p>
-
-<p>This is my first web blog using Jekyll, as an pratical way by following <a href="https://cloudresumechallenge.dev/docs/the-challenge/aws/">Cloud Resume Challange</a> to build my cloud and devops concept and technical skillsets.</p>
-
-<p><b>The Design</b></p>
-
-<p>By design, I will create:</p>
-
-<ul>
-  <li>
-    <p>a web blog <a href="http://zackdevops.online">Zack’s Blog</a> : with content and details to introduce myself</p>
-  </li>
-  <li>
-    <p>a github repo <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>: to source control all code that I build and run locally by “jekyll serve”, validate site and pages, then push the source code to github.</p>
-  </li>
-  <li>
-    <p>a Dockerfile to build jekyll code into a docker image running by nginx/alpine</p>
-  </li>
-  <li>
-    <p>3 folder with manifest for staging and prod webapp deploy:</p>
-  </li>
-</ul>
-
-<p><ins> /terrafom</ins>  for create AWS VPC and EKS to host website as production environment;</p>
-
-<p><ins> /k8s-local-deploy</ins>  for website image deploy to local K8S as testing;</p>
-
-<p><ins> /eks-deploy</ins>  for prod deployment with ArgoCD application manifest</p>
-
-<ul>
-  <li>
-    <p>a EC2 instance: as staging env for AWS with Godaddy domain hosting test</p>
-  </li>
-  <li>
-    <p>a EKS cluster:  as PROD environment to validate ArgoCD sync for web deployment</p>
-  </li>
-</ul>
-
-<p><b>The Archetecture</b></p>
-
-<p><img src="/assets/aws-ar.png" alt="image tooltip here" /></p>
-
-<p>This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
-
-<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry></feed>
+<p><img src="/assets/web.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry></feed>
