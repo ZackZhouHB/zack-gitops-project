@@ -77,7 +77,7 @@
   </li>
 </ol>
 
-<p><b> Bastion bootstrap and nodes instances creation via terraform </b></p>
+<p><b> Create SGs and EC2s, with Bastion bootstrap via terraform </b></p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
 
@@ -144,6 +144,7 @@ resource <span class="s2">"null_resource"</span> <span class="s2">"upload_playbo
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># k8s-deploy.yaml</span>
 
+<span class="c"># Playbook hosts can be defined by EC2 tags</span>
 <span class="nt">---</span>
 - name: EC2-K8S cluster setup
   hosts: all

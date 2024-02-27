@@ -29,7 +29,7 @@ Here I will use both Terraform and Ansible to automate K8S cluster creation and 
 5. Finally another playbook to configure bastion to run kubectl 
 
 
-<b> Bastion bootstrap and nodes instances creation via terraform </b>
+<b> Create SGs and EC2s, with Bastion bootstrap via terraform </b>
 
 {% highlight shell %}
 
@@ -100,6 +100,7 @@ resource "null_resource" "upload_playbook" {
 
 # k8s-deploy.yaml
 
+# Playbook hosts can be defined by EC2 tags
 ---
 - name: EC2-K8S cluster setup
   hosts: all

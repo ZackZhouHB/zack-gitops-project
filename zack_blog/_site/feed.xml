@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T16:21:33+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T16:26:28+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
 
 <p>In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.</p>
 
@@ -84,7 +84,7 @@ https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.
   </li>
 </ol>
 
-<p><b> Bastion bootstrap and nodes instances creation via terraform </b></p>
+<p><b> Create SGs and EC2s, with Bastion bootstrap via terraform </b></p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
 
@@ -151,6 +151,7 @@ resource <span class="s2">"null_resource"</span> <span class="s2">"upload_playbo
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># k8s-deploy.yaml</span>
 
+<span class="c"># Playbook hosts can be defined by EC2 tags</span>
 <span class="nt">---</span>
 - name: EC2-K8S cluster setup
   hosts: all
