@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T15:51:11+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b>About AWS Cloud provider </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T16:16:17+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
 
-<p>The AWS Cloud provider provides the interface between a self-built Kubernetes cluster and AWS service APIs. This project allows a Kubernetes cluster to provision, monitor and remove AWS resources necessary for operation of the cluster.</p>
+<p>In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.</p>
 
-<p><b> Scenario and Challange</b></p>
+<p>In this Scenario when deploying k8s pods and services in this K8S cluster, it will not create AWS loadbalancer even mentioned type = LoadBalancer, but this can be eaily achieved when in a AWS managed EKS cluster.</p>
 
-<p>In a Scenario when running K8S cluster on couples of EC2 instances instead of using AWS EKS, deploy k8s services by setup type = LoadBalancer, it will not create AWS loadbalancer compare in a EKS managed k8s cluster.</p>
+<p>By searching online, Kubernete actually provides a solution called “cloud-provider-aws”, which provides an interface between a self-owned Kubernetes cluster and AWS service APIs. This allows EC2 instances running Kubernetes node to be able to provision AWS NLB or ELB resources during service deployment by mentioning “LoadBalancer”..</p>
 
-<p>Here we need Kubernetes External Cloud Controller Manager, by configuring AWS Cloud Controller manager, it will create and update AWS loadbalancers (classic and NLB) while to expose k8s services externally and manage AWS service lifecycle accordingly.</p>
+<p><b></b></p>
+
+<p>To enable the Kubernetes External Cloud Controller Manager, a AWS Cloud Controller manager need to be deployed into cluster, by doing so, it will create and a AWS loadbalancers (NLB), then self-owned K8S cluster can expose services externally by creating ELB.</p>
 
 <p><b> Steps</b></p>
 
@@ -52,7 +54,7 @@ https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.
 
 <p><b> Conclusion</b></p>
 
-<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About AWS Cloud provider]]></summary></entry><entry><title type="html">Automate K8S with Terraform and Ansible</title><link href="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html" rel="alternate" type="text/html" title="Automate K8S with Terraform and Ansible" /><published>2024-02-24T11:15:29+11:00</published><updated>2024-02-24T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html"><![CDATA[<p><b> K8S on EC2  vs EKS </b></p>
+<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Scenario and Challange]]></summary></entry><entry><title type="html">Automate K8S with Terraform and Ansible</title><link href="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html" rel="alternate" type="text/html" title="Automate K8S with Terraform and Ansible" /><published>2024-02-24T11:15:29+11:00</published><updated>2024-02-24T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html"><![CDATA[<p><b> K8S on EC2  vs EKS </b></p>
 
 <p>While I was in an interview last week, the company heavily using Ansible to provision and configure their k8s cluster on AWS EC2, aim to have the most control and flexibility in case they need to move to another cloud provider.</p>
 
@@ -66,16 +68,16 @@ https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.
 
 <ol>
   <li>
-    <p>In AWS environment, the Ansible ec2-dynamic-inventory approach is needed.</p>
+    <p>Use terraform to create S3 as backend state file, create security groups and 4 ec2 instances ( 1 bastion, 1 master, 2 workers)</p>
   </li>
   <li>
-    <p>For terraform, create S3 as backend state file, create security groups and ec2 instances,</p>
+    <p>As Instances are created in AWS environment dynamically, Ansible ec2-dynamic-inventory approach is best way to manage them.</p>
   </li>
   <li>
-    <p>Using terraform “connection” ssh to the bastion host, use provisoners “file” to upload shell script to bootstrap bastion host as ansbile master, configure ec2-dynamic-inventory.</p>
+    <p>Using terraform “connection”, to ssh to the bastion host after creation, use provisoners “file” to upload shell script to bootstrap bastion host as a ansbile master, configure ec2-dynamic-inventory to fetch the other 3 instances for K8S.</p>
   </li>
   <li>
-    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and inline execution to init k8s master node and join the worker node.</p>
+    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and with “inline” to execute playbooks to init k8s master node and join the worker node.</p>
   </li>
   <li>
     <p>Finally another playbook to configure bastion to run kubectl</p>

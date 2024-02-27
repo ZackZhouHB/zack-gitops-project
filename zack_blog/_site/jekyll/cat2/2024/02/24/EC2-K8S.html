@@ -61,16 +61,16 @@
 
 <ol>
   <li>
-    <p>In AWS environment, the Ansible ec2-dynamic-inventory approach is needed.</p>
+    <p>Use terraform to create S3 as backend state file, create security groups and 4 ec2 instances ( 1 bastion, 1 master, 2 workers)</p>
   </li>
   <li>
-    <p>For terraform, create S3 as backend state file, create security groups and ec2 instances,</p>
+    <p>As Instances are created in AWS environment dynamically, Ansible ec2-dynamic-inventory approach is best way to manage them.</p>
   </li>
   <li>
-    <p>Using terraform “connection” ssh to the bastion host, use provisoners “file” to upload shell script to bootstrap bastion host as ansbile master, configure ec2-dynamic-inventory.</p>
+    <p>Using terraform “connection”, to ssh to the bastion host after creation, use provisoners “file” to upload shell script to bootstrap bastion host as a ansbile master, configure ec2-dynamic-inventory to fetch the other 3 instances for K8S.</p>
   </li>
   <li>
-    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and inline execution to init k8s master node and join the worker node.</p>
+    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and with “inline” to execute playbooks to init k8s master node and join the worker node.</p>
   </li>
   <li>
     <p>Finally another playbook to configure bastion to run kubectl</p>

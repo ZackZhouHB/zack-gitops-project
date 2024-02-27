@@ -16,14 +16,14 @@ Here I will use both Terraform and Ansible to automate K8S cluster creation and 
 
 - Major tools will include Ansible, terraform, together with a shell script. 
 
-1. In AWS environment, the Ansible ec2-dynamic-inventory approach is needed. 
+1. Use terraform to create S3 as backend state file, create security groups and 4 ec2 instances ( 1 bastion, 1 master, 2 workers) 
 
-2. For terraform, create S3 as backend state file, create security groups and ec2 instances, 
+2. As Instances are created in AWS environment dynamically, Ansible ec2-dynamic-inventory approach is best way to manage them.
 
-3. Using terraform “connection” ssh to the bastion host, use provisoners “file” to upload shell script to bootstrap bastion host as ansbile master, configure ec2-dynamic-inventory. 
+3. Using terraform “connection”, to ssh to the bastion host after creation, use provisoners “file” to upload shell script to bootstrap bastion host as a ansbile master, configure ec2-dynamic-inventory to fetch the other 3 instances for K8S. 
 
 
-4. Continue with terraform “file” and “remote-exec” to upload playbooks and inline execution to init k8s master node and join the worker node. 
+4. Continue with terraform “file” and “remote-exec” to upload playbooks and with "inline" to execute playbooks to init k8s master node and join the worker node. 
 
 
 5. Finally another playbook to configure bastion to run kubectl 

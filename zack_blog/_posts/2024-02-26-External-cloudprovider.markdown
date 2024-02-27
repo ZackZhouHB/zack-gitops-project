@@ -5,17 +5,18 @@ date:   2024-02-26 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b>About AWS Cloud provider </b>
+<b> Scenario and Challange </b>
 
-The AWS Cloud provider provides the interface between a self-built Kubernetes cluster and AWS service APIs. This project allows a Kubernetes cluster to provision, monitor and remove AWS resources necessary for operation of the cluster.
+In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.
+
+In this Scenario when deploying k8s pods and services in this K8S cluster, it will not create AWS loadbalancer even mentioned type = LoadBalancer, but this can be eaily achieved when in a AWS managed EKS cluster.
+
+By searching online, Kubernete actually provides a solution called “cloud-provider-aws”, which provides an interface between a self-owned Kubernetes cluster and AWS service APIs. This allows EC2 instances running Kubernetes node to be able to provision AWS NLB or ELB resources during service deployment by mentioning “LoadBalancer”..
 
 
-<b> Scenario and Challange</b>
+<b></b>
 
-In a Scenario when running K8S cluster on couples of EC2 instances instead of using AWS EKS, deploy k8s services by setup type = LoadBalancer, it will not create AWS loadbalancer compare in a EKS managed k8s cluster.
-
-
-Here we need Kubernetes External Cloud Controller Manager, by configuring AWS Cloud Controller manager, it will create and update AWS loadbalancers (classic and NLB) while to expose k8s services externally and manage AWS service lifecycle accordingly.
+To enable the Kubernetes External Cloud Controller Manager, a AWS Cloud Controller manager need to be deployed into cluster, by doing so, it will create and a AWS loadbalancers (NLB), then self-owned K8S cluster can expose services externally by creating ELB.
 
 <b> Steps</b>
 
