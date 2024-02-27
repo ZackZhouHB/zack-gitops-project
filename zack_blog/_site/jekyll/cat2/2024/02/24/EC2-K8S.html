@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Automate K8S with Terraform and Ansible | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Automate K8S with Terraform and Ansible" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="K8S on EC2 vs EKS" />
+<meta property="og:description" content="K8S on EC2 vs EKS" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-02-24T11:15:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Automate K8S with Terraform and Ansible" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-02-24T11:15:29+11:00","datePublished":"2024-02-24T11:15:29+11:00","description":"K8S on EC2 vs EKS","headline":"Automate K8S with Terraform and Ansible","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html"},"url":"http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> Automate K8S with Terraform and Ansible </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-02-24T11:15:29+11:00" itemprop="datePublished">Feb 24, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> K8S on EC2  vs EKS </b></p>
+
+<p>While I was in an interview last week, the company heavily using Ansible to provision and configure their k8s cluster on AWS EC2, aim to have the most control and flexibility in case they need to move to another cloud provider.</p>
+
+<p>Here I will use both Terraform and Ansible to automate K8S cluster creation and configuration on a few EC2 instances.</p>
+
+<p><b> The tools and workflow</b></p>
+
+<ul>
+  <li>Major tools will include Ansible, terraform, together with a shell script.</li>
+</ul>
+
+<ol>
+  <li>
+    <p>In AWS environment, the Ansible ec2-dynamic-inventory approach is needed.</p>
+  </li>
+  <li>
+    <p>For terraform, create S3 as backend state file, create security groups and ec2 instances,</p>
+  </li>
+  <li>
+    <p>Using terraform “connection” ssh to the bastion host, use provisoners “file” to upload shell script to bootstrap bastion host as ansbile master, configure ec2-dynamic-inventory.</p>
+  </li>
+  <li>
+    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and inline execution to init k8s master node and join the worker node.</p>
+  </li>
+  <li>
+    <p>Finally another playbook to configure bastion to run kubectl</p>
+  </li>
+</ol>
+
+<p><b> Bastion bootstrap and nodes instances creation via terraform </b></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
+
+resource <span class="s2">"aws_instance"</span> <span class="s2">"bolg"</span> <span class="o">{</span>
+  ami             <span class="o">=</span> var.ami_id <span class="c"># Replace with your AMI ID</span>
+  instance_type   <span class="o">=</span> var.instance_type_free
+  security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.blog_sg.name]
+  <span class="c">#  vpc_security_group_ids = ["sg-089842a753c9309bb"]</span>
+  key_name <span class="o">=</span> var.key_pair
+  user_data <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
+    #!/bin/bash
+    sudo apt update
+    sudo apt install software-properties-common
+    sudo add-apt-repository --yes --update ppa:ansible/ansible
+    sudo apt install ansible -y
+</span><span class="no">  EOF
+</span>  tags <span class="o">=</span> <span class="o">{</span>
+    Name <span class="o">=</span> <span class="s2">"blog"</span>
+  <span class="o">}</span>
+  lifecycle <span class="o">{</span>
+    prevent_destroy <span class="o">=</span> <span class="nb">true</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+resource <span class="s2">"null_resource"</span> <span class="s2">"upload_playbook"</span> <span class="o">{</span>
+  triggers <span class="o">=</span> <span class="o">{</span>
+    <span class="c"># Add a dummy trigger to force a refresh</span>
+    timestamp <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">timestamp</span><span class="p">()</span><span class="k">}</span><span class="s2">"</span>
+  <span class="o">}</span>
+  depends_on <span class="o">=</span> <span class="o">[</span>null_resource.wait_for_bastion]
+  connection <span class="o">{</span>
+    <span class="nb">type</span>        <span class="o">=</span> <span class="s2">"ssh"</span>
+    user        <span class="o">=</span> <span class="s2">"ubuntu"</span>
+    private_key <span class="o">=</span> file<span class="o">(</span><span class="s2">"terraform-new-key1.pem"</span><span class="o">)</span>
+    host        <span class="o">=</span> aws_instance.testbastion.public_ip
+  <span class="o">}</span>
+  provisioner <span class="s2">"file"</span> <span class="o">{</span>
+    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"pb1.yaml"</span>
+    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/pb1.yaml"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"file"</span> <span class="o">{</span>
+    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"aws_ec2.yaml"</span>
+    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/aws_ec2.yaml"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"file"</span> <span class="o">{</span>
+    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"ansible.sh"</span>
+    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/ansible.sh"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"remote-exec"</span> <span class="o">{</span>
+    inline <span class="o">=</span> <span class="o">[</span>
+      <span class="s2">"cd /home/ubuntu/"</span>,
+      <span class="s2">"sudo chmod 600 terraform-new-key1.pem"</span>,
+      <span class="s2">"sudo chmod +x pb1.yaml"</span>,
+      <span class="s2">"sudo ansible-playbook pb1.yaml"</span>,
+      <span class="s2">"sudo chmod +x ansible.sh"</span>,
+      <span class="s2">"sudo ./ansible.sh"</span>,
+      <span class="s2">"sudo ansible-inventory -i aws_ec2.yaml --list"</span>,
+      <span class="s2">"sudo ansible-inventory --graph"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+ </code></pre></figure>
+
+<p><b> SSH to bastion host and run playbooks to init and join k8s nodes </b></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># k8s-deploy.yaml</span>
+
+<span class="nt">---</span>
+- name: EC2-K8S cluster setup
+  hosts: all
+  gather_facts: <span class="nb">false
+  </span>tasks:
+    - name: <span class="nb">test </span>EC2 dynamic hosts connections
+      include_playbook: 2-test-connection.yaml
+
+    - name: Pre-task <span class="k">for </span>all k8s hosts
+      include_playbook: 3-k8s-nodes-preparation.yaml
+
+    - name: init Master node
+      include_playbook: 4-master-init.yaml
+
+    - name: Join worker nodes
+      include_playbook: 5-work-join.yaml
+
+    - name: configure bastion to run kubectl
+      include_playbook: 8-local-kubeconf-admin.yaml</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to spin up a 3-nodes K8S cluster on EC2 instances in about 20 minutes.</p>
+
+<p>For lab purpose, running K8S on EC2 instances with default VPC can be cheaper and flexible option compare to EKS, as AWS managed EKS require additional VPC and unable to change node instance type unless delete the existing node group.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/02/24/EC2-K8S.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

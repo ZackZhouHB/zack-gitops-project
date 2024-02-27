@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T15:01:00+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">EC2 K8S Cluster with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="EC2 K8S Cluster with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b>About AWS Cloud provider </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-27T15:47:37+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b>About AWS Cloud provider </b></p>
 
 <p>The AWS Cloud provider provides the interface between a self-built Kubernetes cluster and AWS service APIs. This project allows a Kubernetes cluster to provision, monitor and remove AWS resources necessary for operation of the cluster.</p>
 
@@ -52,7 +52,128 @@ https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.
 
 <p><b> Conclusion</b></p>
 
-<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About AWS Cloud provider]]></summary></entry><entry><title type="html">Ansible Advance - Roles</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Advance - Roles" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
+<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About AWS Cloud provider]]></summary></entry><entry><title type="html">Automate K8S with Terraform and Ansible</title><link href="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html" rel="alternate" type="text/html" title="Automate K8S with Terraform and Ansible" /><published>2024-02-24T11:15:29+11:00</published><updated>2024-02-24T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html"><![CDATA[<p><b> K8S on EC2  vs EKS </b></p>
+
+<p>While I was in an interview last week, the company heavily using Ansible to provision and configure their k8s cluster on AWS EC2, aim to have the most control and flexibility in case they need to move to another cloud provider.</p>
+
+<p>Here I will use both Terraform and Ansible to automate K8S cluster creation and configuration on a few EC2 instances.</p>
+
+<p><b> The tools and workflow</b></p>
+
+<ul>
+  <li>Major tools will include Ansible, terraform, together with a shell script.</li>
+</ul>
+
+<ol>
+  <li>
+    <p>In AWS environment, the Ansible ec2-dynamic-inventory approach is needed.</p>
+  </li>
+  <li>
+    <p>For terraform, create S3 as backend state file, create security groups and ec2 instances,</p>
+  </li>
+  <li>
+    <p>Using terraform “connection” ssh to the bastion host, use provisoners “file” to upload shell script to bootstrap bastion host as ansbile master, configure ec2-dynamic-inventory.</p>
+  </li>
+  <li>
+    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and inline execution to init k8s master node and join the worker node.</p>
+  </li>
+  <li>
+    <p>Finally another playbook to configure bastion to run kubectl</p>
+  </li>
+</ol>
+
+<p><b> Bastion bootstrap and nodes instances creation via terraform </b></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
+
+resource <span class="s2">"aws_instance"</span> <span class="s2">"bolg"</span> <span class="o">{</span>
+  ami             <span class="o">=</span> var.ami_id <span class="c"># Replace with your AMI ID</span>
+  instance_type   <span class="o">=</span> var.instance_type_free
+  security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.blog_sg.name]
+  <span class="c">#  vpc_security_group_ids = ["sg-089842a753c9309bb"]</span>
+  key_name <span class="o">=</span> var.key_pair
+  user_data <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
+    #!/bin/bash
+    sudo apt update
+    sudo apt install software-properties-common
+    sudo add-apt-repository --yes --update ppa:ansible/ansible
+    sudo apt install ansible -y
+</span><span class="no">  EOF
+</span>  tags <span class="o">=</span> <span class="o">{</span>
+    Name <span class="o">=</span> <span class="s2">"blog"</span>
+  <span class="o">}</span>
+  lifecycle <span class="o">{</span>
+    prevent_destroy <span class="o">=</span> <span class="nb">true</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+resource <span class="s2">"null_resource"</span> <span class="s2">"upload_playbook"</span> <span class="o">{</span>
+  triggers <span class="o">=</span> <span class="o">{</span>
+    <span class="c"># Add a dummy trigger to force a refresh</span>
+    timestamp <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">timestamp</span><span class="p">()</span><span class="k">}</span><span class="s2">"</span>
+  <span class="o">}</span>
+  depends_on <span class="o">=</span> <span class="o">[</span>null_resource.wait_for_bastion]
+  connection <span class="o">{</span>
+    <span class="nb">type</span>        <span class="o">=</span> <span class="s2">"ssh"</span>
+    user        <span class="o">=</span> <span class="s2">"ubuntu"</span>
+    private_key <span class="o">=</span> file<span class="o">(</span><span class="s2">"terraform-new-key1.pem"</span><span class="o">)</span>
+    host        <span class="o">=</span> aws_instance.testbastion.public_ip
+  <span class="o">}</span>
+  provisioner <span class="s2">"file"</span> <span class="o">{</span>
+    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"pb1.yaml"</span>
+    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/pb1.yaml"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"file"</span> <span class="o">{</span>
+    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"aws_ec2.yaml"</span>
+    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/aws_ec2.yaml"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"file"</span> <span class="o">{</span>
+    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"ansible.sh"</span>
+    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/ansible.sh"</span>
+  <span class="o">}</span>
+  provisioner <span class="s2">"remote-exec"</span> <span class="o">{</span>
+    inline <span class="o">=</span> <span class="o">[</span>
+      <span class="s2">"cd /home/ubuntu/"</span>,
+      <span class="s2">"sudo chmod 600 terraform-new-key1.pem"</span>,
+      <span class="s2">"sudo chmod +x pb1.yaml"</span>,
+      <span class="s2">"sudo ansible-playbook pb1.yaml"</span>,
+      <span class="s2">"sudo chmod +x ansible.sh"</span>,
+      <span class="s2">"sudo ./ansible.sh"</span>,
+      <span class="s2">"sudo ansible-inventory -i aws_ec2.yaml --list"</span>,
+      <span class="s2">"sudo ansible-inventory --graph"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+ </code></pre></figure>
+
+<p><b> SSH to bastion host and run playbooks to init and join k8s nodes </b></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># k8s-deploy.yaml</span>
+
+<span class="nt">---</span>
+- name: EC2-K8S cluster setup
+  hosts: all
+  gather_facts: <span class="nb">false
+  </span>tasks:
+    - name: <span class="nb">test </span>EC2 dynamic hosts connections
+      include_playbook: 2-test-connection.yaml
+
+    - name: Pre-task <span class="k">for </span>all k8s hosts
+      include_playbook: 3-k8s-nodes-preparation.yaml
+
+    - name: init Master node
+      include_playbook: 4-master-init.yaml
+
+    - name: Join worker nodes
+      include_playbook: 5-work-join.yaml
+
+    - name: configure bastion to run kubectl
+      include_playbook: 8-local-kubeconf-admin.yaml</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to spin up a 3-nodes K8S cluster on EC2 instances in about 20 minutes.</p>
+
+<p>For lab purpose, running K8S on EC2 instances with default VPC can be cheaper and flexible option compare to EKS, as AWS managed EKS require additional VPC and unable to change node instance type unless delete the existing node group.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[K8S on EC2 vs EKS]]></summary></entry><entry><title type="html">Ansible Advance - Roles</title><link href="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html" rel="alternate" type="text/html" title="Ansible Advance - Roles" /><published>2024-02-21T11:15:29+11:00</published><updated>2024-02-21T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/21/Ansible-role.html"><![CDATA[<p><b>About Ansible Roles </b></p>
 
 <p>Here we play with Ansible Roles, as Ansible is powerful configuration automation tool by running playpook, in addition organizing multiple Ansible contents and playbooks into roles provides a structural and more manageable way to achieve complex tasks for multiple targets or groups.</p>
 
@@ -591,7 +712,61 @@ OK
 kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
 redis-cli
 127.0.0.1:6379&gt; KEYS <span class="k">*</span>
-1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Apache Kafka cluster with testing topics</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster with testing topics" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic Persistent Volume</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic Persistent Volume" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
+
+<ul>
+  <li>
+    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
+  </li>
+  <li>
+    <p>install rook-ceph cluster</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
+<span class="nb">cd </span>rook/deploy/examples
+kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
+kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
+
+<ul>
+  <li>Ceph toolbox to check cluster status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
+kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
+ceph status
+ceph osd status
+ceph <span class="nb">df
+</span>rados <span class="nb">df</span></code></pre></figure>
+
+<ul>
+  <li>Ceph Dashboard svc for https login</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
+kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
+
+<ul>
+  <li>Create storage pool and storageclass</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
+<span class="nb">cd </span>csi/rbd
+kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
+
+<ul>
+  <li>set “rook-ceph-block” as default sc</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
+
+kubectl get sc
+NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
+rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
+
+<p>check pool and OSDs in ceph webui</p>
+
+<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">Apache Kafka cluster with testing topics</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html" rel="alternate" type="text/html" title="Apache Kafka cluster with testing topics" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/kafka</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/kafka.html"><![CDATA[<p><b>About Kafka </b></p>
 
 <p>Apache Kafka has proven to be an extremely popular event streaming platform, as its scalable distributed architecture, high performance, and  use cases, some key terms and concepts as bellow:</p>
 
@@ -679,61 +854,7 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic Persistent Volume</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic Persistent Volume" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
-
-<ul>
-  <li>
-    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
-  </li>
-  <li>
-    <p>install rook-ceph cluster</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
-<span class="nb">cd </span>rook/deploy/examples
-kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
-kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
-
-<ul>
-  <li>Ceph toolbox to check cluster status</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
-kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
-ceph status
-ceph osd status
-ceph <span class="nb">df
-</span>rados <span class="nb">df</span></code></pre></figure>
-
-<ul>
-  <li>Ceph Dashboard svc for https login</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
-kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
-
-<ul>
-  <li>Create storage pool and storageclass</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
-<span class="nb">cd </span>csi/rbd
-kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
-
-<ul>
-  <li>set “rook-ceph-block” as default sc</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
-
-kubectl get sc
-NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
-rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
-
-<p>check pool and OSDs in ceph webui</p>
-
-<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry><entry><title type="html">GitOps with Argo CD</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="GitOps with Argo CD" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">GitOps with Argo CD</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="GitOps with Argo CD" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
 
 <p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
 
@@ -791,41 +912,4 @@ kubectl create <span class="nt">-f</span> argo-zackweb-application.yaml</code></
   <li>access to argocd UI check for sync</li>
 </ul>
 
-<p><img src="/assets/argo-demo.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry><entry><title type="html">Ingress-nginx Routing for local DNS</title><link href="http://localhost:4000/jekyll/cat2/2023/11/06/ingresscontroller.html" rel="alternate" type="text/html" title="Ingress-nginx Routing for local DNS" /><published>2023-11-06T11:15:29+11:00</published><updated>2023-11-06T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/06/ingresscontroller</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/06/ingresscontroller.html"><![CDATA[<p>Topic</p>
-
-<p><b>Ingress-nginx Routing for local DNS (zz.local)</b></p>
-
-<ul>
-  <li>helm install ingress controller ingress-nginx</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>ingress-nginx ingress-nginx/ingress-nginx <span class="nt">--create-namespace</span></code></pre></figure>
-
-<ul>
-  <li>create ingress to route root path to “zz.local” for “zackweb-service”</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">nginx-ingress</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">zz.local</span> 
-    <span class="na">http</span><span class="pi">:</span>
-      <span class="na">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
-        <span class="na">pathType</span><span class="pi">:</span> <span class="s">ImplementationSpecific</span>
-        <span class="na">backend</span><span class="pi">:</span>
-          <span class="na">service</span><span class="pi">:</span>
-            <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb-service</span>
-            <span class="na">port</span><span class="pi">:</span>
-              <span class="na">number</span><span class="pi">:</span> <span class="s">80</span></code></pre></figure>
-
-<ul>
-  <li>Browser visit “zz.local”</li>
-</ul>
-
-<p><img src="/assets/web.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry></feed>
+<p><img src="/assets/argo-demo.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry></feed>
