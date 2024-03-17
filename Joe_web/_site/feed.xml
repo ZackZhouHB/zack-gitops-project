@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-17T20:54:24+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Joe Zhou’s World</title><subtitle>## Writing  ## Books  ## Readings  ## Fun  ## Diary   ## Movie  ## Sharing</subtitle><entry><title type="html">1st Story</title><link href="http://localhost:4000/jekyll/cat2/2024/03/17/1st-story.html" rel="alternate" type="text/html" title="1st Story" /><published>2024-03-17T19:15:29+11:00</published><updated>2024-03-17T19:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/17/1st-story</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/17/1st-story.html"><![CDATA[<p><b>1st story</b></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[1st story]]></summary></entry><entry><title type="html">Welcome to my website !!</title><link href="http://localhost:4000/jekyll/cat2/2024/03/17/about-this-website.html" rel="alternate" type="text/html" title="Welcome to my website !!" /><published>2024-03-17T19:15:29+11:00</published><updated>2024-03-17T19:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/17/about-this-website</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/17/about-this-website.html"><![CDATA[<p><b>Project Introduction</b></p>
+
+<p>This is my first web blog using Jekyll, as an pratical way by following <a href="https://cloudresumechallenge.dev/docs/the-challenge/aws/">Cloud Resume Challange</a> to build my cloud and devops concept and technical skillsets.</p>
+
+<p><b>The Design</b></p>
+
+<p>By design, I will create:</p>
+
+<ul>
+  <li>
+    <p>a web blog <a href="http://zackdevops.online">Zack’s Blog</a> : with content and details to introduce myself</p>
+  </li>
+  <li>
+    <p>a github repo <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>: to source control all code that I build and run locally by “jekyll serve”, validate site and pages, then push the source code to github.</p>
+  </li>
+  <li>
+    <p>a Dockerfile to build jekyll code into a docker image running by nginx/alpine</p>
+  </li>
+  <li>
+    <p>3 folder with manifest for staging and prod webapp deploy:</p>
+  </li>
+</ul>
+
+<p><ins> /terrafom</ins>  for create AWS VPC and EKS to host website as production environment;</p>
+
+<p><ins> /k8s-local-deploy</ins>  for website image deploy to local K8S as testing;</p>
+
+<p><ins> /eks-deploy</ins>  for prod deployment with ArgoCD application manifest</p>
+
+<ul>
+  <li>
+    <p>a EC2 instance: as staging env for AWS with Godaddy domain hosting test</p>
+  </li>
+  <li>
+    <p>a EKS cluster:  as PROD environment to validate ArgoCD sync for web deployment</p>
+  </li>
+</ul>
+
+<p><b>The Archetecture</b></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Project Introduction]]></summary></entry></feed>

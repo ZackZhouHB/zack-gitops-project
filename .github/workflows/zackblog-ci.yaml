@@ -1,17 +1,16 @@
-name: "zack gitops workflow for blog CI image build"
+name: "Joeweb CI"
 on: 
   push: 
     branches:
-      - main
-      - editing
+      - joe3site
     paths:             # any change in folder "zack_blog" 
       - zack_blog/**   # for both stage and main, will trigger workflow
   
-  pull_request:        # no one can commit to main except approvel needed from main branch owner
-    branches:          # raise pull_request when merge from stage to main
-      - main           # will trigger workflow
-    paths:          
-      - zack_blog/**
+#  pull_request:        # no one can commit to main except approvel needed from main branch owner
+#    branches:          # raise pull_request when merge from stage to main
+#      - main           # will trigger workflow
+#    paths:          
+#      - zack_blog/**
 
 env:                   # cred for AWS access, terrform is looking for      
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

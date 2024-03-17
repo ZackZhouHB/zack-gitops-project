@@ -1,0 +1,145 @@
+<p>Lists of my github repos with devops concepts and tools used:</p>
+
+<p>==================================================================</p>
+
+<p><b>[Zack-blog-Gitops-Project]: </b></p>
+
+<p>Gitops project with Github Action workflow to create and practise CICD pipeline to build and deploy this <b>“Zack’s Blog”</b> website onto both AWS EC2 by docker and to AWS EKS managed nodegroup sync by ArgoCD, with route53 public zone to Godaddy DNS</p>
+
+<p><img src="/assets/aws-ar.png" alt="image tooltip here" /></p>
+
+<p>Github action workflows:</p>
+
+<ul>
+  <li>
+    <p><b>Zackweb image build CI pipeline</b> : 2 layer docker image build, tag, push to dockerhub</p>
+  </li>
+  <li>
+    <p><b>Stagging depolyment</b> : ssh to EC2 instance, pull latest image and docker run</p>
+  </li>
+  <li>
+    <p><b>Terraform-EKS-Argocd-pipeline for Prod</b> : Terraform create VPC &amp; EKS (module), argocd install, web app deploy and sync</p>
+  </li>
+</ul>
+
+<p><img src="/assets/cicd.png" alt="image tooltip here" /></p>
+
+<p><b>Tools</b>:  Git, Github Action workflow CI, Docker, ArgoCD, Terroform, AWS EKS, Route53 DNS, Godaddy</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zack-gitops-project">zack-gitops-project</a>  [Branch : editing]</p>
+
+<p>==================================================================</p>
+
+<p><b>[K8S-Project]:</b></p>
+
+<p>Self K8S project to deploy 3 demo applications onto both local lab k8s cluster and AWS EKS</p>
+
+<ul>
+  <li>
+    <p><b>Vprofile JAVA stack</b> (nginx, rabbitmq, memcached, mysql, JAVA tomcat)</p>
+  </li>
+  <li>
+    <p><b>Fleetman position tracker</b> (microservice application : api gateway, JAVA tomcat, mongoDB, rabbitmq)</p>
+  </li>
+  <li>
+    <p><b>Amazon retail store sample app</b> (microservice application : rabbitmq, mysql, redis, dynamodb)</p>
+  </li>
+</ul>
+
+<p><b>Tools</b>:  k8s deployment, statefulset, AWS EBS, AWS EKS (Kops), rook-ceph</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zz-k8s">zz-k8s</a></p>
+
+<p>==================================================================</p>
+
+<p><b>[Terraform-Project]:</b></p>
+
+<p>Terraform full practise project to deploy :</p>
+
+<ul>
+  <li>
+    <p>Provision and deploy single web on AWS</p>
+  </li>
+  <li>
+    <p>Use Terrafom VPC mudole</p>
+  </li>
+  <li>
+    <p>Provisioner “file” and “exec” to upload ansible playbook deploy application on AWS</p>
+  </li>
+  <li>
+    <p>Terraform create ALB and ASG</p>
+  </li>
+  <li>
+    <p>Terraform create beanstalk staging and Prod with blue and green deployment</p>
+  </li>
+</ul>
+
+<p><b>Tools</b>: Terraform, AWS, Ansible</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zackz-terraform">zackz-terraform</a></p>
+
+<p>==================================================================</p>
+
+<p><b>[Ansible-Project]:</b></p>
+
+<p>Ansible practise project for :</p>
+
+<ul>
+  <li>
+    <p>Playbook for AWS simple resrouce (EC2, VPC) provision</p>
+  </li>
+  <li>
+    <p>JAVA stack provision using Ansible AWS module</p>
+  </li>
+  <li>
+    <p>Playbook for mutiple FreeNas (FreeBSD) device upgrade</p>
+  </li>
+  <li>
+    <p>Advanced with Ansible roles, modules, directives, valut, vars, handlers, templates</p>
+  </li>
+</ul>
+
+<p><b>Tools</b>: Ansible, AWS</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/zzansible">zzansible</a></p>
+
+<p>==================================================================</p>
+
+<p><b>[JAVA-Stack-DEVOPS-CICD-Project]:</b></p>
+
+<p>This is a full structural DEVOPS learning project follow by Udemy course to deploy a JAVA stack on:</p>
+
+<p>“DevOps Beginners to Advanced with Projects - 2023”</p>
+
+<p>https://www.udemy.com/course/decodingdevops/</p>
+
+<ul>
+  <li>
+    <p>E1: Local java stack deployment (tomcat webapp, nginx, rabbitmq, memcached, mysql) onto VMware Workstation VMs</p>
+  </li>
+  <li>
+    <p>E2:  Cloud migration Lift &amp; Shift Java stack to AWS using EC2</p>
+  </li>
+  <li>
+    <p>E3:  AWS re-factor Java stack by (AWS Beabstalk, RDS, AmazonMQ, Elasticache)</p>
+  </li>
+  <li>
+    <p>E3:  containerization for Java stack by building docker images and test local run on docker compose and deploy to AWS ECR &amp; ECS</p>
+  </li>
+  <li>
+    <p>E4:  Deploy JAVA stack to AWS EKS (Kops)</p>
+  </li>
+  <li>
+    <p>E5:  Jenkins(ec2) with CI pipeline (Nexus, SonarQube, Slack) build artifact(.war) and upload to Nexus, create CD pipeline upload artifact to AWS S3 and deploy to Beanstalk</p>
+  </li>
+  <li>
+    <p>E6:  Jenkins CI add docker build, upload image to ECR, create CD pipeline deploy to ECS.</p>
+  </li>
+  <li>
+    <p>E7:  Jenkins CI + CD pipeline add helm deploy to AWS EKS</p>
+  </li>
+</ul>
+
+<p><b>Tools</b>: VMware, AWS managed services (IAM, VPC, EC2, S3, Beabstalk, RDS, AmazonMQ, Elasticache, CodePipeline, ECR, ECS, EKS, KOPS), Docker, Jenkins, Github webhook, SonarQube, Nexus, Slack</p>
+
+<p><b>Git repo URL</b>: <a href="https://github.com/ZackZhouHB/redo20git">JAVA-Stack-CICD-DEVOPS</a></p>
