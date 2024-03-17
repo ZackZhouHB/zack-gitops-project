@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-18T10:17:14+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-18T10:28:32+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Testing Page</title><link href="http://localhost:4000/jekyll/cat2/2024/03/16/Test-page.html" rel="alternate" type="text/html" title="Testing Page" /><published>2024-03-16T11:15:29+11:00</published><updated>2024-03-16T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/16/Test-page</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/16/Test-page.html"><![CDATA[<p><b> Scenario and Challange </b></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Scenario and Challange]]></summary></entry><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
 
 <p>In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.</p>
 
@@ -857,62 +857,4 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">GitOps with Argo CD</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="GitOps with Argo CD" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
-
-<p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
-
-<p>Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes applications. This is a post to show how enable Argo CD on local k8s and AWS EKS, deploy application and sync with github manifest</p>
-
-<ul>
-  <li>Argo CD install ingress controller ingress-nginx</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace argocd
-kubectl apply <span class="nt">-n</span> argocd <span class="nt">-f</span> https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml</code></pre></figure>
-
-<ul>
-  <li>Download and install Argo CD CLI</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">curl <span class="nt">-sSL</span> <span class="nt">-o</span> argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-<span class="nb">sudo install</span> <span class="nt">-m</span> 555 argocd-linux-amd64 /usr/local/bin/argocd
-<span class="nb">rm </span>argocd-linux-amd64</code></pre></figure>
-
-<ul>
-  <li>configure Argo CD API Server and deploy zackweb</li>
-</ul>
-
-<p>Change the argocd-server service type to NodePort, init admin passwd and deploy “zackweb” via argocd application manifests (argo-zackweb-application.yaml)</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch svc argocd-server <span class="nt">-n</span> argocd <span class="nt">-p</span> <span class="s1">'{"spec": {"type": "NodePort"}}'</span>
-argocd admin initial-password <span class="nt">-n</span> argocd
-kubectl create <span class="nt">-f</span> argo-zackweb-application.yaml</code></pre></figure>
-
-<p>argo-zackweb-application.yaml</p>
-
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">argoproj.io/v1alpha1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Application</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">argocd</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">destination</span><span class="pi">:</span>
-    <span class="na">namespace</span><span class="pi">:</span> <span class="s1">'</span><span class="s">zackweb'</span>
-    <span class="na">server</span><span class="pi">:</span> <span class="s1">'</span><span class="s">https://kubernetes.default.svc'</span>
-  <span class="na">source</span><span class="pi">:</span>
-    <span class="na">path</span><span class="pi">:</span> <span class="s">eks-deploy</span>
-    <span class="na">repoURL</span><span class="pi">:</span> <span class="s1">'</span><span class="s">https://github.com/ZackZhouHB/zack-gitops-project'</span>
-    <span class="na">targetRevision</span><span class="pi">:</span> <span class="s">editing</span>
-  <span class="na">project</span><span class="pi">:</span> <span class="s">default</span>
-  <span class="na">syncPolicy</span><span class="pi">:</span>
-    <span class="na">automated</span><span class="pi">:</span>
-      <span class="na">prune</span><span class="pi">:</span> <span class="kc">true</span>
-      <span class="na">selfHeal</span><span class="pi">:</span> <span class="kc">true</span>
-    <span class="na">syncOptions</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="s">CreateNamespace=true</span></code></pre></figure>
-
-<ul>
-  <li>access to argocd UI check for sync</li>
-</ul>
-
-<p><img src="/assets/argo-demo.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry></feed>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry></feed>
