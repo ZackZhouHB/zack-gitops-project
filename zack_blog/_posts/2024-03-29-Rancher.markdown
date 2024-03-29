@@ -26,7 +26,7 @@ Finally it is time to move to Rancher as its power and simplicity in managing mu
 ![image tooltip here](/assets/rancher1.png)
 
 
-<b> Local docker Installation </b>
+<b> Rancher local installation </b>
 
 To enable Rancher on homelab env, we need a Linux box to run Rancher as docker. 
 
@@ -51,7 +51,7 @@ ubuntu@ubt-server:/$ sudo docker logs  d26e32094657  2>&1 | grep "Bootstrap Pass
 
 {% endhighlight %}
 
-<b> Web login </b>
+<b> Console login </b>
 
 Rancher login page via https://localhost/dashboard/home
 
@@ -140,7 +140,10 @@ Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent
 
 <b> Conclusion</b>
 
-now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of "kubectl" all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. 
+now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of "kubectl" all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. 
+
+
+Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. 
 
 
 Overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.  

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T16:47:40+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T16:54:25+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
 
 <p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
 
@@ -23,7 +23,7 @@
 
 <p><img src="/assets/rancher1.png" alt="image tooltip here" /></p>
 
-<p><b> Local docker Installation </b></p>
+<p><b> Rancher local installation </b></p>
 
 <p>To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.</p>
 
@@ -43,7 +43,7 @@ d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span> 
 ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
 2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
 
-<p><b> Web login </b></p>
+<p><b> Console login </b></p>
 
 <p>Rancher login page via https://localhost/dashboard/home</p>
 
@@ -134,7 +134,9 @@ Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent
 
 <p><b> Conclusion</b></p>
 
-<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s.</p>
+<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus.</p>
+
+<p>Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s.</p>
 
 <p>Overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
 
