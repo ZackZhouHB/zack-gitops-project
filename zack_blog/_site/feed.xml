@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T17:18:45+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T17:27:40+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
 
 <p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
 
@@ -126,7 +126,7 @@ Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent
 <p><img src="/assets/rancher6.png" alt="image tooltip here" /></p>
 
 <ul>
-  <li>Create zackweb and joesite as deployment from Rancher console</li>
+  <li>Create “zackweb” and “joesite” as deployment from Rancher console</li>
 </ul>
 
 <p><img src="/assets/rancher7.png" alt="image tooltip here" /></p>
@@ -135,7 +135,7 @@ Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent
 
 <p><b> Conclusion</b></p>
 
-<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus.</p>
+<p>Now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines and create deployment and service in rancher console instead of “kubectl” all the time, it also provides major cloud k8s cluster provision, with its app market for most popular helm charts ready to be installed like “Istio” and “Prometheus”, not to mention it combines the flexibility to easily add and remove nodes, visualize all the resources on console, especially take snapshot and restore cluster configuration, I would say it is a great tool to manage mutiple k8s clusters.</p>
 
 <p>Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s.</p>
 
