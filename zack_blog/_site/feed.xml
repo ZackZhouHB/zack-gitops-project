@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T18:37:52+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T18:39:39+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
 
 <p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
 
@@ -52,7 +52,7 @@ ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker
 <p><b> K8s cluster import and create on Rancher console </b></p>
 
 <ul>
-  <li>under cluster management, it supports importing both local and cloud k8s clusters, unfutinately my lab k8s cluster is v1.28 which is too high to be imported and managed by Rancher.</li>
+  <li>under cluster management, it supports importing both local and cloud k8s clusters, unfortunately my lab k8s cluster is v1.28 which is too high to be imported and managed by Rancher.</li>
 </ul>
 
 <p><img src="/assets/rancher3.png" alt="image tooltip here" /></p>

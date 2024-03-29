@@ -59,7 +59,7 @@ Rancher login page via https://localhost/dashboard/home
 
 <b> K8s cluster import and create on Rancher console </b>
 
-- under cluster management, it supports importing both local and cloud k8s clusters, unfutinately my lab k8s cluster is v1.28 which is too high to be imported and managed by Rancher.
+- under cluster management, it supports importing both local and cloud k8s clusters, unfortunately my lab k8s cluster is v1.28 which is too high to be imported and managed by Rancher.
 
 ![image tooltip here](/assets/rancher3.png)
 
