@@ -52,11 +52,12 @@ ubuntu@ubt-server:/$ sudo docker logs  d26e32094657  2>&1 | grep "Bootstrap Pass
 {% endhighlight %}
 
 <b> Web login </b>
+
 Rancher login page via https://localhost/dashboard/home
 
 ![image tooltip here](/assets/rancher2.png)
 
-<b> Rancher Console for k8s cluster import and create </b>
+<b> K8s cluster import and create on Rancher console </b>
 
 - under cluster management, it supports importing k8s from cloud providers to local k8s, unfutinately I previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.
 
@@ -140,6 +141,8 @@ Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent
 <b> Conclusion</b>
 
 now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of "kubectl" all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. 
-overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.  
+
+
+Overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.  
 
 ![image tooltip here](/assets/rancher9.png)

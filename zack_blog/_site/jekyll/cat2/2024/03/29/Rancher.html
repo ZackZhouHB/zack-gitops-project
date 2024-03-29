@@ -92,12 +92,13 @@ d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span> 
 ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
 2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
 
-<p><b> Web login </b>
-Rancher login page via https://localhost/dashboard/home</p>
+<p><b> Web login </b></p>
+
+<p>Rancher login page via https://localhost/dashboard/home</p>
 
 <p><img src="/assets/rancher2.png" alt="image tooltip here" /></p>
 
-<p><b> Rancher Console for k8s cluster import and create </b></p>
+<p><b> K8s cluster import and create on Rancher console </b></p>
 
 <ul>
   <li>under cluster management, it supports importing k8s from cloud providers to local k8s, unfutinately I previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.</li>
@@ -182,8 +183,9 @@ Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent
 
 <p><b> Conclusion</b></p>
 
-<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. 
-overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
+<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s.</p>
+
+<p>Overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
 
 <p><img src="/assets/rancher9.png" alt="image tooltip here" /></p>
 
