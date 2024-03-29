@@ -1,4 +1,142 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-26T20:04:33+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-03-29T16:43:10+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
+
+<p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
+
+<ul>
+  <li>
+    <p>home lab install individual k8s components (etcd, keepalived, apiserver, scheduler, coreDNS, calico)</p>
+  </li>
+  <li>
+    <p>home lab using kubeadm</p>
+  </li>
+  <li>
+    <p>AWS cloud provisioning using kops and eksctl</p>
+  </li>
+  <li>
+    <p>provision self-managed k8s cluster directly on ec2 by ansible</p>
+  </li>
+</ul>
+
+<p><b> Rancher Support matrix </b></p>
+
+<p>Finally it is time to move to Rancher as its power and simplicity in managing multiple k8s cluster. Based on latest version 2.8.2, it supports to manage k8s v1.27.</p>
+
+<p><img src="/assets/rancher1.png" alt="image tooltip here" /></p>
+
+<p><b> Local docker Installation </b></p>
+
+<p>To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create Persisting rancher data directory to map within the Rancher Docker container</span>
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">mkdir</span> <span class="nt">-p</span> /path/to/rancher-data
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">-d</span> <span class="nt">--restart</span><span class="o">=</span>unless-stopped  <span class="se">\</span>
+ <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443  <span class="se">\</span>
+ <span class="nt">-v</span> /path/to/rancher-data:/var/lib/rancher <span class="se">\</span>
+ <span class="nt">--privileged</span>   rancher/rancher:latest
+d26e32094657b598f61233d0d86e448ab4bfd980763928ca6f298ae0d3774a56
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker ps
+CONTAINER ID   IMAGE                    COMMAND           CREATED         STATUS         PORTS                                                                      NAMES
+d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span>   7 seconds ago   Up 6 seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp, :::443-&gt;443/tcp   flamboyant_bassi
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
+2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
+
+<p><b> Web login </b>
+Rancher login page via https://localhost/dashboard/home</p>
+
+<p><img src="/assets/rancher2.png" alt="image tooltip here" /></p>
+
+<p><b> Rancher Console for k8s cluster import and create </b></p>
+
+<ul>
+  <li>under cluster management, it supports importing k8s from cloud providers to local k8s, unfutinately I previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.</li>
+</ul>
+
+<p><img src="/assets/rancher3.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Hence I will use Rancher to create a new one here
+First prepare 3 local Linux VM boxes, come back to Rancher console under cluster management, give name of the new cluster, then run command to initiate control plane.</li>
+</ul>
+
+<p><img src="/assets/rancher4.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@rancher-master01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> kx92bf7gxdfx2nfnl6rvw4hlmcwdxcb2rt442vgsvgb7tz29rmd4c6 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--etcd</span> <span class="nt">--controlplane</span>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  2037k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 2151k
+<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
+<span class="o">[</span>INFO]  Role requested: etcd
+<span class="o">[</span>INFO]  Role requested: controlplane
+<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
+<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
+<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
+<span class="o">[</span>INFO]  Successfully downloaded CA certificate
+<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+<span class="o">[</span>INFO]  Successfully tested Rancher connection
+<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
+<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+<span class="o">[</span>INFO]  Generating Cattle ID
+<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
+<span class="o">[</span>INFO]  systemd: Creating service file
+<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
+
+<ul>
+  <li>Cluster updated a new machine as a node being installing and configuring k8s control plane components.</li>
+</ul>
+
+<p><img src="/assets/rancher5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Then join the 2 worker nodes</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@racher-worker01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> hdsvptc74zvzz62hw9gtt6p7m6nl5k4fs6vk92zqm4f6tvj4tf8m54 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--worker</span>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  5455k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 6024k
+<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
+<span class="o">[</span>INFO]  Role requested: worker
+<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
+<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
+<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
+<span class="o">[</span>INFO]  Successfully downloaded CA certificate
+<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+<span class="o">[</span>INFO]  Successfully tested Rancher connection
+<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
+<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+<span class="o">[</span>INFO]  Generating Cattle ID
+<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
+<span class="o">[</span>INFO]  systemd: Creating service file
+<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
+
+<p><img src="/assets/rancher6.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Create zackweb and joesite as deployment from Rancher console</li>
+</ul>
+
+<p><img src="/assets/rancher7.png" alt="image tooltip here" />
+<img src="/assets/rancher8.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. 
+overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
+
+<p><img src="/assets/rancher9.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[My k8s provisioning journey]]></summary></entry><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
 
 <p>In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.</p>
 
@@ -857,62 +995,4 @@ window1:
 
 <p>test topic and PRODUCER with CONSUMER</p>
 
-<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry><entry><title type="html">GitOps with Argo CD</title><link href="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html" rel="alternate" type="text/html" title="GitOps with Argo CD" /><published>2023-11-07T11:15:29+11:00</published><updated>2023-11-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/07/ArgoCD.html"><![CDATA[<p>Topic</p>
-
-<p><b>Argo CD sync local K8S deployment with Github manifest</b></p>
-
-<p>Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes applications. This is a post to show how enable Argo CD on local k8s and AWS EKS, deploy application and sync with github manifest</p>
-
-<ul>
-  <li>Argo CD install ingress controller ingress-nginx</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace argocd
-kubectl apply <span class="nt">-n</span> argocd <span class="nt">-f</span> https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml</code></pre></figure>
-
-<ul>
-  <li>Download and install Argo CD CLI</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">curl <span class="nt">-sSL</span> <span class="nt">-o</span> argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-<span class="nb">sudo install</span> <span class="nt">-m</span> 555 argocd-linux-amd64 /usr/local/bin/argocd
-<span class="nb">rm </span>argocd-linux-amd64</code></pre></figure>
-
-<ul>
-  <li>configure Argo CD API Server and deploy zackweb</li>
-</ul>
-
-<p>Change the argocd-server service type to NodePort, init admin passwd and deploy “zackweb” via argocd application manifests (argo-zackweb-application.yaml)</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch svc argocd-server <span class="nt">-n</span> argocd <span class="nt">-p</span> <span class="s1">'{"spec": {"type": "NodePort"}}'</span>
-argocd admin initial-password <span class="nt">-n</span> argocd
-kubectl create <span class="nt">-f</span> argo-zackweb-application.yaml</code></pre></figure>
-
-<p>argo-zackweb-application.yaml</p>
-
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">argoproj.io/v1alpha1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Application</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">argocd</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">destination</span><span class="pi">:</span>
-    <span class="na">namespace</span><span class="pi">:</span> <span class="s1">'</span><span class="s">zackweb'</span>
-    <span class="na">server</span><span class="pi">:</span> <span class="s1">'</span><span class="s">https://kubernetes.default.svc'</span>
-  <span class="na">source</span><span class="pi">:</span>
-    <span class="na">path</span><span class="pi">:</span> <span class="s">eks-deploy</span>
-    <span class="na">repoURL</span><span class="pi">:</span> <span class="s1">'</span><span class="s">https://github.com/ZackZhouHB/zack-gitops-project'</span>
-    <span class="na">targetRevision</span><span class="pi">:</span> <span class="s">editing</span>
-  <span class="na">project</span><span class="pi">:</span> <span class="s">default</span>
-  <span class="na">syncPolicy</span><span class="pi">:</span>
-    <span class="na">automated</span><span class="pi">:</span>
-      <span class="na">prune</span><span class="pi">:</span> <span class="kc">true</span>
-      <span class="na">selfHeal</span><span class="pi">:</span> <span class="kc">true</span>
-    <span class="na">syncOptions</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="s">CreateNamespace=true</span></code></pre></figure>
-
-<ul>
-  <li>access to argocd UI check for sync</li>
-</ul>
-
-<p><img src="/assets/argo-demo.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Topic]]></summary></entry></feed>
+<p><img src="/assets/kafka-validation.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Kafka]]></summary></entry></feed>

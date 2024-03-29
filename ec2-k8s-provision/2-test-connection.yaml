@@ -1,0 +1,20 @@
+# add host into hots
+# set remote_user=ubuntu
+# echo [ssh_connection] >> /etc/ansible/ansible.cfg
+# sed -i '/\[ssh_connection\]/a\ssh_args = -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' /etc/ansible/ansible.cfg
+
+
+---
+- name: Add multiple users with specified passwords
+  hosts: tag_KK_ubt 
+  become: yes
+  tasks:
+    - name: Add users
+      user:
+        name: "{{ item.name }}"
+        group: root
+        password: "{{ item.password }}"
+        update_password: on_create
+        shell: /bin/bash
+      loop:
+        - { name: joe, password: "tGY.K.uNb0YNU" }
