@@ -9,15 +9,15 @@ categories: jekyll Cat2
 
 In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.
 
-Redhat provides such enterprise level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as externel identity provider. 
+Redhat provides such enterprise-level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as external identity provider. 
 
-when a company facing challange to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve: 
+when a company facing challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve: 
 
 - With Local AD and Azure AD (AAD) Integration
 
 - With AWS SSO Integration as externel identity provider
 
-- Cross-Account Access and cross-cloud access
+- Cross-account access and cross-cloud access
 
 
 <b> Typical AD User Authentication Flow across AWS and IdM would be: </b>
@@ -41,7 +41,7 @@ when a company facing challange to manage its Linux environments across local an
 
 <b> freeIPA: the opensource version of RedHat IdM </b>
 
-Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called "freeIPA", with 3 linux box to validate the user permission and clinet hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:
+Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called "freeIPA", with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:
 
 - freeIPA Server: freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)
 
@@ -58,14 +58,14 @@ on freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)
 hostnamectl set-hostname freeipa-server.zackz.oonline
 
 # add 3 hosts to /etc/hosts
-echo 11.0.1.150	freeipa-server.zackz.oonline	ipa >> /etc/hosts
-echo 11.0.1.151	freeipa-client1.zackz.oonline	ipa >> /etc/hosts
-echo 11.0.1.72	freeipa-client2.zackz.oonline	ipa >> /etc/hosts
+echo 11.0.1.150 freeipa-server.zackz.oonline  ipa >> /etc/hosts
+echo 11.0.1.151 freeipa-client1.zackz.oonline ipa >> /etc/hosts
+echo 11.0.1.72  freeipa-client2.zackz.oonline ipa >> /etc/hosts
 
 # install ipa-server
 yum install ipa-server bind-dyndb-ldap ipa-server-dns
 
-# configure ipa-server and DNS, here set ipa console and domain admin passwd
+# Configure ipa-server and DNS, here set ipa console and domain admin passwd
 ipa-server-install --setup-dns
 
 # configure firewall rules and services
@@ -110,7 +110,7 @@ firewall-cmd --permanent --add-service=ftp
 firewall-cmd --reload
 
 
-# copy CA certificat of the IPA server to the FTP site
+# copy CA certificate of the IPA server to the FTP site
 cp /root/cacert.p12 /var/ftp/pub
 
 # Configure default login shell to Bash and Create Users
@@ -185,9 +185,9 @@ list the 2 users "alice" and "vincent" previously created
 
 <b> Add and enroll client hosts into IdM </b>
 
-To add clients hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install "freeipa-client" and condigure domain. 
+To add client hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install "freeipa-client" and condigure domain. 
 
-- For CentOS client (11.0.1.151	freeipa-client1.zackz.oonline) enrollment: 
+- For CentOS client (11.0.1.151 freeipa-client1.zackz.oonline) enrollment: 
 
 {% highlight shell %}
 
@@ -195,9 +195,9 @@ To add clients hosts into freeIPA can be done via command or console, but to enr
 hostnamectl set-hostname freeipa-client1.zackz.oonline
 
 # add 3 hosts to /etc/hosts
-echo 11.0.1.150	freeipa-server.zackz.oonline	ipa >> /etc/hosts
-echo 11.0.1.151	freeipa-client1.zackz.oonline	ipa >> /etc/hosts
-echo 11.0.1.72	freeipa-client2.zackz.oonline	ipa >> /etc/hosts
+echo 11.0.1.150 freeipa-server.zackz.oonline  ipa >> /etc/hosts
+echo 11.0.1.151 freeipa-client1.zackz.oonline ipa >> /etc/hosts
+echo 11.0.1.72  freeipa-client2.zackz.oonline ipa >> /etc/hosts
 
 
 # install freeipa-client and manually configure domain
@@ -262,7 +262,7 @@ The ipa-client-install command was successful
 
 {% endhighlight %}
 
-- for Ubuntu client host (11.0.1.72	freeipa-client2.zackz.oonline) enrollment:
+- for Ubuntu client host (11.0.1.72 freeipa-client2.zackz.oonline) enrollment:
 
 First back to freeIPA server, add DNS record for Ubuntu
 {% highlight shell %}
@@ -272,7 +272,7 @@ ipa dnsrecord-add hwdomain.io ubuntu-node.hwdomain.io --a-rec 192.168.10.50
 
 {% endhighlight %}
 
-Then login Ubunto host to install freeipa-client and enroll:
+Then login Ubuntu host to install freeipa-client and enroll:
 
 {% highlight shell %}
 
@@ -280,9 +280,9 @@ Then login Ubunto host to install freeipa-client and enroll:
 hostnamectl set-hostname freeipa-client2.zackz.oonline
 
 # add 3 hosts to /etc/hosts
-echo 11.0.1.150	freeipa-server.zackz.oonline	ipa >> /etc/hosts
-echo 11.0.1.151	freeipa-client1.zackz.oonline	ipa >> /etc/hosts
-echo 11.0.1.72	freeipa-client2.zackz.oonline	ipa >> /etc/hosts
+echo 11.0.1.150 freeipa-server.zackz.oonline  ipa >> /etc/hosts
+echo 11.0.1.151 freeipa-client1.zackz.oonline ipa >> /etc/hosts
+echo 11.0.1.72  freeipa-client2.zackz.oonline ipa >> /etc/hosts
 
 # install ipa client
 apt update && apt install freeipa-client oddjob-mkhomedir

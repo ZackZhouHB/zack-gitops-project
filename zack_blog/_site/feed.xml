@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-05T00:10:21+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-05T00:15:03+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
 
 <p>In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.</p>
 
-<p>Redhat provides such enterprise level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as externel identity provider.</p>
+<p>Redhat provides such enterprise-level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as external identity provider.</p>
 
-<p>when a company facing challange to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
+<p>when a company facing challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
 
 <ul>
   <li>
@@ -14,7 +14,7 @@
     <p>With AWS SSO Integration as externel identity provider</p>
   </li>
   <li>
-    <p>Cross-Account Access and cross-cloud access</p>
+    <p>Cross-account access and cross-cloud access</p>
   </li>
 </ul>
 
@@ -46,7 +46,7 @@
 
 <p><b> freeIPA: the opensource version of RedHat IdM </b></p>
 
-<p>Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called “freeIPA”, with 3 linux box to validate the user permission and clinet hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:</p>
+<p>Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called “freeIPA”, with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:</p>
 
 <ul>
   <li>
@@ -68,14 +68,14 @@
 hostnamectl set-hostname freeipa-server.zackz.oonline
 
 <span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.150	freeipa-server.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.151	freeipa-client1.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.72	freeipa-client2.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
 
 <span class="c"># install ipa-server</span>
 yum <span class="nb">install </span>ipa-server bind-dyndb-ldap ipa-server-dns
 
-<span class="c"># configure ipa-server and DNS, here set ipa console and domain admin passwd</span>
+<span class="c"># Configure ipa-server and DNS, here set ipa console and domain admin passwd</span>
 ipa-server-install <span class="nt">--setup-dns</span>
 
 <span class="c"># configure firewall rules and services</span>
@@ -120,7 +120,7 @@ firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service<
 firewall-cmd <span class="nt">--reload</span>
 
 
-<span class="c"># copy CA certificat of the IPA server to the FTP site</span>
+<span class="c"># copy CA certificate of the IPA server to the FTP site</span>
 <span class="nb">cp</span> /root/cacert.p12 /var/ftp/pub
 
 <span class="c"># Configure default login shell to Bash and Create Users</span>
@@ -191,19 +191,19 @@ ipa dnsrecord-add zackz.oonline @ <span class="nt">--mx-rec</span><span class="o
 
 <p><b> Add and enroll client hosts into IdM </b></p>
 
-<p>To add clients hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install “freeipa-client” and condigure domain.</p>
+<p>To add client hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install “freeipa-client” and condigure domain.</p>
 
 <ul>
-  <li>For CentOS client (11.0.1.151	freeipa-client1.zackz.oonline) enrollment:</li>
+  <li>For CentOS client (11.0.1.151 freeipa-client1.zackz.oonline) enrollment:</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set client hostname with domain</span>
 hostnamectl set-hostname freeipa-client1.zackz.oonline
 
 <span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.150	freeipa-server.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.151	freeipa-client1.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.72	freeipa-client2.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
 
 
 <span class="c"># install freeipa-client and manually configure domain</span>
@@ -266,7 +266,7 @@ Client configuration complete.
 The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
 
 <ul>
-  <li>for Ubuntu client host (11.0.1.72	freeipa-client2.zackz.oonline) enrollment:</li>
+  <li>for Ubuntu client host (11.0.1.72 freeipa-client2.zackz.oonline) enrollment:</li>
 </ul>
 
 <p>First back to freeIPA server, add DNS record for Ubuntu</p>
@@ -274,15 +274,15 @@ The ipa-client-install <span class="nb">command </span>was successful</code></pr
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add DNS record for Ubuntu client on freeIPA server</span>
 ipa dnsrecord-add hwdomain.io ubuntu-node.hwdomain.io <span class="nt">--a-rec</span> 192.168.10.50</code></pre></figure>
 
-<p>Then login Ubunto host to install freeipa-client and enroll:</p>
+<p>Then login Ubuntu host to install freeipa-client and enroll:</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname </span>
 hostnamectl set-hostname freeipa-client2.zackz.oonline
 
 <span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.150	freeipa-server.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.151	freeipa-client1.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.72	freeipa-client2.zackz.oonline	ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
 
 <span class="c"># install ipa client</span>
 apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install </span>freeipa-client oddjob-mkhomedir
