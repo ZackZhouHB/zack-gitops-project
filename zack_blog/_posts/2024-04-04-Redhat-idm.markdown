@@ -345,3 +345,7 @@ Now we install Redhat IdM server and be able to enroll client hosts, looking at 
 
 ![image tooltip here](/assets/linuxidm5.png)
 
+More info can be found via Freeipa workshop: https://freeipa.readthedocs.io/en/latest/workshop.html
+
+Or from RedHat website: 
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index 
