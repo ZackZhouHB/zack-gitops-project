@@ -63,11 +63,26 @@
     <p>With AWS SSO Integration as externel identity provider</p>
   </li>
   <li>
-    <p>Cross-account access and cross-cloud access</p>
+    <p>LDAP – an LDAP directory (389 Directory Server) is embedded</p>
+  </li>
+  <li>
+    <p>Kerberos – KDC (MIT Kerberos) for Kerberos key management and single signon</p>
+  </li>
+  <li>
+    <p>DNS – BIND (bind-dyndb-ldap) for domain name services</p>
+  </li>
+  <li>
+    <p>PKI – Red Hat Certificate System (Dogtag certificate system) provides public key infrastructure for certificate management</p>
+  </li>
+  <li>
+    <p>NTP – Network Time Protocol service for time sync</p>
+  </li>
+  <li>
+    <p>A web-based management front-end running on Apache</p>
   </li>
 </ul>
 
-<p><b> Typical AD User Authentication Flow across AWS and IdM would be: </b></p>
+<p><b> A Typical AD User Authentication Flow across AWS and IdM would be: </b></p>
 
 <ul>
   <li>
@@ -93,7 +108,7 @@
   </li>
 </ul>
 
-<p><b> freeIPA: the opensource version of RedHat IdM </b></p>
+<p><b> FreeIPA: the opensource version of RedHat IdM </b></p>
 
 <p>Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called “freeIPA”, with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:</p>
 
@@ -109,9 +124,9 @@
   </li>
 </ul>
 
-<p><b> freeIPA server installation </b></p>
+<p><b> Local testlab FreeIPA server installation </b></p>
 
-<p>on freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
+<p>On freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname with domain</span>
 hostnamectl set-hostname freeipa-server.zackz.oonline
@@ -392,10 +407,8 @@ alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
 
 <p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
 
-<p>More info can be found via Freeipa workshop: https://freeipa.readthedocs.io/en/latest/workshop.html</p>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>
 
-<p>Or from RedHat website: 
-https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index</p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/04/04/Redhat-idm.html" hidden></a>
 </article>

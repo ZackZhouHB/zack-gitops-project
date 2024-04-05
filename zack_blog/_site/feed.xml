@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-05T10:54:37+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-05T11:25:36+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
 
 <p>In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.</p>
 
@@ -14,11 +14,26 @@
     <p>With AWS SSO Integration as externel identity provider</p>
   </li>
   <li>
-    <p>Cross-account access and cross-cloud access</p>
+    <p>LDAP – an LDAP directory (389 Directory Server) is embedded</p>
+  </li>
+  <li>
+    <p>Kerberos – KDC (MIT Kerberos) for Kerberos key management and single signon</p>
+  </li>
+  <li>
+    <p>DNS – BIND (bind-dyndb-ldap) for domain name services</p>
+  </li>
+  <li>
+    <p>PKI – Red Hat Certificate System (Dogtag certificate system) provides public key infrastructure for certificate management</p>
+  </li>
+  <li>
+    <p>NTP – Network Time Protocol service for time sync</p>
+  </li>
+  <li>
+    <p>A web-based management front-end running on Apache</p>
   </li>
 </ul>
 
-<p><b> Typical AD User Authentication Flow across AWS and IdM would be: </b></p>
+<p><b> A Typical AD User Authentication Flow across AWS and IdM would be: </b></p>
 
 <ul>
   <li>
@@ -44,7 +59,7 @@
   </li>
 </ul>
 
-<p><b> freeIPA: the opensource version of RedHat IdM </b></p>
+<p><b> FreeIPA: the opensource version of RedHat IdM </b></p>
 
 <p>Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called “freeIPA”, with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:</p>
 
@@ -60,9 +75,9 @@
   </li>
 </ul>
 
-<p><b> freeIPA server installation </b></p>
+<p><b> Local testlab FreeIPA server installation </b></p>
 
-<p>on freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
+<p>On freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname with domain</span>
 hostnamectl set-hostname freeipa-server.zackz.oonline
@@ -343,10 +358,7 @@ alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
 
 <p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
 
-<p>More info can be found via Freeipa workshop: https://freeipa.readthedocs.io/en/latest/workshop.html</p>
-
-<p>Or from RedHat website: 
-https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
 
 <p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
 
