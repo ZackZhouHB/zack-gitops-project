@@ -91,6 +91,7 @@ jobs:
             sudo systemctl stop nginx
             cd /usr/share/nginx/html && sudo rm -rf *
             sudo cp ~/zack-gitops-project/zack_blog/_site/* /usr/share/nginx/html/ -r
+            sudo cp ~/zack-gitops-project/zack_blog/_site/* /var/www/html/ -r
             sudo systemctl start nginx
 
 #            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
