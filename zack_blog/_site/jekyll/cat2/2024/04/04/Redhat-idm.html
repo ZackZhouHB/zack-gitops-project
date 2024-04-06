@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>RedHat Identity management (IdM) | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="RedHat Identity management (IdM)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Linux Identity management" />
+<meta property="og:description" content="About Linux Identity management" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-04-04T11:15:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="RedHat Identity management (IdM)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-04-04T11:15:29+11:00","datePublished":"2024-04-04T11:15:29+11:00","description":"About Linux Identity management","headline":"RedHat Identity management (IdM)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"},"url":"http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> RedHat Identity management (IdM) </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-04-04T11:15:29+11:00" itemprop="datePublished">Apr 4, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> About Linux Identity management </b></p>
+
+<p>In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.</p>
+
+<p>Redhat provides such enterprise-level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as external identity provider.</p>
+
+<p>when a company facing challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
+
+<ul>
+  <li>
+    <p>With Local AD and Azure AD (AAD) Integration</p>
+  </li>
+  <li>
+    <p>With AWS SSO Integration as externel identity provider</p>
+  </li>
+  <li>
+    <p>LDAP – an LDAP directory (389 Directory Server) is embedded</p>
+  </li>
+  <li>
+    <p>Kerberos – KDC (MIT Kerberos) for Kerberos key management and single signon</p>
+  </li>
+  <li>
+    <p>DNS – BIND (bind-dyndb-ldap) for domain name services</p>
+  </li>
+  <li>
+    <p>PKI – Red Hat Certificate System (Dogtag certificate system) provides public key infrastructure for certificate management</p>
+  </li>
+  <li>
+    <p>NTP – Network Time Protocol service for time sync</p>
+  </li>
+  <li>
+    <p>A web-based management front-end running on Apache</p>
+  </li>
+</ul>
+
+<p><b> A Typical AD User Authentication Flow across AWS and IdM would be: </b></p>
+
+<ul>
+  <li>
+    <p>When a user attempts to access AWS resources, they first authenticate through Azure AD using their Azure AD credentials.</p>
+  </li>
+  <li>
+    <p>Azure AD authenticates the user and issues a security token.</p>
+  </li>
+  <li>
+    <p>The user accesses AWS SSO, which is configured to use Red Hat IDM as an identity provider.</p>
+  </li>
+  <li>
+    <p>AWS SSO redirects the user to the Red Hat IDM authentication page.</p>
+  </li>
+  <li>
+    <p>The user enters their Red Hat IDM credentials and authenticates against the IdM server.</p>
+  </li>
+  <li>
+    <p>Red Hat IDM validates the user’s credentials and issues a SAML assertion to AWS SSO.</p>
+  </li>
+  <li>
+    <p>AWS SSO validates the SAML assertion and grants the user access to the requested AWS resources.</p>
+  </li>
+</ul>
+
+<p><b> FreeIPA: the opensource version of RedHat IdM </b></p>
+
+<p>Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called “freeIPA”, with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:</p>
+
+<ul>
+  <li>
+    <p>freeIPA Server: freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
+  </li>
+  <li>
+    <p>freeIPA Client1: freeipa-client1.zackz.oonline 11.0.1.151 (CentOS 7.9)</p>
+  </li>
+  <li>
+    <p>freeIPA Client2: freeipa-client2.zackz.oonline 11.0.1.72 (Ubuntu 22.04)</p>
+  </li>
+</ul>
+
+<p><b> Local testlab FreeIPA server installation </b></p>
+
+<p>On freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname with domain</span>
+hostnamectl set-hostname freeipa-server.zackz.oonline
+
+<span class="c"># add 3 hosts to /etc/hosts</span>
+<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+
+<span class="c"># install ipa-server</span>
+yum <span class="nb">install </span>ipa-server bind-dyndb-ldap ipa-server-dns
+
+<span class="c"># Configure ipa-server and DNS, here set ipa console and domain admin passwd</span>
+ipa-server-install <span class="nt">--setup-dns</span>
+
+<span class="c"># configure firewall rules and services</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span><span class="o">={</span>http,https,ldap,ldaps,kerberos,dns,kpasswd,ntp<span class="o">}</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span> freeipa-ldap
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span> freeipa-ldaps
+firewall-cmd <span class="nt">--reload</span>
+
+<span class="c"># check ipastatus</span>
+<span class="o">[</span>root@freeipa ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+ntpd Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl <span class="nb">command </span>was successful
+
+
+<span class="c"># Obtain a Kerberos ticket for the Kerberos admin user and Verify the ticket</span>
+kinit admin
+klist
+
+Ticket cache: KEYRING:persistent:0:0
+Default principal: admin@ZACKZ.OONLINE
+
+Valid starting     Expires            Service principal
+04/04/24 22:17:29  05/04/24 22:02:43  HTTP/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+
+<span class="c"># check content of /etc/resolv.conf</span>
+<span class="nb">cat</span> /etc/resolv.conf
+search zackz.oonline
+nameserver 127.0.0.1
+
+<span class="c"># Configure FreeIPA for User Authentication</span>
+
+yum <span class="nb">install</span> <span class="nt">-y</span> vsftpd
+systemctl <span class="nb">enable </span>vsftpd <span class="o">&amp;&amp;</span> systemctl start vsftpd
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span><span class="o">=</span>ftp
+firewall-cmd <span class="nt">--reload</span>
+
+
+<span class="c"># copy CA certificate of the IPA server to the FTP site</span>
+<span class="nb">cp</span> /root/cacert.p12 /var/ftp/pub
+
+<span class="c"># Configure default login shell to Bash and Create Users</span>
+ipa config-mod <span class="nt">--defaultshell</span><span class="o">=</span>/bin/bash
+ipa user-add alice <span class="nt">--first</span><span class="o">=</span>alice <span class="nt">--last</span><span class="o">=</span>abernathy <span class="nt">--password</span>
+ipa user-add vince <span class="nt">--first</span><span class="o">=</span>vincent <span class="nt">--last</span><span class="o">=</span>valentine <span class="nt">--password</span>
+
+<span class="c"># add client hosts </span>
+ipa host-add <span class="nt">--ip-address</span> 11.0.1.151 freeipa-client1.zackz.oonline
+ipa host-add <span class="nt">--ip-address</span> 11.0.1.72 freeipa-client2.zackz.oonline
+
+<span class="c"># create NFS service entry in the IdM domain</span>
+ipa service-add nfs/freeipa-client1.zackz.oonline
+ipa service-add nfs/freeipa-client2.zackz.oonline
+
+<span class="c"># add entry to the keytab file /etc/krb5.keytab</span>
+kadmin.local
+Authenticating as principal admin/admin@RHCE.LOCAL with password.
+kadmin.local:  ktadd nfs/freeipa-client1.zackz.oonline
+kadmin.local:  ktadd nfs/freeipa-client2.zackz.oonline
+kadmin.local:  quit
+
+<span class="c"># verify keytab file</span>
+<span class="o">[</span>root@freeipa-server pub]# klist <span class="nt">-k</span>
+Keytab name: FILE:/etc/krb5.keytab
+KVNO Principal
+<span class="nt">----</span> <span class="nt">--------------------------------------------------------------------------</span>
+   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+
+
+<span class="c"># Generate keys to copy over to NFS systems, chmod to Make the keytab file accessible to FTP clients</span>
+ipa-getkeytab <span class="nt">-s</span> freeipa-server.zackz.oonline <span class="nt">-p</span> nfs/freeipa-client2.zackz.oonline <span class="nt">-k</span> /var/ftp/pub/freeipa-client2.keytab
+ipa-getkeytab <span class="nt">-s</span> freeipa-server.zackz.oonline <span class="nt">-p</span> nfs/freeipa-client1.zackz.oonline <span class="nt">-k</span> /var/ftp/pub/freeipa-client1.keytab
+<span class="nb">chmod </span>644 /var/ftp/pub/<span class="k">*</span>.keytab
+
+<span class="c"># Configure DNS</span>
+ipa dnszone-mod <span class="nt">--allow-transfer</span><span class="o">=</span>11.0.1.0/24 zackz.oonline
+ipa dnsrecord-add zackz.oonline vhost1 <span class="nt">--ttl</span><span class="o">=</span>3600 <span class="nt">--a-ip-address</span><span class="o">=</span>11.0.1.151
+ipa dnsrecord-add zackz.oonline dynamic1 <span class="nt">--ttl</span><span class="o">=</span>3600 <span class="nt">--a-ip-address</span><span class="o">=</span>11.0.1.151
+ipa dnsrecord-add zackz.oonline @ <span class="nt">--mx-rec</span><span class="o">=</span><span class="s2">"0 freeipa-server.zackz.oonline."</span></code></pre></figure>
+
+<p><b> Console login </b></p>
+
+<p>login freeIPA console with serverIP or DNS name</p>
+
+<p><img src="/assets/linuxidm1.png" alt="image tooltip here" /></p>
+
+<p>list the 2 users “alice” and “vincent” previously created</p>
+
+<p><img src="/assets/linuxidm2.png" alt="image tooltip here" /></p>
+
+<p><b> Add and enroll client hosts into IdM </b></p>
+
+<p>To add client hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install “freeipa-client” and condigure domain.</p>
+
+<ul>
+  <li>For CentOS client (11.0.1.151 freeipa-client1.zackz.oonline) enrollment:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set client hostname with domain</span>
+hostnamectl set-hostname freeipa-client1.zackz.oonline
+
+<span class="c"># add 3 hosts to /etc/hosts</span>
+<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+
+
+<span class="c"># install freeipa-client and manually configure domain</span>
+<span class="o">[</span>root@freeipa-client1 ~]# ipa-client-install <span class="nt">--mkhomedir</span>
+WARNING: ntpd <span class="nb">time</span>&amp;date synchronization service will not be configured as
+conflicting service <span class="o">(</span>chronyd<span class="o">)</span> is enabled
+Use <span class="nt">--force-ntpd</span> option to disable it and force configuration of ntpd
+
+DNS discovery failed to determine your DNS domain
+Provide the domain name of your IPA server <span class="o">(</span>ex: example.com<span class="o">)</span>: zackz.oonline
+Provide your IPA server name <span class="o">(</span>ex: ipa.example.com<span class="o">)</span>: freeipa-server.zackz.oonline
+The failure to use DNS to find your IPA server indicates that your resolv.conf file is not properly configured.
+Autodiscovery of servers <span class="k">for </span>failover cannot work with this configuration.
+If you proceed with the installation, services will be configured to always access the discovered server <span class="k">for </span>all operations and will not fail over to other servers <span class="k">in case</span> of failure.
+Proceed with fixed values and no DNS discovery? <span class="o">[</span>no]: <span class="nb">yes
+</span>Client <span class="nb">hostname</span>: freeipa-client1.zackz.oonline
+Realm: ZACKZ.OONLINE
+DNS Domain: zackz.oonline
+IPA Server: freeipa-server.zackz.oonline
+BaseDN: <span class="nv">dc</span><span class="o">=</span>zackz,dc<span class="o">=</span>oonline
+
+Continue to configure the system with these values? <span class="o">[</span>no]: <span class="nb">yes
+</span>Skipping synchronizing <span class="nb">time </span>with NTP server.
+User authorized to enroll computers: admin
+Password <span class="k">for </span>admin@ZACKZ.OONLINE: 
+Successfully retrieved CA cert
+    Subject:     <span class="nv">CN</span><span class="o">=</span>Certificate Authority,O<span class="o">=</span>ZACKZ.OONLINE
+    Issuer:      <span class="nv">CN</span><span class="o">=</span>Certificate Authority,O<span class="o">=</span>ZACKZ.OONLINE
+    Valid From:  2024-04-04 10:45:20
+    Valid Until: 2044-04-04 11:45:20
+
+Enrolled <span class="k">in </span>IPA realm ZACKZ.OONLINE
+Created /etc/ipa/default.conf
+New SSSD config will be created
+Configured sudoers <span class="k">in</span> /etc/nsswitch.conf
+Configured /etc/sssd/sssd.conf
+trying https://freeipa-server.zackz.oonline/ipa/json
+<span class="o">[</span>try 1]: Forwarding <span class="s1">'schema'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/json'</span>
+trying https://freeipa-server.zackz.oonline/ipa/session/json
+<span class="o">[</span>try 1]: Forwarding <span class="s1">'ping'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/session/json'</span>
+<span class="o">[</span>try 1]: Forwarding <span class="s1">'ca_is_enabled'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/session/json'</span>
+Systemwide CA database updated.
+Hostname <span class="o">(</span>freeipa-client1.zackz.oonline<span class="p">)</span> does not have A/AAAA record.
+Failed to update DNS records.
+Missing reverse record<span class="o">(</span>s<span class="o">)</span> <span class="k">for </span>address<span class="o">(</span>es<span class="o">)</span>: 11.0.1.151.
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+<span class="o">[</span>try 1]: Forwarding <span class="s1">'host_mod'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/session/json'</span>
+Could not update DNS SSHFP records.
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Unable to find <span class="s1">'admin'</span> user with <span class="s1">'getent passwd admin@zackz.oonline'</span><span class="o">!</span>
+Unable to reliably detect configuration. Check NSS setup manually.
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config
+Configuring zackz.oonline as NIS domain.
+Configured /etc/krb5.conf <span class="k">for </span>IPA realm ZACKZ.OONLINE
+Client configuration complete.
+The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
+
+<ul>
+  <li>for Ubuntu client host (11.0.1.72 freeipa-client2.zackz.oonline) enrollment:</li>
+</ul>
+
+<p>First back to freeIPA server, add DNS record for Ubuntu</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add DNS record for Ubuntu client on freeIPA server</span>
+ipa dnsrecord-add hwdomain.io ubuntu-node.hwdomain.io <span class="nt">--a-rec</span> 192.168.10.50</code></pre></figure>
+
+<p>Then login Ubuntu host to install freeipa-client and enroll:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname </span>
+hostnamectl set-hostname freeipa-client2.zackz.oonline
+
+<span class="c"># add 3 hosts to /etc/hosts</span>
+<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
+
+<span class="c"># install ipa client</span>
+apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install </span>freeipa-client oddjob-mkhomedir
+
+<span class="c"># add ubuntu client to freeIPA server</span>
+ipa-client-install <span class="nt">--hostname</span><span class="o">=</span><span class="sb">`</span><span class="nb">hostname</span> <span class="nt">-f</span><span class="sb">`</span> <span class="nt">--mkhomedir</span> /
+<span class="nt">--server</span><span class="o">=</span>freeipa-server.zackz.oonline /
+<span class="nt">--domain</span> zackz.online /
+<span class="nt">--realm</span> ZACKZ.OONLINE
+
+<span class="c"># change PAM profile to enable "Create a home directory on login" </span>
+pam-auth-update</code></pre></figure>
+
+<p>now back to console, the 2 client hosts had been added and enrolled into freeIPA server
+<img src="/assets/linuxidm3.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>verify to use user “alice” and its passwd to ssh login to ubuntu client from freeIPA server</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# ssh alice@freeipa-client2.zackz.oonline
+Password: 
+Welcome to Ubuntu 22.04.4 LTS <span class="o">(</span>GNU/Linux 5.15.0-101-generic x86_64<span class="o">)</span>
+
+ <span class="k">*</span> Documentation:  https://help.ubuntu.com
+ <span class="k">*</span> Management:     https://landscape.canonical.com
+ <span class="k">*</span> Support:        https://ubuntu.com/pro
+
+  System information as of Thu Apr  4 01:02:00 PM UTC 2024
+
+  System load:  0.0               Processes:              234
+  Usage of /:   8.0% of 93.93GB   Users logged <span class="k">in</span>:        1
+  Memory usage: 11%               IPv4 address <span class="k">for </span>ens33: 11.0.1.72
+  Swap usage:   0%
+
+ <span class="k">*</span> Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar <span class="k">for </span>easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance <span class="k">for </span>Applications is not enabled.
+
+18 updates can be applied immediately.
+To see these additional updates run: apt list <span class="nt">--upgradable</span>
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: <span class="nb">sudo </span>pro status
+
+
+Last login: Thu Apr  4 11:47:37 2024 from 11.0.1.150
+alice@freeipa-client2:~<span class="nv">$ </span><span class="nb">id
+</span><span class="nv">uid</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span>
+alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we install Redhat IdM server and be able to enroll client hosts, looking at the user details, IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.</p>
+
+<p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
+
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/04/04/Redhat-idm.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
