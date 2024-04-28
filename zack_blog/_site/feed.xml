@@ -1,4 +1,190 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-06T15:56:03+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-29T09:38:55+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Ubuntu 18.04 to 22.04 in-place upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html" rel="alternate" type="text/html" title="Ubuntu 18.04 to 22.04 in-place upgrade" /><published>2024-04-28T10:15:29+10:00</published><updated>2024-04-28T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html"><![CDATA[<p><b> Ubuntu releases EOL roadmap </b></p>
+
+<p>Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.</p>
+
+<p><img src="/assets/ubt-upg1.png" alt="image tooltip here" /></p>
+
+<p><b> Pre-upgrade checklist </b></p>
+
+<ul>
+  <li>validate current OS version and running service (nginx)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># current OS version</span>
+root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"18.04.6 LTS (Bionic Beaver)"</span>
+<span class="nv">ID</span><span class="o">=</span>ubuntu
+<span class="nv">ID_LIKE</span><span class="o">=</span>debian
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 18.04.6 LTS"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"18.04"</span>
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
+<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
+<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
+<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
+<span class="nv">VERSION_CODENAME</span><span class="o">=</span>bionic
+<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>bionic
+
+<span class="c"># nginx service status</span>
+
+root@ubuntu-test:~# root@ubuntu-test:~# <span class="nb">echo</span> <span class="s2">"ubuntu-inplace-upgrade zack-testing-nginx-service!!"</span>  <span class="o">&gt;&gt;</span> /var/www/html/index.html
+root@ubuntu-test:~# systemctl restart nginx
+root@ubuntu-test:~# curl localhost
+ubuntu-inplace-upgrade zack-testing-nginx-service!!</code></pre></figure>
+
+<ul>
+  <li>Fully update the system</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># update system</span>
+root@ubuntu-test:~# <span class="nb">sudo </span>apt update
+Hit:1 http://au.archive.ubuntu.com/ubuntu bionic InRelease
+Hit:2 http://au.archive.ubuntu.com/ubuntu bionic-updates InRelease
+Hit:3 http://au.archive.ubuntu.com/ubuntu bionic-backports InRelease
+Hit:4 http://au.archive.ubuntu.com/ubuntu bionic-security InRelease
+Reading package lists... Done                      
+Building dependency tree       
+Reading state information... Done
+All packages are up to date.
+root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade <span class="nt">-y</span>
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+<span class="c"># reboot system before upgrade</span>
+root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
+Checking <span class="k">for </span>a new Ubuntu release
+You have not rebooted after updating a package which requires a reboot. Please reboot before upgrading.
+root@ubuntu-test:~# reboot
+Connection closing...Socket close.</code></pre></figure>
+
+<ul>
+  <li>take full system backup</li>
+</ul>
+
+<p>here I took a VM snapshot before upgrade</p>
+
+<p><b> 18.04 to 22.04 upgrade</b></p>
+
+<p>There is no direct upgrade path from 18.04 LTS to Ubuntu 22.04 LTS, so we go Ubuntu 20.04 LTS first and then to Ubuntu 22.04 LTS.</p>
+
+<ul>
+  <li>first upgrade to 20.04</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># run upgrade</span>
+
+root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
+
+This session appears to be running under ssh. It is not recommended 
+to perform a upgrade over ssh currently because <span class="k">in case</span> of failure it 
+is harder to recover. 
+
+If you <span class="k">continue</span>, an additional ssh daemon will be started at port 
+<span class="s1">'1022'</span><span class="nb">.</span> 
+Do you want to <span class="k">continue</span>? 
+
+Continue <span class="o">[</span>yN] y
+
+Starting additional sshd 
+
+Calculating the changes
+  MarkInstall libfwupdplugin1:amd64 &lt; none -&gt; 1.5.11-0ubuntu1~20.04.2 @un uN Ib <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>1
+  Installing libxmlb1 as Depends of libfwupdplugin1
+    MarkInstall libxmlb1:amd64 &lt; none -&gt; 0.1.15-2ubuntu1~20.04.1 @un uN <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>0
+
+Do you want to start the upgrade? 
+
+Continue <span class="o">[</span>yN]  Details <span class="o">[</span>d]y</code></pre></figure>
+
+<ul>
+  <li>allow service restart during upgrade</li>
+</ul>
+
+<p><img src="/assets/ubt-upg2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>reboot after upgrade</li>
+</ul>
+
+<p>The installation and removing of packages may take some time, then reboot is required after ungrade completion</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Purging configuration files <span class="k">for </span>ebtables <span class="o">(</span>2.0.11-3build1<span class="o">)</span> ...
+Purging configuration files <span class="k">for </span>python3.6-minimal <span class="o">(</span>3.6.9-1~18.04ubuntu1.12<span class="o">)</span> ...
+Purging configuration files <span class="k">for </span>mlocate <span class="o">(</span>0.26-3ubuntu3<span class="o">)</span> ...
+Processing triggers <span class="k">for </span>dbus <span class="o">(</span>1.12.16-2ubuntu2.3<span class="o">)</span> ...
+Processing triggers <span class="k">for </span>systemd <span class="o">(</span>245.4-4ubuntu3.23<span class="o">)</span> ...
+
+System upgrade is complete.
+
+Restart required 
+
+To finish the upgrade, a restart is required. 
+If you <span class="k">select</span> <span class="s1">'y'</span> the system will be restarted. 
+
+Continue <span class="o">[</span>yN] y</code></pre></figure>
+
+<ul>
+  <li>validate OS and service</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate nginx service</span>
+root@ubuntu-test:~# curl localhost
+ubuntu-inplace-upgrade  zack-testing-nginx-service!!
+<span class="c"># validate OS version</span>
+root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"20.04.6 LTS (Focal Fossa)"</span>
+<span class="nv">ID</span><span class="o">=</span>ubuntu
+<span class="nv">ID_LIKE</span><span class="o">=</span>debian
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 20.04.6 LTS"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"20.04"</span>
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
+<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
+<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
+<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
+<span class="nv">VERSION_CODENAME</span><span class="o">=</span>focal
+<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>focal</code></pre></figure>
+
+<ul>
+  <li>then upgrade to 22.04</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubuntu-test:~# <span class="nb">sudo </span>apt update
+Hit:1 http://au.archive.ubuntu.com/ubuntu focal InRelease
+Hit:2 http://au.archive.ubuntu.com/ubuntu focal-updates InRelease
+Hit:3 http://au.archive.ubuntu.com/ubuntu focal-backports InRelease
+Hit:4 http://au.archive.ubuntu.com/ubuntu focal-security InRelease
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+All packages are up to date.
+
+root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
+
+<span class="c"># validate after upgrade </span>
+root@ubuntu-test:~# curl localhost
+ubuntu-inplace-upgrade  zack-testing-nginx-service!!
+
+root@ubuntu-test:~# lsb_release <span class="nt">-a</span>
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 22.04.4 LTS
+Release:	22.04
+Codename:	jammy</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Ubuntu releases EOL roadmap]]></summary></entry><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
 
 <p>In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.</p>
 
@@ -358,150 +544,7 @@ alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
 
 <p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
 
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">Move to Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html" rel="alternate" type="text/html" title="Move to Rancher" /><published>2024-03-29T11:15:29+11:00</published><updated>2024-03-29T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/29/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/29/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
-
-<p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
-
-<ul>
-  <li>
-    <p>home lab install individual k8s components (etcd, keepalived, apiserver, scheduler, coreDNS, calico)</p>
-  </li>
-  <li>
-    <p>home lab using kubeadm</p>
-  </li>
-  <li>
-    <p>AWS cloud provisioning using kops and eksctl</p>
-  </li>
-  <li>
-    <p>provision self-managed k8s cluster directly on ec2 by ansible</p>
-  </li>
-</ul>
-
-<p><b> Rancher Support matrix </b></p>
-
-<p>Finally it is time to move to Rancher as its power and simplicity in managing multiple k8s cluster. Based on latest version 2.8.2, it supports to manage k8s v1.27.</p>
-
-<p><img src="/assets/rancher1.png" alt="image tooltip here" /></p>
-
-<p><b> Rancher local installation </b></p>
-
-<p>To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create Persisting rancher data directory to map within the Rancher Docker container</span>
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">mkdir</span> <span class="nt">-p</span> /path/to/rancher-data
-
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">-d</span> <span class="nt">--restart</span><span class="o">=</span>unless-stopped  <span class="se">\</span>
- <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443  <span class="se">\</span>
- <span class="nt">-v</span> /path/to/rancher-data:/var/lib/rancher <span class="se">\</span>
- <span class="nt">--privileged</span>   rancher/rancher:latest
-d26e32094657b598f61233d0d86e448ab4bfd980763928ca6f298ae0d3774a56
-
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker ps
-CONTAINER ID   IMAGE                    COMMAND           CREATED         STATUS         PORTS                                                                      NAMES
-d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span>   7 seconds ago   Up 6 seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp, :::443-&gt;443/tcp   flamboyant_bassi
-
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
-2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
-
-<p><b> Console login </b></p>
-
-<p>Rancher login page via https://localhost/dashboard/home</p>
-
-<p><img src="/assets/rancher2.png" alt="image tooltip here" /></p>
-
-<p><b> Create new or import existing K8s cluster from Rancher console </b></p>
-
-<ul>
-  <li>under cluster management, it supports importing both local and cloud k8s clusters, unfortunately my lab k8s cluster is v1.28 which is too high to be imported and managed by Rancher.</li>
-</ul>
-
-<p><img src="/assets/rancher3.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Hence I will use Rancher to create a new one here
-First prepare 3 local Linux VM boxes, come back to Rancher console under cluster management, give name of the new cluster, then run command to initiate control plane.</li>
-</ul>
-
-<p><img src="/assets/rancher4.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@rancher-master01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> kx92bf7gxdfx2nfnl6rvw4hlmcwdxcb2rt442vgsvgb7tz29rmd4c6 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--etcd</span> <span class="nt">--controlplane</span>
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 30845    0 30845    0     0  2037k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 2151k
-<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
-<span class="o">[</span>INFO]  Role requested: etcd
-<span class="o">[</span>INFO]  Role requested: controlplane
-<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
-<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
-<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
-<span class="o">[</span>INFO]  Successfully downloaded CA certificate
-<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
-<span class="o">[</span>INFO]  Successfully tested Rancher connection
-<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
-<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
-<span class="o">[</span>INFO]  Generating Cattle ID
-<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
-<span class="o">[</span>INFO]  systemd: Creating service file
-<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
-<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
-Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
-<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
-
-<ul>
-  <li>Cluster updated a new machine as a node being installing and configuring k8s control plane components.</li>
-</ul>
-
-<p><img src="/assets/rancher5.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Then join the 2 worker nodes</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@racher-worker01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> hdsvptc74zvzz62hw9gtt6p7m6nl5k4fs6vk92zqm4f6tvj4tf8m54 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--worker</span>
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 30845    0 30845    0     0  5455k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 6024k
-<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
-<span class="o">[</span>INFO]  Role requested: worker
-<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
-<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
-<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
-<span class="o">[</span>INFO]  Successfully downloaded CA certificate
-<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
-<span class="o">[</span>INFO]  Successfully tested Rancher connection
-<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
-<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
-<span class="o">[</span>INFO]  Generating Cattle ID
-<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
-<span class="o">[</span>INFO]  systemd: Creating service file
-<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
-<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
-Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
-<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
-
-<p><img src="/assets/rancher6.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Create “zackweb” and “joesite” as deployment from Rancher console</li>
-</ul>
-
-<p><img src="/assets/rancher7.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/rancher8.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines and create deployment and service in rancher console instead of “kubectl” all the time, it also provides major cloud k8s cluster provision, with its app market for most popular helm charts ready to be installed like “Istio” and “Prometheus”, not to mention it combines the flexibility to easily add and remove nodes, visualize all the resources on console, especially take snapshot and restore cluster configuration, I would say it is a great tool to manage mutiple k8s clusters.</p>
-
-<p>Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s.</p>
-
-<p>Overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
-
-<p><img src="/assets/rancher9.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[My k8s provisioning journey]]></summary></entry><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
 
 <p>In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.</p>
 
