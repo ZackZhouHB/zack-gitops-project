@@ -32,25 +32,25 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-  type: LoadBalancer # 
+  type: NodePort # 
 
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: zackweb-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-    - host: aws.zackdevops.online  # Replace with your domain
-      http:
-        paths:
-        - pathType: Prefix
-          path: /
-          backend:
-            service:
-              name: zackweb-service
-              port:
-                number: 80
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: zackweb-ingress
+#  annotations:
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+#spec:
+#  rules:
+#    - host: aws.zackdevops.online  # Replace with your domain
+#      http:
+#        paths:
+#        - pathType: Prefix
+#          path: /
+#          backend:
+#            service:
+#              name: zackweb-service
+#              port:
+#                number: 80
 
