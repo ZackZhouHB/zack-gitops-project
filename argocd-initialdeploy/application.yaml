@@ -5,10 +5,10 @@ metadata:
 spec:
   destination:
     name: ''
-    namespace: zackapp
+    namespace: zackapp-argo
     server: 'https://kubernetes.default.svc'
   source:
-    path: /argocd-initialdeploy
+    path: argocd-initialdeploy
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
   sources: []
