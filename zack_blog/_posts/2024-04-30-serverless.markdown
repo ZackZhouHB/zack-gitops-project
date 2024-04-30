@@ -1,174 +1,152 @@
 ---
 layout: post
-title:  " 2 options for AWS Serverless webhosting  "
+title:  " Two options for AWS Serverless web hosting  "
 date:   2024-04-30 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b> AWS Serverless </b>
+<b> Time to move "zackweb" from existing Containerzation to AWS Serverless </b>
 
-Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.
+In this article, I will see how to host "zackweb" as a static web application using bellow AWS serverless options:
 
-![image tooltip here](/assets/serverless1.png)
+- S3 static webhosting
 
-<b> Pre-upgrade checklist </b>
+- AWS CDK + CDN 
 
-- validate current OS version and running service (nginx)
+
+<b> Prerequisite </b>
+
+- Add one more step in existing Github Action workflow to copy the static web content to newly created S3 bucket
 
 {% highlight shell %}
+
+# edit github action workflow
 aws s3 cp ~/zack-gitops-project/zack_blog/_site/* s3://zackweb-serverless/ --recursive
+
+# validate content in s3 bucket
+ubuntu@ip-172-31-26-78:~$ aws s3 ls s3://zackweb-serverless --summarize
+                           PRE aboutme/
+                           PRE assets/
+                           PRE certificate/
+                           PRE gitrepo/
+                           PRE jekyll/
+                           PRE pro/
+                           PRE skillroadmap/
+2024-04-30 14:55:05       4455 404.html
+2024-04-30 14:55:05        504 Dockerfile
+2024-04-30 14:55:06      80555 feed.xml
+2024-04-30 14:55:06       7760 index.html
+2024-04-30 14:55:06          0 nginx.conf
+
+Total Objects: 5
+   Total Size: 93274
+
 {% endhighlight %}
 
-- Fully update the system
+<b> Option 1: S3 static webhosting </b>
+
+Go AWS console, under S3 bucket "zackweb-serverless" properties, enable static website hosting, update the bucket website endpoint address to Godaddy DNS record.
+
+![image tooltip here](/assets/serverless2.png)
+
+<b> Option 2: using AWS CDK + CDN </b>
+
+With AWS CDK and CDN, the "zackweb" can be straightforward distributed from an S3 bucket accessible to the public by using CloudFront.
+
+![image tooltip here](/assets/serverless3.png)
+
+the steps will be:
+
+1. Enable AWS CDK on EC2 bastion host.
+
+2. S3 bucker ready and copy static web content into it (done above with modification of existing github action workflow)
+
+3. Establish a CloudFront distribution to host a static To-Do web application.
+
+4. Deploy the AWS CDK solution to host the To-do application.
+
+- install AWS CDK on bastion EC2 host
 
 {% highlight shell %}
 
-# update system
-root@ubuntu-test:~# sudo apt update
+# AWS CDK requires nodejs newer version
+ubuntu@ip-172-31-26-78:~$ sudo apt-get install nodejs -y
+ubuntu@ip-172-31-26-78:~$ sudo npm cache clean -f
+ubuntu@ip-172-31-26-78:~$ sudo npm install -g n
+ubuntu@ip-172-31-26-78:~$ sudo n stable
+ubuntu@ip-172-31-26-78:~$ nodejs --version
+v12.22.9
 
-Reading package lists... Done                      
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-root@ubuntu-test:~# sudo apt upgrade -y
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+# install aws-cdk cli
+ubuntu@ip-172-31-26-78:~$ npm install -g aws-cdk
+ubuntu@ip-172-31-26-78:~$ cdk --version
+2.139.1 (build b88f959)
 
-# reboot system before upgrade
-root@ubuntu-test:~# sudo do-release-upgrade
-Checking for a new Ubuntu release
-You have not rebooted after updating a package which requires a reboot. Please reboot before upgrading.
-root@ubuntu-test:~# reboot
-Connection closing...Socket close.
+# check aws credential and bootstrap CDK
+ubuntu@ip-172-31-26-78:~$ aws sts get-caller-identity
+{
+    "UserId": "AIDxxxxxxxxx7ZV",
+    "Account": "8xxxxxx342",
+    "Arn": "arn:aws:iam::8xxxxx342:user/zackcdk"
+}
 
-{% endhighlight %}
+# bootstrap CDK
+ubuntu@ip-172-31-26-78:~$ sudo cdk bootstrap aws://8xxxxxxx2/ap-southeast-2
 
-- take full system backup 
+# init app
+ubuntu@ip-172-31-26-78:~$  mkdir cdk
+ubuntu@ip-172-31-26-78:~$ cd cdk
+ubuntu@ip-172-31-26-78:~/cdk# cdk init app --language=typescript
+Initializing a new git repository...
+Executing npm install...
+✅ All done!
 
-here I took a VM snapshot before upgrade
+# create CDK code
 
-<b> 18.04 to 22.04 upgrade</b>
+ubuntu@ip-172-31-26-78:~/cdk/lib# vim cdk-stack.ts
 
-There is no direct upgrade path from 18.04 LTS to Ubuntu 22.04 LTS, so we go Ubuntu 20.04 LTS first and then to Ubuntu 22.04 LTS.
+import * as cdk from '@aws-cdk/core';
+import * as cloudfront from '@aws-cdk/aws-cloudfront';
+import * as origins from '@aws-cdk/aws-cloudfront-origins';
 
-- first upgrade to 20.04
+export class ZackWebStack extends cdk.Stack {
+  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
 
-{% highlight shell %}
+    // existing S3 bucket
+    const existingBucketName = 'zackweb-serverless';
 
-# run upgrade
+    // Create a CloudFront distribution
+    const distribution = new cloudfront.Distribution(this, 'MyDistribution', {
+      defaultBehavior: {
+        origin: new origins.S3OriginFromBucketName(existingBucketName)
+      },
+      defaultRootObject: 'index.html' // default root object
+    });
 
-root@ubuntu-test:~# sudo do-release-upgrade
+    // Output the CloudFront distribution domain name
+    new cdk.CfnOutput(this, 'CloudFrontDomainName', {
+      value: distribution.distributionDomainName
+    });
+  }
+}
 
-This session appears to be running under ssh. It is not recommended 
-to perform a upgrade over ssh currently because in case of failure it 
-is harder to recover. 
+# install required module
 
-If you continue, an additional ssh daemon will be started at port 
-'1022'. 
-Do you want to continue? 
+ubuntu@ip-172-31-26-78:~/cdk/lib# npm install @aws-cdk/core
+ubuntu@ip-172-31-26-78:~/cdk/lib# npm install @aws-cdk/aws-cloudfront
+ubuntu@ip-172-31-26-78:~/cdk/lib# npm install @aws-cdk/aws-cloudfront-origins
 
-Continue [yN] y
-
-Starting additional sshd 
-
-Calculating the changes
-  MarkInstall libfwupdplugin1:amd64 < none -> 1.5.11-0ubuntu1~20.04.2 @un uN Ib > FU=1
-  Installing libxmlb1 as Depends of libfwupdplugin1
-    MarkInstall libxmlb1:amd64 < none -> 0.1.15-2ubuntu1~20.04.1 @un uN > FU=0
-
-Do you want to start the upgrade? 
-
-Continue [yN]  Details [d]y
-
-{% endhighlight %}
-
-- allow service restart during upgrade
-
-![image tooltip here](/assets/ubt-upg2.png)
-
-
-- reboot after upgrade
-
-The installation and removing of packages may take some time, then reboot is required after ungrade completion
-
-{% highlight shell %}
-Purging configuration files for ebtables (2.0.11-3build1) ...
-Purging configuration files for python3.6-minimal (3.6.9-1~18.04ubuntu1.12) ...
-Purging configuration files for mlocate (0.26-3ubuntu3) ...
-Processing triggers for dbus (1.12.16-2ubuntu2.3) ...
-Processing triggers for systemd (245.4-4ubuntu3.23) ...
-
-System upgrade is complete.
-
-Restart required 
-
-To finish the upgrade, a restart is required. 
-If you select 'y' the system will be restarted. 
-
-Continue [yN] y
-{% endhighlight %}
-
-- validate OS and service
-
-{% highlight shell %}
-# validate nginx service
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-# validate OS version
-root@ubuntu-test:~# cat /etc/os-release 
-NAME="Ubuntu"
-VERSION="20.04.6 LTS (Focal Fossa)"
-ID=ubuntu
-ID_LIKE=debian
-PRETTY_NAME="Ubuntu 20.04.6 LTS"
-VERSION_ID="20.04"
-HOME_URL="https://www.ubuntu.com/"
-SUPPORT_URL="https://help.ubuntu.com/"
-BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
-PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
-VERSION_CODENAME=focal
-UBUNTU_CODENAME=focal
-{% endhighlight %}
-
-- then upgrade to 22.04
-
-{% highlight shell %}
-root@ubuntu-test:~# sudo apt update
-Hit:1 http://au.archive.ubuntu.com/ubuntu focal InRelease
-Hit:2 http://au.archive.ubuntu.com/ubuntu focal-updates InRelease
-Hit:3 http://au.archive.ubuntu.com/ubuntu focal-backports InRelease
-Hit:4 http://au.archive.ubuntu.com/ubuntu focal-security InRelease
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-
-root@ubuntu-test:~# sudo apt upgrade
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-
-root@ubuntu-test:~# sudo do-release-upgrade
-
-# validate after upgrade 
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-
-root@ubuntu-test:~# lsb_release -a
-No LSB modules are available.
-Distributor ID:	Ubuntu
-Description:	Ubuntu 22.04.4 LTS
-Release:	22.04
-Codename:	jammy
+# Deploy stack
+ubuntu@ip-172-31-26-78:~/cdk/lib# cd ..
+ubuntu@ip-172-31-26-78:~/cdk/# cdk deploy
 
 {% endhighlight %}
 
+- The "zackweb" is now hosted on the AWS with serverless deployment !
+
+![image tooltip here](/assets/serverless4.png)
 
 <b> Conclusion</b>
 
-Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.    
+Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront. 

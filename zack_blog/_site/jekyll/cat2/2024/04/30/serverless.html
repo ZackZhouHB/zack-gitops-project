@@ -3,21 +3,21 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>2 options for AWS Serverless webhosting | Zack’s Blog</title>
+<title>Two options for AWS Serverless web hosting | Zack’s Blog</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="2 options for AWS Serverless webhosting" />
+<meta property="og:title" content="Two options for AWS Serverless web hosting" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="AWS Serverless" />
-<meta property="og:description" content="AWS Serverless" />
+<meta name="description" content="Time to move “zackweb” from existing Containerzation to AWS Serverless" />
+<meta property="og:description" content="Time to move “zackweb” from existing Containerzation to AWS Serverless" />
 <link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" />
 <meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-04-30T10:15:29+10:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="2 options for AWS Serverless webhosting" />
+<meta property="twitter:title" content="Two options for AWS Serverless web hosting" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-04-30T10:15:29+10:00","datePublished":"2024-04-30T10:15:29+10:00","description":"AWS Serverless","headline":"2 options for AWS Serverless webhosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"},"url":"http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-04-30T10:15:29+10:00","datePublished":"2024-04-30T10:15:29+10:00","description":"Time to move “zackweb” from existing Containerzation to AWS Serverless","headline":"Two options for AWS Serverless web hosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"},"url":"http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -40,177 +40,167 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline"> 2 options for AWS Serverless webhosting  </h1>
+    <h1 class="post-title p-name" itemprop="name headline"> Two options for AWS Serverless web hosting  </h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2024-04-30T10:15:29+10:00" itemprop="datePublished">Apr 30, 2024
       </time></p>
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p><b> AWS Serverless </b></p>
+    <p><b> Time to move “zackweb” from existing Containerzation to AWS Serverless </b></p>
 
-<p>Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.</p>
-
-<p><img src="/assets/serverless1.png" alt="image tooltip here" /></p>
-
-<p><b> Pre-upgrade checklist </b></p>
+<p>In this article, I will see how to host “zackweb” as a static web application using bellow AWS serverless options:</p>
 
 <ul>
-  <li>validate current OS version and running service (nginx)</li>
+  <li>
+    <p>S3 static webhosting</p>
+  </li>
+  <li>
+    <p>AWS CDK + CDN</p>
+  </li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">aws s3 <span class="nb">cp</span> ~/zack-gitops-project/zack_blog/_site/<span class="k">*</span> s3://zackweb-serverless/ <span class="nt">--recursive</span></code></pre></figure>
+<p><b> Prerequisite </b></p>
 
 <ul>
-  <li>Fully update the system</li>
+  <li>Add one more step in existing Github Action workflow to copy the static web content to newly created S3 bucket</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># update system</span>
-root@ubuntu-test:~# <span class="nb">sudo </span>apt update
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># edit github action workflow</span>
+aws s3 <span class="nb">cp</span> ~/zack-gitops-project/zack_blog/_site/<span class="k">*</span> s3://zackweb-serverless/ <span class="nt">--recursive</span>
 
-Reading package lists... Done                      
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade <span class="nt">-y</span>
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+<span class="c"># validate content in s3 bucket</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>aws s3 <span class="nb">ls </span>s3://zackweb-serverless <span class="nt">--summarize</span>
+                           PRE aboutme/
+                           PRE assets/
+                           PRE certificate/
+                           PRE gitrepo/
+                           PRE jekyll/
+                           PRE pro/
+                           PRE skillroadmap/
+2024-04-30 14:55:05       4455 404.html
+2024-04-30 14:55:05        504 Dockerfile
+2024-04-30 14:55:06      80555 feed.xml
+2024-04-30 14:55:06       7760 index.html
+2024-04-30 14:55:06          0 nginx.conf
 
-<span class="c"># reboot system before upgrade</span>
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-Checking <span class="k">for </span>a new Ubuntu release
-You have not rebooted after updating a package which requires a reboot. Please reboot before upgrading.
-root@ubuntu-test:~# reboot
-Connection closing...Socket close.</code></pre></figure>
+Total Objects: 5
+   Total Size: 93274</code></pre></figure>
+
+<p><b> Option 1: S3 static webhosting </b></p>
+
+<p>Go AWS console, under S3 bucket “zackweb-serverless” properties, enable static website hosting, update the bucket website endpoint address to Godaddy DNS record.</p>
+
+<p><img src="/assets/serverless2.png" alt="image tooltip here" /></p>
+
+<p><b> Option 2: using AWS CDK + CDN </b></p>
+
+<p>With AWS CDK and CDN, the “zackweb” can be straightforward distributed from an S3 bucket accessible to the public by using CloudFront.</p>
+
+<p><img src="/assets/serverless3.png" alt="image tooltip here" /></p>
+
+<p>the steps will be:</p>
+
+<ol>
+  <li>
+    <p>Enable AWS CDK on EC2 bastion host.</p>
+  </li>
+  <li>
+    <p>S3 bucker ready and copy static web content into it (done above with modification of existing github action workflow)</p>
+  </li>
+  <li>
+    <p>Establish a CloudFront distribution to host a static To-Do web application.</p>
+  </li>
+  <li>
+    <p>Deploy the AWS CDK solution to host the To-do application.</p>
+  </li>
+</ol>
 
 <ul>
-  <li>take full system backup</li>
+  <li>install AWS CDK on bastion EC2 host</li>
 </ul>
 
-<p>here I took a VM snapshot before upgrade</p>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># AWS CDK requires nodejs newer version</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>apt-get <span class="nb">install </span>nodejs <span class="nt">-y</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>npm cache clean <span class="nt">-f</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>npm <span class="nb">install</span> <span class="nt">-g</span> n
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>n stable
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>nodejs <span class="nt">--version</span>
+v12.22.9
 
-<p><b> 18.04 to 22.04 upgrade</b></p>
+<span class="c"># install aws-cdk cli</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>npm <span class="nb">install</span> <span class="nt">-g</span> aws-cdk
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>cdk <span class="nt">--version</span>
+2.139.1 <span class="o">(</span>build b88f959<span class="o">)</span>
 
-<p>There is no direct upgrade path from 18.04 LTS to Ubuntu 22.04 LTS, so we go Ubuntu 20.04 LTS first and then to Ubuntu 22.04 LTS.</p>
+<span class="c"># check aws credential and bootstrap CDK</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>aws sts get-caller-identity
+<span class="o">{</span>
+    <span class="s2">"UserId"</span>: <span class="s2">"AIDxxxxxxxxx7ZV"</span>,
+    <span class="s2">"Account"</span>: <span class="s2">"8xxxxxx342"</span>,
+    <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::8xxxxx342:user/zackcdk"</span>
+<span class="o">}</span>
+
+<span class="c"># bootstrap CDK</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>cdk bootstrap aws://8xxxxxxx2/ap-southeast-2
+
+<span class="c"># init app</span>
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span> <span class="nb">mkdir </span>cdk
+ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">cd </span>cdk
+ubuntu@ip-172-31-26-78:~/cdk# cdk init app <span class="nt">--language</span><span class="o">=</span>typescript
+Initializing a new git repository...
+Executing npm install...
+✅ All <span class="k">done</span><span class="o">!</span>
+
+<span class="c"># create CDK code</span>
+
+ubuntu@ip-172-31-26-78:~/cdk/lib# vim cdk-stack.ts
+
+import <span class="k">*</span> as cdk from <span class="s1">'@aws-cdk/core'</span><span class="p">;</span>
+import <span class="k">*</span> as cloudfront from <span class="s1">'@aws-cdk/aws-cloudfront'</span><span class="p">;</span>
+import <span class="k">*</span> as origins from <span class="s1">'@aws-cdk/aws-cloudfront-origins'</span><span class="p">;</span>
+
+<span class="nb">export </span>class ZackWebStack extends cdk.Stack <span class="o">{</span>
+  constructor<span class="o">(</span>scope: cdk.Construct, <span class="nb">id</span>: string, props?: cdk.StackProps<span class="o">)</span> <span class="o">{</span>
+    super<span class="o">(</span>scope, <span class="nb">id</span>, props<span class="o">)</span><span class="p">;</span>
+
+    // existing S3 bucket
+    const existingBucketName <span class="o">=</span> <span class="s1">'zackweb-serverless'</span><span class="p">;</span>
+
+    // Create a CloudFront distribution
+    const distribution <span class="o">=</span> new cloudfront.Distribution<span class="o">(</span>this, <span class="s1">'MyDistribution'</span>, <span class="o">{</span>
+      defaultBehavior: <span class="o">{</span>
+        origin: new origins.S3OriginFromBucketName<span class="o">(</span>existingBucketName<span class="o">)</span>
+      <span class="o">}</span>,
+      defaultRootObject: <span class="s1">'index.html'</span> // default root object
+    <span class="o">})</span><span class="p">;</span>
+
+    // Output the CloudFront distribution domain name
+    new cdk.CfnOutput<span class="o">(</span>this, <span class="s1">'CloudFrontDomainName'</span>, <span class="o">{</span>
+      value: distribution.distributionDomainName
+    <span class="o">})</span><span class="p">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># install required module</span>
+
+ubuntu@ip-172-31-26-78:~/cdk/lib# npm <span class="nb">install</span> @aws-cdk/core
+ubuntu@ip-172-31-26-78:~/cdk/lib# npm <span class="nb">install</span> @aws-cdk/aws-cloudfront
+ubuntu@ip-172-31-26-78:~/cdk/lib# npm <span class="nb">install</span> @aws-cdk/aws-cloudfront-origins
+
+<span class="c"># Deploy stack</span>
+ubuntu@ip-172-31-26-78:~/cdk/lib# <span class="nb">cd</span> ..
+ubuntu@ip-172-31-26-78:~/cdk/# cdk deploy</code></pre></figure>
 
 <ul>
-  <li>first upgrade to 20.04</li>
+  <li>The “zackweb” is now hosted on the AWS with serverless deployment !</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># run upgrade</span>
-
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-
-This session appears to be running under ssh. It is not recommended 
-to perform a upgrade over ssh currently because <span class="k">in case</span> of failure it 
-is harder to recover. 
-
-If you <span class="k">continue</span>, an additional ssh daemon will be started at port 
-<span class="s1">'1022'</span><span class="nb">.</span> 
-Do you want to <span class="k">continue</span>? 
-
-Continue <span class="o">[</span>yN] y
-
-Starting additional sshd 
-
-Calculating the changes
-  MarkInstall libfwupdplugin1:amd64 &lt; none -&gt; 1.5.11-0ubuntu1~20.04.2 @un uN Ib <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>1
-  Installing libxmlb1 as Depends of libfwupdplugin1
-    MarkInstall libxmlb1:amd64 &lt; none -&gt; 0.1.15-2ubuntu1~20.04.1 @un uN <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>0
-
-Do you want to start the upgrade? 
-
-Continue <span class="o">[</span>yN]  Details <span class="o">[</span>d]y</code></pre></figure>
-
-<ul>
-  <li>allow service restart during upgrade</li>
-</ul>
-
-<p><img src="/assets/ubt-upg2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>reboot after upgrade</li>
-</ul>
-
-<p>The installation and removing of packages may take some time, then reboot is required after ungrade completion</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Purging configuration files <span class="k">for </span>ebtables <span class="o">(</span>2.0.11-3build1<span class="o">)</span> ...
-Purging configuration files <span class="k">for </span>python3.6-minimal <span class="o">(</span>3.6.9-1~18.04ubuntu1.12<span class="o">)</span> ...
-Purging configuration files <span class="k">for </span>mlocate <span class="o">(</span>0.26-3ubuntu3<span class="o">)</span> ...
-Processing triggers <span class="k">for </span>dbus <span class="o">(</span>1.12.16-2ubuntu2.3<span class="o">)</span> ...
-Processing triggers <span class="k">for </span>systemd <span class="o">(</span>245.4-4ubuntu3.23<span class="o">)</span> ...
-
-System upgrade is complete.
-
-Restart required 
-
-To finish the upgrade, a restart is required. 
-If you <span class="k">select</span> <span class="s1">'y'</span> the system will be restarted. 
-
-Continue <span class="o">[</span>yN] y</code></pre></figure>
-
-<ul>
-  <li>validate OS and service</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate nginx service</span>
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-<span class="c"># validate OS version</span>
-root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
-<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"20.04.6 LTS (Focal Fossa)"</span>
-<span class="nv">ID</span><span class="o">=</span>ubuntu
-<span class="nv">ID_LIKE</span><span class="o">=</span>debian
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 20.04.6 LTS"</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"20.04"</span>
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
-<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
-<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
-<span class="nv">VERSION_CODENAME</span><span class="o">=</span>focal
-<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>focal</code></pre></figure>
-
-<ul>
-  <li>then upgrade to 22.04</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubuntu-test:~# <span class="nb">sudo </span>apt update
-Hit:1 http://au.archive.ubuntu.com/ubuntu focal InRelease
-Hit:2 http://au.archive.ubuntu.com/ubuntu focal-updates InRelease
-Hit:3 http://au.archive.ubuntu.com/ubuntu focal-backports InRelease
-Hit:4 http://au.archive.ubuntu.com/ubuntu focal-security InRelease
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-
-root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-
-<span class="c"># validate after upgrade </span>
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-
-root@ubuntu-test:~# lsb_release <span class="nt">-a</span>
-No LSB modules are available.
-Distributor ID:	Ubuntu
-Description:	Ubuntu 22.04.4 LTS
-Release:	22.04
-Codename:	jammy</code></pre></figure>
+<p><img src="/assets/serverless4.png" alt="image tooltip here" /></p>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>
+<p>Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront.</p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/04/30/serverless.html" hidden></a>
 </article>
