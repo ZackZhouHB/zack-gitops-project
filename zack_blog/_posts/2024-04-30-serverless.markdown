@@ -9,7 +9,7 @@ categories: jekyll Cat2
 
 Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.
 
-![image tooltip here](/assets/ubt-upg1.png)
+![image tooltip here](/assets/serverless1.png)
 
 <b> Pre-upgrade checklist </b>
 
