@@ -1,4 +1,167 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-04-29T09:38:55+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Ubuntu 18.04 to 22.04 in-place upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html" rel="alternate" type="text/html" title="Ubuntu 18.04 to 22.04 in-place upgrade" /><published>2024-04-28T10:15:29+10:00</published><updated>2024-04-28T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html"><![CDATA[<p><b> Ubuntu releases EOL roadmap </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-01T00:46:02+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">2 options for AWS Serverless webhosting</title><link href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" rel="alternate" type="text/html" title="2 options for AWS Serverless webhosting" /><published>2024-04-30T10:15:29+10:00</published><updated>2024-04-30T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/30/serverless</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"><![CDATA[<p><b> AWS Serverless </b></p>
+
+<p>Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.</p>
+
+<p><img src="/assets/ubt-upg1.png" alt="image tooltip here" /></p>
+
+<p><b> Pre-upgrade checklist </b></p>
+
+<ul>
+  <li>validate current OS version and running service (nginx)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">aws s3 <span class="nb">cp</span> ~/zack-gitops-project/zack_blog/_site/<span class="k">*</span> s3://zackweb-serverless/ <span class="nt">--recursive</span></code></pre></figure>
+
+<ul>
+  <li>Fully update the system</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># update system</span>
+root@ubuntu-test:~# <span class="nb">sudo </span>apt update
+
+Reading package lists... Done                      
+Building dependency tree       
+Reading state information... Done
+All packages are up to date.
+root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade <span class="nt">-y</span>
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+<span class="c"># reboot system before upgrade</span>
+root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
+Checking <span class="k">for </span>a new Ubuntu release
+You have not rebooted after updating a package which requires a reboot. Please reboot before upgrading.
+root@ubuntu-test:~# reboot
+Connection closing...Socket close.</code></pre></figure>
+
+<ul>
+  <li>take full system backup</li>
+</ul>
+
+<p>here I took a VM snapshot before upgrade</p>
+
+<p><b> 18.04 to 22.04 upgrade</b></p>
+
+<p>There is no direct upgrade path from 18.04 LTS to Ubuntu 22.04 LTS, so we go Ubuntu 20.04 LTS first and then to Ubuntu 22.04 LTS.</p>
+
+<ul>
+  <li>first upgrade to 20.04</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># run upgrade</span>
+
+root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
+
+This session appears to be running under ssh. It is not recommended 
+to perform a upgrade over ssh currently because <span class="k">in case</span> of failure it 
+is harder to recover. 
+
+If you <span class="k">continue</span>, an additional ssh daemon will be started at port 
+<span class="s1">'1022'</span><span class="nb">.</span> 
+Do you want to <span class="k">continue</span>? 
+
+Continue <span class="o">[</span>yN] y
+
+Starting additional sshd 
+
+Calculating the changes
+  MarkInstall libfwupdplugin1:amd64 &lt; none -&gt; 1.5.11-0ubuntu1~20.04.2 @un uN Ib <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>1
+  Installing libxmlb1 as Depends of libfwupdplugin1
+    MarkInstall libxmlb1:amd64 &lt; none -&gt; 0.1.15-2ubuntu1~20.04.1 @un uN <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>0
+
+Do you want to start the upgrade? 
+
+Continue <span class="o">[</span>yN]  Details <span class="o">[</span>d]y</code></pre></figure>
+
+<ul>
+  <li>allow service restart during upgrade</li>
+</ul>
+
+<p><img src="/assets/ubt-upg2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>reboot after upgrade</li>
+</ul>
+
+<p>The installation and removing of packages may take some time, then reboot is required after ungrade completion</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Purging configuration files <span class="k">for </span>ebtables <span class="o">(</span>2.0.11-3build1<span class="o">)</span> ...
+Purging configuration files <span class="k">for </span>python3.6-minimal <span class="o">(</span>3.6.9-1~18.04ubuntu1.12<span class="o">)</span> ...
+Purging configuration files <span class="k">for </span>mlocate <span class="o">(</span>0.26-3ubuntu3<span class="o">)</span> ...
+Processing triggers <span class="k">for </span>dbus <span class="o">(</span>1.12.16-2ubuntu2.3<span class="o">)</span> ...
+Processing triggers <span class="k">for </span>systemd <span class="o">(</span>245.4-4ubuntu3.23<span class="o">)</span> ...
+
+System upgrade is complete.
+
+Restart required 
+
+To finish the upgrade, a restart is required. 
+If you <span class="k">select</span> <span class="s1">'y'</span> the system will be restarted. 
+
+Continue <span class="o">[</span>yN] y</code></pre></figure>
+
+<ul>
+  <li>validate OS and service</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate nginx service</span>
+root@ubuntu-test:~# curl localhost
+ubuntu-inplace-upgrade  zack-testing-nginx-service!!
+<span class="c"># validate OS version</span>
+root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"20.04.6 LTS (Focal Fossa)"</span>
+<span class="nv">ID</span><span class="o">=</span>ubuntu
+<span class="nv">ID_LIKE</span><span class="o">=</span>debian
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 20.04.6 LTS"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"20.04"</span>
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
+<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
+<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
+<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
+<span class="nv">VERSION_CODENAME</span><span class="o">=</span>focal
+<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>focal</code></pre></figure>
+
+<ul>
+  <li>then upgrade to 22.04</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubuntu-test:~# <span class="nb">sudo </span>apt update
+Hit:1 http://au.archive.ubuntu.com/ubuntu focal InRelease
+Hit:2 http://au.archive.ubuntu.com/ubuntu focal-updates InRelease
+Hit:3 http://au.archive.ubuntu.com/ubuntu focal-backports InRelease
+Hit:4 http://au.archive.ubuntu.com/ubuntu focal-security InRelease
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+All packages are up to date.
+
+root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
+
+<span class="c"># validate after upgrade </span>
+root@ubuntu-test:~# curl localhost
+ubuntu-inplace-upgrade  zack-testing-nginx-service!!
+
+root@ubuntu-test:~# lsb_release <span class="nt">-a</span>
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 22.04.4 LTS
+Release:	22.04
+Codename:	jammy</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Serverless]]></summary></entry><entry><title type="html">Ubuntu 18.04 to 22.04 in-place upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html" rel="alternate" type="text/html" title="Ubuntu 18.04 to 22.04 in-place upgrade" /><published>2024-04-28T10:15:29+10:00</published><updated>2024-04-28T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html"><![CDATA[<p><b> Ubuntu releases EOL roadmap </b></p>
 
 <p>Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.</p>
 
@@ -1261,58 +1424,4 @@ OK
 kubectl <span class="nb">exec</span> <span class="nt">-it</span> zz-redis-redis-cluster-4 <span class="nt">--</span> sh
 redis-cli
 127.0.0.1:6379&gt; KEYS <span class="k">*</span>
-1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry><entry><title type="html">Rook-Ceph for dynamic Persistent Volume</title><link href="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html" rel="alternate" type="text/html" title="Rook-Ceph for dynamic Persistent Volume" /><published>2023-11-09T11:15:29+11:00</published><updated>2023-11-09T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2023/11/09/ceph</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2023/11/09/ceph.html"><![CDATA[<p><b>Helm install Rook-Ceph for persistent storage</b></p>
-
-<ul>
-  <li>
-    <p>Configure local VM block storage to add 50Gb sdb to all k8s master and work nodes</p>
-  </li>
-  <li>
-    <p>install rook-ceph cluster</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">git clone <span class="nt">--single-branch</span> <span class="nt">--branch</span> master https://github.com/rook/rook.git
-<span class="nb">cd </span>rook/deploy/examples
-kubectl create <span class="nt">-f</span> crds.yaml <span class="nt">-f</span> common.yaml <span class="nt">-f</span> operator.yaml
-kubectl create <span class="nt">-f</span> cluster.yaml</code></pre></figure>
-
-<ul>
-  <li>Ceph toolbox to check cluster status</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> toolbox.yaml
-kubectl <span class="nt">-n</span> rook-ceph <span class="nb">exec</span> <span class="nt">-it</span> deploy/rook-ceph-tools <span class="nt">--</span> bash
-ceph status
-ceph osd status
-ceph <span class="nb">df
-</span>rados <span class="nb">df</span></code></pre></figure>
-
-<ul>
-  <li>Ceph Dashboard svc for https login</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> dashboard-external-https.yaml
-kubectl <span class="nt">-n</span> rook-ceph get secret rook-ceph-dashboard-password <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{['data']['password']}"</span> | <span class="nb">base64</span> <span class="nt">--decode</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span></code></pre></figure>
-
-<ul>
-  <li>Create storage pool and storageclass</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create <span class="nt">-f</span> pool.yaml
-<span class="nb">cd </span>csi/rbd
-kubectl create <span class="nt">-f</span> storageclass.yaml</code></pre></figure>
-
-<ul>
-  <li>set “rook-ceph-block” as default sc</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl patch storageclass rook-ceph-block <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span>
-
-kubectl get sc
-NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
-rook-ceph-block <span class="o">(</span>default<span class="o">)</span>   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          <span class="nb">true                  </span>8d</code></pre></figure>
-
-<p>check pool and OSDs in ceph webui</p>
-
-<p><img src="/assets/ceph.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Rook-Ceph for persistent storage]]></summary></entry></feed>
+1<span class="o">)</span> <span class="s2">"dad"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install Redis cluster]]></summary></entry></feed>
