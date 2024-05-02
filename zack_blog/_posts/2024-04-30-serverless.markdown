@@ -5,13 +5,13 @@ date:   2024-04-30 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b> Time to move "zackweb" from existing Containerzation to AWS Serverless </b>
+<b> Time to move "zackweb" from existing docker and containerization on EC2 and K8S to AWS Serverless with S3 </b>
 
 In this article, I will see how to host "zackweb" as a static web application using bellow AWS serverless options:
 
 - S3 static webhosting
 
-- AWS CDK + CDN 
+- AWS CDK + CloudFront 
 
 
 <b> Prerequisite </b>
@@ -25,21 +25,21 @@ aws s3 cp ~/zack-gitops-project/zack_blog/_site/* s3://zackweb-serverless/ --rec
 
 # validate content in s3 bucket
 ubuntu@ip-172-31-26-78:~$ aws s3 ls s3://zackweb-serverless --summarize
-                           PRE aboutme/
-                           PRE assets/
-                           PRE certificate/
-                           PRE gitrepo/
-                           PRE jekyll/
-                           PRE pro/
-                           PRE skillroadmap/
-2024-04-30 14:55:05       4455 404.html
-2024-04-30 14:55:05        504 Dockerfile
-2024-04-30 14:55:06      80555 feed.xml
-2024-04-30 14:55:06       7760 index.html
-2024-04-30 14:55:06          0 nginx.conf
+                           PRE aboutme/
+                           PRE assets/
+                           PRE certificate/
+                           PRE gitrepo/
+                           PRE jekyll/
+                           PRE pro/
+                           PRE skillroadmap/
+2024-04-30 14:55:05       4455 404.html
+2024-04-30 14:55:05        504 Dockerfile
+2024-04-30 14:55:06      80555 feed.xml
+2024-04-30 14:55:06       7760 index.html
+2024-04-30 14:55:06          0 nginx.conf
 
 Total Objects: 5
-   Total Size: 93274
+   Total Size: 93274
 
 {% endhighlight %}
 
@@ -85,16 +85,16 @@ ubuntu@ip-172-31-26-78:~$ cdk --version
 # check aws credential and bootstrap CDK
 ubuntu@ip-172-31-26-78:~$ aws sts get-caller-identity
 {
-    "UserId": "AIDxxxxxxxxx7ZV",
-    "Account": "8xxxxxx342",
-    "Arn": "arn:aws:iam::8xxxxx342:user/zackcdk"
+    "UserId": "AIDxxxxxxxxx7ZV",
+    "Account": "8xxxxxx342",
+    "Arn": "arn:aws:iam::8xxxxx342:user/zackcdk"
 }
 
 # bootstrap CDK
 ubuntu@ip-172-31-26-78:~$ sudo cdk bootstrap aws://8xxxxxxx2/ap-southeast-2
 
 # init app
-ubuntu@ip-172-31-26-78:~$  mkdir cdk
+ubuntu@ip-172-31-26-78:~$  mkdir cdk
 ubuntu@ip-172-31-26-78:~$ cd cdk
 ubuntu@ip-172-31-26-78:~/cdk# cdk init app --language=typescript
 Initializing a new git repository...
@@ -110,25 +110,25 @@ import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as origins from '@aws-cdk/aws-cloudfront-origins';
 
 export class ZackWebStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
 
-    // existing S3 bucket
-    const existingBucketName = 'zackweb-serverless';
+    // existing S3 bucket
+    const existingBucketName = 'zackweb-serverless';
 
-    // Create a CloudFront distribution
-    const distribution = new cloudfront.Distribution(this, 'MyDistribution', {
-      defaultBehavior: {
-        origin: new origins.S3OriginFromBucketName(existingBucketName)
-      },
-      defaultRootObject: 'index.html' // default root object
-    });
+    // Create a CloudFront distribution
+    const distribution = new cloudfront.Distribution(this, 'MyDistribution', {
+      defaultBehavior: {
+        origin: new origins.S3OriginFromBucketName(existingBucketName)
+      },
+      defaultRootObject: 'index.html' // default root object
+    });
 
-    // Output the CloudFront distribution domain name
-    new cdk.CfnOutput(this, 'CloudFrontDomainName', {
-      value: distribution.distributionDomainName
-    });
-  }
+    // Output the CloudFront distribution domain name
+    new cdk.CfnOutput(this, 'CloudFrontDomainName', {
+      value: distribution.distributionDomainName
+    });
+  }
 }
 
 # install required module
