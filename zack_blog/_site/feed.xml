@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-02T23:45:54+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-07T20:02:25+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
 
 <p>The proof of concept aims to achieve that, where a Red Hat IDM (Identity Management) server hosted in AWS with its own domain (zack.linux.com) is integrated with an existing AWS Managed AD (zack.existing.com) for authentication of Linux EC2 instances across multiple AWS accounts. The AWS managed AD also synced with Azure AD.</p>
 
@@ -793,7 +793,142 @@ alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
 
 <p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
 
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">Move To Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/Rancher.html" rel="alternate" type="text/html" title="Move To Rancher" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
+
+<p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
+
+<ul>
+  <li>
+    <p>home lab build k8s components (etcd, keepalived, apiserver, scheduler, coreDNS, calico)</p>
+  </li>
+  <li>
+    <p>home lab k8s cluster with kubeadm</p>
+  </li>
+  <li>
+    <p>k8s on AWS using kops and eksctl</p>
+  </li>
+  <li>
+    <p>AWS self-managed k8s cluster directly on ec2 by ansible</p>
+  </li>
+</ul>
+
+<p><b>Rancher Support matrix</b></p>
+
+<p><img src="/assets/rancher1.png" alt="image tooltip here" /></p>
+
+<p><b> Local docker Installation</b></p>
+
+<p>To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create Persisting rancher data directory to map within the Rancher Docker container</span>
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">mkdir</span> <span class="nt">-p</span> /path/to/rancher-data
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">-d</span> <span class="nt">--restart</span><span class="o">=</span>unless-stopped  <span class="se">\</span>
+ <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443  <span class="se">\</span>
+ <span class="nt">-v</span> /path/to/rancher-data:/var/lib/rancher <span class="se">\</span>
+ <span class="nt">--privileged</span>   rancher/rancher:latest
+d26e32094657b598f61233d0d86e448ab4bfd980763928ca6f298ae0d3774a56
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker ps
+CONTAINER ID   IMAGE                    COMMAND           CREATED         STATUS         PORTS                                                                      NAMES
+d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span>   7 seconds ago   Up 6 seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp, :::443-&gt;443/tcp   flamboyant_bassi
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
+2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
+
+<p><b> Rancher Web Portal login</b></p>
+
+<p>via https://localhost/dashboard/home</p>
+
+<p><img src="/assets/rancher2.png" alt="image tooltip here" /></p>
+
+<p><b> Import existing k8s culster vs create new k8s from rancher console</b></p>
+
+<ul>
+  <li>Under “cluster management”, it supports importing k8s from cloud providers to local k8s, unfutinately I previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.</li>
+</ul>
+
+<p><img src="/assets/rancher3.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Hence I will use Rancher to create a new one here First prepare 3 local Linux VM boxes, come back to Rancher console under cluster management, give name of the new cluster, then run command to initiate control plane.</li>
+</ul>
+
+<p><img src="/assets/rancher4.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@rancher-master01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> kx92bf7gxdfx2nfnl6rvw4hlmcwdxcb2rt442vgsvgb7tz29rmd4c6 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--etcd</span> <span class="nt">--controlplane</span>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  2037k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 2151k
+<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
+<span class="o">[</span>INFO]  Role requested: etcd
+<span class="o">[</span>INFO]  Role requested: controlplane
+<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
+<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
+<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
+<span class="o">[</span>INFO]  Successfully downloaded CA certificate
+<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+<span class="o">[</span>INFO]  Successfully tested Rancher connection
+<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
+<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+<span class="o">[</span>INFO]  Generating Cattle ID
+<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
+<span class="o">[</span>INFO]  systemd: Creating service file
+<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
+
+<ul>
+  <li>Updating new machine as a K8S rancher node as control plane.</li>
+</ul>
+
+<p><img src="/assets/rancher5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Then join the 2 worker nodes</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@racher-worker01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> hdsvptc74zvzz62hw9gtt6p7m6nl5k4fs6vk92zqm4f6tvj4tf8m54 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--worker</span>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  5455k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 6024k
+<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
+<span class="o">[</span>INFO]  Role requested: worker
+<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
+<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
+<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
+<span class="o">[</span>INFO]  Successfully downloaded CA certificate
+<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+<span class="o">[</span>INFO]  Successfully tested Rancher connection
+<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
+<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+<span class="o">[</span>INFO]  Generating Cattle ID
+<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
+<span class="o">[</span>INFO]  systemd: Creating service file
+<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
+
+<p><img src="/assets/rancher6.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Create zackweb and joesite as deployment from Rancher console</li>
+</ul>
+
+<p><img src="/assets/rancher7.png" alt="image tooltip here" />
+<img src="/assets/rancher8.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
+
+<p><img src="/assets/rancher9.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[My k8s provisioning journey]]></summary></entry><entry><title type="html">K8S with External Cloud Controller Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html" rel="alternate" type="text/html" title="K8S with External Cloud Controller Manager" /><published>2024-02-26T11:15:29+11:00</published><updated>2024-02-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/26/External-cloudprovider.html"><![CDATA[<p><b> Scenario and Challange </b></p>
 
 <p>In last post I was able to automate and create a self-owned K8S cluster on AWS EC2 instances by using Ansible and Terraform.</p>
 
@@ -1337,110 +1472,4 @@ ansible all <span class="nt">-m</span> ping</code></pre></figure>
 
 <p>tag_Name</p>
 
-<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible AWS Dynamic Inventory]]></summary></entry><entry><title type="html">Istio for Traffic Routing</title><link href="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html" rel="alternate" type="text/html" title="Istio for Traffic Routing" /><published>2024-01-15T11:15:29+11:00</published><updated>2024-01-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/01/15/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/01/15/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
-
-<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
-
-<p>Bookinfo Topology:</p>
-
-<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Helm install istio (istiod, istio-ingress)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
-helm pull istio/base
-helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
-
-helm pull istio/istiod
-helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
-
-kubectl create namespace istio-ingress
-helm pull istio/gateway
-helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
-NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
-istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
-istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
-NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
-istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
-
-<ul>
-  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
-kubectl apply <span class="nt">-f</span> bookinfo.yaml
-
-kubectl get po
-NAME                                                     READY   STATUS    RESTARTS       AGE
-details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
-ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
-reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
-reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
-reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
-kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
-
-<ul>
-  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
-kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
-
-<ul>
-  <li>
-    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
-<img src="/assets/kiali.png" alt="image tooltip here" /></p>
-  </li>
-  <li>
-    <p>define destination rules and virtual service for reviews</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
-wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
-
-kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
-kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
-
-kubectl get dr <span class="nt">-A</span>
-NAMESPACE      NAME          HOST          AGE
-istio-system   details       details       6m56s
-istio-system   productpage   productpage   6m56s
-istio-system   ratings       ratings       6m56s
-istio-system   reviews       reviews       6m56s
-kubectl get vs <span class="nt">-A</span>
-NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
-istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
-istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
-
-Spec:
-  Hosts:
-    reviews
-  Http:
-    Route:
-      Destination:
-        Host:    reviews
-        Subset:  v1
-      Weight:    10
-      Destination:
-        Host:    reviews
-        Subset:  v3
-      Weight:    90</code></pre></figure>
-
-<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
-
-<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
-
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry></feed>
+<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible AWS Dynamic Inventory]]></summary></entry></feed>

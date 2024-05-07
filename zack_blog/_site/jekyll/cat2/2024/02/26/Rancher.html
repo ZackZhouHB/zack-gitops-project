@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Move To Rancher | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Move To Rancher" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="My k8s provisioning journey" />
+<meta property="og:description" content="My k8s provisioning journey" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/02/26/Rancher.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/02/26/Rancher.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-02-26T11:15:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Move To Rancher" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-02-26T11:15:29+11:00","datePublished":"2024-02-26T11:15:29+11:00","description":"My k8s provisioning journey","headline":"Move To Rancher","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/02/26/Rancher.html"},"url":"http://localhost:4000/jekyll/cat2/2024/02/26/Rancher.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> Move To Rancher </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-02-26T11:15:29+11:00" itemprop="datePublished">Feb 26, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> My k8s provisioning journey </b></p>
+
+<p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
+
+<ul>
+  <li>
+    <p>home lab build k8s components (etcd, keepalived, apiserver, scheduler, coreDNS, calico)</p>
+  </li>
+  <li>
+    <p>home lab k8s cluster with kubeadm</p>
+  </li>
+  <li>
+    <p>k8s on AWS using kops and eksctl</p>
+  </li>
+  <li>
+    <p>AWS self-managed k8s cluster directly on ec2 by ansible</p>
+  </li>
+</ul>
+
+<p><b>Rancher Support matrix</b></p>
+
+<p><img src="/assets/rancher1.png" alt="image tooltip here" /></p>
+
+<p><b> Local docker Installation</b></p>
+
+<p>To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create Persisting rancher data directory to map within the Rancher Docker container</span>
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">mkdir</span> <span class="nt">-p</span> /path/to/rancher-data
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">-d</span> <span class="nt">--restart</span><span class="o">=</span>unless-stopped  <span class="se">\</span>
+ <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443  <span class="se">\</span>
+ <span class="nt">-v</span> /path/to/rancher-data:/var/lib/rancher <span class="se">\</span>
+ <span class="nt">--privileged</span>   rancher/rancher:latest
+d26e32094657b598f61233d0d86e448ab4bfd980763928ca6f298ae0d3774a56
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker ps
+CONTAINER ID   IMAGE                    COMMAND           CREATED         STATUS         PORTS                                                                      NAMES
+d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span>   7 seconds ago   Up 6 seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp, :::443-&gt;443/tcp   flamboyant_bassi
+
+ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
+2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
+
+<p><b> Rancher Web Portal login</b></p>
+
+<p>via https://localhost/dashboard/home</p>
+
+<p><img src="/assets/rancher2.png" alt="image tooltip here" /></p>
+
+<p><b> Import existing k8s culster vs create new k8s from rancher console</b></p>
+
+<ul>
+  <li>Under “cluster management”, it supports importing k8s from cloud providers to local k8s, unfutinately I previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.</li>
+</ul>
+
+<p><img src="/assets/rancher3.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Hence I will use Rancher to create a new one here First prepare 3 local Linux VM boxes, come back to Rancher console under cluster management, give name of the new cluster, then run command to initiate control plane.</li>
+</ul>
+
+<p><img src="/assets/rancher4.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@rancher-master01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> kx92bf7gxdfx2nfnl6rvw4hlmcwdxcb2rt442vgsvgb7tz29rmd4c6 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--etcd</span> <span class="nt">--controlplane</span>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  2037k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 2151k
+<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
+<span class="o">[</span>INFO]  Role requested: etcd
+<span class="o">[</span>INFO]  Role requested: controlplane
+<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
+<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
+<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
+<span class="o">[</span>INFO]  Successfully downloaded CA certificate
+<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+<span class="o">[</span>INFO]  Successfully tested Rancher connection
+<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
+<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+<span class="o">[</span>INFO]  Generating Cattle ID
+<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
+<span class="o">[</span>INFO]  systemd: Creating service file
+<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
+
+<ul>
+  <li>Updating new machine as a K8S rancher node as control plane.</li>
+</ul>
+
+<p><img src="/assets/rancher5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Then join the 2 worker nodes</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@racher-worker01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> hdsvptc74zvzz62hw9gtt6p7m6nl5k4fs6vk92zqm4f6tvj4tf8m54 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--worker</span>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  5455k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 6024k
+<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
+<span class="o">[</span>INFO]  Role requested: worker
+<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
+<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
+<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
+<span class="o">[</span>INFO]  Successfully downloaded CA certificate
+<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+<span class="o">[</span>INFO]  Successfully tested Rancher connection
+<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
+<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+<span class="o">[</span>INFO]  Generating Cattle ID
+<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
+<span class="o">[</span>INFO]  systemd: Creating service file
+<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
+
+<p><img src="/assets/rancher6.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Create zackweb and joesite as deployment from Rancher console</li>
+</ul>
+
+<p><img src="/assets/rancher7.png" alt="image tooltip here" />
+<img src="/assets/rancher8.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
+
+<p><img src="/assets/rancher9.png" alt="image tooltip here" /></p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/02/26/Rancher.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
