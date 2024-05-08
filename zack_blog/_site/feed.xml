@@ -1,4 +1,171 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-07T20:04:22+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-08T11:14:50+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Basic</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Basic" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
+
+<p>PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community.</p>
+
+<p>In the upcoming posts, I will start a series of PostgreSQL study to :</p>
+
+<ul>
+  <li>
+    <p>explore PostgreSQL main features, installation, basic administration tasks</p>
+  </li>
+  <li>
+    <p>deploy PostgreSQL cluster onto K8S with PostgreSQL Operater, validate backup and rolling upgrade</p>
+  </li>
+  <li>
+    <p>create a simple Flash microservice application to connect PostgreSQL cluster and validate failover</p>
+  </li>
+  <li>
+    <p>integrate the whole deployment into CICD pipeline for automation</p>
+  </li>
+  <li>
+    <p>create AWS RDS PostgreSQL, with S3 Block storage as replica</p>
+  </li>
+</ul>
+
+<p>By the end of the series we should be able to have a comprehensive understanding of PostgreSQL from a DevOps perspective</p>
+
+<p><b>PostgreSQL Basic</b></p>
+
+<p>To begin, we will</p>
+
+<ul>
+  <li>install PostgreSQL as a docker container on a local Ubuntu machine to get it up and running,</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># ubuntu install docker</span>
+root@ubt-server:~# curl <span class="nt">-fsSL</span> https://get.docker.com <span class="nt">-o</span> get-docker.sh
+root@ubt-server:~# sh get-docker.sh
+root@ubt-server:~# docker <span class="nt">--version</span>
+root@ubt-server:~# systemctl <span class="nb">enable </span>docker
+
+<span class="c"># install PostgreSQL 15.0</span>
+root@ubt-server:~#  docker run <span class="nt">--name</span> zack-postgres <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>password <span class="nt">-d</span> postgres:15.0
+root@ubt-server:~# docker ps
+CONTAINER ID   IMAGE           COMMAND                  CREATED         STATUS         PORTS      NAMES
+b4fc638dfde3   postgres:15.0   <span class="s2">"docker-entrypoint.s…"</span>   7 seconds ago   Up 6 seconds   5432/tcp   zack-postgres</code></pre></figure>
+
+<ul>
+  <li>Run a simple PostgreSQL database with docker compose</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create docker-compose.yaml and run postgres and adminer from dockercompose</span>
+root@ubt-server:~# vim docker-compose.yaml
+
+version: <span class="s1">'3.1'</span>
+services:
+  db:
+    image: postgres:15.0
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+    - 5000:5432
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+<span class="c"># run docker compose</span>
+root@ubt-server:~# docker compose up</code></pre></figure>
+
+<ul>
+  <li>Validate from adminer web console locahost:8080 with password set in the environment variables</li>
+</ul>
+
+<p><img src="/assets/ps1-1.png" alt="image tooltip here" />
+<img src="/assets/ps1-2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Persist data to mount the PostgreSQL container volume, validate data table after start/stop container 
+PostgreSQL stores its data by default under /var/lib/postgresql/data, here we create a /pgdata folder on local machine to mount PostgreSQL default volume</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create local Persist data directory /pgdata</span>
+root@ubt-server:~# <span class="nb">mkdir </span>pgdata
+<span class="c"># run PostgreSQL to mount local Persist data and Bind a different port</span>
+root@ubt-server:~# docker run <span class="nt">-d</span> <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--name</span> zack-postgres2 <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>password <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/pgdata:/var/lib/postgresql/data <span class="nt">-p</span> 5000:5432 postgres:15.0
+
+PostgreSQL Database directory appears to contain a database<span class="p">;</span> Skipping initialization
+
+2024-05-08 00:58:47.540 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-08 00:58:47.541 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-05-08 00:58:47.541 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-05-08 00:58:47.542 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-08 00:58:47.545 UTC <span class="o">[</span>28] LOG:  database system was shut down at 2024-05-08 00:57:45 UTC
+2024-05-08 00:58:47.547 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections</code></pre></figure>
+
+<ul>
+  <li>Connect to DB container and validate</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># enter the container</span>
+root@ubt-server:~# docker <span class="nb">exec</span> <span class="nt">-it</span> zack-postgres2 bash
+<span class="c"># login to postgres</span>
+root@d7386c566872:/# psql <span class="nt">-h</span> localhost <span class="nt">-U</span> postgres
+psql <span class="o">(</span>15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">))</span>
+Type <span class="s2">"help"</span> <span class="k">for </span>help.
+<span class="c"># create a table</span>
+<span class="nv">postgres</span><span class="o">=</span><span class="c"># CREATE TABLE customers (firstname text,lastname text, customer_id serial);</span>
+CREATE TABLE
+<span class="c"># add record</span>
+<span class="nv">postgres</span><span class="o">=</span><span class="c"># INSERT INTO customers (firstname, lastname) VALUES ( 'Bob', 'Smith');</span>
+INSERT 0 1
+<span class="c"># show table</span>
+<span class="nv">postgres</span><span class="o">=</span><span class="c"># \dt</span>
+           List of relations
+ Schema |   Name    | Type  |  Owner   
+<span class="nt">--------</span>+-----------+-------+----------
+ public | customers | table | postgres
+<span class="o">(</span>1 row<span class="o">)</span>
+<span class="c"># get records</span>
+<span class="nv">postgres</span><span class="o">=</span><span class="c"># SELECT * FROM customers;</span>
+ firstname | lastname | customer_id 
+<span class="nt">-----------</span>+----------+-------------
+ Bob       | Smith    |           1
+<span class="o">(</span>1 row<span class="o">)</span>
+<span class="c"># quit </span>
+<span class="nv">postgres</span><span class="o">=</span><span class="c"># \q</span>
+<span class="c"># exit db container</span>
+root@d7386c566872:/# <span class="nb">exit
+exit</span></code></pre></figure>
+
+<ul>
+  <li>add persist data in docker-compose and run PostgreSQL from compose</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add presist data folder in compose yaml</span>
+root@ubt-server:~# vim docker-compose.yaml
+
+version: <span class="s1">'3.1'</span>
+services:
+  db:
+    image: postgres:15.0
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin123
+    ports:
+    - 5000:5432
+    volumes:
+    - ./pgdata:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+root@ubt-server:~# docker compose up</code></pre></figure>
+
+<ul>
+  <li>Validate the previous table and record from adminer console</li>
+</ul>
+
+<p>Table and record still there because of the persistent data mount
+<img src="/assets/ps1-3.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we can run a Basic PostgreSQL container from docker and docker compose with Persist data, in next blog we will discover ton of configuration options and explore environment variables for PostgreSQL config file.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
 
 <p>The proof of concept aims to achieve that, where a Red Hat IDM (Identity Management) server hosted in AWS with its own domain (zack.linux.com) is integrated with an existing AWS Managed AD (zack.existing.com) for authentication of Linux EC2 instances across multiple AWS accounts. The AWS managed AD also synced with Azure AD.</p>
 
@@ -1389,87 +1556,4 @@ This is zack <span class="nb">test </span>Ansible role web <span class="o">!!!!!
 2024/02/07 10:30:25 <span class="o">[</span>error] 73207#73207: <span class="k">*</span>1 directory index of <span class="s2">"/usr/share/nginx/html/"</span> is forbidden,client: 163.53.144.82, server: zackdevops.online, request: <span class="s2">"GET / HTTP/1.1"</span>, host: <span class="s2">"zackdevops.online"</span>
 2024/02/07 10:30:36 <span class="o">[</span>error] 73207#73207: <span class="k">*</span>1 directory index of <span class="s2">"/usr/share/nginx/html/"</span> is forbidden, client: 163.53.144.82, server: zackdevops.online, request: <span class="s2">"GET / HTTP/1.1"</span>, host: <span class="s2">"zackdevops.online"</span></code></pre></figure>
 
-<p>Bingo! https://zackdevops.online connection is secure!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[HTTPS with SSL cert]]></summary></entry><entry><title type="html">Ansible for AWS Dynamic Inventory</title><link href="http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html" rel="alternate" type="text/html" title="Ansible for AWS Dynamic Inventory" /><published>2024-01-22T11:15:29+11:00</published><updated>2024-01-22T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/01/22/ansible-aws.html"><![CDATA[<p><b>About Ansible AWS Dynamic Inventory </b></p>
-
-<p>When using Ansible with AWS, maintaining the inventory file will be a hectic task as AWS has frequently changed IPs, autoscaling instances, and much more.</p>
-
-<p>Here we will install and apply ansible plugin for AWS dynamic inventory which makes an API call to AWS to get the instance information in the run time. It givesthe ec2 instance details dynamically to manage the AWS infrastructure</p>
-
-<p>It supports most of the public and private cloud platforms not limited to just AWS.</p>
-
-<ul>
-  <li>The Dynamic Inventory Topology:</li>
-</ul>
-
-<p><img src="/assets/ansible-inventory.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Setup Ansible AWS Dynamic Inventory</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Ensure python3 &amp; pip3 installed in Ansible server</span>
-python3 <span class="nt">--version</span>
-<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3 <span class="nt">-y</span>
-<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip <span class="nt">-y</span>
-
-<span class="c"># Install the boto3 library for ansible boot core to make API calls to AWS to retrieve ec2 instance details</span>
-<span class="nb">sudo </span>pip3 <span class="nb">install </span>boto3
-
-fix error
-ERROR! The ec2 dynamic inventory plugin requires boto3 and botocore.
-
-
-<span class="c"># Create an inventory directory under /opt and cd into the directory</span>
-<span class="nb">sudo mkdir</span> <span class="nt">-p</span> /opt/ansible/inventory
-<span class="nb">cd</span> /opt/ansible/inventory
-<span class="nb">sudo </span>vi aws_ec2.yaml
-
-<span class="nt">---</span>
-plugin: aws_ec2
-
-aws_access_key: &lt;xxx-AWS-ACCESS-KEY-HERE&gt;
-aws_secret_key: &lt;xx-AWS-SECRET-KEY-HERE&gt;
-
-regions:
-  - us-west-2
-
-keyed_groups:  <span class="c"># key filter for listing AWS ec2 groups</span>
-  - key: tags
-    prefix: tag
-  - prefix: instance_type
-    key: instance_type
-  - key: placement.region
-    prefix: aws_region
-
-<span class="c"># edit ansible config file to enable AWS plugin and set inventory as above yaml</span>
-<span class="nb">sudo </span>vi /etc/ansible/ansible.cfg
-
-<span class="o">[</span>inventory]
-enable_plugins <span class="o">=</span> aws_ec2
-
-inventory      <span class="o">=</span> /opt/ansible/inventory/aws_ec2.yaml</code></pre></figure>
-
-<p><img src="/assets/ec2-inventory.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Test if Ansible is able to ping all the machines returned by the dynamic inventory</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ansible-inventory <span class="nt">-i</span> /opt/ansible/inventory/aws_ec2.yaml <span class="nt">--list</span>
-ansible all <span class="nt">-m</span> ping</code></pre></figure>
-
-<ul>
-  <li>Execute Ansible Commands With ec2 Dynamic Inventory</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ansible-inventory <span class="nt">--graph</span></code></pre></figure>
-
-<p>List all instances grouped under tags, zones, and regions with dynamic group names like</p>
-
-<p>aws_region_ap_southeast_2</p>
-
-<p>instance_type_t2_micro</p>
-
-<p>tag_Name</p>
-
-<p><img src="/assets/list-aws-ec2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible AWS Dynamic Inventory]]></summary></entry></feed>
+<p>Bingo! https://zackdevops.online connection is secure!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[HTTPS with SSL cert]]></summary></entry></feed>

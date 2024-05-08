@@ -1,0 +1,169 @@
+---
+layout: post
+title:  " PostgreSQL Series: Basic"
+date:   2024-05-06 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b> The Scenario</b>
+
+PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community. 
+
+In the upcoming posts, I will start a series of PostgreSQL study to :
+
+- explore PostgreSQL main features, installation, basic administration tasks
+
+- deploy PostgreSQL cluster onto K8S with PostgreSQL Operater, validate backup and rolling upgrade
+
+- create a simple Flash microservice application to connect PostgreSQL cluster and validate failover
+
+- integrate the whole deployment into CICD pipeline for automation
+
+- create AWS RDS PostgreSQL, with S3 Block storage as replica
+
+By the end of the series we should be able to have a comprehensive understanding of PostgreSQL from a DevOps perspective
+
+<b>PostgreSQL Basic</b>
+
+To begin, we will
+
+- install PostgreSQL as a docker container on a local Ubuntu machine to get it up and running,
+
+{% highlight shell %}
+
+# ubuntu install docker
+root@ubt-server:~# curl -fsSL https://get.docker.com -o get-docker.sh
+root@ubt-server:~# sh get-docker.sh
+root@ubt-server:~# docker --version
+root@ubt-server:~# systemctl enable docker
+
+# install PostgreSQL 15.0
+root@ubt-server:~#  docker run --name zack-postgres -e POSTGRES_PASSWORD=password -d postgres:15.0
+root@ubt-server:~# docker ps
+CONTAINER ID   IMAGE           COMMAND                  CREATED         STATUS         PORTS      NAMES
+b4fc638dfde3   postgres:15.0   "docker-entrypoint.s…"   7 seconds ago   Up 6 seconds   5432/tcp   zack-postgres
+
+{% endhighlight %}
+
+- Run a simple PostgreSQL database with docker compose
+
+{% highlight shell %}
+
+# create docker-compose.yaml and run postgres and adminer from dockercompose
+root@ubt-server:~# vim docker-compose.yaml
+
+version: '3.1'
+services:
+  db:
+    image: postgres:15.0
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+    - 5000:5432
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+# run docker compose
+root@ubt-server:~# docker compose up
+{% endhighlight %}
+
+- Validate from adminer web console locahost:8080 with password set in the environment variables
+
+![image tooltip here](/assets/ps1-1.png)
+![image tooltip here](/assets/ps1-2.png)
+
+- Persist data to mount the PostgreSQL container volume, validate data table after start/stop container 
+PostgreSQL stores its data by default under /var/lib/postgresql/data, here we create a /pgdata folder on local machine to mount PostgreSQL default volume
+
+{% highlight shell %}
+# create local Persist data directory /pgdata
+root@ubt-server:~# mkdir pgdata
+# run PostgreSQL to mount local Persist data and Bind a different port
+root@ubt-server:~# docker run -d -it --rm --name zack-postgres2 -e POSTGRES_PASSWORD=password -v ${PWD}/pgdata:/var/lib/postgresql/data -p 5000:5432 postgres:15.0
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2024-05-08 00:58:47.540 UTC [1] LOG:  starting PostgreSQL 15.0 (Debian 15.0-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+2024-05-08 00:58:47.541 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2024-05-08 00:58:47.541 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2024-05-08 00:58:47.542 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2024-05-08 00:58:47.545 UTC [28] LOG:  database system was shut down at 2024-05-08 00:57:45 UTC
+2024-05-08 00:58:47.547 UTC [1] LOG:  database system is ready to accept connections
+{% endhighlight %}
+
+- Connect to DB container and validate
+
+{% highlight shell %}
+# enter the container
+root@ubt-server:~# docker exec -it zack-postgres2 bash
+# login to postgres
+root@d7386c566872:/# psql -h localhost -U postgres
+psql (15.0 (Debian 15.0-1.pgdg110+1))
+Type "help" for help.
+# create a table
+postgres=# CREATE TABLE customers (firstname text,lastname text, customer_id serial);
+CREATE TABLE
+# add record
+postgres=# INSERT INTO customers (firstname, lastname) VALUES ( 'Bob', 'Smith');
+INSERT 0 1
+# show table
+postgres=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner   
+--------+-----------+-------+----------
+ public | customers | table | postgres
+(1 row)
+# get records
+postgres=# SELECT * FROM customers;
+ firstname | lastname | customer_id 
+-----------+----------+-------------
+ Bob       | Smith    |           1
+(1 row)
+# quit 
+postgres=# \q
+# exit db container
+root@d7386c566872:/# exit
+exit
+{% endhighlight %}
+
+- add persist data in docker-compose and run PostgreSQL from compose
+
+{% highlight shell %}
+# add presist data folder in compose yaml
+root@ubt-server:~# vim docker-compose.yaml
+
+version: '3.1'
+services:
+  db:
+    image: postgres:15.0
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin123
+    ports:
+    - 5000:5432
+    volumes:
+    - ./pgdata:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+root@ubt-server:~# docker compose up
+{% endhighlight %}
+
+- Validate the previous table and record from adminer console
+
+Table and record still there because of the persistent data mount
+![image tooltip here](/assets/ps1-3.png)
+
+<b> Conclusion</b>
+
+Now we can run a Basic PostgreSQL container from docker and docker compose with Persist data, in next blog we will discover ton of configuration options and explore environment variables for PostgreSQL config file.
+
+
+
