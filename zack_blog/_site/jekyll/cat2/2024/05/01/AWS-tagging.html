@@ -60,7 +60,7 @@
 <p><img src="/assets/awstag2.png" alt="image tooltip here" /></p>
 
 <ul>
-  <li>Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file</li>
+  <li>Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID to a csv file</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# aws ec2 describe-instances <span class="nt">--output</span> text <span class="nt">--query</span> <span class="s1">'Reservations[*].Instances[*].[InstanceId]'</span> <span class="o">&gt;</span> zztag.csv</code></pre></figure>
@@ -163,7 +163,7 @@ root@ubt-server:~# crontab <span class="nt">-l</span>
 
 <p><b> Conclusion </b></p>
 
-<p>Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, together with cronjob, we can only update the csv file which regularly updates instances and tags we want to attach, upload the csv file, every month all ec2 and their tags will be updated accordingly.</p>
+<p>Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, same method to any other AWS resources that needed to be tagged, together with cronjob, we can only update the csv file which regularly updates resource ID and tags we want to attach, upload the csv file, every month their tags will be updated accordingly.</p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/05/01/AWS-tagging.html" hidden></a>
 </article>

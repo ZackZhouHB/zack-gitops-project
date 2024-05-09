@@ -16,7 +16,7 @@ I was tasked to enforce mandatory tagging for ec2 instances, as there are a lot 
 
 ![image tooltip here](/assets/awstag2.png)
 
-- Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file
+- Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID to a csv file
 
 {% highlight shell %}
 root@ubt-server:~# aws ec2 describe-instances --output text --query 'Reservations[*].Instances[*].[InstanceId]' > zztag.csv
@@ -121,4 +121,4 @@ root@ubt-server:~# crontab -l
 
 <b> Conclusion </b>
 
-Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, together with cronjob, we can only update the csv file which regularly updates instances and tags we want to attach, upload the csv file, every month all ec2 and their tags will be updated accordingly. 
+Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, same method to any other AWS resources that needed to be tagged, together with cronjob, we can only update the csv file which regularly updates resource ID and tags we want to attach, upload the csv file, every month their tags will be updated accordingly.
