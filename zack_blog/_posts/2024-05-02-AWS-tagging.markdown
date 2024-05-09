@@ -99,7 +99,7 @@ root@ubt-server:~# aws ec2 describe-tags --filters "Name=resource-id,Values=i-07
 - create cronjob to update tagging monthly
 
 {% highlight shell %}
-# create a monthly script run job
+# create a monthly cron to run the script
 root@ubt-server:~# crontab -e
 no crontab for root - using an empty one
 
@@ -112,9 +112,9 @@ Select an editor.  To change later, run 'select-editor'.
 Choose 1-4 [1]: 2
 crontab: installing new crontab
 
-# List the scheduled cronjob
+# List the monthly scheduled cronjob
 root@ubt-server:~# crontab -l
-* * * * * ~/zacktag.sh
+0 0 1 * * ~/zacktag.sh
 
 {% endhighlight %}
 

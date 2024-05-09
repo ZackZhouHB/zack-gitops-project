@@ -157,9 +157,9 @@ Select an editor.  To change later, run <span class="s1">'select-editor'</span>
 Choose 1-4 <span class="o">[</span>1]: 2
 crontab: installing new crontab
 
-<span class="c"># List the scheduled cronjob</span>
+<span class="c"># List the monthly scheduled cronjob</span>
 root@ubt-server:~# crontab <span class="nt">-l</span>
-<span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> ~/zacktag.sh</code></pre></figure>
+0 0 1 <span class="k">*</span> <span class="k">*</span> ~/zacktag.sh</code></pre></figure>
 
 <p><b> Conclusion </b></p>
 

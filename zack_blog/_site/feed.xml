@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-09T21:35:01+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Basic</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Basic" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-09T21:39:06+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Basic</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Basic" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
 
 <p>PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community.</p>
 
@@ -371,9 +371,9 @@ Select an editor.  To change later, run <span class="s1">'select-editor'</span>
 Choose 1-4 <span class="o">[</span>1]: 2
 crontab: installing new crontab
 
-<span class="c"># List the scheduled cronjob</span>
+<span class="c"># List the monthly scheduled cronjob</span>
 root@ubt-server:~# crontab <span class="nt">-l</span>
-<span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> ~/zacktag.sh</code></pre></figure>
+0 0 1 <span class="k">*</span> <span class="k">*</span> ~/zacktag.sh</code></pre></figure>
 
 <p><b> Conclusion </b></p>
 
