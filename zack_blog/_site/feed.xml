@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-08T11:14:50+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Basic</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Basic" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-09T21:28:26+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Basic</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Basic" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
 
 <p>PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community.</p>
 
@@ -261,7 +261,123 @@ root@ubt-server:~# docker compose up</code></pre></figure>
   </li>
 </ul>
 
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[RedHat idm on AWS design]]></summary></entry><entry><title type="html">Two options for AWS Serverless web hosting</title><link href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" rel="alternate" type="text/html" title="Two options for AWS Serverless web hosting" /><published>2024-04-30T10:15:29+10:00</published><updated>2024-04-30T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/30/serverless</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"><![CDATA[<p><b> Time to move “zackweb” from existing docker and containerization on EC2 and K8S to AWS Serverless with S3 </b></p>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[RedHat idm on AWS design]]></summary></entry><entry><title type="html"> Automate massive AWS EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html" rel="alternate" type="text/html" title=" Automate massive AWS EC2 tagging" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html"><![CDATA[<p><b> Backgroud </b></p>
+
+<p>I was tasked to enforce mandatory tagging for ec2 instances, as there are a lot of machines and a lot of tags need to be attached to each machine, here I need a scripted way to get the job done.</p>
+
+<p><b> How to achieve </b></p>
+
+<ul>
+  <li>Prepare a list of ec2 instances with default name tag only,</li>
+</ul>
+
+<p><img src="/assets/awstag2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# aws ec2 describe-instances <span class="nt">--output</span> text <span class="nt">--query</span> <span class="s1">'Reservations[*].Instances[*].[InstanceId]'</span> <span class="o">&gt;</span> zztag.csv</code></pre></figure>
+
+<ul>
+  <li>Then add the header row for “instance ID” “tagA”  ”valueA”    ”tagB”  ”valueB”</li>
+</ul>
+
+<p><img src="/assets/awstag1.png" alt="image tooltip here" /></p>
+
+<p><b> Create shell script to read the CSV file line by line, and add tags for each instance </b></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim zacktag.sh
+
+<span class="c">#!/bin/bash</span>
+
+<span class="c"># Read the CSV file line by line</span>
+<span class="k">while </span><span class="nv">IFS</span><span class="o">=</span>, <span class="nb">read</span> <span class="nt">-r</span> instance_id tagA valueA tagB valueB <span class="o">||</span> <span class="o">[</span> <span class="nt">-n</span> <span class="s2">"</span><span class="nv">$instance_id</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c"># Add tagA</span>
+    aws ec2 create-tags <span class="nt">--resources</span> <span class="s2">"</span><span class="nv">$instance_id</span><span class="s2">"</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$tagA</span><span class="s2">"</span>,Value<span class="o">=</span><span class="s2">"</span><span class="nv">$valueA</span><span class="s2">"</span>
+    <span class="c"># Add tagB</span>
+    aws ec2 create-tags <span class="nt">--resources</span> <span class="s2">"</span><span class="nv">$instance_id</span><span class="s2">"</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$tagB</span><span class="s2">"</span>,Value<span class="o">=</span><span class="s2">"</span><span class="nv">$valueB</span><span class="s2">"</span>
+<span class="k">done</span> &lt; zztag.csv
+
+root@ubt-server:~# <span class="nb">chmod</span> +x zacktag.sh <span class="o">&amp;&amp;</span> sh zacktag.sh</code></pre></figure>
+
+<ul>
+  <li>Validate now ec2 instances with all tags attached</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# aws ec2 describe-tags <span class="nt">--filters</span> <span class="s2">"Name=resource-id,Values=i-0980018fc6f4f722c"</span>
+<span class="o">{</span>
+    <span class="s2">"Tags"</span>: <span class="o">[</span>
+        <span class="o">{</span>
+            <span class="s2">"Key"</span>: <span class="s2">"Name"</span>,
+            <span class="s2">"ResourceId"</span>: <span class="s2">"i-0980018fc6f4f722c"</span>,
+            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
+            <span class="s2">"Value"</span>: <span class="s2">"testing-for-tagging"</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">"Key"</span>: <span class="s2">"zz1"</span>,
+            <span class="s2">"ResourceId"</span>: <span class="s2">"i-0980018fc6f4f722c"</span>,
+            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
+            <span class="s2">"Value"</span>: <span class="s2">"aa5"</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">"Key"</span>: <span class="s2">"zz2"</span>,
+            <span class="s2">"ResourceId"</span>: <span class="s2">"i-0980018fc6f4f722c"</span>,
+            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
+            <span class="s2">"Value"</span>: <span class="s2">"bb4"</span>
+        <span class="o">}</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+root@ubt-server:~# aws ec2 describe-tags <span class="nt">--filters</span> <span class="s2">"Name=resource-id,Values=i-076226daa5aaf7cf2"</span>
+<span class="o">{</span>
+    <span class="s2">"Tags"</span>: <span class="o">[</span>
+        <span class="o">{</span>
+            <span class="s2">"Key"</span>: <span class="s2">"Name"</span>,
+            <span class="s2">"ResourceId"</span>: <span class="s2">"i-076226daa5aaf7cf2"</span>,
+            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
+            <span class="s2">"Value"</span>: <span class="s2">"zack-blog"</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">"Key"</span>: <span class="s2">"zz1"</span>,
+            <span class="s2">"ResourceId"</span>: <span class="s2">"i-076226daa5aaf7cf2"</span>,
+            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
+            <span class="s2">"Value"</span>: <span class="s2">"aa1"</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">"Key"</span>: <span class="s2">"zz2"</span>,
+            <span class="s2">"ResourceId"</span>: <span class="s2">"i-076226daa5aaf7cf2"</span>,
+            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
+            <span class="s2">"Value"</span>: <span class="s2">"aa2"</span>
+        <span class="o">}</span>
+    <span class="o">]</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/awstag3.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>create cronjob to update tagging monthly</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create a monthly script run job</span>
+root@ubt-server:~# crontab <span class="nt">-e</span>
+no crontab <span class="k">for </span>root - using an empty one
+
+Select an editor.  To change later, run <span class="s1">'select-editor'</span><span class="nb">.</span>
+  1. /bin/nano        &lt;<span class="nt">----</span> easiest
+  2. /usr/bin/vim.basic
+  3. /usr/bin/vim.tiny
+  4. /bin/ed
+
+Choose 1-4 <span class="o">[</span>1]: 2
+crontab: installing new crontab
+
+<span class="c"># List the scheduled cronjob</span>
+root@ubt-server:~# crontab <span class="nt">-l</span>
+<span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> ~/zacktag.sh</code></pre></figure>
+
+<p><b> Conclusion </b></p>
+
+<p>Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, together with cronjob, we can only update the csv file which regularly updates instances and tags we want to attach, upload the csv file, every month all ec2 and their tags will be updated accordingly.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Backgroud]]></summary></entry><entry><title type="html">Two options for AWS Serverless web hosting</title><link href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" rel="alternate" type="text/html" title="Two options for AWS Serverless web hosting" /><published>2024-04-30T10:15:29+10:00</published><updated>2024-04-30T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/30/serverless</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"><![CDATA[<p><b> Time to move “zackweb” from existing docker and containerization on EC2 and K8S to AWS Serverless with S3 </b></p>
 
 <p>In this article, I will see how to host “zackweb” as a static web application using bellow AWS serverless options:</p>
 
@@ -1517,43 +1633,4 @@ PLAY RECAP <span class="k">*****************************************************
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@localhost ansible]# curl 11.0.1.131
 This is zack <span class="nb">test </span>Ansible role web <span class="o">!!!!!!!!!!!</span>   
-<span class="o">!!!!!!!!!</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible Roles]]></summary></entry><entry><title type="html">Enable Free SSL certificate for blog</title><link href="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html" rel="alternate" type="text/html" title="Enable Free SSL certificate for blog" /><published>2024-02-07T11:15:29+11:00</published><updated>2024-02-07T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/07/ssl-cert.html"><![CDATA[<p><b>HTTPS with SSL cert </b></p>
-
-<ul>
-  <li>
-    <p>Generate free SSL certificate from https://zerossl.com/</p>
-  </li>
-  <li>
-    <p>Validate the Certificate with Private Key via https://www.sslshopper.com/certificate-key-matcher.html</p>
-  </li>
-  <li>
-    <p>Upload ‘certificate.crt’ and ‘private.key’ to web server /etc/nginx/ssl/</p>
-  </li>
-  <li>
-    <p>Setting up NGINX HTTPS Server by include the ssl parameter to the listen directive in the server block under ‘http’ in ‘nginx.conf’:</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">http <span class="o">{</span>
-
-    server <span class="o">{</span>
-        listen 443 ssl<span class="p">;</span>
-        server_name zackdevops.online<span class="p">;</span>
-
-        ssl_certificate /etc/nginx/ssl/certificate.crt<span class="p">;</span>
-        ssl_certificate_key /etc/nginx/ssl/private.key<span class="p">;</span>
-
-    <span class="o">}</span>
-...
-<span class="o">}</span></code></pre></figure>
-
-<ul>
-  <li>fix 2 errors</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">2024/02/07 10:29:33 <span class="o">[</span>emerg] 73175#73175: <span class="s2">"server"</span> directive is not allowed here <span class="k">in</span> /etc/nginx/nginx.conf:11
-
-2024/02/07 10:30:25 <span class="o">[</span>error] 73207#73207: <span class="k">*</span>1 directory index of <span class="s2">"/usr/share/nginx/html/"</span> is forbidden,client: 163.53.144.82, server: zackdevops.online, request: <span class="s2">"GET / HTTP/1.1"</span>, host: <span class="s2">"zackdevops.online"</span>
-2024/02/07 10:30:36 <span class="o">[</span>error] 73207#73207: <span class="k">*</span>1 directory index of <span class="s2">"/usr/share/nginx/html/"</span> is forbidden, client: 163.53.144.82, server: zackdevops.online, request: <span class="s2">"GET / HTTP/1.1"</span>, host: <span class="s2">"zackdevops.online"</span></code></pre></figure>
-
-<p>Bingo! https://zackdevops.online connection is secure!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[HTTPS with SSL cert]]></summary></entry></feed>
+<span class="o">!!!!!!!!!</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Ansible Roles]]></summary></entry></feed>
