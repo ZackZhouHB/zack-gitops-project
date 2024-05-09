@@ -60,7 +60,7 @@
 <p><img src="/assets/awstag2.png" alt="image tooltip here" /></p>
 
 <ul>
-  <li>Ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file</li>
+  <li>Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# aws ec2 describe-instances <span class="nt">--output</span> text <span class="nt">--query</span> <span class="s1">'Reservations[*].Instances[*].[InstanceId]'</span> <span class="o">&gt;</span> zztag.csv</code></pre></figure>

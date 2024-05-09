@@ -16,7 +16,7 @@ I was tasked to enforce mandatory tagging for ec2 instances, as there are a lot 
 
 ![image tooltip here](/assets/awstag2.png)
 
-- Ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file
+- Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID, export to a csv file
 
 {% highlight shell %}
 root@ubt-server:~# aws ec2 describe-instances --output text --query 'Reservations[*].Instances[*].[InstanceId]' > zztag.csv
