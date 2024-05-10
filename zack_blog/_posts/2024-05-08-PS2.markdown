@@ -1,0 +1,35 @@
+---
+layout: post
+title:  " PostgreSQL: Replicate "
+date:   2024-05-08 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b> The Replication</b>
+
+Last post I started hands on session with PostgreSQL installation on both docker and docker compose, explore configuration and presis volume. 
+
+In this post I will setup a second PostgreSQL instance to see how to configure the first PostgreSQL instance to replicate its data to the second instance, so the failover can be tested. 
+
+By achieving this, steps can be followed by:  
+
+- Get Primary PostgreSQL up and running
+
+- Setup docker network and Create Replication User
+
+- Enable Write-Ahead Log, archive and Replication
+
+- Take a base backup
+
+- Start standby instance
+
+- Test the replication
+
+- Test Failover
+
+<b> Conclusion</b>
+
+Now we are able to run a PostgreSQL primary and standby instances to test replication and failover, in the next blog I will discover how to run PostgreSQL on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.
+
+
+
