@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " PostgreSQL Series: Hands on"
+title:  " PostgreSQL: Hands on"
 date:   2024-05-06 11:15:29 +1100
 categories: jekyll Cat2
 ---
