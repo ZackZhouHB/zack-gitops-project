@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-10T16:37:12+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Basic</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Basic" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-10T20:58:29+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series: Hands on</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series: Hands on" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
 
 <p>PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community.</p>
 
@@ -163,9 +163,98 @@ root@ubt-server:~# docker compose up</code></pre></figure>
 <p>Table and record still there because of the persistent data mount
 <img src="/assets/ps1-3.png" alt="image tooltip here" /></p>
 
+<p><b>PostgreSQL Configuration</b></p>
+
+<p>before jumping into replication, here we explore the configuration files of PostgreSQL to have a better understanding of its important config, take the default conf files out of a running database and learn it and make own configuration, then mount these conf files into container, so tell PostgreSQL to use my own configuration files to perform my prefered way.</p>
+
+<p>To achieve this, we need the db user “postgres” has ID of 999 with access to custom conf files.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/postgresql.conf
+root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_hba.conf
+root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_ident.conf
+
+root@ubt-server:~/pgdata# ll <span class="k">*</span>.conf
+<span class="nt">-rw-------</span> 1 lxd docker  4821 May  8 00:30 pg_hba.conf
+<span class="nt">-rw-------</span> 1 lxd docker  1636 May  8 00:30 pg_ident.conf
+<span class="nt">-rw-------</span> 1 lxd docker    88 May  8 00:30 postgresql.auto.conf
+<span class="nt">-rw-------</span> 1 lxd docker 29525 May  8 00:30 postgresql.conf
+
+root@ubt-server:~# <span class="nb">mkdir </span>config
+root@ubt-server:~# <span class="nb">cd </span>config/
+root@ubt-server:~# <span class="nb">cp</span> <span class="k">*</span>.conf /config
+
+root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/postgresql.conf
+root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_hba.conf
+root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_ident.conf</code></pre></figure>
+
+<p>The official PostgreSQL documentation explains those configuration files as below:</p>
+
+<ul>
+  <li>pg_hba.conf:</li>
+</ul>
+
+<p>This file stands for “PostgreSQL Host-Based Authentication.” It controls client authentication based on the host and user information. It specifies which hosts are allowed to connect to the PostgreSQL server, which databases and users they can access, and what authentication methods they must use. It’s a crucial security measure for controlling access to PostgreSQL server.</p>
+
+<ul>
+  <li>pg_ident.conf:</li>
+</ul>
+
+<p>This file, “PostgreSQL Identification Mapping,” allows to define mappings between external (e.g., operating system) and internal (PostgreSQL) user names.</p>
+
+<ul>
+  <li>postgresql.conf:
+Main configuration file for PostgreSQL which contains global settings to tailor its behavior to specific requirements and environment.</li>
+</ul>
+
+<p>Create custom config file 
+<img src="/assets/ps1-4.png" alt="image tooltip here" /></p>
+
+<p>now we can adjust the command by adding environment variables to run PostgreSQL from docker and docker-compose using our custom conf files</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim docker-compose.yaml
+version: <span class="s1">'3.1'</span>
+services:
+  db:
+    container_name: postgres
+    image: postgres:15.0
+<span class="c"># important: passing argument to postgres container tell where conf file located # to match the custom conf file we created before when DB initiate       </span>
+    <span class="nb">command</span>: <span class="s2">"postgres -c config_file=/config/postgresql.conf"</span>
+    environment:
+      POSTGRES_USER: <span class="s2">"postgresadmin"</span>
+      POSTGRES_PASSWORD: <span class="s2">"admin123"</span>
+      POSTGRES_DB: <span class="s2">"postgresdb"</span>
+      PGDATA: <span class="s2">"/data"</span>
+    volumes:
+    - ./pgdata:/data
+    - ./config:/config/
+    ports:
+    - 5000:5432
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+root@ubt-server:~# docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--name</span> postgres <span class="nt">-e</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span>postgresadmin <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>admin123 <span class="nt">-e</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span>postgresdb <span class="nt">-e</span> <span class="nv">PGDATA</span><span class="o">=</span><span class="s2">"/data"</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/pgdata:/data <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/config:/config <span class="nt">-p</span> 5000:5432 postgres:15.0 <span class="nt">-c</span> <span class="s1">'config_file=/config/postgresql.conf'</span>
+
+PostgreSQL Database directory appears to contain a database<span class="p">;</span> Skipping initialization
+
+2024-05-10 10:40:44.685 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-10 10:40:44.685 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-05-10 10:40:44.685 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-05-10 10:40:44.686 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-10 10:40:44.688 UTC <span class="o">[</span>28] LOG:  database system was shut down at 2024-05-10 10:30:42 UTC
+2024-05-10 10:40:44.690 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections
+
+root@ubt-server:~# docker compose up <span class="nt">-d</span>
+WARN[0000] /root/docker-compose.yaml: <span class="sb">`</span>version<span class="sb">`</span> is obsolete 
+<span class="o">[</span>+] Running 2/2
+ ✔ Container postgres        Started                                                                                            0.4s 
+ ✔ Container root-adminer-1  Started</code></pre></figure>
+
 <p><b> Conclusion</b></p>
 
-<p>Now we can run a Basic PostgreSQL container from docker and docker compose with Persist data, in next blog we will discover ton of configuration options and explore environment variables for PostgreSQL config file.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
+<p>Now we can run a PostgreSQL container from docker and docker-compose with Persist data and custom configuration mount into the container, in the next blog we will discover primary and standby replication, WAL (write ahead log) options.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
 
 <p>The proof of concept aims to achieve that, where a Red Hat IDM (Identity Management) server hosted in AWS with its own domain (zack.linux.com) is integrated with an existing AWS Managed AD (zack.existing.com) for authentication of Linux EC2 instances across multiple AWS accounts. The AWS managed AD also synced with Azure AD.</p>
 
