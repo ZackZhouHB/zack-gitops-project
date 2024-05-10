@@ -122,3 +122,32 @@ root@ubt-server:~# crontab -l
 <b> Conclusion </b>
 
 Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, same method to any other AWS resources that needed to be tagged, together with cronjob, we can only update the csv file which regularly updates resource ID and tags we want to attach, upload the csv file, every month their tags will be updated accordingly.
+
+Furthermore, the resouces can be queried by setting up filter by different tag criteria:
+{% highlight shell %}
+# query EC2 with certain tag
+aws ec2 describe-instances --filters "Name=tag:TagName,Values=TagValue"
+
+# query EC2 without certain tag
+aws ec2 describe-instances --query 'Reservations[].Instances[?not_null(Tags[?Key==`TagName` && Value==`TagValue`])].InstanceId'
+
+{% endhighlight %}
+
+Or we can use lambda function together with AWS Config rules to list and remediate the untagged EC2 resource accordingly
+{% highlight shell %}
+import boto3
+
+def lambda_handler(event, context):
+    # Initialize AWS clients for services to be scanned 
+    ec2_client = boto3.client('ec2')
+    
+    # Retrieve a list of untagged EC2 instances
+    untagged_instances = []
+    response = ec2_client.describe_instances()
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            if 'Tags' not in instance:
+                untagged_instances.append(instance['InstanceId'])
+                
+    return untagged_instances
+{% endhighlight %}

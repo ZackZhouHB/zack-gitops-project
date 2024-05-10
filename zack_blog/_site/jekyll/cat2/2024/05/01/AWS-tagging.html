@@ -165,6 +165,32 @@ root@ubt-server:~# crontab <span class="nt">-l</span>
 
 <p>Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, same method to any other AWS resources that needed to be tagged, together with cronjob, we can only update the csv file which regularly updates resource ID and tags we want to attach, upload the csv file, every month their tags will be updated accordingly.</p>
 
+<p>Furthermore, the resouces can be queried by setting up filter by different tag criteria:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># query EC2 with certain tag</span>
+aws ec2 describe-instances <span class="nt">--filters</span> <span class="s2">"Name=tag:TagName,Values=TagValue"</span>
+
+<span class="c"># query EC2 without certain tag</span>
+aws ec2 describe-instances <span class="nt">--query</span> <span class="s1">'Reservations[].Instances[?not_null(Tags[?Key==`TagName` &amp;&amp; Value==`TagValue`])].InstanceId'</span></code></pre></figure>
+
+<p>Or we can use lambda function together with AWS Config rules to list and remediate the untagged EC2 resource accordingly</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
+
+def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
+    <span class="c"># Initialize AWS clients for services to be scanned </span>
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    
+    <span class="c"># Retrieve a list of untagged EC2 instances</span>
+    untagged_instances <span class="o">=</span> <span class="o">[]</span>
+    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            <span class="k">if</span> <span class="s1">'Tags'</span> not <span class="k">in </span>instance:
+                untagged_instances.append<span class="o">(</span>instance[<span class="s1">'InstanceId'</span><span class="o">])</span>
+                
+    <span class="k">return </span>untagged_instances</code></pre></figure>
+
   </div><a class="u-url" href="/jekyll/cat2/2024/05/01/AWS-tagging.html" hidden></a>
 </article>
 
