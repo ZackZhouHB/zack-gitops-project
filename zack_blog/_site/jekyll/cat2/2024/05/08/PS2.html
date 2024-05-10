@@ -49,9 +49,9 @@
   <div class="post-content e-content" itemprop="articleBody">
     <p><b> The Replication</b></p>
 
-<p>Last post I started hands on session with PostgreSQL installation on both docker and docker compose, explore configuration and presis volume.</p>
+<p>Last post I started hands on session with PostgreSQL installation on both docker and docker compose, explored important PostgreSQL configuration and was able to mount persistent volumes and config files to customize PostgreSQL.</p>
 
-<p>In this post I will setup a second PostgreSQL instance to see how to configure the first PostgreSQL instance to replicate its data to the second instance, so the failover can be tested.</p>
+<p>In this post I will setup a second PostgreSQL instance to setup a primaty and standby replication for PostgreSQL HA, by using some pg tools, last we will test failover by shut down primary and promot standby instance.</p>
 
 <p>By achieving this, steps can be followed by:</p>
 
@@ -66,18 +66,18 @@
     <p>Enable Write-Ahead Log, archive and Replication</p>
   </li>
   <li>
-    <p>Take a base backup</p>
-  </li>
-  <li>
-    <p>Start standby instance</p>
-  </li>
-  <li>
-    <p>Test the replication</p>
+    <p>Start standby instance and validate replication</p>
   </li>
   <li>
     <p>Test Failover</p>
   </li>
 </ul>
+
+<p><b> Preparation</b></p>
+
+<p>To enable the replication for PostgreSQL, there are a few preparation steps need to be done.</p>
+
+<p>First we need to prepare the unique prisistent data volume and config files for each PostgreSQL instance, then create docker network so the containers can communicate with primary and standby instances, then we need a Postgres user to replicate data in between,</p>
 
 <p><b> Conclusion</b></p>
 
