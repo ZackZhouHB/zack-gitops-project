@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " PostgreSQL: Hands on"
+title:  " PostgreSQL: Get Started"
 date:   2024-05-06 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -163,7 +163,7 @@ Table and record still there because of the persistent data mount
 
 <b>PostgreSQL Configuration</b>
 
-before jumping into replication, here we explore the configuration files of PostgreSQL to have a better understanding of its important config, take the default conf files out of a running database and learn it and make own configuration, then mount these conf files into container, so tell PostgreSQL to use my own configuration files to perform my prefered way.
+Before jumping into replication, it is more important to explore the PostgreSQL configuration files to have a better understanding of its important config, take the default conf files out of a running database and learn it and make own configuration, then mount these conf files into container, so tell PostgreSQL to use my own configuration files to perform my prefered way.
 
 To achieve this, we need the db user "postgres" has ID of 999 with access to custom conf files.
 
