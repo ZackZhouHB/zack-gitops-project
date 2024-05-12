@@ -5,21 +5,21 @@ date:   2024-05-11 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b> Production grade PostgreSQL deployment in K8S</b>
+<b> Production grade PostgreSQL in K8S</b>
 
 Despite all the challenges, in the last 2 years, clever people still managed ways to deploy production-grade database within a Kubernetes cluster by using Kubernetes as a platform to develop custom resource definition (CRDs) like helm charts like bitnami/postgresql-ha, and PostgreSQL Operator like CrunchyData/postgres-operator or zalando/postgres-operator. 
 
 Last post I was able to deploy a single PostgreSQL in local k8s, but I had to manually create Kubernetes namespaces, define database creds, configuration and environment variables into k8s secret and configmap, also to define the statefulset yaml with volume claim template.
 
-But I was not able to configure HA and failover as I found it is so limited and a headache within K8S if only relying on statefulset. Luckily there are engineers out there to develop helm and opeartor to get the job done. 
+Still I was not able to configure HA and failover as I found it is so limited and a headache within K8S if only relying on statefulset. Luckily there are engineers out there to develop helm and opeartor to get the job done. 
 
-<b> CrunchyData/postgres-operator Demo</b>
+<b> CrunchyData Postgres-Operator</b>
 
-In this session I will follow bellow steps to 
+In this session, I will follow bellow steps to 
 
 - Deploy PostgreSQL Operator
 {% highlight shell %}
-# clone the CrunchyData Postgres Operator
+# Clone the CrunchyData Postgres Operator
 [root@freeipa-server ~]# git clone https://github.com/CrunchyData/postgres-operator-examples.git
 
 # create namespace and deploy GPO Postgres Operatorusing kustomize
@@ -36,14 +36,14 @@ deployment.apps/pgo serverside-applied
 
 # validate deploy status
 [root@freeipa-server postgres-operator-examples]# kubectl get all -n postgres-operator
-NAME                      READY   STATUS    RESTARTS   AGE
-pod/pgo-77d6b49b8-wrdjp   1/1     Running   0          2m47s
+NAME                      READY   STATUS    RESTARTS   AGE
+pod/pgo-77d6b49b8-wrdjp   1/1     Running   0          2m47s
 
-NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/pgo   1/1     1            1           2m47s
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/pgo   1/1     1            1           2m47s
 
-NAME                            DESIRED   CURRENT   READY   AGE
-replicaset.apps/pgo-77d6b49b8   1         1         1       2m47s
+NAME                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/pgo-77d6b49b8   1         1         1       2m47s
 {% endhighlight %}
 - Deploy HA PostgreSQL Cluster
 
@@ -53,119 +53,227 @@ replicaset.apps/pgo-77d6b49b8   1         1         1       2m47s
 postgrescluster.postgres-operator.crunchydata.com/hippo created
 
 [root@freeipa-server postgres-operator-examples]# kubectl get all -n postgres-operator
-NAME                          READY   STATUS    RESTARTS   AGE
-pod/hippo-backup-dvks-m4z5m   1/1     Running   0          56s
-pod/hippo-instance1-582s-0    4/4     Running   0          2m14s
-pod/hippo-repo-host-0         2/2     Running   0          2m14s
-pod/pgo-77d6b49b8-wrdjp       1/1     Running   0          6m38s
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/hippo-backup-dvks-m4z5m   1/1     Running   0          56s
+pod/hippo-instance1-582s-0    4/4     Running   0          2m14s
+pod/hippo-repo-host-0         2/2     Running   0          2m14s
+pod/pgo-77d6b49b8-wrdjp       1/1     Running   0          6m38s
 
-NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-service/hippo-ha          ClusterIP   10.43.249.159   <none>        5432/TCP   2m14s
-service/hippo-ha-config   ClusterIP   None            <none>        <none>     2m14s
-service/hippo-pods        ClusterIP   None            <none>        <none>     2m14s
-service/hippo-primary     ClusterIP   None            <none>        5432/TCP   2m14s
-service/hippo-replicas    ClusterIP   10.43.17.57     <none>        5432/TCP   2m14s
+NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/hippo-ha          ClusterIP   10.43.249.159   <none>        5432/TCP   2m14s
+service/hippo-ha-config   ClusterIP   None            <none>        <none>     2m14s
+service/hippo-pods        ClusterIP   None            <none>        <none>     2m14s
+service/hippo-primary     ClusterIP   None            <none>        5432/TCP   2m14s
+service/hippo-replicas    ClusterIP   10.43.17.57     <none>        5432/TCP   2m14s
 
-NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/pgo   1/1     1            1           6m38s
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/pgo   1/1     1            1           6m38s
 
-NAME                            DESIRED   CURRENT   READY   AGE
-replicaset.apps/pgo-77d6b49b8   1         1         1       6m38s
+NAME                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/pgo-77d6b49b8   1         1         1       6m38s
 
-NAME                                    READY   AGE
-statefulset.apps/hippo-instance1-582s   1/1     2m14s
-statefulset.apps/hippo-repo-host        1/1     2m14s
+NAME                                    READY   AGE
+statefulset.apps/hippo-instance1-582s   1/1     2m14s
+statefulset.apps/hippo-repo-host        1/1     2m14s
 
-NAME                          COMPLETIONS   DURATION   AGE
-job.batch/hippo-backup-dvks   0/1           56s        56s
+NAME                          COMPLETIONS   DURATION   AGE
+job.batch/hippo-backup-dvks   0/1           56s        56s
 
-# retrieve database passwd from Kubernetes secret
+# retrieve database password from Kubernetes secret
 [root@freeipa-server postgres-operator-examples]# kubectl get secret hippo-pguser-hippo -n postgres-operator -o=jsonpath='{.data.password}' | base64 --decode
 jZiBWXMGRiEOA6wAEj;lRhsM
+{% endhighlight %}
 
-# create deployment keycloak to connect postgresql databast
+Connect an application to PostgreSQL cluster
+
+Here we use Keycloak, a popular open-source identity management tool that is backed by a PostgreSQL database. Using the hippo cluster we created, we can deploy the following manifest file
+
+{% highlight shell %}
+# create deployment keycloak to connect PostgreSQL database
 [root@freeipa-server postgres-operator-examples]# vim kustomize/keycloak/keycloak.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: keycloak
-  namespace: postgres-operator
-  labels:
-    app.kubernetes.io/name: keycloak
+  name: keycloak
+  namespace: postgres-operator
+  labels:
+    app.kubernetes.io/name: keycloak
 spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: keycloak
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: keycloak
-    spec:
-      containers:
-      - image: quay.io/keycloak/keycloak:latest
-        args: ["start-dev"]
-        name: keycloak
-        env:
-        - name: DB_VENDOR
-          value: "postgres"
-        - name: DB_ADDR
-          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: host } }
-        - name: DB_PORT
-          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: port } }
-        - name: DB_DATABASE
-          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: dbname } }
-        - name: DB_USER
-          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: user } }
-        - name: DB_PASSWORD
-          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: password } }
-        - name: KEYCLOAK_ADMIN
-          value: "admin"
-        - name: KEYCLOAK_ADMIN_PASSWORD
-          value: "admin"
-        - name: KC_PROXY
-          value: "edge"
-        ports:
-        - name: http
-          containerPort: 8080
-        - name: https
-          containerPort: 8443
-        readinessProbe:
-          httpGet:
-            path: /realms/master
-            port: 8080
-      restartPolicy: Always
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keycloak
+    spec:
+      containers:
+      - image: quay.io/keycloak/keycloak:latest
+        args: ["start-dev"]
+        name: keycloak
+        env:
+        - name: DB_VENDOR
+          value: "postgres"
+        - name: DB_ADDR
+          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: host } }
+        - name: DB_PORT
+          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: port } }
+        - name: DB_DATABASE
+          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: dbname } }
+        - name: DB_USER
+          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: user } }
+        - name: DB_PASSWORD
+          valueFrom: { secretKeyRef: { name: hippo-pguser-hippo, key: password } }
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: "admin"
+        - name: KC_PROXY
+          value: "edge"
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        readinessProbe:
+          httpGet:
+            path: /realms/master
+            port: 8080
+      restartPolicy: Always
 
 [root@freeipa-server postgres-operator-examples]# kubectl apply -f kustomize/keycloak/keycloak.yaml
 deployment.apps/keycloak created
 
 [root@freeipa-server postgres-operator-examples]# kubectl get deployment -n postgres-operator 
-NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-keycloak   1/1     1            1           4m27s
-pgo        1/1     1            1           176m
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+keycloak   1/1     1            1           4m27s
+pgo        1/1     1            1           176m
 {% endhighlight %}
+
 - Scale Up / Down
-Edit manifest to add 2 replicas 
+
+Edit manifest to add 2 more replicas
 
 ![image tooltip here](/assets/ps3-1.png)
 
 {% highlight shell %}
 [root@freeipa-server kustomize]# kubectl apply -k postgres -n postgres-operator
 postgrescluster.postgres-operator.crunchydata.com/hippo configured
-
 # watch change
-
 [root@freeipa-server postgres-operator-examples]# watch kubectl get pod -L postgres-operator.crunchydata.com/role -l postgres-operator.crunchydata.com/instance -n postgres-operator
 {% endhighlight %}
 
 ![image tooltip here](/assets/ps3-2.png)
 
-- Perform Minor Upgrade 
+Failover testing:
+
+Now I am going to delete the primary instance, one of the standby pod will take over and become primary automatically
+{% highlight shell %}
+# delete the primary pod hippo-instance1-nhbc-0, then previous replica pod hippo-instance1-q8kk-0 promoted as master
+# pod hippo-instance1-nhbc-0 will up again as a replica
+[root@freeipa-server kustomize]# kubectl delete po hippo-instance1-nhbc-0 -n postgres-operator 
+pod "hippo-instance1-nhbc-0" deleted
+{% endhighlight %}
+
+![image tooltip here](/assets/ps3-3.png)
+
+- Perform Minor version rolling upgrade 
+
+Here I changed the database version to 16.1, the cluster will start a rolling update by
+
+1. Applying new version to one of the standby pod first 
+
+2. Then update another replica pod
+
+3. Promote the first upgraded replica as master
+
+4. Lastly the previous master pod will be updated and become a replica
+
+{% highlight shell %}
+# validate DB version before miner upgrade
+[root@freeipa-server kustomize]# kubectl exec -it hippo-instance1-q8kk-0 -n postgres-operator -- psql --version
+Defaulted container "database" out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup (init), nss-wrapper-init (init)
+psql (PostgreSQL) 16.2
+{% endhighlight %}
+
+![image tooltip here](/assets/ps3-5.png)
+
+![image tooltip here](/assets/ps3-4.png)
+
+{% highlight shell %}
+# validate DB version after miner version change
+[root@freeipa-server kustomize]# kubectl exec -it hippo-instance1-q8kk-0 -n postgres-operator -- psql --version
+Defaulted container "database" out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup (init), nss-wrapper-init (init)
+psql (PostgreSQL) 16.1
+{% endhighlight %}
+
+- Backup
+
+Add backup Cron job into manifest to add weekly full backup and daily incremental
+
+![image tooltip here](/assets/ps3-6.png)
+
+{% highlight shell %}
+[root@freeipa-server ~]# kubectl get cronjobs -n postgres-operator 
+NAME               SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+hippo-repo1-full   0 1 * * 0     False     0        <none>          5m21s
+hippo-repo1-incr   0 1 * * 1-6   False     0        <none>          5m21s
+{% endhighlight %}
 
 - Deploy Monitoring (Prom + Grafaba)
 
+Finally, let's set up the monitoring stack for PostgreSQL by using Pormthues and Grafana.
+
+{% highlight shell %}
+# deploy monitoring stack
+[root@freeipa-server kustomize]# kubectl apply -k monitoring
+serviceaccount/alertmanager created
+serviceaccount/grafana created
+serviceaccount/prometheus created
+clusterrole.rbac.authorization.k8s.io/prometheus created
+clusterrolebinding.rbac.authorization.k8s.io/prometheus created
+configmap/alert-rules-config created
+configmap/alertmanager-config created
+configmap/crunchy-prometheus created
+configmap/grafana-dashboards created
+configmap/grafana-datasources created
+secret/grafana-admin created
+service/crunchy-alertmanager created
+service/crunchy-grafana created
+service/crunchy-prometheus created
+persistentvolumeclaim/alertmanagerdata created
+persistentvolumeclaim/grafanadata created
+persistentvolumeclaim/prometheusdata created
+deployment.apps/crunchy-alertmanager created
+deployment.apps/crunchy-grafana created
+deployment.apps/crunchy-prometheus created
+# Edit Grafana service to NodePort
+[root@freeipa-server postgres-operator-examples]# kubectl edit svc crunchy-grafana -n postgres-operator
+service/crunchy-grafana edited
+# exec into master database container, using pgbench to generate tables
+[root@freeipa-server postgres-operator-examples]# kubectl exec -it hippo-instance1-nhbc-0 -c database -n postgres-operator -- bash
+
+bash-4.4$ pgbench -i -s 100 -U postgres -d postgres
+dropping old tables...
+NOTICE:  table "pgbench_accounts" does not exist, skipping
+NOTICE:  table "pgbench_branches" does not exist, skipping
+NOTICE:  table "pgbench_history" does not exist, skipping
+NOTICE:  table "pgbench_tellers" does not exist, skipping
+creating tables...
+generating data (client-side)...
+10000000 of 10000000 tuples (100%) done (elapsed 45.61 s, remaining 0.00 s)
+{% endhighlight %}
+
+
+![image tooltip here](/assets/ps3-7.png)
+
+Some Grafana predefined PostgreSQL dashboard, unfortunately I donot have much data in it to show more monitoring status.
+
+![image tooltip here](/assets/ps3-8.png)
+
+![image tooltip here](/assets/ps3-9.png)
+
 <b> Conclusion</b>
 
-Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.
-
-
+This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!
 
