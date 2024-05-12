@@ -1,4 +1,247 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-12T00:55:25+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series 2: Replication &amp;amp; Failover</title><link href="http://localhost:4000/jekyll/cat2/2024/05/08/PS2.html" rel="alternate" type="text/html" title="PostgreSQL Series 2: Replication &amp;amp; Failover" /><published>2024-05-08T10:15:29+10:00</published><updated>2024-05-08T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/08/PS2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/08/PS2.html"><![CDATA[<p><b> The Replication</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-12T11:09:40+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series 3: Deploy in K8S</title><link href="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html" rel="alternate" type="text/html" title="PostgreSQL Series 3: Deploy in K8S" /><published>2024-05-10T10:15:29+10:00</published><updated>2024-05-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/10/PS3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html"><![CDATA[<p><b> Single PostgreSQL deployment in K8S</b></p>
+
+<p>PostgreSQL by default doesnot build for kubernetes, and a database with statefulset workload in k8s can be brutal to manage. In my lab k8s cluster, here we create namespace, secret, configuremap, PVC and statefulset to run a single PostgreSQL</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create namespace "postgresql"</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl create ns postgresql
+namespace/postgresql created
+
+<span class="c"># create secret to store database creds</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl <span class="nt">-n</span> postgresql create secret generic postgresql <span class="nt">--from-literal</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span><span class="s2">"postgresadmin"</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="s1">'admin123'</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span><span class="s2">"postgresdb"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_USER</span><span class="o">=</span><span class="s2">"replicationuser"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_PASSWORD</span><span class="o">=</span><span class="s1">'replicationPassword'</span>
+secret/postgresql created
+
+<span class="c"># create configmap, pvc, statefulset with init container to run postgresql</span>
+<span class="o">[</span>root@freeipa-server ~]# vim stateful.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres
+data: 
+  pg_hba.conf: |+
+    <span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+    host     replication     replicationuser         0.0.0.0/0        md5
+    <span class="c"># "local" is for Unix domain socket connections only</span>
+    <span class="nb">local   </span>all             all                                     trust
+    <span class="c"># IPv4 local connections:</span>
+    host    all             all             127.0.0.1/32            trust
+    <span class="c"># IPv6 local connections:</span>
+    host    all             all             ::1/128                 trust
+    <span class="c"># Allow replication connections from localhost, by a user with the</span>
+    <span class="c"># replication privilege.</span>
+    <span class="nb">local   </span>replication     all                                     trust
+    host    replication     all             127.0.0.1/32            trust
+    host    replication     all             ::1/128                 trust
+
+    host all all all scram-sha-256
+  postgresql.conf: |+
+    data_directory <span class="o">=</span> <span class="s1">'/data/pgdata'</span>
+    hba_file <span class="o">=</span> <span class="s1">'/config/pg_hba.conf'</span>
+    ident_file <span class="o">=</span> <span class="s1">'/config/pg_ident.conf'</span>
+
+    port <span class="o">=</span> 5432
+    listen_addresses <span class="o">=</span> <span class="s1">'*'</span>
+    max_connections <span class="o">=</span> 100
+    shared_buffers <span class="o">=</span> 128MB
+    dynamic_shared_memory_type <span class="o">=</span> posix
+    max_wal_size <span class="o">=</span> 1GB
+    min_wal_size <span class="o">=</span> 80MB
+    log_timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
+    datestyle <span class="o">=</span> <span class="s1">'iso, mdy'</span>
+    timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
+
+    <span class="c">#locale settings</span>
+    lc_messages <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for system error message</span>
+    lc_monetary <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for monetary formatting</span>
+    lc_numeric <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for number formatting</span>
+    lc_time <span class="o">=</span> <span class="s1">'en_US.utf8'</span>				<span class="c"># locale for time formatting</span>
+
+    default_text_search_config <span class="o">=</span> <span class="s1">'pg_catalog.english'</span>
+
+    <span class="c">#replication</span>
+    wal_level <span class="o">=</span> replica
+    archive_mode <span class="o">=</span> on
+    archive_command <span class="o">=</span> <span class="s1">'test ! -f /data/archive/%f &amp;&amp; cp %p /data/archive/%f'</span>
+    max_wal_senders <span class="o">=</span> 3
+<span class="nt">---</span>
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: <span class="s2">"postgres"</span>
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init
+        image: postgres:15.0
+        <span class="nb">command</span>: <span class="o">[</span> <span class="s2">"bash"</span>, <span class="s2">"-c"</span> <span class="o">]</span>
+        args:
+        - |
+          <span class="c">#create archive directory</span>
+          <span class="nb">mkdir</span> <span class="nt">-p</span> /data/archive <span class="o">&amp;&amp;</span> <span class="nb">chown</span> <span class="nt">-R</span> 999:999 /data/archive
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: <span class="nb">false
+      </span>containers:
+      - name: postgres
+        image: postgres:15.0
+        args: <span class="o">[</span><span class="s2">"-c"</span>, <span class="s2">"config_file=/config/postgresql.conf"</span><span class="o">]</span>
+        ports:
+        - containerPort: 5432
+          name: database
+        <span class="nb">env</span>:
+        - name: PGDATA
+          value: <span class="s2">"/data/pgdata"</span>
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_USER
+              optional: <span class="nb">false</span>
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_PASSWORD
+              optional: <span class="nb">false</span>
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_DB
+              optional: <span class="nb">false
+        </span>volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: <span class="nb">false</span>
+        - name: data
+          mountPath: /data
+          readOnly: <span class="nb">false
+      </span>volumes:
+      - name: config
+        configMap:
+          name: postgres
+          defaultMode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: <span class="o">[</span> <span class="s2">"ReadWriteOnce"</span> <span class="o">]</span>
+      storageClassName: <span class="s2">"standard"</span>
+      resources:
+        requests:
+          storage: 100Mi
+<span class="nt">---</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  clusterIP: None
+  selector:
+    app: postgres
+
+<span class="o">[</span>root@freeipa-server ~]# kubectl create <span class="nt">-f</span> stateful.yaml <span class="nt">-n</span> postgresql 
+configmap/postgres created
+statefulset.apps/postgres created
+service/postgres created
+
+<span class="c"># validate for pvc, pods</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl get pvc <span class="nt">-n</span> postgresql 
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+data-postgres-0   Bound    pvc-dd89fc0a-915f-40eb-b61f-917234074a61   100Mi      RWO            longhorn       19m
+
+<span class="o">[</span>root@freeipa-server ~]# kubectl get all <span class="nt">-n</span> postgresql 
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          6m29s
+
+NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+service/postgres   ClusterIP   None         &lt;none&gt;        5432/TCP   6m29s
+
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     6m29s
+
+<span class="c"># check container logs for database connection status</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl logs <span class="nt">-n</span> postgresql postgres-0 
+Defaulted container <span class="s2">"postgres"</span> out of: postgres, init <span class="o">(</span>init<span class="o">)</span>
+The files belonging to this database system will be owned by user <span class="s2">"postgres"</span><span class="nb">.</span>
+This user must also own the server process.
+
+The database cluster will be initialized with locale <span class="s2">"en_US.utf8"</span><span class="nb">.</span>
+The default database encoding has accordingly been <span class="nb">set </span>to <span class="s2">"UTF8"</span><span class="nb">.</span>
+The default text search configuration will be <span class="nb">set </span>to <span class="s2">"english"</span><span class="nb">.</span>
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /data/pgdata ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default <span class="nb">time </span>zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+initdb: warning: enabling <span class="s2">"trust"</span> authentication <span class="k">for </span><span class="nb">local </span>connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option <span class="nt">-A</span>, or <span class="nt">--auth-local</span> and <span class="nt">--auth-host</span>, the next <span class="nb">time </span>you run initdb.
+syncing data to disk ... ok
+
+
+Success. You can now start the database server using:
+
+    pg_ctl <span class="nt">-D</span> /data/pgdata <span class="nt">-l</span> logfile start
+
+waiting <span class="k">for </span>server to start....2024-05-12 00:52:56.718 UTC <span class="o">[</span>49] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-12 00:52:56.719 UTC <span class="o">[</span>49] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-12 00:52:56.730 UTC <span class="o">[</span>49] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
+2024-05-12 00:52:56.733 UTC <span class="o">[</span>52] LOG:  database system was shut down at 2024-05-12 00:52:55 UTC
+2024-05-12 00:52:56.744 UTC <span class="o">[</span>49] LOG:  database system is ready to accept connections
+ <span class="k">done
+</span>server started
+CREATE DATABASE
+
+
+/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/<span class="k">*</span>
+
+2024-05-12 00:52:56.957 UTC <span class="o">[</span>49] LOG:  received fast shutdown request
+waiting <span class="k">for </span>server to shut down....2024-05-12 00:52:56.961 UTC <span class="o">[</span>49] LOG:  aborting any active transactions
+2024-05-12 00:52:56.962 UTC <span class="o">[</span>49] LOG:  background worker <span class="s2">"logical replication launcher"</span> <span class="o">(</span>PID 56<span class="o">)</span> exited with <span class="nb">exit </span>code 1
+2024-05-12 00:52:56.963 UTC <span class="o">[</span>50] LOG:  shutting down
+2024-05-12 00:52:57.042 UTC <span class="o">[</span>50] LOG:  checkpoint starting: shutdown immediate
+..2024-05-12 00:52:59.314 UTC <span class="o">[</span>50] LOG:  checkpoint <span class="nb">complete</span>: wrote 918 buffers <span class="o">(</span>5.6%<span class="o">)</span><span class="p">;</span> 0 WAL file<span class="o">(</span>s<span class="o">)</span> added, 0 removed, 1 recycled<span class="p">;</span> <span class="nv">write</span><span class="o">=</span>0.434 s, <span class="nb">sync</span><span class="o">=</span>0.014 s, <span class="nv">total</span><span class="o">=</span>2.279 s<span class="p">;</span> <span class="nb">sync </span><span class="nv">files</span><span class="o">=</span>250, <span class="nv">longest</span><span class="o">=</span>0.007 s, <span class="nv">average</span><span class="o">=</span>0.001 s<span class="p">;</span> <span class="nv">distance</span><span class="o">=</span>11271 kB, <span class="nv">estimate</span><span class="o">=</span>11271 kB
+2024-05-12 00:52:59.318 UTC <span class="o">[</span>49] LOG:  database system is shut down
+ <span class="k">done
+</span>server stopped
+
+PostgreSQL init process <span class="nb">complete</span><span class="p">;</span> ready <span class="k">for </span>start up.
+
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-05-12 00:52:59.389 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-12 00:52:59.398 UTC <span class="o">[</span>1] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
+2024-05-12 00:52:59.404 UTC <span class="o">[</span>67] LOG:  database system was shut down at 2024-05-12 00:52:59 UTC
+2024-05-12 00:52:59.415 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Single PostgreSQL deployment in K8S]]></summary></entry><entry><title type="html">PostgreSQL Series 2: Replication &amp;amp; Failover</title><link href="http://localhost:4000/jekyll/cat2/2024/05/08/PS2.html" rel="alternate" type="text/html" title="PostgreSQL Series 2: Replication &amp;amp; Failover" /><published>2024-05-08T10:15:29+10:00</published><updated>2024-05-08T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/08/PS2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/08/PS2.html"><![CDATA[<p><b> The Replication</b></p>
 
 <p>Last post I started hands-on session with PostgreSQL installation on both docker and docker-compose, explored important PostgreSQL configuration and was able to mount persistent volumes and config files to customize PostgreSQL.</p>
 
@@ -187,7 +430,7 @@ exit
 
 <p><b> Conclusion</b></p>
 
-<p>Now we are able to run a PostgreSQL primary and standby instances to test replication and failover, in the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Replication]]></summary></entry><entry><title type="html">PostgreSQL Series 1: Get Started</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series 1: Get Started" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
+<p>Now we are able to run a PostgreSQL primary and standby instances to test replication and failover, in the next blog I will discover how to depoly a single PostgreSQL on kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Replication]]></summary></entry><entry><title type="html">PostgreSQL Series 1: Get Started</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL Series 1: Get Started" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
 
 <p>PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community.</p>
 
@@ -1571,126 +1814,4 @@ https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.
 
 <p><b> Conclusion</b></p>
 
-<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Scenario and Challange]]></summary></entry><entry><title type="html">Automate K8S with Terraform and Ansible</title><link href="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html" rel="alternate" type="text/html" title="Automate K8S with Terraform and Ansible" /><published>2024-02-24T11:15:29+11:00</published><updated>2024-02-24T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/02/24/EC2-K8S.html"><![CDATA[<p><b> K8S on EC2  vs EKS </b></p>
-
-<p>While I was in an interview last week, the company heavily using Ansible to provision and configure their k8s cluster on AWS EC2, aim to have the most control and flexibility in case they need to move to another cloud provider.</p>
-
-<p>Here I will use both Terraform and Ansible to automate K8S cluster creation and configuration on a few EC2 instances.</p>
-
-<p><b> The tools and workflow</b></p>
-
-<ul>
-  <li>Major tools will include Ansible, terraform, together with a shell script.</li>
-</ul>
-
-<ol>
-  <li>
-    <p>Use terraform to create S3 as backend state file, create security groups and 4 ec2 instances ( 1 bastion, 1 master, 2 workers)</p>
-  </li>
-  <li>
-    <p>As Instances are created in AWS environment dynamically, Ansible ec2-dynamic-inventory approach is best way to manage them.</p>
-  </li>
-  <li>
-    <p>Using terraform “connection”, to ssh to the bastion host after creation, use provisoners “file” to upload shell script to bootstrap bastion host as a ansbile master, configure ec2-dynamic-inventory to fetch the other 3 instances for K8S.</p>
-  </li>
-  <li>
-    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and with “inline” to execute playbooks to init k8s master node and join the worker node.</p>
-  </li>
-  <li>
-    <p>Finally another playbook to configure bastion to run kubectl</p>
-  </li>
-</ol>
-
-<p><b> Create SGs and EC2s, with Bastion bootstrap via terraform </b></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
-
-resource <span class="s2">"aws_instance"</span> <span class="s2">"bolg"</span> <span class="o">{</span>
-  ami             <span class="o">=</span> var.ami_id <span class="c"># Replace with your AMI ID</span>
-  instance_type   <span class="o">=</span> var.instance_type_free
-  security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.blog_sg.name]
-  <span class="c">#  vpc_security_group_ids = ["sg-089842a753c9309bb"]</span>
-  key_name <span class="o">=</span> var.key_pair
-  user_data <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
-    #!/bin/bash
-    sudo apt update
-    sudo apt install software-properties-common
-    sudo add-apt-repository --yes --update ppa:ansible/ansible
-    sudo apt install ansible -y
-</span><span class="no">  EOF
-</span>  tags <span class="o">=</span> <span class="o">{</span>
-    Name <span class="o">=</span> <span class="s2">"blog"</span>
-  <span class="o">}</span>
-  lifecycle <span class="o">{</span>
-    prevent_destroy <span class="o">=</span> <span class="nb">true</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-resource <span class="s2">"null_resource"</span> <span class="s2">"upload_playbook"</span> <span class="o">{</span>
-  triggers <span class="o">=</span> <span class="o">{</span>
-    <span class="c"># Add a dummy trigger to force a refresh</span>
-    timestamp <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">timestamp</span><span class="p">()</span><span class="k">}</span><span class="s2">"</span>
-  <span class="o">}</span>
-  depends_on <span class="o">=</span> <span class="o">[</span>null_resource.wait_for_bastion]
-  connection <span class="o">{</span>
-    <span class="nb">type</span>        <span class="o">=</span> <span class="s2">"ssh"</span>
-    user        <span class="o">=</span> <span class="s2">"ubuntu"</span>
-    private_key <span class="o">=</span> file<span class="o">(</span><span class="s2">"terraform-new-key1.pem"</span><span class="o">)</span>
-    host        <span class="o">=</span> aws_instance.testbastion.public_ip
-  <span class="o">}</span>
-  provisioner <span class="s2">"file"</span> <span class="o">{</span>
-    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"pb1.yaml"</span>
-    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/pb1.yaml"</span>
-  <span class="o">}</span>
-  provisioner <span class="s2">"file"</span> <span class="o">{</span>
-    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"aws_ec2.yaml"</span>
-    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/aws_ec2.yaml"</span>
-  <span class="o">}</span>
-  provisioner <span class="s2">"file"</span> <span class="o">{</span>
-    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"ansible.sh"</span>
-    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/ansible.sh"</span>
-  <span class="o">}</span>
-  provisioner <span class="s2">"remote-exec"</span> <span class="o">{</span>
-    inline <span class="o">=</span> <span class="o">[</span>
-      <span class="s2">"cd /home/ubuntu/"</span>,
-      <span class="s2">"sudo chmod 600 terraform-new-key1.pem"</span>,
-      <span class="s2">"sudo chmod +x pb1.yaml"</span>,
-      <span class="s2">"sudo ansible-playbook pb1.yaml"</span>,
-      <span class="s2">"sudo chmod +x ansible.sh"</span>,
-      <span class="s2">"sudo ./ansible.sh"</span>,
-      <span class="s2">"sudo ansible-inventory -i aws_ec2.yaml --list"</span>,
-      <span class="s2">"sudo ansible-inventory --graph"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">}</span>
- </code></pre></figure>
-
-<p><b> SSH to bastion host and run playbooks to init and join k8s nodes </b></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># k8s-deploy.yaml</span>
-
-<span class="c"># Playbook hosts can be defined by EC2 tags</span>
-<span class="nt">---</span>
-- name: EC2-K8S cluster setup
-  hosts: all
-  gather_facts: <span class="nb">false
-  </span>tasks:
-    - name: <span class="nb">test </span>EC2 dynamic hosts connections
-      include_playbook: 2-test-connection.yaml
-
-    - name: Pre-task <span class="k">for </span>all k8s hosts
-      include_playbook: 3-k8s-nodes-preparation.yaml
-
-    - name: init Master node
-      include_playbook: 4-master-init.yaml
-
-    - name: Join worker nodes
-      include_playbook: 5-work-join.yaml
-
-    - name: configure bastion to run kubectl
-      include_playbook: 8-local-kubeconf-admin.yaml</code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we are able to spin up a 3-nodes K8S cluster on EC2 instances in about 20 minutes.</p>
-
-<p>For lab purpose, running K8S on EC2 instances with default VPC can be cheaper and flexible option compare to EKS, as AWS managed EKS require additional VPC and unable to change node instance type unless delete the existing node group.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[K8S on EC2 vs EKS]]></summary></entry></feed>
+<p>now when create a k8s deployment and service, it will automatically create AWS loadbalancer to route traffic from external into K8S internal pods</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Scenario and Challange]]></summary></entry></feed>
