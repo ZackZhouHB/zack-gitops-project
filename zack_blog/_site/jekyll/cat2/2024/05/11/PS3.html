@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>PostgreSQL Series 4: Prod-Grade with Operator | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="PostgreSQL Series 4: Prod-Grade with Operator" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Production grade PostgreSQL deployment in K8S" />
+<meta property="og:description" content="Production grade PostgreSQL deployment in K8S" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-11T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="PostgreSQL Series 4: Prod-Grade with Operator" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-11T10:15:29+10:00","datePublished":"2024-05-11T10:15:29+10:00","description":"Production grade PostgreSQL deployment in K8S","headline":"PostgreSQL Series 4: Prod-Grade with Operator","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> PostgreSQL Series 4: Prod-Grade with Operator</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-05-11T10:15:29+10:00" itemprop="datePublished">May 11, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> Production grade PostgreSQL deployment in K8S</b></p>
+
+<p>Despite all the challenges, in the last 2 years, clever people still managed ways to deploy production-grade database within a Kubernetes cluster by using Kubernetes as a platform to develop custom resource definition (CRDs) like helm charts like bitnami/postgresql-ha, and PostgreSQL Operator like CrunchyData/postgres-operator or zalando/postgres-operator.</p>
+
+<p>Last post I was able to deploy a single PostgreSQL in local k8s, but I had to manually create Kubernetes namespaces, define database creds, configuration and environment variables into k8s secret and configmap, also to define the statefulset yaml with volume claim template.</p>
+
+<p>But I was not able to configure HA and failover as I found it is so limited and a headache within K8S if only relying on statefulset. Luckily there are engineers out there to develop helm and opeartor to get the job done.</p>
+
+<p><b> CrunchyData/postgres-operator Demo</b></p>
+
+<p>In this session I will follow bellow steps to</p>
+
+<ul>
+  <li>Deploy PostgreSQL Operator</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># clone the CrunchyData Postgres Operator</span>
+<span class="o">[</span>root@freeipa-server ~]# git clone https://github.com/CrunchyData/postgres-operator-examples.git
+
+<span class="c"># create namespace and deploy GPO Postgres Operatorusing kustomize</span>
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">-k</span> kustomize/install/namespace
+namespace/postgres-operator created
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">--server-side</span> <span class="nt">-k</span> kustomize/install/default
+customresourcedefinition.apiextensions.k8s.io/pgadmins.postgres-operator.crunchydata.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/pgupgrades.postgres-operator.crunchydata.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/postgresclusters.postgres-operator.crunchydata.com serverside-applied
+serviceaccount/pgo serverside-applied
+clusterrole.rbac.authorization.k8s.io/postgres-operator serverside-applied
+clusterrolebinding.rbac.authorization.k8s.io/postgres-operator serverside-applied
+deployment.apps/pgo serverside-applied
+
+<span class="c"># validate deploy status</span>
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get all <span class="nt">-n</span> postgres-operator
+NAME                      READY   STATUS    RESTARTS   AGE
+pod/pgo-77d6b49b8-wrdjp   1/1     Running   0          2m47s
+
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/pgo   1/1     1            1           2m47s
+
+NAME                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/pgo-77d6b49b8   1         1         1       2m47s</code></pre></figure>
+
+<ul>
+  <li>Deploy HA PostgreSQL Cluster</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create a Postgres Cluster named "hippo" in "postgres-operator" ns</span>
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">-k</span> kustomize/postgres
+postgrescluster.postgres-operator.crunchydata.com/hippo created
+
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get all <span class="nt">-n</span> postgres-operator
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/hippo-backup-dvks-m4z5m   1/1     Running   0          56s
+pod/hippo-instance1-582s-0    4/4     Running   0          2m14s
+pod/hippo-repo-host-0         2/2     Running   0          2m14s
+pod/pgo-77d6b49b8-wrdjp       1/1     Running   0          6m38s
+
+NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+service/hippo-ha          ClusterIP   10.43.249.159   &lt;none&gt;        5432/TCP   2m14s
+service/hippo-ha-config   ClusterIP   None            &lt;none&gt;        &lt;none&gt;     2m14s
+service/hippo-pods        ClusterIP   None            &lt;none&gt;        &lt;none&gt;     2m14s
+service/hippo-primary     ClusterIP   None            &lt;none&gt;        5432/TCP   2m14s
+service/hippo-replicas    ClusterIP   10.43.17.57     &lt;none&gt;        5432/TCP   2m14s
+
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/pgo   1/1     1            1           6m38s
+
+NAME                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/pgo-77d6b49b8   1         1         1       6m38s
+
+NAME                                    READY   AGE
+statefulset.apps/hippo-instance1-582s   1/1     2m14s
+statefulset.apps/hippo-repo-host        1/1     2m14s
+
+NAME                          COMPLETIONS   DURATION   AGE
+job.batch/hippo-backup-dvks   0/1           56s        56s
+
+<span class="c"># retrieve database passwd from Kubernetes secret</span>
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get secret hippo-pguser-hippo <span class="nt">-n</span> postgres-operator <span class="nt">-o</span><span class="o">=</span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.data.password}'</span> | <span class="nb">base64</span> <span class="nt">--decode</span>
+jZiBWXMGRiEOA6wAEj<span class="p">;</span>lRhsM
+
+<span class="c"># create deployment keycloak to connect postgresql databast</span>
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# vim kustomize/keycloak/keycloak.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: postgres-operator
+  labels:
+    app.kubernetes.io/name: keycloak
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keycloak
+    spec:
+      containers:
+      - image: quay.io/keycloak/keycloak:latest
+        args: <span class="o">[</span><span class="s2">"start-dev"</span><span class="o">]</span>
+        name: keycloak
+        <span class="nb">env</span>:
+        - name: DB_VENDOR
+          value: <span class="s2">"postgres"</span>
+        - name: DB_ADDR
+          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: host <span class="o">}</span> <span class="o">}</span>
+        - name: DB_PORT
+          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: port <span class="o">}</span> <span class="o">}</span>
+        - name: DB_DATABASE
+          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: dbname <span class="o">}</span> <span class="o">}</span>
+        - name: DB_USER
+          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: user <span class="o">}</span> <span class="o">}</span>
+        - name: DB_PASSWORD
+          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: password <span class="o">}</span> <span class="o">}</span>
+        - name: KEYCLOAK_ADMIN
+          value: <span class="s2">"admin"</span>
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: <span class="s2">"admin"</span>
+        - name: KC_PROXY
+          value: <span class="s2">"edge"</span>
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        readinessProbe:
+          httpGet:
+            path: /realms/master
+            port: 8080
+      restartPolicy: Always
+
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">-f</span> kustomize/keycloak/keycloak.yaml
+deployment.apps/keycloak created
+
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get deployment <span class="nt">-n</span> postgres-operator 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+keycloak   1/1     1            1           4m27s
+pgo        1/1     1            1           176m</code></pre></figure>
+
+<ul>
+  <li>Scale Up / Down
+Edit manifest to add 2 replicas</li>
+</ul>
+
+<p><img src="/assets/ps3-1.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server kustomize]# kubectl apply <span class="nt">-k</span> postgres <span class="nt">-n</span> postgres-operator
+postgrescluster.postgres-operator.crunchydata.com/hippo configured
+
+<span class="c"># watch change</span>
+
+<span class="o">[</span>root@freeipa-server postgres-operator-examples]# watch kubectl get pod <span class="nt">-L</span> postgres-operator.crunchydata.com/role <span class="nt">-l</span> postgres-operator.crunchydata.com/instance <span class="nt">-n</span> postgres-operator</code></pre></figure>
+
+<p><img src="/assets/ps3-2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>
+    <p>Perform Minor Upgrade</p>
+  </li>
+  <li>
+    <p>Deploy Monitoring (Prom + Grafaba)</p>
+  </li>
+</ul>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.</p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/05/11/PS3.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
