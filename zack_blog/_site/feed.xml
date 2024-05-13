@@ -1,4 +1,187 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-12T21:20:05+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">PostgreSQL Series 4: Prod-Grade with Operator</title><link href="http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html" rel="alternate" type="text/html" title="PostgreSQL Series 4: Prod-Grade with Operator" /><published>2024-05-11T10:15:29+10:00</published><updated>2024-05-11T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/11/PS3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html"><![CDATA[<p><b> Production grade PostgreSQL in K8S</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-13T21:42:23+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Helm Chart for Zack’ Blog</title><link href="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" rel="alternate" type="text/html" title="Helm Chart for Zack’ Blog" /><published>2024-05-12T10:15:29+10:00</published><updated>2024-05-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/12/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"><![CDATA[<p><b> About Helm </b></p>
+
+<p>Helm is the popular package manager for kubernetes application deployment, not new to me as I had tried many charts so far, here I am going to build my own helm chart for this zack blog.</p>
+
+<p><b> Common Helm command</b></p>
+
+<ul>
+  <li>
+    <p>helm list -A   # list releases across all namespaces</p>
+  </li>
+  <li>
+    <p>helm pull bitnami/postgresql-ha –untar  # untar the chart after pull online chart</p>
+  </li>
+  <li>
+    <p>helm repo add bitnami https://charts.bitnami.com/bitnami  # add a repo</p>
+  </li>
+  <li>
+    <p>helm create OWN-CHART-NAME  # create a new chart</p>
+  </li>
+  <li>
+    <p>helm install CHART-NAME CHART-FOLDER -n NAMESPACE -f dev-values.yaml # define ns and override with a new vuale file</p>
+  </li>
+  <li>
+    <p>helm upgrade CHART-NAME CHART-FOLDER –set image.repository=<new-image-repository> --set image.tag=<new-image-tag> # --set to upgrade chart with override a new value</new-image-tag></new-image-repository></p>
+  </li>
+  <li>
+    <p>helm lint CHART-FOLDER  # lint syntax</p>
+  </li>
+  <li>
+    <p>helm rollback CHART-NAME 2   # rollback to revision 2 of a release</p>
+  </li>
+  <li>
+    <p>helm uninstall CHART-NAME -n Production  # uninstall a chart from a ns</p>
+  </li>
+</ul>
+
+<p><b> Create own chart</b></p>
+
+<ul>
+  <li>create a new helm chart</li>
+</ul>
+
+<p>[root@freeipa-server ~]# helm create zackblog-helm
+Creating zackblog-helm</p>
+
+<h1 id="modify-valuesyaml">modify values.yaml</h1>
+<p>[root@freeipa-server zackblog]# vim values.yaml</p>
+
+<p>replicaCount: 3</p>
+
+<p>image:
+  repository: zackz001/gitops-jekyll
+  pullPolicy: IfNotPresent
+  # Overrides the image tag.
+  tag: “latest”</p>
+
+<p>service:
+  type: NodePort
+  port: 80</p>
+
+<h1 id="lint">lint</h1>
+<p>[root@freeipa-server ~]# helm lint zackblog-helm/
+==&gt; Linting zackblog-helm/
+[INFO] Chart.yaml: icon is recommended</p>
+
+<p>1 chart(s) linted, 0 chart(s) failed</p>
+
+<h1 id="install">install</h1>
+
+<p>[root@freeipa-server ~]# helm install zackblog-helm zackblog-helm
+NAME: zackblog-helm
+LAST DEPLOYED: Mon May 13 21:27:14 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:</p>
+<ol>
+  <li>Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get –namespace default -o jsonpath=”{.spec.ports[0].nodePort}” services zackblog-helm)
+  export NODE_IP=$(kubectl get nodes –namespace default -o jsonpath=”{.items[0].status.addresses[0].address}”)
+  echo http://$NODE_IP:$NODE_PORT</li>
+</ol>
+
+<p>[root@freeipa-server ~]# helm list -a
+NAME         	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART              	APP VERSION
+argo-cd      	default  	1       	2024-04-29 06:14:18.117158759 +0000 UTC 	deployed	argo-cd-6.7.17     	v2.10.8  <br />
+zackblog-helm	default  	1       	2024-05-13 21:27:14.825391301 +1000 AEST	deployed	zackblog-helm-0.1.0	1.16.0</p>
+
+<p>[root@freeipa-server ~]# kubectl get deployments.apps | grep zack
+zackblog-helm                              3/3     3            3           113s
+[root@freeipa-server ~]# kubectl get svc | grep zack
+zackblog-helm                              NodePort    10.43.90.209    <none>        80:31070/TCP                 2m7s</none></p>
+
+<h1 id="modify-vauleyaml-to-scale-down-and-change-image-to-v138">modify vaule.yaml to scale down and change image to v138</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/values.yaml
+replicaCount: 1</p>
+
+<p>image:
+  repository: zackz001/gitops-jekyll
+  pullPolicy: IfNotPresent
+  # Overrides the image tag.
+  tag: “v139”</p>
+
+<p>[root@freeipa-server ~]# helm list -a
+NAME         	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART              	APP VERSION
+argo-cd      	default  	1       	2024-04-29 06:14:18.117158759 +0000 UTC 	deployed	argo-cd-6.7.17     	v2.10.8  <br />
+zackblog-helm	default  	2       	2024-05-13 21:31:16.523093364 +1000 AEST	deployed	zackblog-helm-0.1.0	1.16.0   <br />
+[root@freeipa-server ~]# kubectl get deployments.apps | grep zack
+zackblog-helm                              1/1     1            1           4m31s</p>
+
+<h1 id="create-a-dev-ns-then-deploy-and-override-with-dev-valuesyaml">create a dev ns then deploy and override with dev-values.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/dev-values.yaml
+image:
+  repository: zackz001/gitops-jekyll
+  tag: v140
+replicaCount: 2
+service:
+  type: NodePort
+  port: 80</p>
+
+<p>[root@freeipa-server ~]# kubectl create ns dev
+namespace/dev created
+[root@freeipa-server ~]# helm install dev-zackblog-helm zackblog-helm -f dev-values.yaml -n dev
+Error: INSTALLATION FAILED: open dev-values.yaml: no such file or directory
+[root@freeipa-server ~]# helm install dev-zackblog-helm zackblog-helm -f zackblog-helm/dev-values.yaml -n dev
+NAME: dev-zackblog-helm
+LAST DEPLOYED: Mon May 13 21:36:39 2024
+NAMESPACE: dev
+STATUS: deployed
+REVISION: 1
+NOTES:</p>
+<ol>
+  <li>Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get –namespace dev -o jsonpath=”{.spec.ports[0].nodePort}” services dev-zackblog-helm)
+  export NODE_IP=$(kubectl get nodes –namespace dev -o jsonpath=”{.items[0].status.addresses[0].address}”)
+  echo http://$NODE_IP:$NODE_PORT</li>
+</ol>
+
+<p>[root@freeipa-server ~]# kubectl get deployments.apps -n dev
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+dev-zackblog-helm   2/2     2            2           96s
+[root@freeipa-server ~]# kubectl get svc -n dev
+NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+dev-zackblog-helm   NodePort   10.43.239.229   <none>        80:31391/TCP   103s</none></p>
+
+<p><b> Customize chart to add pvc</b></p>
+
+<h1 id="add-templatespvcyaml">add templates/pvc.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: -pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi</p>
+
+<h1 id="add-pvc-in-valuesyaml">add pvc in values.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/values.yaml
+pvc:
+  enabled: true
+  templateFiles:
+    - pvc.yaml</p>
+
+<h1 id="add-persistentvolumeclaim-in-templatesdeploymentyaml">add persistentVolumeClaim in templates/deployment.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/templates/deployment.yaml
+…
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: -pvc
+…
+[root@freeipa-server ~]# helm upgrade zackblog-helm zackblog-helm
+Release “zackblog-helm” has been upgraded. Happy Helming!</p>
+
+<p><b> Gitops with ArgoCD </b></p>
+
+<p><b> GitOps Helm chart deploy via ArgoCD </b></p>
+
+<p><img src="/assets/awsad1.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Helm]]></summary></entry><entry><title type="html">PostgreSQL Series 4: Prod-Grade with Operator</title><link href="http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html" rel="alternate" type="text/html" title="PostgreSQL Series 4: Prod-Grade with Operator" /><published>2024-05-11T10:15:29+10:00</published><updated>2024-05-11T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/11/PS3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/11/PS3.html"><![CDATA[<p><b> Production grade PostgreSQL in K8S</b></p>
 
 <p>Despite all the challenges, in the last 2 years, clever people still managed ways to deploy production-grade database within a Kubernetes cluster by using Kubernetes as a platform to develop custom resource definition (CRDs) like helm charts like bitnami/postgresql-ha, and PostgreSQL Operator like CrunchyData/postgres-operator or zalando/postgres-operator.</p>
 
@@ -1896,139 +2079,4 @@ alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
 
 <p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
 
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry><entry><title type="html">Move To Rancher</title><link href="http://localhost:4000/jekyll/cat2/2024/03/26/Rancher.html" rel="alternate" type="text/html" title="Move To Rancher" /><published>2024-03-26T11:15:29+11:00</published><updated>2024-03-26T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/03/26/Rancher</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/03/26/Rancher.html"><![CDATA[<p><b> My k8s provisioning journey </b></p>
-
-<p>So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.</p>
-
-<ul>
-  <li>
-    <p>home lab build k8s components (etcd, keepalived, apiserver, scheduler, coreDNS, calico)</p>
-  </li>
-  <li>
-    <p>home lab k8s cluster with kubeadm</p>
-  </li>
-  <li>
-    <p>k8s on AWS using kops and eksctl</p>
-  </li>
-  <li>
-    <p>AWS self-managed k8s cluster directly on ec2 by ansible</p>
-  </li>
-</ul>
-
-<p><b>Rancher Support matrix</b></p>
-
-<p><img src="/assets/rancher1.png" alt="image tooltip here" /></p>
-
-<p><b> Local docker Installation</b></p>
-
-<p>To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create Persisting rancher data directory to map within the Rancher Docker container</span>
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">mkdir</span> <span class="nt">-p</span> /path/to/rancher-data
-
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">-d</span> <span class="nt">--restart</span><span class="o">=</span>unless-stopped  <span class="se">\</span>
- <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443  <span class="se">\</span>
- <span class="nt">-v</span> /path/to/rancher-data:/var/lib/rancher <span class="se">\</span>
- <span class="nt">--privileged</span>   rancher/rancher:latest
-d26e32094657b598f61233d0d86e448ab4bfd980763928ca6f298ae0d3774a56
-
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker ps
-CONTAINER ID   IMAGE                    COMMAND           CREATED         STATUS         PORTS                                                                      NAMES
-d26e32094657   rancher/rancher:latest   <span class="s2">"entrypoint.sh"</span>   7 seconds ago   Up 6 seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp, :::443-&gt;443/tcp   flamboyant_bassi
-
-ubuntu@ubt-server:/<span class="nv">$ </span><span class="nb">sudo </span>docker logs  d26e32094657  2&gt;&amp;1 | <span class="nb">grep</span> <span class="s2">"Bootstrap Password:"</span>
-2024/03/29 04:07:34 <span class="o">[</span>INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9</code></pre></figure>
-
-<p><b> Rancher Web Portal login</b></p>
-
-<p>via https://localhost/dashboard/home</p>
-
-<p><img src="/assets/rancher2.png" alt="image tooltip here" /></p>
-
-<p><b> Import existing k8s culster vs create new k8s from rancher console</b></p>
-
-<ul>
-  <li>Under “cluster management”, it supports importing k8s from cloud providers to local k8s, unfutinately I previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.</li>
-</ul>
-
-<p><img src="/assets/rancher3.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Hence I will use Rancher to create a new one here First prepare 3 local Linux VM boxes, come back to Rancher console under cluster management, give name of the new cluster, then run command to initiate control plane.</li>
-</ul>
-
-<p><img src="/assets/rancher4.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@rancher-master01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> kx92bf7gxdfx2nfnl6rvw4hlmcwdxcb2rt442vgsvgb7tz29rmd4c6 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--etcd</span> <span class="nt">--controlplane</span>
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 30845    0 30845    0     0  2037k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 2151k
-<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
-<span class="o">[</span>INFO]  Role requested: etcd
-<span class="o">[</span>INFO]  Role requested: controlplane
-<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
-<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
-<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
-<span class="o">[</span>INFO]  Successfully downloaded CA certificate
-<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
-<span class="o">[</span>INFO]  Successfully tested Rancher connection
-<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
-<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
-<span class="o">[</span>INFO]  Generating Cattle ID
-<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
-<span class="o">[</span>INFO]  systemd: Creating service file
-<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
-<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
-Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
-<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
-
-<ul>
-  <li>Updating new machine as a K8S rancher node as control plane.</li>
-</ul>
-
-<p><img src="/assets/rancher5.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Then join the 2 worker nodes</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@racher-worker01:~<span class="nv">$ </span>curl <span class="nt">--insecure</span> <span class="nt">-fL</span> https://11.0.1.220/system-agent-install.sh | <span class="nb">sudo  </span>sh <span class="nt">-s</span> - <span class="nt">--server</span> https://11.0.1.220 <span class="nt">--label</span> <span class="s1">'cattle.io/os=linux'</span> <span class="nt">--token</span> hdsvptc74zvzz62hw9gtt6p7m6nl5k4fs6vk92zqm4f6tvj4tf8m54 <span class="nt">--ca-checksum</span> 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 <span class="nt">--worker</span>
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 30845    0 30845    0     0  5455k      0 <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- <span class="nt">--</span>:--:-- 6024k
-<span class="o">[</span>INFO]  Label: cattle.io/os<span class="o">=</span>linux
-<span class="o">[</span>INFO]  Role requested: worker
-<span class="o">[</span>INFO]  Using default agent configuration directory /etc/rancher/agent
-<span class="o">[</span>INFO]  Using default agent var directory /var/lib/rancher/agent
-<span class="o">[</span>INFO]  Determined CA is necessary to connect to Rancher
-<span class="o">[</span>INFO]  Successfully downloaded CA certificate
-<span class="o">[</span>INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
-<span class="o">[</span>INFO]  Successfully tested Rancher connection
-<span class="o">[</span>INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent binary.
-<span class="o">[</span>INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
-<span class="o">[</span>INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
-<span class="o">[</span>INFO]  Generating Cattle ID
-<span class="o">[</span>INFO]  Successfully downloaded Rancher connection information
-<span class="o">[</span>INFO]  systemd: Creating service file
-<span class="o">[</span>INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
-<span class="o">[</span>INFO]  Enabling rancher-system-agent.service
-Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
-<span class="o">[</span>INFO]  Starting/restarting rancher-system-agent.service</code></pre></figure>
-
-<p><img src="/assets/rancher6.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Create zackweb and joesite as deployment from Rancher console</li>
-</ul>
-
-<p><img src="/assets/rancher7.png" alt="image tooltip here" />
-<img src="/assets/rancher8.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. then we will be able to create deployment and service in rancher console instead of “kubectl” all the time, it also provides app market for most popular helm charts ready to be installed just by one click like Istio and Prometheus. Only downside is, Rancher itself requires resources to run which may impact the performance and resources on each node, also it brings complexity in upgrade for both Rancher and k8s. overall I love the concept and tools that Rancher provides to manage k8s cluster. I will explore more in the next blog.</p>
-
-<p><img src="/assets/rancher9.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[My k8s provisioning journey]]></summary></entry></feed>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry></feed>

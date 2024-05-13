@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Helm Chart for Zack’ Blog | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Helm Chart for Zack’ Blog" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Helm" />
+<meta property="og:description" content="About Helm" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-12T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Helm Chart for Zack’ Blog" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-12T10:15:29+10:00","datePublished":"2024-05-12T10:15:29+10:00","description":"About Helm","headline":"Helm Chart for Zack’ Blog","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> Helm Chart for Zack&#39; Blog  </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-05-12T10:15:29+10:00" itemprop="datePublished">May 12, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> About Helm </b></p>
+
+<p>Helm is the popular package manager for kubernetes application deployment, not new to me as I had tried many charts so far, here I am going to build my own helm chart for this zack blog.</p>
+
+<p><b> Common Helm command</b></p>
+
+<ul>
+  <li>
+    <p>helm list -A   # list releases across all namespaces</p>
+  </li>
+  <li>
+    <p>helm pull bitnami/postgresql-ha –untar  # untar the chart after pull online chart</p>
+  </li>
+  <li>
+    <p>helm repo add bitnami https://charts.bitnami.com/bitnami  # add a repo</p>
+  </li>
+  <li>
+    <p>helm create OWN-CHART-NAME  # create a new chart</p>
+  </li>
+  <li>
+    <p>helm install CHART-NAME CHART-FOLDER -n NAMESPACE -f dev-values.yaml # define ns and override with a new vuale file</p>
+  </li>
+  <li>
+    <p>helm upgrade CHART-NAME CHART-FOLDER –set image.repository=<new-image-repository> --set image.tag=<new-image-tag> # --set to upgrade chart with override a new value</new-image-tag></new-image-repository></p>
+  </li>
+  <li>
+    <p>helm lint CHART-FOLDER  # lint syntax</p>
+  </li>
+  <li>
+    <p>helm rollback CHART-NAME 2   # rollback to revision 2 of a release</p>
+  </li>
+  <li>
+    <p>helm uninstall CHART-NAME -n Production  # uninstall a chart from a ns</p>
+  </li>
+</ul>
+
+<p><b> Create own chart</b></p>
+
+<ul>
+  <li>create a new helm chart</li>
+</ul>
+
+<p>[root@freeipa-server ~]# helm create zackblog-helm
+Creating zackblog-helm</p>
+
+<h1 id="modify-valuesyaml">modify values.yaml</h1>
+<p>[root@freeipa-server zackblog]# vim values.yaml</p>
+
+<p>replicaCount: 3</p>
+
+<p>image:
+  repository: zackz001/gitops-jekyll
+  pullPolicy: IfNotPresent
+  # Overrides the image tag.
+  tag: “latest”</p>
+
+<p>service:
+  type: NodePort
+  port: 80</p>
+
+<h1 id="lint">lint</h1>
+<p>[root@freeipa-server ~]# helm lint zackblog-helm/
+==&gt; Linting zackblog-helm/
+[INFO] Chart.yaml: icon is recommended</p>
+
+<p>1 chart(s) linted, 0 chart(s) failed</p>
+
+<h1 id="install">install</h1>
+
+<p>[root@freeipa-server ~]# helm install zackblog-helm zackblog-helm
+NAME: zackblog-helm
+LAST DEPLOYED: Mon May 13 21:27:14 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:</p>
+<ol>
+  <li>Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get –namespace default -o jsonpath=”{.spec.ports[0].nodePort}” services zackblog-helm)
+  export NODE_IP=$(kubectl get nodes –namespace default -o jsonpath=”{.items[0].status.addresses[0].address}”)
+  echo http://$NODE_IP:$NODE_PORT</li>
+</ol>
+
+<p>[root@freeipa-server ~]# helm list -a
+NAME         	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART              	APP VERSION
+argo-cd      	default  	1       	2024-04-29 06:14:18.117158759 +0000 UTC 	deployed	argo-cd-6.7.17     	v2.10.8  <br />
+zackblog-helm	default  	1       	2024-05-13 21:27:14.825391301 +1000 AEST	deployed	zackblog-helm-0.1.0	1.16.0</p>
+
+<p>[root@freeipa-server ~]# kubectl get deployments.apps | grep zack
+zackblog-helm                              3/3     3            3           113s
+[root@freeipa-server ~]# kubectl get svc | grep zack
+zackblog-helm                              NodePort    10.43.90.209    <none>        80:31070/TCP                 2m7s</none></p>
+
+<h1 id="modify-vauleyaml-to-scale-down-and-change-image-to-v138">modify vaule.yaml to scale down and change image to v138</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/values.yaml
+replicaCount: 1</p>
+
+<p>image:
+  repository: zackz001/gitops-jekyll
+  pullPolicy: IfNotPresent
+  # Overrides the image tag.
+  tag: “v139”</p>
+
+<p>[root@freeipa-server ~]# helm list -a
+NAME         	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART              	APP VERSION
+argo-cd      	default  	1       	2024-04-29 06:14:18.117158759 +0000 UTC 	deployed	argo-cd-6.7.17     	v2.10.8  <br />
+zackblog-helm	default  	2       	2024-05-13 21:31:16.523093364 +1000 AEST	deployed	zackblog-helm-0.1.0	1.16.0   <br />
+[root@freeipa-server ~]# kubectl get deployments.apps | grep zack
+zackblog-helm                              1/1     1            1           4m31s</p>
+
+<h1 id="create-a-dev-ns-then-deploy-and-override-with-dev-valuesyaml">create a dev ns then deploy and override with dev-values.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/dev-values.yaml
+image:
+  repository: zackz001/gitops-jekyll
+  tag: v140
+replicaCount: 2
+service:
+  type: NodePort
+  port: 80</p>
+
+<p>[root@freeipa-server ~]# kubectl create ns dev
+namespace/dev created
+[root@freeipa-server ~]# helm install dev-zackblog-helm zackblog-helm -f dev-values.yaml -n dev
+Error: INSTALLATION FAILED: open dev-values.yaml: no such file or directory
+[root@freeipa-server ~]# helm install dev-zackblog-helm zackblog-helm -f zackblog-helm/dev-values.yaml -n dev
+NAME: dev-zackblog-helm
+LAST DEPLOYED: Mon May 13 21:36:39 2024
+NAMESPACE: dev
+STATUS: deployed
+REVISION: 1
+NOTES:</p>
+<ol>
+  <li>Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get –namespace dev -o jsonpath=”{.spec.ports[0].nodePort}” services dev-zackblog-helm)
+  export NODE_IP=$(kubectl get nodes –namespace dev -o jsonpath=”{.items[0].status.addresses[0].address}”)
+  echo http://$NODE_IP:$NODE_PORT</li>
+</ol>
+
+<p>[root@freeipa-server ~]# kubectl get deployments.apps -n dev
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+dev-zackblog-helm   2/2     2            2           96s
+[root@freeipa-server ~]# kubectl get svc -n dev
+NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+dev-zackblog-helm   NodePort   10.43.239.229   <none>        80:31391/TCP   103s</none></p>
+
+<p><b> Customize chart to add pvc</b></p>
+
+<h1 id="add-templatespvcyaml">add templates/pvc.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: -pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi</p>
+
+<h1 id="add-pvc-in-valuesyaml">add pvc in values.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/values.yaml
+pvc:
+  enabled: true
+  templateFiles:
+    - pvc.yaml</p>
+
+<h1 id="add-persistentvolumeclaim-in-templatesdeploymentyaml">add persistentVolumeClaim in templates/deployment.yaml</h1>
+<p>[root@freeipa-server ~]# vim zackblog-helm/templates/deployment.yaml
+…
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: -pvc
+…
+[root@freeipa-server ~]# helm upgrade zackblog-helm zackblog-helm
+Release “zackblog-helm” has been upgraded. Happy Helming!</p>
+
+<p><b> Gitops with ArgoCD </b></p>
+
+<p><b> GitOps Helm chart deploy via ArgoCD </b></p>
+
+<p><img src="/assets/awsad1.png" alt="image tooltip here" /></p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/05/12/Helm.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
