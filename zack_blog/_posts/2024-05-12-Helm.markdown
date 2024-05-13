@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Cunstimize Helm Chart for Zack' Blog  "
+title:  " Customize Helm Chart for Zack' Blog  "
 date:   2024-05-12 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -92,7 +92,7 @@ zackblog-helm                              3/3     3       �
 zackblog-helm                              NodePort    10.43.90.209    <none>        80:31070/TCP                 2m7s
 {% endhighlight %}
 
-- Cunstimize vaule.yaml by change replica and image tag
+- Customize vaule.yaml by change replica and image tag
 {% highlight shell %}
 # modify vaule.yaml to scale down and change image to v138
 [root@freeipa-server ~]# vim zackblog-helm/values.yaml
@@ -155,7 +155,7 @@ dev-zackblog-helm   NodePort   10.43.239.229   <none>        80:31391/TCP
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-pvc
+  name: longhron-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -177,7 +177,7 @@ pvc:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
+          claimName: longhron-pvc
 ...
 [root@freeipa-server ~]# helm upgrade zackblog-helm zackblog-helm
 Release "zackblog-helm" has been upgraded. Happy Helming!

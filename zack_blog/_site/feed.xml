@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-13T23:01:40+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Cunstimize Helm Chart for Zack’ Blog</title><link href="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" rel="alternate" type="text/html" title="Cunstimize Helm Chart for Zack’ Blog" /><published>2024-05-12T10:15:29+10:00</published><updated>2024-05-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/12/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"><![CDATA[<p><b> About Helm </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-13T23:06:35+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Customize Helm Chart for Zack’ Blog</title><link href="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" rel="alternate" type="text/html" title="Customize Helm Chart for Zack’ Blog" /><published>2024-05-12T10:15:29+10:00</published><updated>2024-05-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/12/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"><![CDATA[<p><b> About Helm </b></p>
 
 <p>Helm is the popular package manager for Kubernetes application deployment, not new to me as I had tried many charts previously with Kafka, and Redis helm charts installation, today I am going to explore how to build my own helm chart for this zack blog, also deep dive into the chart development for advanced templating, together with helm release management and version control, finally integrate my own chart with CI/CD for GitOps.  </p>
 
@@ -94,7 +94,7 @@ zackblog-helm                              3/3     3       �
 zackblog-helm                              NodePort    10.43.90.209    &lt;none&gt;        80:31070/TCP                 2m7s</code></pre></figure>
 
 <ul>
-  <li>Cunstimize vaule.yaml by change replica and image tag</li>
+  <li>Customize vaule.yaml by change replica and image tag</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># modify vaule.yaml to scale down and change image to v138</span>
@@ -160,7 +160,7 @@ dev-zackblog-helm   NodePort   10.43.239.229   &lt;none&gt;        80:313
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: <span class="nt">-pvc</span>
+  name: longhron-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -182,7 +182,7 @@ pvc:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: <span class="nt">-pvc</span>
+          claimName: longhron-pvc
 ...
 <span class="o">[</span>root@freeipa-server ~]# helm upgrade zackblog-helm zackblog-helm
 Release <span class="s2">"zackblog-helm"</span> has been upgraded. Happy Helming!</code></pre></figure>
