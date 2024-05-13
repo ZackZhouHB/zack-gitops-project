@@ -1,39 +1,44 @@
 ---
 layout: post
-title:  " Helm Chart for Zack' Blog  "
+title:  " Cunstimize Helm Chart for Zack' Blog  "
 date:   2024-05-12 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
+
+{% highlight shell %}
+{% endhighlight %}
+
+
 <b> About Helm </b>
 
-Helm is the popular package manager for kubernetes application deployment, not new to me as I had tried many charts so far, here I am going to build my own helm chart for this zack blog. 
+Helm is the popular package manager for Kubernetes application deployment, not new to me as I had tried many charts previously with Kafka, and Redis helm charts installation, today I am going to explore how to build my own helm chart for this zack blog, also deep dive into the chart development for advanced templating, together with helm release management and version control, finally integrate my own chart with CI/CD for GitOps.   
 
 
 <b> Common Helm command</b>
 
-- helm list -A   # list releases across all namespaces
+- helm list -A   # list releases across all namespaces
 
-- helm pull bitnami/postgresql-ha --untar  # untar the chart after pull online chart
+- helm pull bitnami/postgresql-ha --untar  # untar the chart after pull online chart
 
-- helm repo add bitnami https://charts.bitnami.com/bitnami  # add a repo
+- helm repo add bitnami https://charts.bitnami.com/bitnami  # add a repo
 
-- helm create OWN-CHART-NAME  # create a new chart
+- helm create zackblog-helm  # create a new chart
 
-- helm install CHART-NAME CHART-FOLDER -n NAMESPACE -f dev-values.yaml # define ns and override with a new vuale file
+- helm install zackblog-helm ~/zackblog-helm -n NAMESPACE -f dev-values.yaml # define ns and override with a new value file
 
-- helm upgrade CHART-NAME CHART-FOLDER --set image.repository=<new-image-repository> --set image.tag=<new-image-tag> # --set to upgrade chart with override a new value 
+- helm upgrade zackblog-helm ~/zackblog-helm --set image.repository=<new-image-repository> --set image.tag=<new-image-tag> # --set to upgrade chart with override a new value 
 
-- helm lint CHART-FOLDER  # lint syntax
+- helm lint ~/zackblog-helm  # lint syntax
 
-- helm rollback CHART-NAME 2   # rollback to revision 2 of a release 
+- helm rollback zackblog-helm 2   # rollback to revision 2 of a release 
 
-- helm uninstall CHART-NAME -n Production  # uninstall a chart from a ns
+- helm uninstall zackblog-helm -n Production  # uninstall a chart from a ns
 
-<b> Create own chart</b>
+<b> Start with own chart</b>
 
 - create a new helm chart 
-
+{% highlight shell %}
 [root@freeipa-server ~]# helm create zackblog-helm
 Creating zackblog-helm
 
@@ -43,23 +48,26 @@ Creating zackblog-helm
 replicaCount: 3
 
 image:
-  repository: zackz001/gitops-jekyll
-  pullPolicy: IfNotPresent
-  # Overrides the image tag.
-  tag: "latest"
+  repository: zackz001/gitops-jekyll
+  pullPolicy: IfNotPresent
+  # Overrides the image tag.
+  tag: "latest"
 
 service:
-  type: NodePort
-  port: 80
+  type: NodePort
+  port: 80
+{% endhighlight %}
 
-# lint
+- Lint chart syntacx before install
+{% highlight shell %}
+# lint syntax
 [root@freeipa-server ~]# helm lint zackblog-helm/
 ==> Linting zackblog-helm/
 [INFO] Chart.yaml: icon is recommended
 
 1 chart(s) linted, 0 chart(s) failed
 
-# install
+# install own chart
 
 [root@freeipa-server ~]# helm install zackblog-helm zackblog-helm
 NAME: zackblog-helm
@@ -69,47 +77,52 @@ STATUS: deployed
 REVISION: 1
 NOTES:
 1. Get the application URL by running these commands:
-  export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services zackblog-helm)
-  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
+  export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services zackblog-helm)
+  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
 
 [root@freeipa-server ~]# helm list -a
-NAME         	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART              	APP VERSION
-argo-cd      	default  	1       	2024-04-29 06:14:18.117158759 +0000 UTC 	deployed	argo-cd-6.7.17     	v2.10.8    
-zackblog-helm	default  	1       	2024-05-13 21:27:14.825391301 +1000 AEST	deployed	zackblog-helm-0.1.0	1.16.0 
+NAME            NAMESPACE   REVISION    UPDATED                                     STATUS      CHART               APP VERSION
+argo-cd         default     1           2024-04-29 06:14:18.117158759 +0000 UTC     deployed    argo-cd-6.7.17      v2.10.8    
+zackblog-helm   default     1           2024-05-13 21:27:14.825391301 +1000 AEST    deployed    zackblog-helm-0.1.0 1.16.0 
 
 [root@freeipa-server ~]# kubectl get deployments.apps | grep zack
-zackblog-helm                              3/3     3            3           113s
+zackblog-helm                              3/3     3            3           113s
 [root@freeipa-server ~]# kubectl get svc | grep zack
-zackblog-helm                              NodePort    10.43.90.209    <none>        80:31070/TCP                 2m7s
+zackblog-helm                              NodePort    10.43.90.209    <none>        80:31070/TCP                 2m7s
+{% endhighlight %}
 
+- Cunstimize vaule.yaml by change replica and image tag
+{% highlight shell %}
 # modify vaule.yaml to scale down and change image to v138
 [root@freeipa-server ~]# vim zackblog-helm/values.yaml
 replicaCount: 1
 
 image:
-  repository: zackz001/gitops-jekyll
-  pullPolicy: IfNotPresent
-  # Overrides the image tag.
-  tag: "v139"
+  repository: zackz001/gitops-jekyll
+  pullPolicy: IfNotPresent
+  # Overrides the image tag.
+  tag: "v139"
 
 [root@freeipa-server ~]# helm list -a
-NAME         	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART              	APP VERSION
-argo-cd      	default  	1       	2024-04-29 06:14:18.117158759 +0000 UTC 	deployed	argo-cd-6.7.17     	v2.10.8    
-zackblog-helm	default  	2       	2024-05-13 21:31:16.523093364 +1000 AEST	deployed	zackblog-helm-0.1.0	1.16.0     
+NAME            NAMESPACE   REVISION    UPDATED                                     STATUS      CHART               APP VERSION
+argo-cd         default     1           2024-04-29 06:14:18.117158759 +0000 UTC     deployed    argo-cd-6.7.17      v2.10.8    
+zackblog-helm   default     2           2024-05-13 21:31:16.523093364 +1000 AEST    deployed    zackblog-helm-0.1.0 1.16.0     
 [root@freeipa-server ~]# kubectl get deployments.apps | grep zack
-zackblog-helm                              1/1     1            1           4m31s
+zackblog-helm                              1/1     1            1           4m31s
+{% endhighlight %}
 
-
+- Override values.yaml by -f and deploy same chart to different environments
+{% highlight shell %}
 # create a dev ns then deploy and override with dev-values.yaml
 [root@freeipa-server ~]# vim zackblog-helm/dev-values.yaml
 image:
-  repository: zackz001/gitops-jekyll
-  tag: v140
+  repository: zackz001/gitops-jekyll
+  tag: v140
 replicaCount: 2
 service:
-  type: NodePort
-  port: 80
+  type: NodePort
+  port: 80
 
 [root@freeipa-server ~]# kubectl create ns dev
 namespace/dev created
@@ -123,59 +136,79 @@ STATUS: deployed
 REVISION: 1
 NOTES:
 1. Get the application URL by running these commands:
-  export NODE_PORT=$(kubectl get --namespace dev -o jsonpath="{.spec.ports[0].nodePort}" services dev-zackblog-helm)
-  export NODE_IP=$(kubectl get nodes --namespace dev -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
+  export NODE_PORT=$(kubectl get --namespace dev -o jsonpath="{.spec.ports[0].nodePort}" services dev-zackblog-helm)
+  export NODE_IP=$(kubectl get nodes --namespace dev -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
 
 [root@freeipa-server ~]# kubectl get deployments.apps -n dev
-NAME                READY   UP-TO-DATE   AVAILABLE   AGE
-dev-zackblog-helm   2/2     2            2           96s
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+dev-zackblog-helm   2/2     2            2           96s
 [root@freeipa-server ~]# kubectl get svc -n dev
-NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
-dev-zackblog-helm   NodePort   10.43.239.229   <none>        80:31391/TCP   103s
+NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+dev-zackblog-helm   NodePort   10.43.239.229   <none>        80:31391/TCP   103s
+{% endhighlight %}
 
-<b> Customize chart to add pvc</b>
-
+- Advanced templating to add pvc into chart
+{% highlight shell %}
 # add templates/pvc.yaml
 [root@freeipa-server ~]# vim zackblog-helm/templates/pvc.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-pvc
+  name: {{ .Release.Name }}-pvc
 spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
 
 # add pvc in values.yaml
 [root@freeipa-server ~]# vim zackblog-helm/values.yaml
 pvc:
-  enabled: true
-  templateFiles:
-    - pvc.yaml
+  enabled: true
+  templateFiles:
+    - pvc.yaml
 
 # add persistentVolumeClaim in templates/deployment.yaml
 [root@freeipa-server ~]# vim zackblog-helm/templates/deployment.yaml
 ...
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc
 ...
 [root@freeipa-server ~]# helm upgrade zackblog-helm zackblog-helm
 Release "zackblog-helm" has been upgraded. Happy Helming!
-
-
-<b> Gitops with ArgoCD </b>
-
-
-{% highlight shell %}
 {% endhighlight %}
 
-<b> GitOps Helm chart deploy via ArgoCD </b>
+<b> CICD integration to deploy chart with ArgoCD </b>
 
-![image tooltip here](/assets/awsad1.png)
+Now commit and upload "zackblog-helm" folder into github repo, create ArgoCD application manifest to sync with from  path of own helm chart
+{% highlight shell %}
+# argoCD application manifest
+project: default
+source:
+  repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project.git'
+  path: argo-helm-zackblog
+  targetRevision: editing
+  helm:
+    valueFiles:
+      - values.yaml
+destination:
+  server: 'https://kubernetes.default.svc'
+  namespace: helm
+syncPolicy:
+  automated: {}
+  syncOptions:
+    - CreateNamespace=true
+{% endhighlight %}
 
+![image tooltip here](/assets/helm1.png)
+
+<b> Conclusion</b>
+
+Finally, I had a chance to go over helm, it makes package management easier and more convenient, through charts, k8s deployment can be more flexible with values and templates that can be deployed and reusable into different environments, it provides versioning and rollbacks, also allow customization of the template. however using on-line chart can also be risky in a production environment with quality, dependency and security risks.
+
+Overall I think helm chart is a very good way to start deployment into k8s.
