@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " PostgreSQL Series 4: Prod-Grade with Operator"
+title:  " PostgreSQL: Prod-Grade with k8s Operator"
 date:   2024-05-11 11:15:29 +1100
 categories: jekyll Cat2
 ---

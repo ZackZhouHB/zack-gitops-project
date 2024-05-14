@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " PostgreSQL Series 2: Replication & Failover "
+title:  " PostgreSQL: Replication & Failover "
 date:   2024-05-08 11:15:29 +1100
 categories: jekyll Cat2
 ---
