@@ -79,20 +79,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
 
-      - name: Executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{secrets.HOST_NAME}}
-          username: ${{secrets.USER_NAME}}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/zack-gitops-project
-            git pull
-            sudo systemctl stop nginx
-            cd /usr/share/nginx/html && sudo rm -rf *
-            sudo cp ~/zack-gitops-project/zack_blog/_site/* /usr/share/nginx/html/ -r
-            sudo cp ~/zack-gitops-project/zack_blog/_site/* /var/www/html/ -r
-            sudo systemctl start nginx
+#      - name: Executing remote ssh commands using ssh key
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{secrets.HOST_NAME}}
+#          username: ${{secrets.USER_NAME}}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            cd ~/zack-gitops-project
+#            git pull
+#            sudo systemctl stop nginx
+#            cd /usr/share/nginx/html && sudo rm -rf *
+#            sudo cp ~/zack-gitops-project/zack_blog/_site/* /usr/share/nginx/html/ -r
+#            sudo cp ~/zack-gitops-project/zack_blog/_site/* /var/www/html/ -r
+#            sudo systemctl start nginx
 #            aws s3 cp ~/zack-gitops-project/zack_blog/_site/ s3://zackweb-serverless/ --recursive
 
 #            sudo docker pull zackz001/gitops-jekyll:v${{ github.run_number }}
