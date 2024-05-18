@@ -1,11 +1,11 @@
 ---
 layout: post
-title:  " Two options for AWS Serverless web hosting  "
+title:  "ZackBlog AWS Serverless webhosting"
 date:   2024-04-30 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b> Time to move "zackweb" from existing docker and containerization on EC2 and K8S to AWS Serverless with S3 </b>
+<b> How about this zackblog go serverless ?</b>
 
 In this article, I will see how to host "zackweb" as a static web application using bellow AWS serverless options:
 
