@@ -1,0 +1,23 @@
+---
+layout: post
+title:  " Python: File Handling"
+date:   2024-05-17 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b> About Python File Handling</b>
+
+In last post I list some Python Boto3 scripts for AWS resource automation and management, in this post I will continue with Python to discuss file handling. 
+
+As sometime I got a csv file with list of EC2 instances and its properties, when I need to modify or apply the data within the file to AWS, I need to be able to process and handle file (csv or json). hence I think it is necessary to get a deep understanding of Python file handling.
+
+So I will use the portable python3.9 + Boto3 docker environment to test some file handling tasks. 
+
+<b> Build and run a docker with Python3.9 + Boto3 </b>
+
+{% highlight shell %}
+{% endhighlight %}
+
+<b> Conclusion</b>
+
+Now we can use Python Boto3 script for AWS resource management and file handling. Next post I will discuss how to use Python for Web application development.

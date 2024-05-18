@@ -1,4 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-19T00:01:44+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Python Boto3 for AWS Management</title><link href="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" rel="alternate" type="text/html" title="Python Boto3 for AWS Management" /><published>2024-05-16T10:15:29+10:00</published><updated>2024-05-16T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/16/py1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"><![CDATA[<p><b> About Boto3 </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-19T00:13:21+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Python: File Handling</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
+
+<p>In last post I list some Python Boto3 scripts for AWS resource automation and management, in this post I will continue with Python to discuss file handling.</p>
+
+<p>As sometime I got a csv file with list of EC2 instances and its properties, when I need to modify or apply the data within the file to AWS, I need to be able to process and handle file (csv or json). hence I think it is necessary to get a deep understanding of Python file handling.</p>
+
+<p>So I will use the portable python3.9 + Boto3 docker environment to test some file handling tasks.</p>
+
+<p><b> Build and run a docker with Python3.9 + Boto3 </b></p>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we can use Python Boto3 script for AWS resource management and file handling. Next post I will discuss how to use Python for Web application development.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Python File Handling]]></summary></entry><entry><title type="html">Python: Boto3 for AWS Resource Management</title><link href="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" rel="alternate" type="text/html" title="Python: Boto3 for AWS Resource Management" /><published>2024-05-16T10:15:29+10:00</published><updated>2024-05-16T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/16/py1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"><![CDATA[<p><b> About Boto3 </b></p>
 
 <p>Boto3 is the Amazon Web Services (AWS) Software Development Kit (SDK) for Python. It enables developers to build software that uses Amazon services like EC2, S3, RDS, etc.</p>
 
@@ -6,7 +18,7 @@
 
 <p><b> Build and run a docker with Python3.9 + Boto3 </b></p>
 
-<p>As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable way to start the Python environment anywhere is best.</p>
+<p>As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable env is the best way to start.</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim Dockerfile
 <span class="c"># Build from python:3.9.19-alpine3.19</span>
@@ -1826,190 +1838,4 @@ ubuntu@ip-172-31-26-78:~/cdk/# cdk deploy</code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Time to move “zackweb” from existing docker and containerization on EC2 and K8S to AWS Serverless with S3]]></summary></entry><entry><title type="html">Ubuntu 18.04 to 22.04 in-place upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html" rel="alternate" type="text/html" title="Ubuntu 18.04 to 22.04 in-place upgrade" /><published>2024-04-28T10:15:29+10:00</published><updated>2024-04-28T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html"><![CDATA[<p><b> Ubuntu releases EOL roadmap </b></p>
-
-<p>Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.</p>
-
-<p><img src="/assets/ubt-upg1.png" alt="image tooltip here" /></p>
-
-<p><b> Pre-upgrade checklist </b></p>
-
-<ul>
-  <li>validate current OS version and running service (nginx)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># current OS version</span>
-root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
-<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"18.04.6 LTS (Bionic Beaver)"</span>
-<span class="nv">ID</span><span class="o">=</span>ubuntu
-<span class="nv">ID_LIKE</span><span class="o">=</span>debian
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 18.04.6 LTS"</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"18.04"</span>
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
-<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
-<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
-<span class="nv">VERSION_CODENAME</span><span class="o">=</span>bionic
-<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>bionic
-
-<span class="c"># nginx service status</span>
-
-root@ubuntu-test:~# root@ubuntu-test:~# <span class="nb">echo</span> <span class="s2">"ubuntu-inplace-upgrade zack-testing-nginx-service!!"</span>  <span class="o">&gt;&gt;</span> /var/www/html/index.html
-root@ubuntu-test:~# systemctl restart nginx
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade zack-testing-nginx-service!!</code></pre></figure>
-
-<ul>
-  <li>Fully update the system</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># update system</span>
-root@ubuntu-test:~# <span class="nb">sudo </span>apt update
-Hit:1 http://au.archive.ubuntu.com/ubuntu bionic InRelease
-Hit:2 http://au.archive.ubuntu.com/ubuntu bionic-updates InRelease
-Hit:3 http://au.archive.ubuntu.com/ubuntu bionic-backports InRelease
-Hit:4 http://au.archive.ubuntu.com/ubuntu bionic-security InRelease
-Reading package lists... Done                      
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade <span class="nt">-y</span>
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-
-<span class="c"># reboot system before upgrade</span>
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-Checking <span class="k">for </span>a new Ubuntu release
-You have not rebooted after updating a package which requires a reboot. Please reboot before upgrading.
-root@ubuntu-test:~# reboot
-Connection closing...Socket close.</code></pre></figure>
-
-<ul>
-  <li>take full system backup</li>
-</ul>
-
-<p>here I took a VM snapshot before upgrade</p>
-
-<p><b> 18.04 to 22.04 upgrade</b></p>
-
-<p>There is no direct upgrade path from 18.04 LTS to Ubuntu 22.04 LTS, so we go Ubuntu 20.04 LTS first and then to Ubuntu 22.04 LTS.</p>
-
-<ul>
-  <li>first upgrade to 20.04</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># run upgrade</span>
-
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-
-This session appears to be running under ssh. It is not recommended 
-to perform a upgrade over ssh currently because <span class="k">in case</span> of failure it 
-is harder to recover. 
-
-If you <span class="k">continue</span>, an additional ssh daemon will be started at port 
-<span class="s1">'1022'</span><span class="nb">.</span> 
-Do you want to <span class="k">continue</span>? 
-
-Continue <span class="o">[</span>yN] y
-
-Starting additional sshd 
-
-Calculating the changes
-  MarkInstall libfwupdplugin1:amd64 &lt; none -&gt; 1.5.11-0ubuntu1~20.04.2 @un uN Ib <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>1
-  Installing libxmlb1 as Depends of libfwupdplugin1
-    MarkInstall libxmlb1:amd64 &lt; none -&gt; 0.1.15-2ubuntu1~20.04.1 @un uN <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>0
-
-Do you want to start the upgrade? 
-
-Continue <span class="o">[</span>yN]  Details <span class="o">[</span>d]y</code></pre></figure>
-
-<ul>
-  <li>allow service restart during upgrade</li>
-</ul>
-
-<p><img src="/assets/ubt-upg2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>reboot after upgrade</li>
-</ul>
-
-<p>The installation and removing of packages may take some time, then reboot is required after ungrade completion</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Purging configuration files <span class="k">for </span>ebtables <span class="o">(</span>2.0.11-3build1<span class="o">)</span> ...
-Purging configuration files <span class="k">for </span>python3.6-minimal <span class="o">(</span>3.6.9-1~18.04ubuntu1.12<span class="o">)</span> ...
-Purging configuration files <span class="k">for </span>mlocate <span class="o">(</span>0.26-3ubuntu3<span class="o">)</span> ...
-Processing triggers <span class="k">for </span>dbus <span class="o">(</span>1.12.16-2ubuntu2.3<span class="o">)</span> ...
-Processing triggers <span class="k">for </span>systemd <span class="o">(</span>245.4-4ubuntu3.23<span class="o">)</span> ...
-
-System upgrade is complete.
-
-Restart required 
-
-To finish the upgrade, a restart is required. 
-If you <span class="k">select</span> <span class="s1">'y'</span> the system will be restarted. 
-
-Continue <span class="o">[</span>yN] y</code></pre></figure>
-
-<ul>
-  <li>validate OS and service</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate nginx service</span>
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-<span class="c"># validate OS version</span>
-root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
-<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"20.04.6 LTS (Focal Fossa)"</span>
-<span class="nv">ID</span><span class="o">=</span>ubuntu
-<span class="nv">ID_LIKE</span><span class="o">=</span>debian
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 20.04.6 LTS"</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"20.04"</span>
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
-<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
-<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
-<span class="nv">VERSION_CODENAME</span><span class="o">=</span>focal
-<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>focal</code></pre></figure>
-
-<ul>
-  <li>then upgrade to 22.04</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubuntu-test:~# <span class="nb">sudo </span>apt update
-Hit:1 http://au.archive.ubuntu.com/ubuntu focal InRelease
-Hit:2 http://au.archive.ubuntu.com/ubuntu focal-updates InRelease
-Hit:3 http://au.archive.ubuntu.com/ubuntu focal-backports InRelease
-Hit:4 http://au.archive.ubuntu.com/ubuntu focal-security InRelease
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-
-root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-
-<span class="c"># validate after upgrade </span>
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-
-root@ubuntu-test:~# lsb_release <span class="nt">-a</span>
-No LSB modules are available.
-Distributor ID:	Ubuntu
-Description:	Ubuntu 22.04.4 LTS
-Release:	22.04
-Codename:	jammy</code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Ubuntu releases EOL roadmap]]></summary></entry></feed>
+<p>Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Time to move “zackweb” from existing docker and containerization on EC2 and K8S to AWS Serverless with S3]]></summary></entry></feed>

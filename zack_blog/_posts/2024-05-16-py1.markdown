@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Python Boto3 for AWS Management  "
+title:  " Python: Boto3 for AWS Resource Management  "
 date:   2024-05-16 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -13,7 +13,7 @@ I will build a portable python3.9 + Boto3 docker environment to test some AWS au
 
 <b> Build and run a docker with Python3.9 + Boto3 </b>
 
-As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable way to start the Python environment anywhere is best.
+As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable env is the best way to start.
 
 {% highlight shell %}
 root@ubt-server:~# vim Dockerfile
