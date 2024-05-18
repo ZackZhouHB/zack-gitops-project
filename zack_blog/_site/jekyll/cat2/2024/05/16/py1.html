@@ -244,7 +244,8 @@ root@ubt-server:~/pythonwork# zip <span class="k">function</span>.zip app-snapsh
   <li>Add the Lambda Function as a Target for the CloudWatch Event Rule</li>
 </ol>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# vim app-sg-allow-22.py
+import boto3
 import json
 
 def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:

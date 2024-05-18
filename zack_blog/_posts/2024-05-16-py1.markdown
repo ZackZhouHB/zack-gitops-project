@@ -202,7 +202,7 @@ To achieve this, we need:
 5. Add the Lambda Function as a Target for the CloudWatch Event Rule
 
 {% highlight shell %}
-
+root@ubt-server:~/pythonwork# vim app-sg-allow-22.py
 import boto3
 import json
 
