@@ -5,11 +5,6 @@ date:   2024-05-12 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-
-{% highlight shell %}
-{% endhighlight %}
-
-
 <b> About Helm </b>
 
 Helm is the popular package manager for Kubernetes application deployment, not new to me as I had tried many charts previously with Kafka, and Redis helm charts installation, today I am going to explore how to build my own helm chart for this zack blog, also deep dive into the chart development for advanced templating, together with helm release management and version control, finally integrate my own chart with CI/CD for GitOps.   

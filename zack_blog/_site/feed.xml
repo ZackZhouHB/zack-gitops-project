@@ -1,4 +1,263 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-15T09:17:34+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Customize Helm Chart for Zack’ Blog</title><link href="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" rel="alternate" type="text/html" title="Customize Helm Chart for Zack’ Blog" /><published>2024-05-12T10:15:29+10:00</published><updated>2024-05-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/12/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"><![CDATA[<p><b> About Helm </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-18T23:59:33+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Python Boto3 for AWS Management</title><link href="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" rel="alternate" type="text/html" title="Python Boto3 for AWS Management" /><published>2024-05-16T10:15:29+10:00</published><updated>2024-05-16T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/16/py1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"><![CDATA[<p><b> About Boto3 </b></p>
+
+<p>Boto3 is the Amazon Web Services (AWS) Software Development Kit (SDK) for Python. It enables developers to build software that uses Amazon services like EC2, S3, RDS, etc.</p>
+
+<p>I will build a portable python3.9 + Boto3 docker environment to test some AWS automation tasks.</p>
+
+<p><b> Build and run a docker with Python3.9 + Boto3 </b></p>
+
+<p>As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable way to start the Python environment anywhere is best.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim Dockerfile
+<span class="c"># Build from python:3.9.19-alpine3.19</span>
+From python:3.9.19-alpine3.19 
+<span class="c"># install boto3 and alwcli</span>
+RUN pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    pip <span class="nb">install</span> <span class="nt">--upgrade</span> awscli <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    pip <span class="nb">install</span> <span class="nt">--upgrade</span> boto3
+<span class="c"># set work dir</span>
+WORKDIR /work
+<span class="c"># run Python</span>
+CMD <span class="s2">"python"</span>
+<span class="c"># build a docker image from the above Dockerfile </span>
+root@ubt-server:~# docker image build <span class="nt">-t</span> zack_aws_boto3 <span class="nb">.</span>
+
+<span class="c"># ls docker images </span>
+root@ubt-server:~# docker image <span class="nb">ls
+</span>REPOSITORY               TAG             IMAGE ID       CREATED         SIZE
+zack_aws_boto3           v1              07a13f7801ed   1 days ago     998MB
+zackpy                   latest          287ba6873741   4 days ago      48.2MB
+zackz001/gitops-jekyll   latest          d92894f7be6d   6 days ago      70.9MB
+postgres                 15.0            027eba2e8939   19 months ago   377MB
+
+<span class="c"># run docker and mount local python work dir</span>
+root@ubt-server:~/pythonwork# docker run <span class="nt">-ti</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>:/work zack_aws_boto3:v1 bash
+root@c04670a43564:/# 
+root@c04670a43564:/# <span class="nb">cd </span>work <span class="o">&amp;&amp;</span> <span class="nb">ls</span>
+
+<span class="c"># configure aws in the container</span>
+root@c04670a43564:/work# aws configure 
+AWS Access Key ID <span class="o">[</span><span class="k">****************</span>GFNW]: 
+AWS Secret Access Key <span class="o">[</span><span class="k">****************</span>Db7O]: 
+Default region name <span class="o">[</span>ap-southeast-2]: 
+Default output format <span class="o">[</span>None]: 
+
+<span class="c"># validate aws cred by listing ec2 instance id </span>
+root@c04670a43564:/work# aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> json
+<span class="o">[</span>
+    <span class="o">[</span>
+        <span class="s2">"i-076226daa5aaf7cf2"</span>
+    <span class="o">]</span>
+<span class="o">]</span></code></pre></figure>
+
+<p><b>Manage AWS resource with Python Boto3 script</b></p>
+
+<p>Here we have Python and boto3 env ready; I will list some aws tasks that I want to be achieved by Python scripts</p>
+
+<ul>
+  <li>List ec2 instance name, instanceID and state</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# vim app.py
+<span class="c"># import boto3 library</span>
+import boto3
+
+def list_ec2_instances<span class="o">()</span>:
+    <span class="c"># Create a session using default AWS profile</span>
+    session <span class="o">=</span> boto3.Session<span class="o">()</span>
+    <span class="c"># Create an EC2 client</span>
+    ec2_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+
+    <span class="c"># Describe EC2 instances</span>
+    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
+
+    <span class="c"># Iterate over the instances</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            <span class="c"># Get the instance ID</span>
+            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            
+            <span class="c"># Get the instance state</span>
+            instance_state <span class="o">=</span> instance[<span class="s1">'State'</span><span class="o">][</span><span class="s1">'Name'</span><span class="o">]</span>
+            
+            <span class="c"># Get the instance Name tag if exists</span>
+            instance_name <span class="o">=</span> <span class="s1">'No Name'</span>
+            <span class="k">if</span> <span class="s1">'Tags'</span> <span class="k">in </span>instance:
+                <span class="k">for </span>tag <span class="k">in </span>instance[<span class="s1">'Tags'</span><span class="o">]</span>:
+                    <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span>:
+                        instance_name <span class="o">=</span> tag[<span class="s1">'Value'</span><span class="o">]</span>
+                        <span class="nb">break</span>
+            
+            <span class="c"># Print instance ID, Name, and State</span>
+            print<span class="o">(</span>f<span class="s2">"Instance ID: {instance_id}, Name: {instance_name}, State: {instance_state}"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s2">"__main__"</span>:
+    list_ec2_instances<span class="o">()</span>
+
+root@c04670a43564:/work# python app.py 
+Instance ID: i-076226daa5aaf7cf2, Name: zack-blog, State: stopped</code></pre></figure>
+
+<ul>
+  <li>Filter ec2 instance without tag “owner”</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create app-untagged.py</span>
+root@ubt-server:~/pythonwork# vim app-untagged.py
+import boto3
+
+def get_untagged_ec2_instances<span class="o">()</span>:
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
+    
+    untagged_instances <span class="o">=</span> <span class="o">[]</span>
+    
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            has_owner_tag <span class="o">=</span> False
+            <span class="k">if</span> <span class="s1">'Tags'</span> <span class="k">in </span>instance:
+                <span class="k">for </span>tag <span class="k">in </span>instance[<span class="s1">'Tags'</span><span class="o">]</span>:
+                    <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span>.lower<span class="o">()</span> <span class="o">==</span> <span class="s1">'owner'</span>:
+                        has_owner_tag <span class="o">=</span> True
+                        <span class="nb">break</span>
+            
+            <span class="k">if </span>not has_owner_tag:
+                instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+                instance_state <span class="o">=</span> instance[<span class="s1">'State'</span><span class="o">][</span><span class="s1">'Name'</span><span class="o">]</span>
+                untagged_instances.append<span class="o">({</span><span class="s1">'InstanceId'</span>: instance_id, <span class="s1">'State'</span>: instance_state<span class="o">})</span>
+    
+    <span class="k">return </span>untagged_instances
+
+untagged_instances <span class="o">=</span> get_untagged_ec2_instances<span class="o">()</span>
+print<span class="o">(</span><span class="s2">"Untagged Instances:"</span>, untagged_instances<span class="o">)</span>
+
+<span class="c"># run script to filter untagged "owner" ec2 </span>
+root@c04670a43564:/work# python app-untagged.py 
+Untagged Instances: <span class="o">[{</span><span class="s1">'InstanceId'</span>: <span class="s1">'i-076226daa5aaf7cf2'</span>, <span class="s1">'State'</span>: <span class="s1">'stopped'</span><span class="o">}]</span></code></pre></figure>
+
+<ul>
+  <li>Create lambda function to list ebs volume snapshots older than 30 days and delete them</li>
+</ul>
+
+<p>To achieve this we need :</p>
+
+<ol>
+  <li>create lambda IAM role for lambda to manage EBS volume snapshot</li>
+  <li>create bellow python lambda function</li>
+  <li>zip and upload zip function</li>
+  <li>create CloudWatch Event to Trigger run it every 30 days</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create lambda function to delete snapshots older than 30 days</span>
+root@ubt-server:~/pythonwork# vim app-snapshot-older-30days.py
+import boto3
+from datetime import datetime, timezone, timedelta
+
+def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    
+    <span class="c"># Get the current time</span>
+    now <span class="o">=</span> datetime.now<span class="o">(</span>timezone.utc<span class="o">)</span>
+    
+    <span class="c"># Define the time threshold</span>
+    time_threshold <span class="o">=</span> now - <span class="nb">time </span>delta<span class="o">(</span><span class="nv">days</span><span class="o">=</span>30<span class="o">)</span>
+    
+    <span class="c"># Describe snapshots</span>
+    snapshots <span class="o">=</span> ec2_client.describe_snapshots<span class="o">(</span><span class="nv">OwnerIds</span><span class="o">=[</span><span class="s1">'self'</span><span class="o">])[</span><span class="s1">'Snapshots'</span><span class="o">]</span>
+    
+    <span class="c"># Filter snapshots older than 30 days</span>
+    old_snapshots <span class="o">=</span> <span class="o">[</span>snap <span class="k">for </span>snap <span class="k">in </span>snapshots <span class="k">if </span>snap[<span class="s1">'StartTime'</span><span class="o">]</span> &lt; time_threshold]
+    
+    <span class="c"># Delete old snapshots</span>
+    <span class="k">for </span>snapshot <span class="k">in </span>old_snapshots:
+        snapshot_id <span class="o">=</span> snapshot[<span class="s1">'SnapshotId'</span><span class="o">]</span>
+        ec2_client.delete_snapshot<span class="o">(</span><span class="nv">SnapshotId</span><span class="o">=</span>snapshot_id<span class="o">)</span>
+        print<span class="o">(</span>f<span class="s2">"Deleted snapshot: {snapshot_id}"</span><span class="o">)</span>
+    
+    <span class="k">return</span> <span class="o">{</span>
+        <span class="s1">'statusCode'</span>: 200,
+        <span class="s1">'body'</span>: f<span class="s2">"Deleted {len(old_snapshots)} snapshots."</span>
+    <span class="o">}</span>
+
+<span class="c"># zip Package for the Lambda Function</span>
+root@ubt-server:~/pythonwork# zip <span class="k">function</span>.zip app-snapshot-older-30days.py</code></pre></figure>
+
+<ul>
+  <li>Email me when a security group allow inbound SSH (port 22) from everywhere (0.0.0.0/0)</li>
+</ul>
+
+<p>To achieve this, we need:</p>
+
+<ol>
+  <li>AWS CloudTrail enable</li>
+  <li>Create CloudWatch Event Rule to capture AWS CloudTrail logs for security group changes</li>
+  <li>Create bellow Lambda Function if inbound allow port 22 from everywhere are met</li>
+  <li>Allow CloudWatch Events to Invoke the Lambda Function</li>
+  <li>Add the Lambda Function as a Target for the CloudWatch Event Rule</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
+import json
+
+def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
+    <span class="c"># Initialize boto3 clients</span>
+    ses_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ses'</span><span class="o">)</span>
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    
+    <span class="c"># Email details</span>
+    sender <span class="o">=</span> <span class="s1">'zhbsoftboy1@gmail.com'</span>
+    recipient <span class="o">=</span> <span class="s1">'zhbsoftboy1@gmail.com'</span>
+    subject <span class="o">=</span> <span class="s1">'Security Group Alert: Port 22 Open to everywhere'</span>
+    
+    <span class="c"># Extract details from the event</span>
+    detail <span class="o">=</span> event[<span class="s1">'detail'</span><span class="o">]</span>
+    event_name <span class="o">=</span> detail[<span class="s1">'eventName'</span><span class="o">]</span>
+    security_group_id <span class="o">=</span> None
+    
+    <span class="k">if </span>event_name <span class="o">==</span> <span class="s1">'AuthorizeSecurityGroupIngress'</span>:
+        security_group_id <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'groupId'</span><span class="o">]</span>
+        ip_permissions <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'ipPermissions'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>
+    <span class="k">elif </span>event_name <span class="o">==</span> <span class="s1">'CreateSecurityGroup'</span>:
+        security_group_id <span class="o">=</span> detail[<span class="s1">'responseElements'</span><span class="o">][</span><span class="s1">'groupId'</span><span class="o">]</span>
+        ip_permissions <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'ipPermissionsEgress'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>
+    
+    <span class="c"># Check if port 22 is open to 0.0.0.0/0</span>
+    <span class="k">if </span>security_group_id and ip_permissions:
+        <span class="k">for </span>permission <span class="k">in </span>ip_permissions:
+            <span class="k">if</span> <span class="s1">'ipRanges'</span> <span class="k">in </span>permission:
+                <span class="k">for </span>ip_range <span class="k">in </span>permission[<span class="s1">'ipRanges'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>:
+                    <span class="k">if </span>ip_range[<span class="s1">'cidrIp'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'0.0.0.0/0'</span> and permission[<span class="s1">'fromPort'</span><span class="o">]</span> <span class="o">==</span> 22 and permission[<span class="s1">'toPort'</span><span class="o">]</span> <span class="o">==</span> 22:
+                        <span class="c"># Compose email body</span>
+                        body_text <span class="o">=</span> <span class="o">(</span>f<span class="s2">"Security Group ID: {security_group_id} has been modified to allow port 22 from everywhere (0.0.0.0/0)."</span><span class="o">)</span>
+                        body_html <span class="o">=</span> f<span class="s2">"""&lt;html&gt;
+                        &lt;head&gt;&lt;/head&gt;
+                        &lt;body&gt;
+                          &lt;h1&gt;Security Group Alert&lt;/h1&gt;
+                          &lt;p&gt;Security Group ID: &lt;b&gt;{security_group_id}&lt;/b&gt; has been modified to allow port 22 from everywhere (0.0.0.0/0).&lt;/p&gt;
+                        &lt;/body&gt;
+                        &lt;/html&gt;"""</span>
+                        
+                        <span class="c"># Send email</span>
+                        response <span class="o">=</span> ses_client.send_email<span class="o">(</span>
+                            <span class="nv">Source</span><span class="o">=</span>sender,
+                            <span class="nv">Destination</span><span class="o">={</span><span class="s1">'ToAddresses'</span>: <span class="o">[</span>recipient]<span class="o">}</span>,
+                            <span class="nv">Message</span><span class="o">={</span>
+                                <span class="s1">'Subject'</span>: <span class="o">{</span><span class="s1">'Data'</span>: subject<span class="o">}</span>,
+                                <span class="s1">'Body'</span>: <span class="o">{</span>
+                                    <span class="s1">'Text'</span>: <span class="o">{</span><span class="s1">'Data'</span>: body_text<span class="o">}</span>,
+                                    <span class="s1">'Html'</span>: <span class="o">{</span><span class="s1">'Data'</span>: body_html<span class="o">}</span>
+                                <span class="o">}</span>
+                            <span class="o">}</span>
+                        <span class="o">)</span>
+                        print<span class="o">(</span>f<span class="s2">"Email sent! Message ID: {response['MessageId']}"</span><span class="o">)</span>
+    
+    <span class="k">return</span> <span class="o">{</span>
+        <span class="s1">'statusCode'</span>: 200,
+        <span class="s1">'body'</span>: json.dumps<span class="o">(</span><span class="s1">'Lambda function executed successfully!'</span><span class="o">)</span>
+    <span class="o">}</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>There are many ways to automate AWS tasks using Python Boto3 script. Together with Lambda and trigger, many resource tasks can be scheduled and managed in a scripted way.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Boto3]]></summary></entry><entry><title type="html">Customize Helm Chart for Zack’ Blog</title><link href="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html" rel="alternate" type="text/html" title="Customize Helm Chart for Zack’ Blog" /><published>2024-05-12T10:15:29+10:00</published><updated>2024-05-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/12/Helm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/12/Helm.html"><![CDATA[<p><b> About Helm </b></p>
 
 <p>Helm is the popular package manager for Kubernetes application deployment, not new to me as I had tried many charts previously with Kafka, and Redis helm charts installation, today I am going to explore how to build my own helm chart for this zack blog, also deep dive into the chart development for advanced templating, together with helm release management and version control, finally integrate my own chart with CI/CD for GitOps.  </p>
 
@@ -214,7 +473,7 @@ syncPolicy:
 
 <p>Finally, I had a chance to go over helm, it makes package management easier and more convenient, through charts, k8s deployment can be more flexible with values and templates that can be deployed and reusable into different environments, it provides versioning and rollbacks, also allow customization of the template. however using on-line chart can also be risky in a production environment with quality, dependency and security risks.</p>
 
-<p>Overall I think helm chart is a very good way to start deployment into k8s.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">PostgreSQL: Prod-Grade with k8s Operator</title><link href="http://localhost:4000/jekyll/cat2/2024/05/11/PS4.html" rel="alternate" type="text/html" title="PostgreSQL: Prod-Grade with k8s Operator" /><published>2024-05-11T10:15:29+10:00</published><updated>2024-05-11T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/11/PS4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/11/PS4.html"><![CDATA[<p><b> Production grade PostgreSQL in K8S</b></p>
+<p>Overall I think helm chart is a very good way to start deployment into k8s.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Helm]]></summary></entry><entry><title type="html">PostgreSQL: Prod-Grade with k8s Operator</title><link href="http://localhost:4000/jekyll/cat2/2024/05/11/PS4.html" rel="alternate" type="text/html" title="PostgreSQL: Prod-Grade with k8s Operator" /><published>2024-05-11T10:15:29+10:00</published><updated>2024-05-11T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/11/PS4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/11/PS4.html"><![CDATA[<p><b> Production grade PostgreSQL in K8S</b></p>
 
 <p>Despite all the challenges, in the last 2 years, clever people still managed ways to deploy production-grade database within a Kubernetes cluster by using Kubernetes as a platform to develop custom resource definition (CRDs) like helm charts like bitnami/postgresql-ha, and PostgreSQL Operator like CrunchyData/postgres-operator or zalando/postgres-operator.</p>
 
@@ -1175,7 +1434,103 @@ WARN[0000] /root/docker-compose.yaml: <span class="sb">`</span>version<span clas
 
 <p><b> Conclusion</b></p>
 
-<p>Now we can run a PostgreSQL container from docker and docker-compose with Persist data and custom configuration mount into the container, in the next blog we will discover primary and standby replication, WAL (write ahead log) options.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry><entry><title type="html">Automate AWS EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html" rel="alternate" type="text/html" title="Automate AWS EC2 tagging" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html"><![CDATA[<p><b> Backgroud </b></p>
+<p>Now we can run a PostgreSQL container from docker and docker-compose with Persist data and custom configuration mount into the container, in the next blog we will discover primary and standby replication, WAL (write ahead log) options.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
+
+<p>The proof of concept aims to achieve that, where a Red Hat IDM (Identity Management) server hosted in AWS with its own domain (zack.linux.com) is integrated with an existing AWS Managed AD (zack.existing.com) for authentication of Linux EC2 instances across multiple AWS accounts. The AWS managed AD also synced with Azure AD.</p>
+
+<p>In the future picture, all users will be created and maintained centrally from Azure AD, then placed into an OU named “idm” if they require AWS Linux EC2 instances access. Then Red Hat IDM would be able to add or sync those users and configure RBAC and HBAC accordingly.</p>
+
+<p><b> Set up Red Hat IDM Server and AWS managed AD:</b></p>
+
+<ul>
+  <li>
+    <p>Launch a Red Hat idm EC2 instance</p>
+  </li>
+  <li>
+    <p>Follow previous post for idm installation and configuration.</p>
+  </li>
+  <li>
+    <p>create AWS managed directory service</p>
+  </li>
+</ul>
+
+<p><img src="/assets/awsad1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>create ADDC management windows ec2 instance, create test user1 from domain zack.existing.com</li>
+</ul>
+
+<p><b> Configure DNS:</b></p>
+
+<ul>
+  <li>
+    <p>Set up DNS resolution to ensure that the IDM server and the existing AWS Managed AD can resolve each other’s domain names.</p>
+  </li>
+  <li>
+    <p>Create DNS records to point idm.poc.com to the IDM server’s IP address and configure DNS forwarding or conditional forwarding to resolve queries for the zackad.awsmanaged.com domain to AWS Managed AD DNS servers.</p>
+  </li>
+</ul>
+
+<p><b> Establish Trust Relationship:</b></p>
+
+<ul>
+  <li>
+    <p>Set up a two-way trust relationship between the Red Hat IDM domain (idm.poc.com) and the AWS Managed AD domain (zackad.awsmanaged.com).</p>
+  </li>
+  <li>
+    <p>Follow the AWS documentation for establishing trust relationships with AWS Managed Microsoft AD.</p>
+  </li>
+  <li>
+    <p>Configure trust settings on both sides to allow authentication and authorization between the domains.</p>
+  </li>
+</ul>
+
+<p><b> Configure SSSD on existing Linux EC2 Instances:</b></p>
+
+<ul>
+  <li>
+    <p>Install and configure the System Security Services Daemon (SSSD) on your Linux EC2 instances.</p>
+  </li>
+  <li>
+    <p>Configure SSSD to authenticate users against the Red Hat IDM server.</p>
+  </li>
+  <li>
+    <p>Ensure that SSSD is configured to use the trust relationship established between the IDM domain and the AWS Managed AD domain for authentication.</p>
+  </li>
+</ul>
+
+<p><b> Role-Based and Host-Based Access Control:</b></p>
+
+<ul>
+  <li>
+    <p>Define roles and access policies within the Red Hat IDM server for role-based access control.</p>
+  </li>
+  <li>
+    <p>Utilize the trust relationship between the IDM domain and the AWS Managed AD domain to grant access based on user groups and permissions stored in both directories.</p>
+  </li>
+  <li>
+    <p>Implement host-based access control using SSSD configuration on the Linux EC2 instances, leveraging group memberships and permissions from both IDM and AWS Managed AD.</p>
+  </li>
+  <li>
+    <p>design pre-define roles in idm (developer, admin, vendor and etc)</p>
+  </li>
+  <li>
+    <p>design pre-define host groups in idm (aws accounts vs Lab, Dev, Staging and Prd)</p>
+  </li>
+</ul>
+
+<p><b> Establish automation for future host and user management</b></p>
+
+<ul>
+  <li>
+    <p>use ansible or other scripted method to add or remove host and user</p>
+  </li>
+  <li>
+    <p>enable ansible dynamic inventory to list and descover new or existing AWS linux ec2 instances</p>
+  </li>
+</ul>
+
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[RedHat idm on AWS design]]></summary></entry><entry><title type="html">Automate AWS EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html" rel="alternate" type="text/html" title="Automate AWS EC2 tagging" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html"><![CDATA[<p><b> Backgroud </b></p>
 
 <p>I was tasked to enforce mandatory tagging for ec2 instances, as there are a lot of machines and a lot of tags need to be attached to each machine, here I need a scripted way to get the job done.</p>
 
@@ -1317,103 +1672,7 @@ def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>
             <span class="k">if</span> <span class="s1">'Tags'</span> not <span class="k">in </span>instance:
                 untagged_instances.append<span class="o">(</span>instance[<span class="s1">'InstanceId'</span><span class="o">])</span>
                 
-    <span class="k">return </span>untagged_instances</code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Backgroud]]></summary></entry><entry><title type="html">RedHat Idm on AWS PoC</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html" rel="alternate" type="text/html" title="RedHat Idm on AWS PoC" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-AD-idm.html"><![CDATA[<p><b> RedHat idm on AWS design </b></p>
-
-<p>The proof of concept aims to achieve that, where a Red Hat IDM (Identity Management) server hosted in AWS with its own domain (zack.linux.com) is integrated with an existing AWS Managed AD (zack.existing.com) for authentication of Linux EC2 instances across multiple AWS accounts. The AWS managed AD also synced with Azure AD.</p>
-
-<p>In the future picture, all users will be created and maintained centrally from Azure AD, then placed into an OU named “idm” if they require AWS Linux EC2 instances access. Then Red Hat IDM would be able to add or sync those users and configure RBAC and HBAC accordingly.</p>
-
-<p><b> Set up Red Hat IDM Server and AWS managed AD:</b></p>
-
-<ul>
-  <li>
-    <p>Launch a Red Hat idm EC2 instance</p>
-  </li>
-  <li>
-    <p>Follow previous post for idm installation and configuration.</p>
-  </li>
-  <li>
-    <p>create AWS managed directory service</p>
-  </li>
-</ul>
-
-<p><img src="/assets/awsad1.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>create ADDC management windows ec2 instance, create test user1 from domain zack.existing.com</li>
-</ul>
-
-<p><b> Configure DNS:</b></p>
-
-<ul>
-  <li>
-    <p>Set up DNS resolution to ensure that the IDM server and the existing AWS Managed AD can resolve each other’s domain names.</p>
-  </li>
-  <li>
-    <p>Create DNS records to point idm.poc.com to the IDM server’s IP address and configure DNS forwarding or conditional forwarding to resolve queries for the zackad.awsmanaged.com domain to AWS Managed AD DNS servers.</p>
-  </li>
-</ul>
-
-<p><b> Establish Trust Relationship:</b></p>
-
-<ul>
-  <li>
-    <p>Set up a two-way trust relationship between the Red Hat IDM domain (idm.poc.com) and the AWS Managed AD domain (zackad.awsmanaged.com).</p>
-  </li>
-  <li>
-    <p>Follow the AWS documentation for establishing trust relationships with AWS Managed Microsoft AD.</p>
-  </li>
-  <li>
-    <p>Configure trust settings on both sides to allow authentication and authorization between the domains.</p>
-  </li>
-</ul>
-
-<p><b> Configure SSSD on existing Linux EC2 Instances:</b></p>
-
-<ul>
-  <li>
-    <p>Install and configure the System Security Services Daemon (SSSD) on your Linux EC2 instances.</p>
-  </li>
-  <li>
-    <p>Configure SSSD to authenticate users against the Red Hat IDM server.</p>
-  </li>
-  <li>
-    <p>Ensure that SSSD is configured to use the trust relationship established between the IDM domain and the AWS Managed AD domain for authentication.</p>
-  </li>
-</ul>
-
-<p><b> Role-Based and Host-Based Access Control:</b></p>
-
-<ul>
-  <li>
-    <p>Define roles and access policies within the Red Hat IDM server for role-based access control.</p>
-  </li>
-  <li>
-    <p>Utilize the trust relationship between the IDM domain and the AWS Managed AD domain to grant access based on user groups and permissions stored in both directories.</p>
-  </li>
-  <li>
-    <p>Implement host-based access control using SSSD configuration on the Linux EC2 instances, leveraging group memberships and permissions from both IDM and AWS Managed AD.</p>
-  </li>
-  <li>
-    <p>design pre-define roles in idm (developer, admin, vendor and etc)</p>
-  </li>
-  <li>
-    <p>design pre-define host groups in idm (aws accounts vs Lab, Dev, Staging and Prd)</p>
-  </li>
-</ul>
-
-<p><b> Establish automation for future host and user management</b></p>
-
-<ul>
-  <li>
-    <p>use ansible or other scripted method to add or remove host and user</p>
-  </li>
-  <li>
-    <p>enable ansible dynamic inventory to list and descover new or existing AWS linux ec2 instances</p>
-  </li>
-</ul>
-
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[RedHat idm on AWS design]]></summary></entry><entry><title type="html">Two options for AWS Serverless web hosting</title><link href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" rel="alternate" type="text/html" title="Two options for AWS Serverless web hosting" /><published>2024-04-30T10:15:29+10:00</published><updated>2024-04-30T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/30/serverless</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"><![CDATA[<p><b> Time to move “zackweb” from existing docker and containerization on EC2 and K8S to AWS Serverless with S3 </b></p>
+    <span class="k">return </span>untagged_instances</code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Backgroud]]></summary></entry><entry><title type="html">Two options for AWS Serverless web hosting</title><link href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" rel="alternate" type="text/html" title="Two options for AWS Serverless web hosting" /><published>2024-04-30T10:15:29+10:00</published><updated>2024-04-30T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/30/serverless</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"><![CDATA[<p><b> Time to move “zackweb” from existing docker and containerization on EC2 and K8S to AWS Serverless with S3 </b></p>
 
 <p>In this article, I will see how to host “zackweb” as a static web application using bellow AWS serverless options:</p>
 
@@ -1752,364 +2011,4 @@ Codename:	jammy</code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Ubuntu releases EOL roadmap]]></summary></entry><entry><title type="html">RedHat Identity management (IdM)</title><link href="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html" rel="alternate" type="text/html" title="RedHat Identity management (IdM)" /><published>2024-04-04T11:15:29+11:00</published><updated>2024-04-04T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/04/Redhat-idm.html"><![CDATA[<p><b> About Linux Identity management </b></p>
-
-<p>In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.</p>
-
-<p>Redhat provides such enterprise-level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as external identity provider.</p>
-
-<p>when a company facing challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
-
-<ul>
-  <li>
-    <p>With Local AD and Azure AD (AAD) Integration</p>
-  </li>
-  <li>
-    <p>With AWS SSO Integration as externel identity provider</p>
-  </li>
-  <li>
-    <p>LDAP – an LDAP directory (389 Directory Server) is embedded</p>
-  </li>
-  <li>
-    <p>Kerberos – KDC (MIT Kerberos) for Kerberos key management and single signon</p>
-  </li>
-  <li>
-    <p>DNS – BIND (bind-dyndb-ldap) for domain name services</p>
-  </li>
-  <li>
-    <p>PKI – Red Hat Certificate System (Dogtag certificate system) provides public key infrastructure for certificate management</p>
-  </li>
-  <li>
-    <p>NTP – Network Time Protocol service for time sync</p>
-  </li>
-  <li>
-    <p>A web-based management front-end running on Apache</p>
-  </li>
-</ul>
-
-<p><b> A Typical AD User Authentication Flow across AWS and IdM would be: </b></p>
-
-<ul>
-  <li>
-    <p>When a user attempts to access AWS resources, they first authenticate through Azure AD using their Azure AD credentials.</p>
-  </li>
-  <li>
-    <p>Azure AD authenticates the user and issues a security token.</p>
-  </li>
-  <li>
-    <p>The user accesses AWS SSO, which is configured to use Red Hat IDM as an identity provider.</p>
-  </li>
-  <li>
-    <p>AWS SSO redirects the user to the Red Hat IDM authentication page.</p>
-  </li>
-  <li>
-    <p>The user enters their Red Hat IDM credentials and authenticates against the IdM server.</p>
-  </li>
-  <li>
-    <p>Red Hat IDM validates the user’s credentials and issues a SAML assertion to AWS SSO.</p>
-  </li>
-  <li>
-    <p>AWS SSO validates the SAML assertion and grants the user access to the requested AWS resources.</p>
-  </li>
-</ul>
-
-<p><b> FreeIPA: the opensource version of RedHat IdM </b></p>
-
-<p>Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called “freeIPA”, with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:</p>
-
-<ul>
-  <li>
-    <p>freeIPA Server: freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
-  </li>
-  <li>
-    <p>freeIPA Client1: freeipa-client1.zackz.oonline 11.0.1.151 (CentOS 7.9)</p>
-  </li>
-  <li>
-    <p>freeIPA Client2: freeipa-client2.zackz.oonline 11.0.1.72 (Ubuntu 22.04)</p>
-  </li>
-</ul>
-
-<p><b> Local testlab FreeIPA server installation </b></p>
-
-<p>On freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname with domain</span>
-hostnamectl set-hostname freeipa-server.zackz.oonline
-
-<span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
-
-<span class="c"># install ipa-server</span>
-yum <span class="nb">install </span>ipa-server bind-dyndb-ldap ipa-server-dns
-
-<span class="c"># Configure ipa-server and DNS, here set ipa console and domain admin passwd</span>
-ipa-server-install <span class="nt">--setup-dns</span>
-
-<span class="c"># configure firewall rules and services</span>
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span><span class="o">={</span>http,https,ldap,ldaps,kerberos,dns,kpasswd,ntp<span class="o">}</span>
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span> freeipa-ldap
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span> freeipa-ldaps
-firewall-cmd <span class="nt">--reload</span>
-
-<span class="c"># check ipastatus</span>
-<span class="o">[</span>root@freeipa ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-ntpd Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl <span class="nb">command </span>was successful
-
-
-<span class="c"># Obtain a Kerberos ticket for the Kerberos admin user and Verify the ticket</span>
-kinit admin
-klist
-
-Ticket cache: KEYRING:persistent:0:0
-Default principal: admin@ZACKZ.OONLINE
-
-Valid starting     Expires            Service principal
-04/04/24 22:17:29  05/04/24 22:02:43  HTTP/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-
-<span class="c"># check content of /etc/resolv.conf</span>
-<span class="nb">cat</span> /etc/resolv.conf
-search zackz.oonline
-nameserver 127.0.0.1
-
-<span class="c"># Configure FreeIPA for User Authentication</span>
-
-yum <span class="nb">install</span> <span class="nt">-y</span> vsftpd
-systemctl <span class="nb">enable </span>vsftpd <span class="o">&amp;&amp;</span> systemctl start vsftpd
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-service</span><span class="o">=</span>ftp
-firewall-cmd <span class="nt">--reload</span>
-
-
-<span class="c"># copy CA certificate of the IPA server to the FTP site</span>
-<span class="nb">cp</span> /root/cacert.p12 /var/ftp/pub
-
-<span class="c"># Configure default login shell to Bash and Create Users</span>
-ipa config-mod <span class="nt">--defaultshell</span><span class="o">=</span>/bin/bash
-ipa user-add alice <span class="nt">--first</span><span class="o">=</span>alice <span class="nt">--last</span><span class="o">=</span>abernathy <span class="nt">--password</span>
-ipa user-add vince <span class="nt">--first</span><span class="o">=</span>vincent <span class="nt">--last</span><span class="o">=</span>valentine <span class="nt">--password</span>
-
-<span class="c"># add client hosts </span>
-ipa host-add <span class="nt">--ip-address</span> 11.0.1.151 freeipa-client1.zackz.oonline
-ipa host-add <span class="nt">--ip-address</span> 11.0.1.72 freeipa-client2.zackz.oonline
-
-<span class="c"># create NFS service entry in the IdM domain</span>
-ipa service-add nfs/freeipa-client1.zackz.oonline
-ipa service-add nfs/freeipa-client2.zackz.oonline
-
-<span class="c"># add entry to the keytab file /etc/krb5.keytab</span>
-kadmin.local
-Authenticating as principal admin/admin@RHCE.LOCAL with password.
-kadmin.local:  ktadd nfs/freeipa-client1.zackz.oonline
-kadmin.local:  ktadd nfs/freeipa-client2.zackz.oonline
-kadmin.local:  quit
-
-<span class="c"># verify keytab file</span>
-<span class="o">[</span>root@freeipa-server pub]# klist <span class="nt">-k</span>
-Keytab name: FILE:/etc/krb5.keytab
-KVNO Principal
-<span class="nt">----</span> <span class="nt">--------------------------------------------------------------------------</span>
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-
-
-<span class="c"># Generate keys to copy over to NFS systems, chmod to Make the keytab file accessible to FTP clients</span>
-ipa-getkeytab <span class="nt">-s</span> freeipa-server.zackz.oonline <span class="nt">-p</span> nfs/freeipa-client2.zackz.oonline <span class="nt">-k</span> /var/ftp/pub/freeipa-client2.keytab
-ipa-getkeytab <span class="nt">-s</span> freeipa-server.zackz.oonline <span class="nt">-p</span> nfs/freeipa-client1.zackz.oonline <span class="nt">-k</span> /var/ftp/pub/freeipa-client1.keytab
-<span class="nb">chmod </span>644 /var/ftp/pub/<span class="k">*</span>.keytab
-
-<span class="c"># Configure DNS</span>
-ipa dnszone-mod <span class="nt">--allow-transfer</span><span class="o">=</span>11.0.1.0/24 zackz.oonline
-ipa dnsrecord-add zackz.oonline vhost1 <span class="nt">--ttl</span><span class="o">=</span>3600 <span class="nt">--a-ip-address</span><span class="o">=</span>11.0.1.151
-ipa dnsrecord-add zackz.oonline dynamic1 <span class="nt">--ttl</span><span class="o">=</span>3600 <span class="nt">--a-ip-address</span><span class="o">=</span>11.0.1.151
-ipa dnsrecord-add zackz.oonline @ <span class="nt">--mx-rec</span><span class="o">=</span><span class="s2">"0 freeipa-server.zackz.oonline."</span></code></pre></figure>
-
-<p><b> Console login </b></p>
-
-<p>login freeIPA console with serverIP or DNS name</p>
-
-<p><img src="/assets/linuxidm1.png" alt="image tooltip here" /></p>
-
-<p>list the 2 users “alice” and “vincent” previously created</p>
-
-<p><img src="/assets/linuxidm2.png" alt="image tooltip here" /></p>
-
-<p><b> Add and enroll client hosts into IdM </b></p>
-
-<p>To add client hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install “freeipa-client” and condigure domain.</p>
-
-<ul>
-  <li>For CentOS client (11.0.1.151 freeipa-client1.zackz.oonline) enrollment:</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set client hostname with domain</span>
-hostnamectl set-hostname freeipa-client1.zackz.oonline
-
-<span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
-
-
-<span class="c"># install freeipa-client and manually configure domain</span>
-<span class="o">[</span>root@freeipa-client1 ~]# ipa-client-install <span class="nt">--mkhomedir</span>
-WARNING: ntpd <span class="nb">time</span>&amp;date synchronization service will not be configured as
-conflicting service <span class="o">(</span>chronyd<span class="o">)</span> is enabled
-Use <span class="nt">--force-ntpd</span> option to disable it and force configuration of ntpd
-
-DNS discovery failed to determine your DNS domain
-Provide the domain name of your IPA server <span class="o">(</span>ex: example.com<span class="o">)</span>: zackz.oonline
-Provide your IPA server name <span class="o">(</span>ex: ipa.example.com<span class="o">)</span>: freeipa-server.zackz.oonline
-The failure to use DNS to find your IPA server indicates that your resolv.conf file is not properly configured.
-Autodiscovery of servers <span class="k">for </span>failover cannot work with this configuration.
-If you proceed with the installation, services will be configured to always access the discovered server <span class="k">for </span>all operations and will not fail over to other servers <span class="k">in case</span> of failure.
-Proceed with fixed values and no DNS discovery? <span class="o">[</span>no]: <span class="nb">yes
-</span>Client <span class="nb">hostname</span>: freeipa-client1.zackz.oonline
-Realm: ZACKZ.OONLINE
-DNS Domain: zackz.oonline
-IPA Server: freeipa-server.zackz.oonline
-BaseDN: <span class="nv">dc</span><span class="o">=</span>zackz,dc<span class="o">=</span>oonline
-
-Continue to configure the system with these values? <span class="o">[</span>no]: <span class="nb">yes
-</span>Skipping synchronizing <span class="nb">time </span>with NTP server.
-User authorized to enroll computers: admin
-Password <span class="k">for </span>admin@ZACKZ.OONLINE: 
-Successfully retrieved CA cert
-    Subject:     <span class="nv">CN</span><span class="o">=</span>Certificate Authority,O<span class="o">=</span>ZACKZ.OONLINE
-    Issuer:      <span class="nv">CN</span><span class="o">=</span>Certificate Authority,O<span class="o">=</span>ZACKZ.OONLINE
-    Valid From:  2024-04-04 10:45:20
-    Valid Until: 2044-04-04 11:45:20
-
-Enrolled <span class="k">in </span>IPA realm ZACKZ.OONLINE
-Created /etc/ipa/default.conf
-New SSSD config will be created
-Configured sudoers <span class="k">in</span> /etc/nsswitch.conf
-Configured /etc/sssd/sssd.conf
-trying https://freeipa-server.zackz.oonline/ipa/json
-<span class="o">[</span>try 1]: Forwarding <span class="s1">'schema'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/json'</span>
-trying https://freeipa-server.zackz.oonline/ipa/session/json
-<span class="o">[</span>try 1]: Forwarding <span class="s1">'ping'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/session/json'</span>
-<span class="o">[</span>try 1]: Forwarding <span class="s1">'ca_is_enabled'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/session/json'</span>
-Systemwide CA database updated.
-Hostname <span class="o">(</span>freeipa-client1.zackz.oonline<span class="p">)</span> does not have A/AAAA record.
-Failed to update DNS records.
-Missing reverse record<span class="o">(</span>s<span class="o">)</span> <span class="k">for </span>address<span class="o">(</span>es<span class="o">)</span>: 11.0.1.151.
-Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
-<span class="o">[</span>try 1]: Forwarding <span class="s1">'host_mod'</span> to json server <span class="s1">'https://freeipa-server.zackz.oonline/ipa/session/json'</span>
-Could not update DNS SSHFP records.
-SSSD enabled
-Configured /etc/openldap/ldap.conf
-Unable to find <span class="s1">'admin'</span> user with <span class="s1">'getent passwd admin@zackz.oonline'</span><span class="o">!</span>
-Unable to reliably detect configuration. Check NSS setup manually.
-Configured /etc/ssh/ssh_config
-Configured /etc/ssh/sshd_config
-Configuring zackz.oonline as NIS domain.
-Configured /etc/krb5.conf <span class="k">for </span>IPA realm ZACKZ.OONLINE
-Client configuration complete.
-The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
-
-<ul>
-  <li>for Ubuntu client host (11.0.1.72 freeipa-client2.zackz.oonline) enrollment:</li>
-</ul>
-
-<p>First back to freeIPA server, add DNS record for Ubuntu</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add DNS record for Ubuntu client on freeIPA server</span>
-ipa dnsrecord-add hwdomain.io ubuntu-node.hwdomain.io <span class="nt">--a-rec</span> 192.168.10.50</code></pre></figure>
-
-<p>Then login Ubuntu host to install freeipa-client and enroll:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname </span>
-hostnamectl set-hostname freeipa-client2.zackz.oonline
-
-<span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.150 freeipa-server.zackz.oonline  ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.151 freeipa-client1.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.72  freeipa-client2.zackz.oonline ipa <span class="o">&gt;&gt;</span> /etc/hosts
-
-<span class="c"># install ipa client</span>
-apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install </span>freeipa-client oddjob-mkhomedir
-
-<span class="c"># add ubuntu client to freeIPA server</span>
-ipa-client-install <span class="nt">--hostname</span><span class="o">=</span><span class="sb">`</span><span class="nb">hostname</span> <span class="nt">-f</span><span class="sb">`</span> <span class="nt">--mkhomedir</span> /
-<span class="nt">--server</span><span class="o">=</span>freeipa-server.zackz.oonline /
-<span class="nt">--domain</span> zackz.online /
-<span class="nt">--realm</span> ZACKZ.OONLINE
-
-<span class="c"># change PAM profile to enable "Create a home directory on login" </span>
-pam-auth-update</code></pre></figure>
-
-<p>now back to console, the 2 client hosts had been added and enrolled into freeIPA server
-<img src="/assets/linuxidm3.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>verify to use user “alice” and its passwd to ssh login to ubuntu client from freeIPA server</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# ssh alice@freeipa-client2.zackz.oonline
-Password: 
-Welcome to Ubuntu 22.04.4 LTS <span class="o">(</span>GNU/Linux 5.15.0-101-generic x86_64<span class="o">)</span>
-
- <span class="k">*</span> Documentation:  https://help.ubuntu.com
- <span class="k">*</span> Management:     https://landscape.canonical.com
- <span class="k">*</span> Support:        https://ubuntu.com/pro
-
-  System information as of Thu Apr  4 01:02:00 PM UTC 2024
-
-  System load:  0.0               Processes:              234
-  Usage of /:   8.0% of 93.93GB   Users logged <span class="k">in</span>:        1
-  Memory usage: 11%               IPv4 address <span class="k">for </span>ens33: 11.0.1.72
-  Swap usage:   0%
-
- <span class="k">*</span> Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
-   just raised the bar <span class="k">for </span>easy, resilient and secure K8s cluster deployment.
-
-   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
-
-Expanded Security Maintenance <span class="k">for </span>Applications is not enabled.
-
-18 updates can be applied immediately.
-To see these additional updates run: apt list <span class="nt">--upgradable</span>
-
-Enable ESM Apps to receive additional future security updates.
-See https://ubuntu.com/esm or run: <span class="nb">sudo </span>pro status
-
-
-Last login: Thu Apr  4 11:47:37 2024 from 11.0.1.150
-alice@freeipa-client2:~<span class="nv">$ </span><span class="nb">id
-</span><span class="nv">uid</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span>
-alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we install Redhat IdM server and be able to enroll client hosts, looking at the user details, IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.</p>
-
-<p><img src="/assets/linuxidm5.png" alt="image tooltip here" /></p>
-
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity management]]></summary></entry></feed>
+<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Ubuntu releases EOL roadmap]]></summary></entry></feed>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Python Boto3 for AWS Management | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Python Boto3 for AWS Management" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Boto3" />
+<meta property="og:description" content="About Boto3" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-16T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Python Boto3 for AWS Management" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-16T10:15:29+10:00","datePublished":"2024-05-16T10:15:29+10:00","description":"About Boto3","headline":"Python Boto3 for AWS Management","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> Python Boto3 for AWS Management  </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-05-16T10:15:29+10:00" itemprop="datePublished">May 16, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> About Boto3 </b></p>
+
+<p>Boto3 is the Amazon Web Services (AWS) Software Development Kit (SDK) for Python. It enables developers to build software that uses Amazon services like EC2, S3, RDS, etc.</p>
+
+<p>I will build a portable python3.9 + Boto3 docker environment to test some AWS automation tasks.</p>
+
+<p><b> Build and run a docker with Python3.9 + Boto3 </b></p>
+
+<p>As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable way to start the Python environment anywhere is best.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim Dockerfile
+<span class="c"># Build from python:3.9.19-alpine3.19</span>
+From python:3.9.19-alpine3.19 
+<span class="c"># install boto3 and alwcli</span>
+RUN pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    pip <span class="nb">install</span> <span class="nt">--upgrade</span> awscli <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    pip <span class="nb">install</span> <span class="nt">--upgrade</span> boto3
+<span class="c"># set work dir</span>
+WORKDIR /work
+<span class="c"># run Python</span>
+CMD <span class="s2">"python"</span>
+<span class="c"># build a docker image from the above Dockerfile </span>
+root@ubt-server:~# docker image build <span class="nt">-t</span> zack_aws_boto3 <span class="nb">.</span>
+
+<span class="c"># ls docker images </span>
+root@ubt-server:~# docker image <span class="nb">ls
+</span>REPOSITORY               TAG             IMAGE ID       CREATED         SIZE
+zack_aws_boto3           v1              07a13f7801ed   1 days ago     998MB
+zackpy                   latest          287ba6873741   4 days ago      48.2MB
+zackz001/gitops-jekyll   latest          d92894f7be6d   6 days ago      70.9MB
+postgres                 15.0            027eba2e8939   19 months ago   377MB
+
+<span class="c"># run docker and mount local python work dir</span>
+root@ubt-server:~/pythonwork# docker run <span class="nt">-ti</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>:/work zack_aws_boto3:v1 bash
+root@c04670a43564:/# 
+root@c04670a43564:/# <span class="nb">cd </span>work <span class="o">&amp;&amp;</span> <span class="nb">ls</span>
+
+<span class="c"># configure aws in the container</span>
+root@c04670a43564:/work# aws configure 
+AWS Access Key ID <span class="o">[</span><span class="k">****************</span>GFNW]: 
+AWS Secret Access Key <span class="o">[</span><span class="k">****************</span>Db7O]: 
+Default region name <span class="o">[</span>ap-southeast-2]: 
+Default output format <span class="o">[</span>None]: 
+
+<span class="c"># validate aws cred by listing ec2 instance id </span>
+root@c04670a43564:/work# aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> json
+<span class="o">[</span>
+    <span class="o">[</span>
+        <span class="s2">"i-076226daa5aaf7cf2"</span>
+    <span class="o">]</span>
+<span class="o">]</span></code></pre></figure>
+
+<p><b>Manage AWS resource with Python Boto3 script</b></p>
+
+<p>Here we have Python and boto3 env ready; I will list some aws tasks that I want to be achieved by Python scripts</p>
+
+<ul>
+  <li>List ec2 instance name, instanceID and state</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# vim app.py
+<span class="c"># import boto3 library</span>
+import boto3
+
+def list_ec2_instances<span class="o">()</span>:
+    <span class="c"># Create a session using default AWS profile</span>
+    session <span class="o">=</span> boto3.Session<span class="o">()</span>
+    <span class="c"># Create an EC2 client</span>
+    ec2_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+
+    <span class="c"># Describe EC2 instances</span>
+    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
+
+    <span class="c"># Iterate over the instances</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            <span class="c"># Get the instance ID</span>
+            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            
+            <span class="c"># Get the instance state</span>
+            instance_state <span class="o">=</span> instance[<span class="s1">'State'</span><span class="o">][</span><span class="s1">'Name'</span><span class="o">]</span>
+            
+            <span class="c"># Get the instance Name tag if exists</span>
+            instance_name <span class="o">=</span> <span class="s1">'No Name'</span>
+            <span class="k">if</span> <span class="s1">'Tags'</span> <span class="k">in </span>instance:
+                <span class="k">for </span>tag <span class="k">in </span>instance[<span class="s1">'Tags'</span><span class="o">]</span>:
+                    <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span>:
+                        instance_name <span class="o">=</span> tag[<span class="s1">'Value'</span><span class="o">]</span>
+                        <span class="nb">break</span>
+            
+            <span class="c"># Print instance ID, Name, and State</span>
+            print<span class="o">(</span>f<span class="s2">"Instance ID: {instance_id}, Name: {instance_name}, State: {instance_state}"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s2">"__main__"</span>:
+    list_ec2_instances<span class="o">()</span>
+
+root@c04670a43564:/work# python app.py 
+Instance ID: i-076226daa5aaf7cf2, Name: zack-blog, State: stopped</code></pre></figure>
+
+<ul>
+  <li>Filter ec2 instance without tag “owner”</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create app-untagged.py</span>
+root@ubt-server:~/pythonwork# vim app-untagged.py
+import boto3
+
+def get_untagged_ec2_instances<span class="o">()</span>:
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
+    
+    untagged_instances <span class="o">=</span> <span class="o">[]</span>
+    
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            has_owner_tag <span class="o">=</span> False
+            <span class="k">if</span> <span class="s1">'Tags'</span> <span class="k">in </span>instance:
+                <span class="k">for </span>tag <span class="k">in </span>instance[<span class="s1">'Tags'</span><span class="o">]</span>:
+                    <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span>.lower<span class="o">()</span> <span class="o">==</span> <span class="s1">'owner'</span>:
+                        has_owner_tag <span class="o">=</span> True
+                        <span class="nb">break</span>
+            
+            <span class="k">if </span>not has_owner_tag:
+                instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+                instance_state <span class="o">=</span> instance[<span class="s1">'State'</span><span class="o">][</span><span class="s1">'Name'</span><span class="o">]</span>
+                untagged_instances.append<span class="o">({</span><span class="s1">'InstanceId'</span>: instance_id, <span class="s1">'State'</span>: instance_state<span class="o">})</span>
+    
+    <span class="k">return </span>untagged_instances
+
+untagged_instances <span class="o">=</span> get_untagged_ec2_instances<span class="o">()</span>
+print<span class="o">(</span><span class="s2">"Untagged Instances:"</span>, untagged_instances<span class="o">)</span>
+
+<span class="c"># run script to filter untagged "owner" ec2 </span>
+root@c04670a43564:/work# python app-untagged.py 
+Untagged Instances: <span class="o">[{</span><span class="s1">'InstanceId'</span>: <span class="s1">'i-076226daa5aaf7cf2'</span>, <span class="s1">'State'</span>: <span class="s1">'stopped'</span><span class="o">}]</span></code></pre></figure>
+
+<ul>
+  <li>Create lambda function to list ebs volume snapshots older than 30 days and delete them</li>
+</ul>
+
+<p>To achieve this we need :</p>
+
+<ol>
+  <li>create lambda IAM role for lambda to manage EBS volume snapshot</li>
+  <li>create bellow python lambda function</li>
+  <li>zip and upload zip function</li>
+  <li>create CloudWatch Event to Trigger run it every 30 days</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create lambda function to delete snapshots older than 30 days</span>
+root@ubt-server:~/pythonwork# vim app-snapshot-older-30days.py
+import boto3
+from datetime import datetime, timezone, timedelta
+
+def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    
+    <span class="c"># Get the current time</span>
+    now <span class="o">=</span> datetime.now<span class="o">(</span>timezone.utc<span class="o">)</span>
+    
+    <span class="c"># Define the time threshold</span>
+    time_threshold <span class="o">=</span> now - <span class="nb">time </span>delta<span class="o">(</span><span class="nv">days</span><span class="o">=</span>30<span class="o">)</span>
+    
+    <span class="c"># Describe snapshots</span>
+    snapshots <span class="o">=</span> ec2_client.describe_snapshots<span class="o">(</span><span class="nv">OwnerIds</span><span class="o">=[</span><span class="s1">'self'</span><span class="o">])[</span><span class="s1">'Snapshots'</span><span class="o">]</span>
+    
+    <span class="c"># Filter snapshots older than 30 days</span>
+    old_snapshots <span class="o">=</span> <span class="o">[</span>snap <span class="k">for </span>snap <span class="k">in </span>snapshots <span class="k">if </span>snap[<span class="s1">'StartTime'</span><span class="o">]</span> &lt; time_threshold]
+    
+    <span class="c"># Delete old snapshots</span>
+    <span class="k">for </span>snapshot <span class="k">in </span>old_snapshots:
+        snapshot_id <span class="o">=</span> snapshot[<span class="s1">'SnapshotId'</span><span class="o">]</span>
+        ec2_client.delete_snapshot<span class="o">(</span><span class="nv">SnapshotId</span><span class="o">=</span>snapshot_id<span class="o">)</span>
+        print<span class="o">(</span>f<span class="s2">"Deleted snapshot: {snapshot_id}"</span><span class="o">)</span>
+    
+    <span class="k">return</span> <span class="o">{</span>
+        <span class="s1">'statusCode'</span>: 200,
+        <span class="s1">'body'</span>: f<span class="s2">"Deleted {len(old_snapshots)} snapshots."</span>
+    <span class="o">}</span>
+
+<span class="c"># zip Package for the Lambda Function</span>
+root@ubt-server:~/pythonwork# zip <span class="k">function</span>.zip app-snapshot-older-30days.py</code></pre></figure>
+
+<ul>
+  <li>Email me when a security group allow inbound SSH (port 22) from everywhere (0.0.0.0/0)</li>
+</ul>
+
+<p>To achieve this, we need:</p>
+
+<ol>
+  <li>AWS CloudTrail enable</li>
+  <li>Create CloudWatch Event Rule to capture AWS CloudTrail logs for security group changes</li>
+  <li>Create bellow Lambda Function if inbound allow port 22 from everywhere are met</li>
+  <li>Allow CloudWatch Events to Invoke the Lambda Function</li>
+  <li>Add the Lambda Function as a Target for the CloudWatch Event Rule</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
+import json
+
+def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
+    <span class="c"># Initialize boto3 clients</span>
+    ses_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ses'</span><span class="o">)</span>
+    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    
+    <span class="c"># Email details</span>
+    sender <span class="o">=</span> <span class="s1">'zhbsoftboy1@gmail.com'</span>
+    recipient <span class="o">=</span> <span class="s1">'zhbsoftboy1@gmail.com'</span>
+    subject <span class="o">=</span> <span class="s1">'Security Group Alert: Port 22 Open to everywhere'</span>
+    
+    <span class="c"># Extract details from the event</span>
+    detail <span class="o">=</span> event[<span class="s1">'detail'</span><span class="o">]</span>
+    event_name <span class="o">=</span> detail[<span class="s1">'eventName'</span><span class="o">]</span>
+    security_group_id <span class="o">=</span> None
+    
+    <span class="k">if </span>event_name <span class="o">==</span> <span class="s1">'AuthorizeSecurityGroupIngress'</span>:
+        security_group_id <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'groupId'</span><span class="o">]</span>
+        ip_permissions <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'ipPermissions'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>
+    <span class="k">elif </span>event_name <span class="o">==</span> <span class="s1">'CreateSecurityGroup'</span>:
+        security_group_id <span class="o">=</span> detail[<span class="s1">'responseElements'</span><span class="o">][</span><span class="s1">'groupId'</span><span class="o">]</span>
+        ip_permissions <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'ipPermissionsEgress'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>
+    
+    <span class="c"># Check if port 22 is open to 0.0.0.0/0</span>
+    <span class="k">if </span>security_group_id and ip_permissions:
+        <span class="k">for </span>permission <span class="k">in </span>ip_permissions:
+            <span class="k">if</span> <span class="s1">'ipRanges'</span> <span class="k">in </span>permission:
+                <span class="k">for </span>ip_range <span class="k">in </span>permission[<span class="s1">'ipRanges'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>:
+                    <span class="k">if </span>ip_range[<span class="s1">'cidrIp'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'0.0.0.0/0'</span> and permission[<span class="s1">'fromPort'</span><span class="o">]</span> <span class="o">==</span> 22 and permission[<span class="s1">'toPort'</span><span class="o">]</span> <span class="o">==</span> 22:
+                        <span class="c"># Compose email body</span>
+                        body_text <span class="o">=</span> <span class="o">(</span>f<span class="s2">"Security Group ID: {security_group_id} has been modified to allow port 22 from everywhere (0.0.0.0/0)."</span><span class="o">)</span>
+                        body_html <span class="o">=</span> f<span class="s2">"""&lt;html&gt;
+                        &lt;head&gt;&lt;/head&gt;
+                        &lt;body&gt;
+                          &lt;h1&gt;Security Group Alert&lt;/h1&gt;
+                          &lt;p&gt;Security Group ID: &lt;b&gt;{security_group_id}&lt;/b&gt; has been modified to allow port 22 from everywhere (0.0.0.0/0).&lt;/p&gt;
+                        &lt;/body&gt;
+                        &lt;/html&gt;"""</span>
+                        
+                        <span class="c"># Send email</span>
+                        response <span class="o">=</span> ses_client.send_email<span class="o">(</span>
+                            <span class="nv">Source</span><span class="o">=</span>sender,
+                            <span class="nv">Destination</span><span class="o">={</span><span class="s1">'ToAddresses'</span>: <span class="o">[</span>recipient]<span class="o">}</span>,
+                            <span class="nv">Message</span><span class="o">={</span>
+                                <span class="s1">'Subject'</span>: <span class="o">{</span><span class="s1">'Data'</span>: subject<span class="o">}</span>,
+                                <span class="s1">'Body'</span>: <span class="o">{</span>
+                                    <span class="s1">'Text'</span>: <span class="o">{</span><span class="s1">'Data'</span>: body_text<span class="o">}</span>,
+                                    <span class="s1">'Html'</span>: <span class="o">{</span><span class="s1">'Data'</span>: body_html<span class="o">}</span>
+                                <span class="o">}</span>
+                            <span class="o">}</span>
+                        <span class="o">)</span>
+                        print<span class="o">(</span>f<span class="s2">"Email sent! Message ID: {response['MessageId']}"</span><span class="o">)</span>
+    
+    <span class="k">return</span> <span class="o">{</span>
+        <span class="s1">'statusCode'</span>: 200,
+        <span class="s1">'body'</span>: json.dumps<span class="o">(</span><span class="s1">'Lambda function executed successfully!'</span><span class="o">)</span>
+    <span class="o">}</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>There are many ways to automate AWS tasks using Python Boto3 script. Together with Lambda and trigger, many resource tasks can be scheduled and managed in a scripted way.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/05/16/py1.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
