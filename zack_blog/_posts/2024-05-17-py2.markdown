@@ -7,7 +7,7 @@ categories: jekyll Cat2
 
 <b> About Python File Handling</b>
 
-In the previous post I developed shell script + awscli to apply [aws EC2 tages](https://zackz.online/jekyll/cat2/2024/05/01/AWS-tagging.html), since the last post we discovered [Python Boto3](https://zackz.online/jekyll/cat2/2024/05/16/py1.html)scripts for AWS resource automation and management, I think it is time to improve the EC2 tagging task with Python and boto3, together with file handling to achieve:
+In the previous post I developed shell script + awscli to apply [aws EC2 tages](https://zackz.online/jekyll/cat2/2024/05/01/AWS-tagging.html), since the last post we discovered [Python Boto3](https://zackz.online/jekyll/cat2/2024/05/16/py1.html) scripts for AWS resource automation and management, I think it is time to improve the EC2 tagging task with Python and boto3, together with file handling to achieve:
 
 1. List and export ec2 information to a CSV file (instanceID, default instance name, Existing tags)
 
