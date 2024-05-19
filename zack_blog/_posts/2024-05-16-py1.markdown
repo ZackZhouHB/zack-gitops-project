@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Python: Boto3 for AWS Resource Management  "
+title:  " Python: Boto3 for AWS"
 date:   2024-05-16 11:15:29 +1100
 categories: jekyll Cat2
 ---

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Python: File Handling for AWS tagging"
+title:  "Python: File Handling"
 date:   2024-05-17 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -15,7 +15,7 @@ In the previous post I developed shell script + awscli to apply [aws EC2 tages](
 2. define 4 mandatory tags in CSV header (Env, BizOwner, Technology, Project)
 
 
-3. validate exported tags against the 4 mandatory new tags, if any of the new mandatory tags exists, then keep the tage and value, if any of the new mandatory tags do not exist, leave the value blank
+3. validate exported tags against the 4 mandatory new tags, if any of the new mandatory tags exists, then keep the tage and value, if any of the new mandatory tags do not exist, add the key and leave the value blank
 
 
 3. Get csv file fill with mandatory tags input from Biz team (manual work)
