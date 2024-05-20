@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-19T16:25:09+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Python: File Handling</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-20T14:48:19+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Python: File Handling</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
 
 <p>In the previous post I developed shell script + awscli to apply <a href="https://zackz.online/jekyll/cat2/2024/05/01/AWS-tagging.html">aws EC2 tages</a>, since the last post we discovered <a href="https://zackz.online/jekyll/cat2/2024/05/16/py1.html">Python Boto3</a> scripts for AWS resource automation and management, I think it is time to improve the EC2 tagging task with Python and boto3, together with file handling to achieve:</p>
 
@@ -26,97 +26,111 @@
 <p><b> List and export ec2 information to a CSV</b></p>
 
 <ul>
-  <li>
-    <p>First I need to import Python libraries for boto3, csv and os, then call boto3 sessions to retrieve EC2 information.</p>
-  </li>
-  <li>
-    <p>Next step I will use Python “with open” and “for” loops to write each ec2 info to a csv file, also add mandatory tags write in the header fields</p>
-  </li>
-  <li>
-    <p>Once passing csv file to get new tag input, use Python “csv.DictReader” to read from the file, then apply tags by “ec2.create_tags”</p>
-  </li>
+  <li>Here we need Python libraries for “boto3” and “csv”, to call boto3 sessions to retrieve EC2 information, then use Python “with open” and “for” loops to write each ec2 info to a csv file, also add mandatory tags write in the header fields “Env”, “BizOwner”, “Technology”, “Project”:</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim ec2_export_tag_csv.py
-
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/new# vim export1.py
 <span class="c"># Import libiaries</span>
 import boto3
 import csv
-import os
+<span class="c"># Define the mandatory tags</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
+<span class="c"># Initialize boto3 clients</span>
+ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+
+def list_ec2_instances<span class="o">()</span>:
+    instances <span class="o">=</span> <span class="o">[]</span>
+    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
+            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
+            instance_info <span class="o">=</span> <span class="o">{</span>
+                <span class="s1">'InstanceId'</span>: instance_id,
+                <span class="s1">'DefaultName'</span>: default_name,
+                <span class="k">**</span>tags
+            <span class="o">}</span>
+            <span class="c"># Ensure mandatory tags are included with empty values if not present</span>
+            <span class="k">for </span>mandatory_tag <span class="k">in </span>MANDATORY_TAGS:
+                <span class="k">if </span>mandatory_tag not <span class="k">in </span>instance_info:
+                    instance_info[mandatory_tag] <span class="o">=</span> <span class="s1">''</span>
+            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
+    <span class="k">return </span>instances
+
+<span class="c"># Define export to csv</span>
+def export_to_csv<span class="o">(</span>instances, <span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances.csv'</span><span class="o">)</span>:
+    <span class="c"># Collect all possible tag keys</span>
+    all_tags <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
+    <span class="k">for </span>instance <span class="k">in </span>instances:
+        all_tags.update<span class="o">(</span>instance.keys<span class="o">())</span>
+    
+    <span class="c"># Ensure mandatory tags are included in the header</span>
+    all_tags.update<span class="o">(</span>MANDATORY_TAGS<span class="o">)</span>
+    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + sorted<span class="o">(</span>all_tags - <span class="o">{</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">})</span>
+    
+    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
+        writer.writeheader<span class="o">()</span>
+        <span class="k">for </span>instance <span class="k">in </span>instances:
+            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
+
+def main<span class="o">()</span>:
+    instances <span class="o">=</span> list_ec2_instances<span class="o">()</span>
+    export_to_csv<span class="o">(</span>instances<span class="o">)</span>
+    print<span class="o">(</span><span class="s2">"CSV export complete. Please update the mandatory tags in 'ec2_instances.csv'."</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    main<span class="o">()</span>
+
+root@ubt-server:~/pythonwork/new# python3 export1.py 
+CSV <span class="nb">export </span>complete. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances.csv'</span>.</code></pre></figure>
+
+<p><img src="/assets/py2-1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>next download and update ‘ec2_instances.csv’ with all required tags, then remane and upload as ‘ec2_instances_updated.csv’, create second script “update1.py” to apply new tags</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/new# vim update1.py
+
+import boto3
+import csv
 
 <span class="c"># Define the mandatory tags</span>
 MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
 
-<span class="c"># Initialize boto3 clients</span>
-ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-s3 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'s3'</span><span class="o">)</span>
-
-def list_ec2_instances<span class="o">()</span>:
-    instances <span class="o">=</span> <span class="o">[]</span>
-    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
-            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
-            instance_info <span class="o">=</span> <span class="o">{</span>
-                <span class="s1">'InstanceId'</span>: instance_id,
-                <span class="s1">'DefaultName'</span>: default_name,
-                <span class="k">**</span><span class="o">{</span>tag: tags.get<span class="o">(</span>tag, <span class="s1">''</span><span class="o">)</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS<span class="o">}</span>
-            <span class="o">}</span>
-            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
-    <span class="k">return </span>instances
-
-<span class="c"># write and loop each ec2 tag info, add MANDATORY_TAGS in fields</span>
-def export_to_csv<span class="o">(</span>instances, <span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances.csv'</span><span class="o">)</span>:
-    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + MANDATORY_TAGS
-    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
-        writer.writeheader<span class="o">()</span>
-        <span class="k">for </span>instance <span class="k">in </span>instances:
-            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
-
-<span class="c"># Update CSV by adding biz input, then apply all tags </span>
 def update_tags_from_csv<span class="o">(</span><span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances_updated.csv'</span><span class="o">)</span>:
-    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
-        <span class="k">for </span>row <span class="k">in </span>reader:
-            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
-            <span class="k">if </span>tags:
-                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
+    ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
+        <span class="k">for </span>row <span class="k">in </span>reader:
+            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
+            <span class="k">if </span>tags:
+                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
 
-<span class="c"># skip the lambda function and config rule creation steps</span>
-def create_lambda_function<span class="o">()</span>: <span class="c"># skip lambda creation</span>
-def create_config_rule<span class="o">()</span>: <span class="c"># skip config rule creation</span>
-
-<span class="c"># print status</span>
 def main<span class="o">()</span>:
-    instances <span class="o">=</span> list_ec2_instances<span class="o">()</span>
-    export_to_csv<span class="o">(</span>instances<span class="o">)</span>
-    print<span class="o">(</span><span class="s2">"CSV export complete. Please update the mandatory tags and save the file as 'ec2_instances_updated.csv'."</span><span class="o">)</span>
-    input<span class="o">(</span><span class="s2">"Press Enter after updating the CSV file..."</span><span class="o">)</span>
-    update_tags_from_csv<span class="o">()</span>
-    print<span class="o">(</span><span class="s2">"Tags updated successfully."</span><span class="o">)</span>
+    update_tags_from_csv<span class="o">()</span>
+    print<span class="o">(</span><span class="s2">"Tags updated successfully from 'ec2_instances_updated.csv'."</span><span class="o">)</span>
 
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    main<span class="o">()</span></code></pre></figure>
+    main<span class="o">()</span>
+
+root@ubt-server:~/pythonwork/new# python3 update1.py 
+Tags updated successfully from <span class="s1">'ec2_instances_updated.csv'</span>.</code></pre></figure>
+
+<p>Now the new tags had been applied.</p>
+
+<p><img src="/assets/py2-2.png" alt="image tooltip here" /></p>
 
 <p><b> How about managing tags for multiple AWS accounts </b></p>
 
 <p>Considering we have 20+ AWS accounts across the company and with more than 200 EC2 instances that need to apply tagging strategy, here I will</p>
 
-<ol>
-  <li>
-    <p>use AWScli profile to configure each AWS account creds,</p>
-  </li>
-  <li>
-    <p>Update Python scripts to call each account profile to apply all 20+ AWS accounts in sequence.</p>
-  </li>
-  <li>
-    <p>here I will use my own 2 AWS accounts (ZackBlog and JoeSite) to create AWScli profiles to validate the Python scripts</p>
-  </li>
-</ol>
+<ul>
+  <li>use AWScli profile to configure each AWS account creds, here I will use my own 2 AWS accounts (ZackBlog and JoeSite) to create AWScli profiles to validate the Python scripts</li>
+</ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Add account creds into ~/.aws/credentials</span>
 vim ~/.aws/credentials
@@ -138,82 +152,160 @@ region <span class="o">=</span> ap-southeast-2
 <span class="o">[</span>profile aws_account_joesite]
 region <span class="o">=</span> ap-southeast-2</code></pre></figure>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim muti_ec2_export_tag_csv.py
+<ul>
+  <li>now update Python scripts to call each account profile to apply all 20+ AWS accounts in sequence.</li>
+</ul>
 
-<span class="c"># Import libraries </span>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# <span class="nb">mkdir </span>mutiple-aws
+root@ubt-server:~/pythonwork# <span class="nb">cd </span>mutiple-aws/
+root@ubt-server:~/pythonwork/mutiple-aws# vim export2.py
+
 import boto3
 import csv
-import os
 from botocore.exceptions import ProfileNotFound
 
 <span class="c"># Define the mandatory tags</span>
 MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
 
-<span class="c"># Define AWS account profiles</span>
-AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>
+<span class="c"># List of AWS account profiles</span>
+AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
 
-<span class="c"># Retriete EC2 tags info by calling each AWS account profile boto3 session</span>
 def list_ec2_instances<span class="o">(</span>profile_name<span class="o">)</span>:
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
-    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    instances <span class="o">=</span> <span class="o">[]</span>
-    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
-            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
-            instance_info <span class="o">=</span> <span class="o">{</span>
-                <span class="s1">'InstanceId'</span>: instance_id,
-                <span class="s1">'DefaultName'</span>: default_name,
-                <span class="k">**</span><span class="o">{</span>tag: tags.get<span class="o">(</span>tag, <span class="s1">''</span><span class="o">)</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS<span class="o">}</span>
-            <span class="o">}</span>
-            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
-    <span class="k">return </span>instances
+    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
+    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    instances <span class="o">=</span> <span class="o">[]</span>
+    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
+            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
+            instance_info <span class="o">=</span> <span class="o">{</span>
+                <span class="s1">'InstanceId'</span>: instance_id,
+                <span class="s1">'DefaultName'</span>: default_name,
+                <span class="k">**</span>tags
+            <span class="o">}</span>
+            <span class="c"># Ensure mandatory tags are included with empty values if not present</span>
+            <span class="k">for </span>mandatory_tag <span class="k">in </span>MANDATORY_TAGS:
+                <span class="k">if </span>mandatory_tag not <span class="k">in </span>instance_info:
+                    instance_info[mandatory_tag] <span class="o">=</span> <span class="s1">''</span>
+            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
+    <span class="k">return </span>instances
 
-<span class="c"># Write into CSV for each profile</span>
-def export_to_csv<span class="o">(</span>instances, profile_name, <span class="nv">filename_prefix</span><span class="o">=</span><span class="s1">'ec2_instances'</span><span class="o">)</span>:
-    filename <span class="o">=</span> f<span class="s2">"{filename_prefix}_{profile_name}.csv"</span>
-    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + MANDATORY_TAGS
-    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
-        writer.writeheader<span class="o">()</span>
-        <span class="k">for </span>instance <span class="k">in </span>instances:
-            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
+def export_to_csv<span class="o">(</span>instances, profile_name<span class="o">)</span>:
+    filename <span class="o">=</span> f<span class="s2">"ec2_instances_{profile_name}.csv"</span>
+    <span class="c"># Collect all possible tag keys</span>
+    all_tags <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
+    <span class="k">for </span>instance <span class="k">in </span>instances:
+        all_tags.update<span class="o">(</span>instance.keys<span class="o">())</span>
+    
+    <span class="c"># Ensure mandatory tags are included in the header</span>
+    all_tags.update<span class="o">(</span>MANDATORY_TAGS<span class="o">)</span>
+    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + sorted<span class="o">(</span>all_tags - <span class="o">{</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">})</span>
+    
+    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
+        writer.writeheader<span class="o">()</span>
+        <span class="k">for </span>instance <span class="k">in </span>instances:
+            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
 
-<span class="c"># Update each csv for each profile, then apply tags accordingly</span>
-def update_tags_from_csv<span class="o">(</span>profile_name, <span class="nv">filename_prefix</span><span class="o">=</span><span class="s1">'ec2_instances_updated'</span><span class="o">)</span>:
-    filename <span class="o">=</span> f<span class="s2">"{filename_prefix}_{profile_name}.csv"</span>
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
-    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
-        <span class="k">for </span>row <span class="k">in </span>reader:
-            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
-            <span class="k">if </span>tags:
-                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
-
-<span class="c"># print status</span>
 def process_all_profiles<span class="o">()</span>:
-    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
-        try:
-            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
-            instances <span class="o">=</span> list_ec2_instances<span class="o">(</span>profile<span class="o">)</span>
-            export_to_csv<span class="o">(</span>instances, profile<span class="o">)</span>
-            print<span class="o">(</span>f<span class="s2">"CSV export complete for profile {profile}. Please update the mandatory tags and save the file as '{profile}_ec2_instances_updated.csv'."</span><span class="o">)</span>
-            input<span class="o">(</span>f<span class="s2">"Press Enter after updating the CSV file for profile {profile}..."</span><span class="o">)</span>
-            update_tags_from_csv<span class="o">(</span>profile<span class="o">)</span>
-            print<span class="o">(</span>f<span class="s2">"Tags updated successfully for profile {profile}."</span><span class="o">)</span>
-        except ProfileNotFound:
-            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
+    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
+        try:
+            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
+            instances <span class="o">=</span> list_ec2_instances<span class="o">(</span>profile<span class="o">)</span>
+            export_to_csv<span class="o">(</span>instances, profile<span class="o">)</span>
+            print<span class="o">(</span>f<span class="s2">"CSV export complete for profile {profile}. Please update the mandatory tags in 'ec2_instances_{profile}.csv'."</span><span class="o">)</span>
+        except ProfileNotFound:
+            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
 
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    process_all_profiles<span class="o">()</span></code></pre></figure>
+    process_all_profiles<span class="o">()</span></code></pre></figure>
+
+<ul>
+  <li>export 2 csv files for each aws account based on given profile, update mandatory tags in the 2 csv files, then upload and rename as <em>updated</em></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># export 2 csv files</span>
+root@ubt-server:~/pythonwork/mutiple-aws# python3 export2.py 
+Processing profile: aws_account_zackblog
+CSV <span class="nb">export complete </span><span class="k">for </span>profile aws_account_zackblog. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances_aws_account_zackblog.csv'</span><span class="nb">.</span>
+Processing profile: aws_account_joesite
+CSV <span class="nb">export complete </span><span class="k">for </span>profile aws_account_joesite. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances_aws_account_joesite.csv'</span><span class="nb">.</span>
+
+<span class="c"># update all mandatory tags in the files</span>
+root@ubt-server:~/pythonwork/mutiple-aws# <span class="nb">cat </span>ec2_instances_updated_aws_account_zackblog.csv 
+
+InstanceId,DefaultName,BizOwner,Env,Name,Project,Technology,Tuned,zz1,zz2
+i-076226daa5aaf7cf2,zack-blog,Zack,Prod,zack-blog,zack-web,Jekyll,,aa1,aa2
+i-0b5c0fec84073a6d9,Py_test_zackweb,Zack,Testing,Py_test_zackweb,python-test,None,Yes,,
+
+root@ubt-server:~/pythonwork/mutiple-aws# <span class="nb">cat </span>ec2_instances_updated_aws_account_joesite.csv 
+
+InstanceId,DefaultName,BizOwner,Env,Location,Name,Project,Technology,TimeLaunched
+i-012fb886802435ff2,joe-account-py-test,Joe,Prod,SYD,joe-account-py-test,joesite,Ruby-Jekyll,
+i-052b0511339457efc,joe-site,Joe,Testing,,joe-site,Python-test,None,20240301</code></pre></figure>
+
+<ul>
+  <li>now create python script “update_tags_2.p” to apply new tags for 2 aws accounts by given profile</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/mutiple-aws# vim update_tags_2.py
+<span class="c"># Import libiaries</span>
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound
+
+<span class="c"># Define the mandatory tags</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
+
+<span class="c"># List of AWS account profiles</span>
+AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
+
+def update_tags_from_csv<span class="o">(</span>profile_name<span class="o">)</span>:
+    filename <span class="o">=</span> f<span class="s2">"ec2_instances_updated_{profile_name}.csv"</span>
+    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
+    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
+        <span class="k">for </span>row <span class="k">in </span>reader:
+            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
+            <span class="k">if </span>tags:
+                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
+
+def process_all_profiles<span class="o">()</span>:
+    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
+        try:
+            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
+            update_tags_from_csv<span class="o">(</span>profile<span class="o">)</span>
+            print<span class="o">(</span>f<span class="s2">"Tags updated successfully from 'ec2_instances_updated_{profile}.csv' for profile {profile}."</span><span class="o">)</span>
+        except ProfileNotFound:
+            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
+        except FileNotFoundError:
+            print<span class="o">(</span>f<span class="s2">"Updated CSV file for profile {profile} not found. Skipping."</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    process_all_profiles<span class="o">()</span>
+
+<span class="c"># run to apply tags</span>
+root@ubt-server:~/pythonwork/mutiple-aws# python3 update_tags_2.py 
+Processing profile: aws_account_zackblog
+Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_account_zackblog.csv'</span> <span class="k">for </span>profile aws_account_zackblog.
+
+Processing profile: aws_account_joesite
+Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_account_joesite.csv'</span> <span class="k">for </span>profile aws_account_joesite.</code></pre></figure>
+
+<ul>
+  <li>now double check the tags for both accounts</li>
+</ul>
+
+<p><img src="/assets/py2-3.png" alt="image tooltip here" />
+<img src="/assets/py2-4.png" alt="image tooltip here" /></p>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we can use Python Boto3 and file handling to achieve mutiple-aws account EC2 tagging. With Python “CSV” library, functions like “csv.DictReader”, “with open” and “csv.DictWriter” to open, update and export CSV file, Python also supports handling data in JSON format with dictionary.</p>
+<p>Now we can use Python Boto3 and file handling to achieve mutiple-aws account EC2 tagging. With Python “csv” library, functions like “csv.DictReader”, “with open” and “csv.DictWriter” to open, update and export CSV file, Python also supports handling data in JSON format with dictionary.</p>
 
 <p>In the next post I will see how to use Python Flask to redesign Zack’s blog for Web application development.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Python File Handling]]></summary></entry><entry><title type="html">Python: Boto3 for AWS</title><link href="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" rel="alternate" type="text/html" title="Python: Boto3 for AWS" /><published>2024-05-16T10:15:29+10:00</published><updated>2024-05-16T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/16/py1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"><![CDATA[<p><b> About Boto3 </b></p>
 
