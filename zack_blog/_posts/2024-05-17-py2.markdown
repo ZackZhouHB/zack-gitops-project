@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python: File Handling"
+title:  "Python: File Handling for EC2 tagging"
 date:   2024-05-17 11:15:29 +1100
 categories: jekyll Cat2
 ---
