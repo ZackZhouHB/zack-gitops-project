@@ -358,6 +358,125 @@ Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_accou
 
 <p>In the next post I will see how to use Python Flask to redesign Zack’s blog for Web application development.</p>
 
+<h1>====================</h1>
+
+<p><b> Just got another task to create more users in all account with python boto3</b></p>
+
+<ul>
+  <li>a csv file with list of users will be created, aws profile configured for all aws accounts</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# <span class="nb">cat </span>all_users.csv 
+Username
+ZackZ
+BobJ
+MattS</code></pre></figure>
+
+<ul>
+  <li>a python script with bellow IAM user creation</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# vim more_user_from_csv.py
+
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound, ClientError
+
+<span class="c"># List of AWS account profiles</span>
+AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
+
+<span class="c"># IAM User details</span>
+PASSWORD <span class="o">=</span> <span class="s2">"xxxxxxxx"</span>
+POLICY_ARN <span class="o">=</span> <span class="s2">"arn:aws:iam::aws:policy/AdministratorAccess"</span>
+CSV_FILE <span class="o">=</span> <span class="s2">"all_users.csv"</span>
+
+def read_users_from_csv<span class="o">(</span>filename<span class="o">)</span>:
+    <span class="nb">users</span> <span class="o">=</span> <span class="o">[]</span>
+    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
+        <span class="k">for </span>row <span class="k">in </span>reader:
+            users.append<span class="o">(</span>row[<span class="s1">'Username'</span><span class="o">])</span>
+    <span class="k">return </span><span class="nb">users
+
+</span>def create_iam_user<span class="o">(</span>profile_name, user_name<span class="o">)</span>:
+    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
+    iam <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'iam'</span><span class="o">)</span>
+    
+    try:
+        <span class="c"># Create IAM user</span>
+        iam.create_user<span class="o">(</span><span class="nv">UserName</span><span class="o">=</span>user_name<span class="o">)</span>
+        print<span class="o">(</span>f<span class="s2">"User {user_name} created in profile {profile_name}."</span><span class="o">)</span>
+
+        <span class="c"># Create login profile for console access</span>
+        iam.create_login_profile<span class="o">(</span>
+            <span class="nv">UserName</span><span class="o">=</span>user_name,
+            <span class="nv">Password</span><span class="o">=</span>PASSWORD,
+            <span class="nv">PasswordResetRequired</span><span class="o">=</span>False
+        <span class="o">)</span>
+        print<span class="o">(</span>f<span class="s2">"Login profile created for user {user_name} in profile {profile_name}."</span><span class="o">)</span>
+
+        <span class="c"># Attach AdministratorAccess policy</span>
+        iam.attach_user_policy<span class="o">(</span>
+            <span class="nv">UserName</span><span class="o">=</span>user_name,
+            <span class="nv">PolicyArn</span><span class="o">=</span>POLICY_ARN
+        <span class="o">)</span>
+        print<span class="o">(</span>f<span class="s2">"AdministratorAccess policy attached to user {user_name} in profile {profile_name}."</span><span class="o">)</span>
+
+    except ClientError as e:
+        <span class="k">if </span>e.response[<span class="s1">'Error'</span><span class="o">][</span><span class="s1">'Code'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'EntityAlreadyExists'</span>:
+            print<span class="o">(</span>f<span class="s2">"User {user_name} already exists in profile {profile_name}."</span><span class="o">)</span>
+        <span class="k">else</span>:
+            print<span class="o">(</span>f<span class="s2">"Error creating user {user_name} in profile {profile_name}: {e}"</span><span class="o">)</span>
+
+def process_all_profiles<span class="o">(</span><span class="nb">users</span><span class="o">)</span>:
+    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
+        try:
+            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
+            <span class="k">for </span>user <span class="k">in </span><span class="nb">users</span>:
+                create_iam_user<span class="o">(</span>profile, user<span class="o">)</span>
+        except ProfileNotFound:
+            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    <span class="nb">users</span> <span class="o">=</span> read_users_from_csv<span class="o">(</span>CSV_FILE<span class="o">)</span>
+    process_all_profiles<span class="o">(</span><span class="nb">users</span><span class="o">)</span></code></pre></figure>
+
+<ul>
+  <li>Go to create all users</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# python3 more_user_from_csv.py 
+
+Processing profile: aws_account_zackblog
+
+User ZackZ created <span class="k">in </span>profile aws_account_zackblog.
+Login profile created <span class="k">for </span>user ZackZ <span class="k">in </span>profile aws_account_zackblog.
+AdministratorAccess policy attached to user ZackZ <span class="k">in </span>profile aws_account_zackblog.
+
+User BobJ created <span class="k">in </span>profile aws_account_zackblog.
+Login profile created <span class="k">for </span>user BobJ <span class="k">in </span>profile aws_account_zackblog.
+AdministratorAccess policy attached to user BobJ <span class="k">in </span>profile aws_account_zackblog.
+
+User MattS created <span class="k">in </span>profile aws_account_zackblog.
+Login profile created <span class="k">for </span>user MattS <span class="k">in </span>profile aws_account_zackblog.
+AdministratorAccess policy attached to user MattS <span class="k">in </span>profile aws_account_zackblog.
+
+Processing profile: aws_account_joesite
+
+User ZackZ created <span class="k">in </span>profile aws_account_joesite.
+Login profile created <span class="k">for </span>user ZackZ <span class="k">in </span>profile aws_account_joesite.
+AdministratorAccess policy attached to user ZackZ <span class="k">in </span>profile aws_account_joesite.
+
+User BobJ created <span class="k">in </span>profile aws_account_joesite.
+Login profile created <span class="k">for </span>user BobJ <span class="k">in </span>profile aws_account_joesite.
+AdministratorAccess policy attached to user BobJ <span class="k">in </span>profile aws_account_joesite.
+
+User MattS created <span class="k">in </span>profile aws_account_joesite.
+Login profile created <span class="k">for </span>user MattS <span class="k">in </span>profile aws_account_joesite.
+AdministratorAccess policy attached to user MattS <span class="k">in </span>profile aws_account_joesite.</code></pre></figure>
+
+<p><img src="/assets/py2-5.png" alt="image tooltip here" /></p>
+
   </div><a class="u-url" href="/jekyll/cat2/2024/05/17/py2.html" hidden></a>
 </article>
 

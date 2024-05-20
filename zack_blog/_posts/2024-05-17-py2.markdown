@@ -313,3 +313,124 @@ Tags updated successfully from 'ec2_instances_updated_aws_account_joesite.csv' f
 Now we can use Python Boto3 and file handling to achieve mutiple-aws account EC2 tagging. With Python "csv" library, functions like "csv.DictReader", "with open" and "csv.DictWriter" to open, update and export CSV file, Python also supports handling data in JSON format with dictionary. 
 
 In the next post I will see how to use Python Flask to redesign Zack's blog for Web application development.
+
+====================
+====================
+
+
+<b> Just got another task to create more users in all account with python boto3</b>
+
+- a csv file with list of users will be created, aws profile configured for all aws accounts
+
+{% highlight shell %}
+root@ubt-server:~/pythonwork/user_creation# cat all_users.csv 
+Username
+ZackZ
+BobJ
+MattS
+{% endhighlight %}
+
+- a python script with bellow IAM user creation
+{% highlight shell %}
+root@ubt-server:~/pythonwork/user_creation# vim more_user_from_csv.py
+
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound, ClientError
+
+# List of AWS account profiles
+AWS_PROFILES = ["aws_account_zackblog", "aws_account_joesite"]  # Add more profiles as needed
+
+# IAM User details
+PASSWORD = "xxxxxxxx"
+POLICY_ARN = "arn:aws:iam::aws:policy/AdministratorAccess"
+CSV_FILE = "all_users.csv"
+
+def read_users_from_csv(filename):
+    users = []
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            users.append(row['Username'])
+    return users
+
+def create_iam_user(profile_name, user_name):
+    session = boto3.Session(profile_name=profile_name)
+    iam = session.client('iam')
+    
+    try:
+        # Create IAM user
+        iam.create_user(UserName=user_name)
+        print(f"User {user_name} created in profile {profile_name}.")
+
+        # Create login profile for console access
+        iam.create_login_profile(
+            UserName=user_name,
+            Password=PASSWORD,
+            PasswordResetRequired=False
+        )
+        print(f"Login profile created for user {user_name} in profile {profile_name}.")
+
+        # Attach AdministratorAccess policy
+        iam.attach_user_policy(
+            UserName=user_name,
+            PolicyArn=POLICY_ARN
+        )
+        print(f"AdministratorAccess policy attached to user {user_name} in profile {profile_name}.")
+
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'EntityAlreadyExists':
+            print(f"User {user_name} already exists in profile {profile_name}.")
+        else:
+            print(f"Error creating user {user_name} in profile {profile_name}: {e}")
+
+def process_all_profiles(users):
+    for profile in AWS_PROFILES:
+        try:
+            print(f"Processing profile: {profile}")
+            for user in users:
+                create_iam_user(profile, user)
+        except ProfileNotFound:
+            print(f"Profile {profile} not found. Skipping.")
+
+if __name__ == '__main__':
+    users = read_users_from_csv(CSV_FILE)
+    process_all_profiles(users)
+{% endhighlight %}
+
+- Go to create all users
+
+{% highlight shell %}
+
+root@ubt-server:~/pythonwork/user_creation# python3 more_user_from_csv.py 
+
+Processing profile: aws_account_zackblog
+
+User ZackZ created in profile aws_account_zackblog.
+Login profile created for user ZackZ in profile aws_account_zackblog.
+AdministratorAccess policy attached to user ZackZ in profile aws_account_zackblog.
+
+User BobJ created in profile aws_account_zackblog.
+Login profile created for user BobJ in profile aws_account_zackblog.
+AdministratorAccess policy attached to user BobJ in profile aws_account_zackblog.
+
+User MattS created in profile aws_account_zackblog.
+Login profile created for user MattS in profile aws_account_zackblog.
+AdministratorAccess policy attached to user MattS in profile aws_account_zackblog.
+
+Processing profile: aws_account_joesite
+
+User ZackZ created in profile aws_account_joesite.
+Login profile created for user ZackZ in profile aws_account_joesite.
+AdministratorAccess policy attached to user ZackZ in profile aws_account_joesite.
+
+User BobJ created in profile aws_account_joesite.
+Login profile created for user BobJ in profile aws_account_joesite.
+AdministratorAccess policy attached to user BobJ in profile aws_account_joesite.
+
+User MattS created in profile aws_account_joesite.
+Login profile created for user MattS in profile aws_account_joesite.
+AdministratorAccess policy attached to user MattS in profile aws_account_joesite.
+{% endhighlight %}
+
+![image tooltip here](/assets/py2-5.png)
