@@ -7,9 +7,9 @@ categories: jekyll Cat2
 
 <b> Challange About AWS SSO User Assignment</b>
 
-In the company, we use AWS SSO for user management; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.
+In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center by AWS IAM Identity Center  and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.
 
-So far, I have tried using shell script and Python script to read the user name, AWS account ID, and permission sets ARN from a CSV file, then complete the task with AWScli. However it is not smart enough when the request or scenario changes. I have to adjust the script everytime.
+So far, I have tried shell script and Python script to read the user name, AWS account ID, and permission sets ARN from a CSV file, then complete the task with AWScli. However it is not smart enough when the request or scenario changes. I have to adjust the script everytime.
 
 <b> Terraform Modularity </b>
 
