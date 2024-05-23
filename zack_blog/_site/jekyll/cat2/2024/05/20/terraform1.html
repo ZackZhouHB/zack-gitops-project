@@ -142,18 +142,21 @@ sso_instance_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::instan
 assignments <span class="o">=</span> <span class="o">{</span>
  <span class="s2">"2024-05-21-assginment"</span> <span class="o">=</span> <span class="o">[</span>
   <span class="o">{</span>
-   target_id   <span class="o">=</span> <span class="s2">"user-david-development-team"</span>
+   target_id   <span class="o">=</span> <span class="s2">"570xxxxxx88"</span>  <span class="c"># AWS account ID</span>
+   principal_id <span class="o">=</span> <span class="s2">"zack.z@xxx.com"</span> <span class="c"># SSO user name </span>
    permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"</span>
   <span class="o">}</span>,
   <span class="o">{</span>
-   target_id   <span class="o">=</span> <span class="s2">"user-john-security-team"</span>
+   target_id   <span class="o">=</span> <span class="s2">"679xxxxxx01"</span>  <span class="c"># AWS account ID</span>
+   principal_id <span class="o">=</span> <span class="s2">"John.Alax@xxx.com"</span> <span class="c"># SSO user name </span>
    permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"</span>
   <span class="o">}</span>
  ],
  <span class="s2">"2024-05-23-assginment"</span> <span class="o">=</span> <span class="o">[</span>
   <span class="o">{</span>
-   target_id   <span class="o">=</span> <span class="s2">"user-harry-servicedesk-team"</span>
-   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"</span>
+   target_id   <span class="o">=</span> <span class="s2">"809xxxxxx00"</span>  <span class="c"># AWS account ID</span>
+   principal_id <span class="o">=</span> <span class="s2">"harry.chen@xxx.com"</span> <span class="c"># SSO user name </span>
+   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"</span> <span class="c"># Permission sets ARN</span>
   <span class="o">}</span>
  ]
 <span class="o">}</span></code></pre></figure>

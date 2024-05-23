@@ -98,18 +98,21 @@ sso_instance_arn = "arn:aws:sso:::instance/ssoins-a2oxxxxxxxxxxxc3"
 assignments = {
  "2024-05-21-assginment" = [
   {
-   target_id   = "user-david-development-team"
+   target_id   = "570xxxxxx88"  # AWS account ID
+   principal_id = "zack.z@xxx.com" # SSO user name 
    permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"
   },
   {
-   target_id   = "user-john-security-team"
+   target_id   = "679xxxxxx01"  # AWS account ID
+   principal_id = "John.Alax@xxx.com" # SSO user name 
    permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"
   }
  ],
  "2024-05-23-assginment" = [
   {
-   target_id   = "user-harry-servicedesk-team"
-   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"
+   target_id   = "809xxxxxx00"  # AWS account ID
+   principal_id = "harry.chen@xxx.com" # SSO user name 
+   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835" # Permission sets ARN
   }
  ]
 }
