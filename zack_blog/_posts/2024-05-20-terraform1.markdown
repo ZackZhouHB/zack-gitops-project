@@ -1,0 +1,125 @@
+---
+layout: post
+title:  "Terraform Module for AWS SSO User Assignment"
+date:   2024-05-20 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b> Challange About AWS SSO User Assignment</b>
+
+In the company, we use AWS SSO for user management; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.
+
+So far, I have tried using shell script and Python script to read the user name, AWS account ID, and permission sets ARN from a CSV file, then complete the task with AWScli. However it is not smart enough when the request or scenario changes. I have to adjust the script everytime.
+
+<b> Terraform Modularity </b>
+
+Luckily, I found a solution to use Terraform module. There are many benefits to infrastructure as code with modularity. It can reduce code duplication, easy update, and have a clear code structure, which fits my AWS SSO user assignment task and challenge perfectly.
+
+To achieve this, I will need:
+
+- A "main.tf" file to define the module; this allow the terraform code to be reusable and to handle SSO account assignments and manage each user scenario configuration easily
+{% highlight shell %}
+# modules/sso_account_assignment/main.tf
+
+variable "sso_instance_arn" {
+ description = "The ARN of the AWS SSO instance"
+ type    = string
+}
+
+variable "account_id" {
+ description = "The AWS account ID"
+ type    = string
+}
+
+variable "users" {
+ description = "List of users with their principal IDs and permission set ARNs"
+ type    = list(object({
+  principal_id   = string
+  permission_set_arn = string
+ }))
+}
+
+resource "aws_ssoadmin_account_assignment" "assignments" {
+ for_each = { for idx, user in var.users : idx => user }
+
+ instance_arn   = var.sso_instance_arn
+ target_id     = var.account_id
+ principal_id   = each.value.principal_id
+ principal_type  = "USER"
+ permission_set_arn = each.value.permission_set_arn
+}
+{% endhighlight %}
+
+- A "main.tf" to create configuration to utilize the module, in here we will define the provider, and a few variables like "sso_instance_arn", "sso_user_assignments" and "region", also use "for_each" function to process each assignment. Then use "principal_id" and "permission_set_arn" to map user from the var list.
+
+{% highlight shell %}
+# main.tf
+
+provider "aws" {
+ region = var.region
+}
+
+variable "sso_instance_arn" {
+ description = "The ARN of the AWS SSO instance"
+ type    = string
+}
+
+variable "assignments" {
+ description = "Map of account IDs to users and their permission sets"
+ type    = map(list(object({
+  principal_id   = string
+  permission_set_arn = string
+ })))
+}
+
+variable "region" {
+ description = "AWS region"
+ type    = string
+ default  = "ap-southeast-2"
+}
+
+module "sso_account_assignments" {
+ source = "./modules/sso_account_assignment"
+
+ for_each    = var.assignments
+ sso_instance_arn = var.sso_instance_arn
+ account_id   = each.key
+ users     = each.value
+}
+{% endhighlight %}
+
+- A "terraform.tfvars" file to define and manage assignments using variables, here to define each unique assignment per request with each "principal_id" and "permission_set_arn" to achieve dynamically assigning users to different accounts with various permission sets.
+
+{% highlight shell %}
+# terraform.tfvars
+
+sso_instance_arn = "arn:aws:sso:::instance/ssoins-a2oxxxxxxxxxxxc3"
+
+assignments = {
+ "2024-05-21-assginment" = [
+  {
+   principal_id   = "user-david-development-team"
+   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"
+  },
+  {
+   principal_id   = "user-john-security-team"
+   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"
+  }
+ ],
+ "2024-05-23-assginment" = [
+  {
+   principal_id   = "user-harry-servicedesk-team"
+   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"
+  }
+ ]
+}
+{% endhighlight %}
+
+<b> Conclusion</b>
+
+Now, we have a Terraform module to handle the creation of AWS SSO users more efficiently, dynamically, and reusable. In future we only define permission sets and maintain new users and assignment in the environment variables .tf file, then run terrafom apply to get the job done. The change also can be tracked when leveraging with Git as version control. 
+
+
+
+
+

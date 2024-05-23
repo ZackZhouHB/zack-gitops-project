@@ -1,4 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-20T15:13:57+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Python: File Handling for EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling for EC2 tagging" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-23T20:50:05+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Terraform Module for AWS SSO User Assignment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html" rel="alternate" type="text/html" title="Terraform Module for AWS SSO User Assignment" /><published>2024-05-20T10:15:29+10:00</published><updated>2024-05-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
+
+<p>In the company, we use AWS SSO for user management; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.</p>
+
+<p>So far, I have tried using shell script and Python script to read the user name, AWS account ID, and permission sets ARN from a CSV file, then complete the task with AWScli. However it is not smart enough when the request or scenario changes. I have to adjust the script everytime.</p>
+
+<p><b> Terraform Modularity </b></p>
+
+<p>Luckily, I found a solution to use Terraform module. There are many benefits to infrastructure as code with modularity. It can reduce code duplication, easy update, and have a clear code structure, which fits my AWS SSO user assignment task and challenge perfectly.</p>
+
+<p>To achieve this, I will need:</p>
+
+<ul>
+  <li>A “main.tf” file to define the module; this allow the terraform code to be reusable and to handle SSO account assignments and manage each user scenario configuration easily</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># modules/sso_account_assignment/main.tf</span>
+
+variable <span class="s2">"sso_instance_arn"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"The ARN of the AWS SSO instance"</span>
+ type    <span class="o">=</span> string
+<span class="o">}</span>
+
+variable <span class="s2">"account_id"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"The AWS account ID"</span>
+ type    <span class="o">=</span> string
+<span class="o">}</span>
+
+variable <span class="s2">"users"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"List of users with their principal IDs and permission set ARNs"</span>
+ type    <span class="o">=</span> list<span class="o">(</span>object<span class="o">({</span>
+  principal_id   <span class="o">=</span> string
+  permission_set_arn <span class="o">=</span> string
+ <span class="o">}))</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_ssoadmin_account_assignment"</span> <span class="s2">"assignments"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> <span class="o">{</span> <span class="k">for </span>idx, user <span class="k">in </span>var.users : idx <span class="o">=&gt;</span> user <span class="o">}</span>
+
+ instance_arn   <span class="o">=</span> var.sso_instance_arn
+ target_id     <span class="o">=</span> var.account_id
+ principal_id   <span class="o">=</span> each.value.principal_id
+ principal_type  <span class="o">=</span> <span class="s2">"USER"</span>
+ permission_set_arn <span class="o">=</span> each.value.permission_set_arn
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>A “main.tf” to create configuration to utilize the module, in here we will define the provider, and a few variables like “sso_instance_arn”, “sso_user_assignments” and “region”, also use “for_each” function to process each assignment. Then use “principal_id” and “permission_set_arn” to map user from the var list.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
+
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+ region <span class="o">=</span> var.region
+<span class="o">}</span>
+
+variable <span class="s2">"sso_instance_arn"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"The ARN of the AWS SSO instance"</span>
+ type    <span class="o">=</span> string
+<span class="o">}</span>
+
+variable <span class="s2">"assignments"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"Map of account IDs to users and their permission sets"</span>
+ type    <span class="o">=</span> map<span class="o">(</span>list<span class="o">(</span>object<span class="o">({</span>
+  principal_id   <span class="o">=</span> string
+  permission_set_arn <span class="o">=</span> string
+ <span class="o">})))</span>
+<span class="o">}</span>
+
+variable <span class="s2">"region"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"AWS region"</span>
+ type    <span class="o">=</span> string
+ default  <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+module <span class="s2">"sso_account_assignments"</span> <span class="o">{</span>
+ source <span class="o">=</span> <span class="s2">"./modules/sso_account_assignment"</span>
+
+ for_each    <span class="o">=</span> var.assignments
+ sso_instance_arn <span class="o">=</span> var.sso_instance_arn
+ account_id   <span class="o">=</span> each.key
+ users     <span class="o">=</span> each.value
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>A “terraform.tfvars” file to define and manage assignments using variables, here to define each unique assignment per request with each “principal_id” and “permission_set_arn” to achieve dynamically assigning users to different accounts with various permission sets.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># terraform.tfvars</span>
+
+sso_instance_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::instance/ssoins-a2oxxxxxxxxxxxc3"</span>
+
+assignments <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"2024-05-21-assginment"</span> <span class="o">=</span> <span class="o">[</span>
+  <span class="o">{</span>
+   principal_id   <span class="o">=</span> <span class="s2">"user-david-development-team"</span>
+   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+   principal_id   <span class="o">=</span> <span class="s2">"user-john-security-team"</span>
+   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"</span>
+  <span class="o">}</span>
+ ],
+ <span class="s2">"2024-05-23-assginment"</span> <span class="o">=</span> <span class="o">[</span>
+  <span class="o">{</span>
+   principal_id   <span class="o">=</span> <span class="s2">"user-harry-servicedesk-team"</span>
+   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"</span>
+  <span class="o">}</span>
+ ]
+<span class="o">}</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now, we have a Terraform module to handle the creation of AWS SSO users more efficiently, dynamically, and reusable. In future we only define permission sets and maintain new users and assignment in the environment variables .tf file, then run terrafom apply to get the job done. The change also can be tracked when leveraging with Git as version control.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Challange About AWS SSO User Assignment]]></summary></entry><entry><title type="html">Python: File Handling for EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling for EC2 tagging" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
 
 <p>In the previous post I developed shell script + awscli to apply <a href="https://zackz.online/jekyll/cat2/2024/05/01/AWS-tagging.html">aws EC2 tages</a>, since the last post we discovered <a href="https://zackz.online/jekyll/cat2/2024/05/16/py1.html">Python Boto3</a> scripts for AWS resource automation and management, I think it is time to improve the EC2 tagging task with Python and boto3, together with file handling to achieve:</p>
 
@@ -2158,190 +2271,4 @@ ubuntu@ip-172-31-26-78:~/cdk/# cdk deploy</code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[How about this zackblog go serverless ?]]></summary></entry><entry><title type="html">Ubuntu 18.04 to 22.04 in-place upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html" rel="alternate" type="text/html" title="Ubuntu 18.04 to 22.04 in-place upgrade" /><published>2024-04-28T10:15:29+10:00</published><updated>2024-04-28T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/28/ubt-upg.html"><![CDATA[<p><b> Ubuntu releases EOL roadmap </b></p>
-
-<p>Every single Ubuntu LTS comes with 5 years of standard support. During those five years, bug fixes and security patches will be provided. Ubuntu 18.04 ‘Bionic Beaver’ is reaching End of Standard Support this May. so today we are going to run in-place upgrade for ubuntu 18.04 LTS to 22.04 LTS.</p>
-
-<p><img src="/assets/ubt-upg1.png" alt="image tooltip here" /></p>
-
-<p><b> Pre-upgrade checklist </b></p>
-
-<ul>
-  <li>validate current OS version and running service (nginx)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># current OS version</span>
-root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
-<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"18.04.6 LTS (Bionic Beaver)"</span>
-<span class="nv">ID</span><span class="o">=</span>ubuntu
-<span class="nv">ID_LIKE</span><span class="o">=</span>debian
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 18.04.6 LTS"</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"18.04"</span>
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
-<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
-<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
-<span class="nv">VERSION_CODENAME</span><span class="o">=</span>bionic
-<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>bionic
-
-<span class="c"># nginx service status</span>
-
-root@ubuntu-test:~# root@ubuntu-test:~# <span class="nb">echo</span> <span class="s2">"ubuntu-inplace-upgrade zack-testing-nginx-service!!"</span>  <span class="o">&gt;&gt;</span> /var/www/html/index.html
-root@ubuntu-test:~# systemctl restart nginx
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade zack-testing-nginx-service!!</code></pre></figure>
-
-<ul>
-  <li>Fully update the system</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># update system</span>
-root@ubuntu-test:~# <span class="nb">sudo </span>apt update
-Hit:1 http://au.archive.ubuntu.com/ubuntu bionic InRelease
-Hit:2 http://au.archive.ubuntu.com/ubuntu bionic-updates InRelease
-Hit:3 http://au.archive.ubuntu.com/ubuntu bionic-backports InRelease
-Hit:4 http://au.archive.ubuntu.com/ubuntu bionic-security InRelease
-Reading package lists... Done                      
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade <span class="nt">-y</span>
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-
-<span class="c"># reboot system before upgrade</span>
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-Checking <span class="k">for </span>a new Ubuntu release
-You have not rebooted after updating a package which requires a reboot. Please reboot before upgrading.
-root@ubuntu-test:~# reboot
-Connection closing...Socket close.</code></pre></figure>
-
-<ul>
-  <li>take full system backup</li>
-</ul>
-
-<p>here I took a VM snapshot before upgrade</p>
-
-<p><b> 18.04 to 22.04 upgrade</b></p>
-
-<p>There is no direct upgrade path from 18.04 LTS to Ubuntu 22.04 LTS, so we go Ubuntu 20.04 LTS first and then to Ubuntu 22.04 LTS.</p>
-
-<ul>
-  <li>first upgrade to 20.04</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># run upgrade</span>
-
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-
-This session appears to be running under ssh. It is not recommended 
-to perform a upgrade over ssh currently because <span class="k">in case</span> of failure it 
-is harder to recover. 
-
-If you <span class="k">continue</span>, an additional ssh daemon will be started at port 
-<span class="s1">'1022'</span><span class="nb">.</span> 
-Do you want to <span class="k">continue</span>? 
-
-Continue <span class="o">[</span>yN] y
-
-Starting additional sshd 
-
-Calculating the changes
-  MarkInstall libfwupdplugin1:amd64 &lt; none -&gt; 1.5.11-0ubuntu1~20.04.2 @un uN Ib <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>1
-  Installing libxmlb1 as Depends of libfwupdplugin1
-    MarkInstall libxmlb1:amd64 &lt; none -&gt; 0.1.15-2ubuntu1~20.04.1 @un uN <span class="o">&gt;</span> <span class="nv">FU</span><span class="o">=</span>0
-
-Do you want to start the upgrade? 
-
-Continue <span class="o">[</span>yN]  Details <span class="o">[</span>d]y</code></pre></figure>
-
-<ul>
-  <li>allow service restart during upgrade</li>
-</ul>
-
-<p><img src="/assets/ubt-upg2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>reboot after upgrade</li>
-</ul>
-
-<p>The installation and removing of packages may take some time, then reboot is required after ungrade completion</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Purging configuration files <span class="k">for </span>ebtables <span class="o">(</span>2.0.11-3build1<span class="o">)</span> ...
-Purging configuration files <span class="k">for </span>python3.6-minimal <span class="o">(</span>3.6.9-1~18.04ubuntu1.12<span class="o">)</span> ...
-Purging configuration files <span class="k">for </span>mlocate <span class="o">(</span>0.26-3ubuntu3<span class="o">)</span> ...
-Processing triggers <span class="k">for </span>dbus <span class="o">(</span>1.12.16-2ubuntu2.3<span class="o">)</span> ...
-Processing triggers <span class="k">for </span>systemd <span class="o">(</span>245.4-4ubuntu3.23<span class="o">)</span> ...
-
-System upgrade is complete.
-
-Restart required 
-
-To finish the upgrade, a restart is required. 
-If you <span class="k">select</span> <span class="s1">'y'</span> the system will be restarted. 
-
-Continue <span class="o">[</span>yN] y</code></pre></figure>
-
-<ul>
-  <li>validate OS and service</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate nginx service</span>
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-<span class="c"># validate OS version</span>
-root@ubuntu-test:~# <span class="nb">cat</span> /etc/os-release 
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
-<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"20.04.6 LTS (Focal Fossa)"</span>
-<span class="nv">ID</span><span class="o">=</span>ubuntu
-<span class="nv">ID_LIKE</span><span class="o">=</span>debian
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 20.04.6 LTS"</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"20.04"</span>
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
-<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
-<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
-<span class="nv">VERSION_CODENAME</span><span class="o">=</span>focal
-<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>focal</code></pre></figure>
-
-<ul>
-  <li>then upgrade to 22.04</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubuntu-test:~# <span class="nb">sudo </span>apt update
-Hit:1 http://au.archive.ubuntu.com/ubuntu focal InRelease
-Hit:2 http://au.archive.ubuntu.com/ubuntu focal-updates InRelease
-Hit:3 http://au.archive.ubuntu.com/ubuntu focal-backports InRelease
-Hit:4 http://au.archive.ubuntu.com/ubuntu focal-security InRelease
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-All packages are up to date.
-
-root@ubuntu-test:~# <span class="nb">sudo </span>apt upgrade
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-Calculating upgrade... Done
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-
-root@ubuntu-test:~# <span class="nb">sudo </span><span class="k">do</span><span class="nt">-release-upgrade</span>
-
-<span class="c"># validate after upgrade </span>
-root@ubuntu-test:~# curl localhost
-ubuntu-inplace-upgrade  zack-testing-nginx-service!!
-
-root@ubuntu-test:~# lsb_release <span class="nt">-a</span>
-No LSB modules are available.
-Distributor ID:	Ubuntu
-Description:	Ubuntu 22.04.4 LTS
-Release:	22.04
-Codename:	jammy</code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we complete the in-place ubuntu OS release upgrade from 18.04 to 22.04. The whole upgrade took about 1 hour to finish, with several comfirmation required during upgrade process. The service nginx was running after each upgrade.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Ubuntu releases EOL roadmap]]></summary></entry></feed>
+<p>Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[How about this zackblog go serverless ?]]></summary></entry></feed>
