@@ -76,7 +76,7 @@ variable <span class="s2">"account_id"</span> <span class="o">{</span>
 <span class="o">}</span>
 
 variable <span class="s2">"users"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"List of users with their principal IDs and permission set ARNs"</span>
+ description <span class="o">=</span> <span class="s2">"List of users with their target IDs and permission set ARNs"</span>
  type    <span class="o">=</span> list<span class="o">(</span>object<span class="o">({</span>
   principal_id   <span class="o">=</span> string
   permission_set_arn <span class="o">=</span> string
@@ -132,7 +132,7 @@ module <span class="s2">"sso_account_assignments"</span> <span class="o">{</span
 <span class="o">}</span></code></pre></figure>
 
 <ul>
-  <li>A “terraform.tfvars” file to define and manage assignments using variables, here to define each unique assignment per request with each “principal_id” and “permission_set_arn” to achieve dynamically assigning users to different accounts with various permission sets.</li>
+  <li>A “terraform.tfvars” file to define and manage assignments using variables, here to define each unique assignment per request with each “target_id” and “permission_set_arn” to achieve dynamically assigning users to different accounts with various permission sets.</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># terraform.tfvars</span>
@@ -142,17 +142,17 @@ sso_instance_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::instan
 assignments <span class="o">=</span> <span class="o">{</span>
  <span class="s2">"2024-05-21-assginment"</span> <span class="o">=</span> <span class="o">[</span>
   <span class="o">{</span>
-   principal_id   <span class="o">=</span> <span class="s2">"user-david-development-team"</span>
+   target_id   <span class="o">=</span> <span class="s2">"user-david-development-team"</span>
    permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"</span>
   <span class="o">}</span>,
   <span class="o">{</span>
-   principal_id   <span class="o">=</span> <span class="s2">"user-john-security-team"</span>
+   target_id   <span class="o">=</span> <span class="s2">"user-john-security-team"</span>
    permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"</span>
   <span class="o">}</span>
  ],
  <span class="s2">"2024-05-23-assginment"</span> <span class="o">=</span> <span class="o">[</span>
   <span class="o">{</span>
-   principal_id   <span class="o">=</span> <span class="s2">"user-harry-servicedesk-team"</span>
+   target_id   <span class="o">=</span> <span class="s2">"user-harry-servicedesk-team"</span>
    permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"</span>
   <span class="o">}</span>
  ]

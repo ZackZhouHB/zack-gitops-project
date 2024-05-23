@@ -32,7 +32,7 @@ variable "account_id" {
 }
 
 variable "users" {
- description = "List of users with their principal IDs and permission set ARNs"
+ description = "List of users with their target IDs and permission set ARNs"
  type    = list(object({
   principal_id   = string
   permission_set_arn = string
@@ -88,7 +88,7 @@ module "sso_account_assignments" {
 }
 {% endhighlight %}
 
-- A "terraform.tfvars" file to define and manage assignments using variables, here to define each unique assignment per request with each "principal_id" and "permission_set_arn" to achieve dynamically assigning users to different accounts with various permission sets.
+- A "terraform.tfvars" file to define and manage assignments using variables, here to define each unique assignment per request with each "target_id" and "permission_set_arn" to achieve dynamically assigning users to different accounts with various permission sets.
 
 {% highlight shell %}
 # terraform.tfvars
@@ -98,17 +98,17 @@ sso_instance_arn = "arn:aws:sso:::instance/ssoins-a2oxxxxxxxxxxxc3"
 assignments = {
  "2024-05-21-assginment" = [
   {
-   principal_id   = "user-david-development-team"
+   target_id   = "user-david-development-team"
    permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"
   },
   {
-   principal_id   = "user-john-security-team"
+   target_id   = "user-john-security-team"
    permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"
   }
  ],
  "2024-05-23-assginment" = [
   {
-   principal_id   = "user-harry-servicedesk-team"
+   target_id   = "user-harry-servicedesk-team"
    permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"
   }
  ]
