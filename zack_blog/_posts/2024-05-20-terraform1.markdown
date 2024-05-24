@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Terraform Module for AWS SSO User Assignment"
+title:  "Terraform Module for AWS SSO in Multi-Account Environments"
 date:   2024-05-20 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -123,6 +123,8 @@ assignments = {
 Now, we have a Terraform module to handle the creation of AWS SSO users more efficiently, dynamically, and reusable. In future we only define permission sets and maintain new users and assignment in the environment variables .tf file, then run terrafom apply to get the job done. The change also can be tracked when leveraging with Git as version control. 
 
 
+
+[Streamlining AWS SSO in Complex Multi-Account Environments](https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11)
 
 
 
