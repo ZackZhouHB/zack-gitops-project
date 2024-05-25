@@ -1,4 +1,205 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-24T16:00:42+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Terraform Module for AWS SSO in Multi-Account Environments</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html" rel="alternate" type="text/html" title="Terraform Module for AWS SSO in Multi-Account Environments" /><published>2024-05-20T10:15:29+10:00</published><updated>2024-05-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-25T19:44:33+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Istio: Distributed Tracing with Jaeger</title><link href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" rel="alternate" type="text/html" title="Istio: Distributed Tracing with Jaeger" /><published>2024-05-24T10:15:29+10:00</published><updated>2024-05-24T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/24/istio2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"><![CDATA[<p><b>About Jaeger</b></p>
+
+<p>Last post we are able to depoly <a href="https://zackz.online/jekyll/cat2/2024/05/22/istio.html">Istio</a> and manage traffic for a book review microservice application. This session we will dive deeper into Istia for it add-on Jaeger for Microservice tracing.</p>
+
+<p>Jaeger is an open-source end-to-end distributed tracing tool to monitor and troubleshoot the performance of microservices-based distributed systems by providing insights into the latency and other performance metrics.</p>
+
+<ul>
+  <li>Trace</li>
+</ul>
+
+<p>A trace represents the entire journey of a request or transaction as it propagates through various services and components of a distributed system. It captures the path the request takes, including all the microservices it interacts with, from start to finish. A trace is composed of multiple spans.</p>
+
+<ul>
+  <li>Span</li>
+</ul>
+
+<p>A span is a single unit of work within a trace. It represents an individual operation within a microservice, such as a function call, database query, or external API request. Each span contains metadata such as:</p>
+
+<p><b>Prepration for Hands on</b></p>
+
+<p>Here we will use <a href="https://github.com/DickChesterwood/k8s-fleetman">Fleetman GPS sumilater microservice application</a> as example to explore Jaeger and it capabilities.</p>
+
+<ul>
+  <li>Enable Istio sidecar injection for existing deployment</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># lable the namaspace to allow istio sidecar container injection</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl label namespace default istio-injection<span class="o">=</span>enabled <span class="nt">--overwrite</span>
+
+<span class="c"># Redeploy fleetman application</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl rollout restart deployment <span class="nt">-n</span> default</code></pre></figure>
+
+<ul>
+  <li>validate pod for istio sidecar injection, also check service status in Kiali</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# kubectl get po
+NAME                                                        READY   STATUS    RESTARTS       AGE
+api-gateway-58f978dfc6-phdgp                                2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+position-simulator-6f5df9b447-57d75                         2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+position-tracker-6698577777-fz52v                           2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+staff-service-59987757dc-mfm2t                              2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+vehicle-telemetry-56c7f8d859-jvtpj                          2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+webapp-59bc7757fb-trnnv                                     2/2     Running   6 <span class="o">(</span>30m ago<span class="o">)</span>    17h</code></pre></figure>
+
+<p><img src="/assets/istio2-2.png" alt="image tooltip here" /></p>
+
+<p><b>How Jaeger Works</b></p>
+
+<p>When a request enters a microservice (e.g., a user making a request to a frontend service), the tracing library creates a span and assigns it a trace ID. As the request propagates through other services, additional spans are created and linked to the same trace ID. Each span is recorded with its respective start and end timestamps, operation name, and other metadata.</p>
+
+<p>The Jaeger UI provides a way to visualize traces. Users can search for traces based on various criteria (e.g., service name, operation name, duration) and view the detailed structure of individual traces, like durations of time spent between microservices.</p>
+
+<p>As the request flows through different services, each service creates additional or child spans. (e.g., The frontend service might call an authentication service. then authentication service call a user service, thus Jaeger will create 2 child spans)</p>
+
+<p><img src="/assets/istio2-1.png" alt="image tooltip here" /></p>
+
+<p><b>Latency and Performance Analysis</b></p>
+
+<p>By examining the durations of each span, If a particular span has a long duration, that service might be a bottleneck.
+If spans have significant gaps between them, network latency or queuing delays might be an issue. so we can identify which part of the request is taking the most time and investigate further to optimize performance.</p>
+
+<p><b>Manage routing in each service from Kiali </b></p>
+
+<p>Managing routing in Istio can be done either through the Kiali console or by defining VirtualServices and DestinationRules using Kubernetes YAML manifests. here from Kiali console, we have the visualization of each service traffic flow, metrics, and dependencies between services in real-time.</p>
+
+<p>By create weighted routing or suspend traffic, Kiali will create it own VirtualServices and DestinationRules to manage the traffic</p>
+
+<p><img src="/assets/istio2-3.png" alt="image tooltip here" /></p>
+
+<p><b>Add timeout in istio virtual service YAML</b></p>
+
+<p>To add a timeout into istio virtual service YAML and ensure it works with Jaeger for better visibility and efficiency in the microservice architecture.</p>
+
+<p>By adding this timeout to 3s for bellow “api-gateway” virtual service, Jaeger trace will aviod long response time when a request call api-gateway, any response longer than 3s will reture http timeout, which add visibility to Jaeger UI to determine if the request successful or not.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: api-gateway
+spec:
+  hosts:
+  - api-gateway
+  http:
+  - route:
+    - destination:
+        host: api-gateway
+        port:
+          number: 80
+    <span class="nb">timeout</span>: 3s <span class="c"># 3 seconds timeout add</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>In this session we deep dive into Istio add-on Jaeger for distributed tracing, which Jaeger facilitates, involves tracking requests as they flow through various services and components of an application. This helps identify bottlenecks, understand service dependencies, and improve overall performance.</p>
+
+<p>In the next post I will see how to use Istio and Kiali to run some Canary Releases, Blue-Green deployment Rolling Updates and A/B Testing.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Jaeger]]></summary></entry><entry><title type="html">Istio: Traffic Routing</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html" rel="alternate" type="text/html" title="Istio: Traffic Routing" /><published>2024-05-22T10:15:29+10:00</published><updated>2024-05-22T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
+
+<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
+
+<p>Bookinfo Topology:</p>
+
+<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Helm install istio (istiod, istio-ingress)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
+helm pull istio/base
+helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
+
+helm pull istio/istiod
+helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
+
+kubectl create namespace istio-ingress
+helm pull istio/gateway
+helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
+NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
+istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
+istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
+NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
+
+<ul>
+  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
+kubectl apply <span class="nt">-f</span> bookinfo.yaml
+
+kubectl get po
+NAME                                                     READY   STATUS    RESTARTS       AGE
+details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
+ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
+reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
+reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
+reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
+kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
+
+<ul>
+  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
+kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
+
+<ul>
+  <li>
+    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
+<img src="/assets/kiali.png" alt="image tooltip here" /></p>
+  </li>
+  <li>
+    <p>define destination rules and virtual service for reviews</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
+wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
+
+kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
+kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
+
+kubectl get dr <span class="nt">-A</span>
+NAMESPACE      NAME          HOST          AGE
+istio-system   details       details       6m56s
+istio-system   productpage   productpage   6m56s
+istio-system   ratings       ratings       6m56s
+istio-system   reviews       reviews       6m56s
+kubectl get vs <span class="nt">-A</span>
+NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
+istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
+istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
+
+Spec:
+  Hosts:
+    reviews
+  Http:
+    Route:
+      Destination:
+        Host:    reviews
+        Subset:  v1
+      Weight:    10
+      Destination:
+        Host:    reviews
+        Subset:  v3
+      Weight:    90</code></pre></figure>
+
+<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
+
+<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
+
+<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Terraform Module for AWS SSO in Multi-Account Environments</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html" rel="alternate" type="text/html" title="Terraform Module for AWS SSO in Multi-Account Environments" /><published>2024-05-20T10:15:29+10:00</published><updated>2024-05-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
 
 <p>In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center by AWS IAM Identity Center  and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.</p>
 
@@ -1981,299 +2182,4 @@ WARN[0000] /root/docker-compose.yaml: <span class="sb">`</span>version<span clas
 
 <p><b> Conclusion</b></p>
 
-<p>Now we can run a PostgreSQL container from docker and docker-compose with Persist data and custom configuration mount into the container, in the next blog we will discover primary and standby replication, WAL (write ahead log) options.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry><entry><title type="html">Automate AWS EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html" rel="alternate" type="text/html" title="Automate AWS EC2 tagging" /><published>2024-05-01T10:15:29+10:00</published><updated>2024-05-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/01/AWS-tagging.html"><![CDATA[<p><b> Backgroud </b></p>
-
-<p>I was tasked to enforce mandatory tagging for ec2 instances, as there are a lot of machines and a lot of tags need to be attached to each machine, here I need a scripted way to get the job done.</p>
-
-<p><b> How to achieve </b></p>
-
-<ul>
-  <li>Prepare a list of ec2 instances with default name tag only,</li>
-</ul>
-
-<p><img src="/assets/awstag2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Open cloud shell or ssh to a linux box where AWSCli installed and configured to a AWS account, export the instances with ID to a csv file</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# aws ec2 describe-instances <span class="nt">--output</span> text <span class="nt">--query</span> <span class="s1">'Reservations[*].Instances[*].[InstanceId]'</span> <span class="o">&gt;</span> zztag.csv</code></pre></figure>
-
-<ul>
-  <li>Then add the header row for “instance ID” “tagA”  ”valueA”    ”tagB”  ”valueB”</li>
-</ul>
-
-<p><img src="/assets/awstag1.png" alt="image tooltip here" /></p>
-
-<p><b> Create shell script to read the CSV file line by line, and add tags for each instance </b></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim zacktag.sh
-
-<span class="c">#!/bin/bash</span>
-
-<span class="c"># Read the CSV file line by line</span>
-<span class="k">while </span><span class="nv">IFS</span><span class="o">=</span>, <span class="nb">read</span> <span class="nt">-r</span> instance_id tagA valueA tagB valueB <span class="o">||</span> <span class="o">[</span> <span class="nt">-n</span> <span class="s2">"</span><span class="nv">$instance_id</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">do</span>
-    <span class="c"># Add tagA</span>
-    aws ec2 create-tags <span class="nt">--resources</span> <span class="s2">"</span><span class="nv">$instance_id</span><span class="s2">"</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$tagA</span><span class="s2">"</span>,Value<span class="o">=</span><span class="s2">"</span><span class="nv">$valueA</span><span class="s2">"</span>
-    <span class="c"># Add tagB</span>
-    aws ec2 create-tags <span class="nt">--resources</span> <span class="s2">"</span><span class="nv">$instance_id</span><span class="s2">"</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$tagB</span><span class="s2">"</span>,Value<span class="o">=</span><span class="s2">"</span><span class="nv">$valueB</span><span class="s2">"</span>
-<span class="k">done</span> &lt; zztag.csv
-
-root@ubt-server:~# <span class="nb">chmod</span> +x zacktag.sh <span class="o">&amp;&amp;</span> sh zacktag.sh</code></pre></figure>
-
-<ul>
-  <li>Validate now ec2 instances with all tags attached</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# aws ec2 describe-tags <span class="nt">--filters</span> <span class="s2">"Name=resource-id,Values=i-0980018fc6f4f722c"</span>
-<span class="o">{</span>
-    <span class="s2">"Tags"</span>: <span class="o">[</span>
-        <span class="o">{</span>
-            <span class="s2">"Key"</span>: <span class="s2">"Name"</span>,
-            <span class="s2">"ResourceId"</span>: <span class="s2">"i-0980018fc6f4f722c"</span>,
-            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
-            <span class="s2">"Value"</span>: <span class="s2">"testing-for-tagging"</span>
-        <span class="o">}</span>,
-        <span class="o">{</span>
-            <span class="s2">"Key"</span>: <span class="s2">"zz1"</span>,
-            <span class="s2">"ResourceId"</span>: <span class="s2">"i-0980018fc6f4f722c"</span>,
-            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
-            <span class="s2">"Value"</span>: <span class="s2">"aa5"</span>
-        <span class="o">}</span>,
-        <span class="o">{</span>
-            <span class="s2">"Key"</span>: <span class="s2">"zz2"</span>,
-            <span class="s2">"ResourceId"</span>: <span class="s2">"i-0980018fc6f4f722c"</span>,
-            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
-            <span class="s2">"Value"</span>: <span class="s2">"bb4"</span>
-        <span class="o">}</span>
-    <span class="o">]</span>
-<span class="o">}</span>
-root@ubt-server:~# aws ec2 describe-tags <span class="nt">--filters</span> <span class="s2">"Name=resource-id,Values=i-076226daa5aaf7cf2"</span>
-<span class="o">{</span>
-    <span class="s2">"Tags"</span>: <span class="o">[</span>
-        <span class="o">{</span>
-            <span class="s2">"Key"</span>: <span class="s2">"Name"</span>,
-            <span class="s2">"ResourceId"</span>: <span class="s2">"i-076226daa5aaf7cf2"</span>,
-            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
-            <span class="s2">"Value"</span>: <span class="s2">"zack-blog"</span>
-        <span class="o">}</span>,
-        <span class="o">{</span>
-            <span class="s2">"Key"</span>: <span class="s2">"zz1"</span>,
-            <span class="s2">"ResourceId"</span>: <span class="s2">"i-076226daa5aaf7cf2"</span>,
-            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
-            <span class="s2">"Value"</span>: <span class="s2">"aa1"</span>
-        <span class="o">}</span>,
-        <span class="o">{</span>
-            <span class="s2">"Key"</span>: <span class="s2">"zz2"</span>,
-            <span class="s2">"ResourceId"</span>: <span class="s2">"i-076226daa5aaf7cf2"</span>,
-            <span class="s2">"ResourceType"</span>: <span class="s2">"instance"</span>,
-            <span class="s2">"Value"</span>: <span class="s2">"aa2"</span>
-        <span class="o">}</span>
-    <span class="o">]</span>
-<span class="o">}</span></code></pre></figure>
-
-<p><img src="/assets/awstag3.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>create cronjob to update tagging monthly</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create a monthly cron to run the script</span>
-root@ubt-server:~# crontab <span class="nt">-e</span>
-no crontab <span class="k">for </span>root - using an empty one
-
-Select an editor.  To change later, run <span class="s1">'select-editor'</span><span class="nb">.</span>
-  1. /bin/nano        &lt;<span class="nt">----</span> easiest
-  2. /usr/bin/vim.basic
-  3. /usr/bin/vim.tiny
-  4. /bin/ed
-
-Choose 1-4 <span class="o">[</span>1]: 2
-crontab: installing new crontab
-
-<span class="c"># List the monthly scheduled cronjob</span>
-root@ubt-server:~# crontab <span class="nt">-l</span>
-0 0 1 <span class="k">*</span> <span class="k">*</span> ~/zacktag.sh</code></pre></figure>
-
-<p><b> Conclusion </b></p>
-
-<p>Now we have a scripted way to achieve adding different tags for multiple ec2 instances via AWS CLI and shell script, same method to any other AWS resources that needed to be tagged, together with cronjob, we can only update the csv file which regularly updates resource ID and tags we want to attach, upload the csv file, every month their tags will be updated accordingly.</p>
-
-<p>Furthermore, the resouces can be queried by setting up filter by different tag criteria:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># query EC2 with certain tag</span>
-aws ec2 describe-instances <span class="nt">--filters</span> <span class="s2">"Name=tag:TagName,Values=TagValue"</span>
-
-<span class="c"># query EC2 without certain tag</span>
-aws ec2 describe-instances <span class="nt">--query</span> <span class="s1">'Reservations[].Instances[?not_null(Tags[?Key==`TagName` &amp;&amp; Value==`TagValue`])].InstanceId'</span></code></pre></figure>
-
-<p>Or we can use lambda function together with AWS Config rules to list and remediate the untagged EC2 resource accordingly</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
-
-def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
-    <span class="c"># Initialize AWS clients for services to be scanned </span>
-    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    
-    <span class="c"># Retrieve a list of untagged EC2 instances</span>
-    untagged_instances <span class="o">=</span> <span class="o">[]</span>
-    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            <span class="k">if</span> <span class="s1">'Tags'</span> not <span class="k">in </span>instance:
-                untagged_instances.append<span class="o">(</span>instance[<span class="s1">'InstanceId'</span><span class="o">])</span>
-                
-    <span class="k">return </span>untagged_instances</code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Backgroud]]></summary></entry><entry><title type="html">ZackBlog AWS Serverless webhosting</title><link href="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html" rel="alternate" type="text/html" title="ZackBlog AWS Serverless webhosting" /><published>2024-04-30T10:15:29+10:00</published><updated>2024-04-30T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/04/30/serverless</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/04/30/serverless.html"><![CDATA[<p><b> How about this zackblog go serverless ?</b></p>
-
-<p>In this article, I will see how to host “zackweb” as a static web application using bellow AWS serverless options:</p>
-
-<ul>
-  <li>
-    <p>S3 static webhosting</p>
-  </li>
-  <li>
-    <p>AWS CDK + CloudFront</p>
-  </li>
-</ul>
-
-<p><b> Prerequisite </b></p>
-
-<ul>
-  <li>Add one more step in existing Github Action workflow to copy the static web content to newly created S3 bucket</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># edit github action workflow</span>
-aws s3 <span class="nb">cp</span> ~/zack-gitops-project/zack_blog/_site/<span class="k">*</span> s3://zackweb-serverless/ <span class="nt">--recursive</span>
-
-<span class="c"># validate content in s3 bucket</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>aws s3 <span class="nb">ls </span>s3://zackweb-serverless <span class="nt">--summarize</span>
-                           PRE aboutme/
-                           PRE assets/
-                           PRE certificate/
-                           PRE gitrepo/
-                           PRE jekyll/
-                           PRE pro/
-                           PRE skillroadmap/
-2024-04-30 14:55:05       4455 404.html
-2024-04-30 14:55:05        504 Dockerfile
-2024-04-30 14:55:06      80555 feed.xml
-2024-04-30 14:55:06       7760 index.html
-2024-04-30 14:55:06          0 nginx.conf
-
-Total Objects: 5
-   Total Size: 93274</code></pre></figure>
-
-<p><b> Option 1: S3 static webhosting </b></p>
-
-<p>Go AWS console, under S3 bucket “zackweb-serverless” properties, enable static website hosting, update the bucket website endpoint address to Godaddy DNS record.</p>
-
-<p><img src="/assets/serverless2.png" alt="image tooltip here" /></p>
-
-<p><b> Option 2: using AWS CDK + CDN </b></p>
-
-<p>With AWS CDK and CDN, the “zackweb” can be straightforward distributed from an S3 bucket accessible to the public by using CloudFront.</p>
-
-<p><img src="/assets/serverless3.png" alt="image tooltip here" /></p>
-
-<p>the steps will be:</p>
-
-<ol>
-  <li>
-    <p>Enable AWS CDK on EC2 bastion host.</p>
-  </li>
-  <li>
-    <p>S3 bucker ready and copy static web content into it (done above with modification of existing github action workflow)</p>
-  </li>
-  <li>
-    <p>Establish a CloudFront distribution to host a static To-Do web application.</p>
-  </li>
-  <li>
-    <p>Deploy the AWS CDK solution to host the To-do application.</p>
-  </li>
-</ol>
-
-<ul>
-  <li>install AWS CDK on bastion EC2 host</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># AWS CDK requires nodejs newer version</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>apt-get <span class="nb">install </span>nodejs <span class="nt">-y</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>npm cache clean <span class="nt">-f</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>npm <span class="nb">install</span> <span class="nt">-g</span> n
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>n stable
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>nodejs <span class="nt">--version</span>
-v12.22.9
-
-<span class="c"># install aws-cdk cli</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>npm <span class="nb">install</span> <span class="nt">-g</span> aws-cdk
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>cdk <span class="nt">--version</span>
-2.139.1 <span class="o">(</span>build b88f959<span class="o">)</span>
-
-<span class="c"># check aws credential and bootstrap CDK</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span>aws sts get-caller-identity
-<span class="o">{</span>
-    <span class="s2">"UserId"</span>: <span class="s2">"AIDxxxxxxxxx7ZV"</span>,
-    <span class="s2">"Account"</span>: <span class="s2">"8xxxxxx342"</span>,
-    <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::8xxxxx342:user/zackcdk"</span>
-<span class="o">}</span>
-
-<span class="c"># bootstrap CDK</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">sudo </span>cdk bootstrap aws://8xxxxxxx2/ap-southeast-2
-
-<span class="c"># init app</span>
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span> mkdir cdk
-ubuntu@ip-172-31-26-78:~<span class="nv">$ </span><span class="nb">cd </span>cdk
-ubuntu@ip-172-31-26-78:~/cdk# cdk init app <span class="nt">--language</span><span class="o">=</span>typescript
-Initializing a new git repository...
-Executing npm install...
-✅ All <span class="k">done</span><span class="o">!</span>
-
-<span class="c"># create CDK code</span>
-
-ubuntu@ip-172-31-26-78:~/cdk/lib# vim cdk-stack.ts
-
-import <span class="k">*</span> as cdk from <span class="s1">'@aws-cdk/core'</span><span class="p">;</span>
-import <span class="k">*</span> as cloudfront from <span class="s1">'@aws-cdk/aws-cloudfront'</span><span class="p">;</span>
-import <span class="k">*</span> as origins from <span class="s1">'@aws-cdk/aws-cloudfront-origins'</span><span class="p">;</span>
-
-<span class="nb">export </span>class ZackWebStack extends cdk.Stack <span class="o">{</span>
-  constructor<span class="o">(</span>scope: cdk.Construct, <span class="nb">id</span>: string, props?: cdk.StackProps<span class="o">)</span> <span class="o">{</span>
-    super<span class="o">(</span>scope, <span class="nb">id</span>, props<span class="o">)</span><span class="p">;</span>
-
-    // existing S3 bucket
-    const existingBucketName <span class="o">=</span> <span class="s1">'zackweb-serverless'</span><span class="p">;</span>
-
-    // Create a CloudFront distribution
-    const distribution <span class="o">=</span> new cloudfront.Distribution<span class="o">(</span>this, <span class="s1">'MyDistribution'</span>, <span class="o">{</span>
-      defaultBehavior: <span class="o">{</span>
-        origin: new origins.S3OriginFromBucketName<span class="o">(</span>existingBucketName<span class="o">)</span>
-      <span class="o">}</span>,
-      defaultRootObject: <span class="s1">'index.html'</span> // default root object
-    <span class="o">})</span><span class="p">;</span>
-
-    // Output the CloudFront distribution domain name
-    new cdk.CfnOutput<span class="o">(</span>this, <span class="s1">'CloudFrontDomainName'</span>, <span class="o">{</span>
-      value: distribution.distributionDomainName
-    <span class="o">})</span><span class="p">;</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># install required module</span>
-
-ubuntu@ip-172-31-26-78:~/cdk/lib# npm <span class="nb">install</span> @aws-cdk/core
-ubuntu@ip-172-31-26-78:~/cdk/lib# npm <span class="nb">install</span> @aws-cdk/aws-cloudfront
-ubuntu@ip-172-31-26-78:~/cdk/lib# npm <span class="nb">install</span> @aws-cdk/aws-cloudfront-origins
-
-<span class="c"># Deploy stack</span>
-ubuntu@ip-172-31-26-78:~/cdk/lib# <span class="nb">cd</span> ..
-ubuntu@ip-172-31-26-78:~/cdk/# cdk deploy</code></pre></figure>
-
-<ul>
-  <li>The “zackweb” is now hosted on the AWS with serverless deployment !</li>
-</ul>
-
-<p><img src="/assets/serverless4.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[How about this zackblog go serverless ?]]></summary></entry></feed>
+<p>Now we can run a PostgreSQL container from docker and docker-compose with Persist data and custom configuration mount into the container, in the next blog we will discover primary and standby replication, WAL (write ahead log) options.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry></feed>

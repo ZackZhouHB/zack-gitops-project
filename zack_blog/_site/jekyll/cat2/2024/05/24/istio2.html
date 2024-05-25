@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Istio: Distributed Tracing with Jaeger | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Istio: Distributed Tracing with Jaeger" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Jaeger" />
+<meta property="og:description" content="About Jaeger" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-24T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Istio: Distributed Tracing with Jaeger" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-24T10:15:29+10:00","datePublished":"2024-05-24T10:15:29+10:00","description":"About Jaeger","headline":"Istio: Distributed Tracing with Jaeger","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Istio: Distributed Tracing with Jaeger</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-05-24T10:15:29+10:00" itemprop="datePublished">May 24, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>About Jaeger</b></p>
+
+<p>Last post we are able to depoly <a href="https://zackz.online/jekyll/cat2/2024/05/22/istio.html">Istio</a> and manage traffic for a book review microservice application. This session we will dive deeper into Istia for it add-on Jaeger for Microservice tracing.</p>
+
+<p>Jaeger is an open-source end-to-end distributed tracing tool to monitor and troubleshoot the performance of microservices-based distributed systems by providing insights into the latency and other performance metrics.</p>
+
+<ul>
+  <li>Trace</li>
+</ul>
+
+<p>A trace represents the entire journey of a request or transaction as it propagates through various services and components of a distributed system. It captures the path the request takes, including all the microservices it interacts with, from start to finish. A trace is composed of multiple spans.</p>
+
+<ul>
+  <li>Span</li>
+</ul>
+
+<p>A span is a single unit of work within a trace. It represents an individual operation within a microservice, such as a function call, database query, or external API request. Each span contains metadata such as:</p>
+
+<p><b>Prepration for Hands on</b></p>
+
+<p>Here we will use <a href="https://github.com/DickChesterwood/k8s-fleetman">Fleetman GPS sumilater microservice application</a> as example to explore Jaeger and it capabilities.</p>
+
+<ul>
+  <li>Enable Istio sidecar injection for existing deployment</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># lable the namaspace to allow istio sidecar container injection</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl label namespace default istio-injection<span class="o">=</span>enabled <span class="nt">--overwrite</span>
+
+<span class="c"># Redeploy fleetman application</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl rollout restart deployment <span class="nt">-n</span> default</code></pre></figure>
+
+<ul>
+  <li>validate pod for istio sidecar injection, also check service status in Kiali</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# kubectl get po
+NAME                                                        READY   STATUS    RESTARTS       AGE
+api-gateway-58f978dfc6-phdgp                                2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+position-simulator-6f5df9b447-57d75                         2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+position-tracker-6698577777-fz52v                           2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+staff-service-59987757dc-mfm2t                              2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+vehicle-telemetry-56c7f8d859-jvtpj                          2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
+webapp-59bc7757fb-trnnv                                     2/2     Running   6 <span class="o">(</span>30m ago<span class="o">)</span>    17h</code></pre></figure>
+
+<p><img src="/assets/istio2-2.png" alt="image tooltip here" /></p>
+
+<p><b>How Jaeger Works</b></p>
+
+<p>When a request enters a microservice (e.g., a user making a request to a frontend service), the tracing library creates a span and assigns it a trace ID. As the request propagates through other services, additional spans are created and linked to the same trace ID. Each span is recorded with its respective start and end timestamps, operation name, and other metadata.</p>
+
+<p>The Jaeger UI provides a way to visualize traces. Users can search for traces based on various criteria (e.g., service name, operation name, duration) and view the detailed structure of individual traces, like durations of time spent between microservices.</p>
+
+<p>As the request flows through different services, each service creates additional or child spans. (e.g., The frontend service might call an authentication service. then authentication service call a user service, thus Jaeger will create 2 child spans)</p>
+
+<p><img src="/assets/istio2-1.png" alt="image tooltip here" /></p>
+
+<p><b>Latency and Performance Analysis</b></p>
+
+<p>By examining the durations of each span, If a particular span has a long duration, that service might be a bottleneck.
+If spans have significant gaps between them, network latency or queuing delays might be an issue. so we can identify which part of the request is taking the most time and investigate further to optimize performance.</p>
+
+<p><b>Manage routing in each service from Kiali </b></p>
+
+<p>Managing routing in Istio can be done either through the Kiali console or by defining VirtualServices and DestinationRules using Kubernetes YAML manifests. here from Kiali console, we have the visualization of each service traffic flow, metrics, and dependencies between services in real-time.</p>
+
+<p>By create weighted routing or suspend traffic, Kiali will create it own VirtualServices and DestinationRules to manage the traffic</p>
+
+<p><img src="/assets/istio2-3.png" alt="image tooltip here" /></p>
+
+<p><b>Add timeout in istio virtual service YAML</b></p>
+
+<p>To add a timeout into istio virtual service YAML and ensure it works with Jaeger for better visibility and efficiency in the microservice architecture.</p>
+
+<p>By adding this timeout to 3s for bellow “api-gateway” virtual service, Jaeger trace will aviod long response time when a request call api-gateway, any response longer than 3s will reture http timeout, which add visibility to Jaeger UI to determine if the request successful or not.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: api-gateway
+spec:
+  hosts:
+  - api-gateway
+  http:
+  - route:
+    - destination:
+        host: api-gateway
+        port:
+          number: 80
+    <span class="nb">timeout</span>: 3s <span class="c"># 3 seconds timeout add</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>In this session we deep dive into Istio add-on Jaeger for distributed tracing, which Jaeger facilitates, involves tracking requests as they flow through various services and components of an application. This helps identify bottlenecks, understand service dependencies, and improve overall performance.</p>
+
+<p>In the next post I will see how to use Istio and Kiali to run some Canary Releases, Blue-Green deployment Rolling Updates and A/B Testing.</p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/05/24/istio2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
