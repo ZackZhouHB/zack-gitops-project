@@ -61,6 +61,8 @@ As the request flows through different services, each service creates additional
 By examining the durations of each span, If a particular span has a long duration, that service might be a bottleneck.
 If spans have significant gaps between them, network latency or queuing delays might be an issue. so we can identify which part of the request is taking the most time and investigate further to optimize performance.
 
+![image tooltip here](/assets/istio2-4.png)
+
 <b>Manage routing in each service from Kiali </b>
 
 Managing routing in Istio can be done either through the Kiali console or by defining VirtualServices and DestinationRules using Kubernetes YAML manifests. here from Kiali console, we have the visualization of each service traffic flow, metrics, and dependencies between services in real-time.
