@@ -1,130 +1,383 @@
 ---
 layout: post
-title:  "Terraform Module for AWS SSO in Multi-Account Environments"
-date:   2024-05-20 11:15:29 +1100
+title:  "Terraform Module for AWS SSO User Assignment"
+date:   2024-05-20 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
 <b> Challange About AWS SSO User Assignment</b>
 
-In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center by AWS IAM Identity Center  and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.
+In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced by AWS IAM Identity Center and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.
 
 So far, I have tried shell script and Python script to read the user name, AWS account ID, and permission sets ARN from a CSV file, then complete the task with AWScli. However it is not smart enough when the request or scenario changes. I have to adjust the script everytime.
 
+<b> Managing individual request via Terraform </b>
+
+Let's start with handling user assignment individually with terraform first. here I have 2 requests: 
+
+1. A user "user1@company.com", under a group called "AD-RDS-READ-ONLY" in AWS IAM Identity Center, I need to create a permission set in aws account "123456789", and assign to this user.
+
+2. The second request is from security team, we have 3 security team members (security1@company.com, security2@company.com, security3@company.com), under a group called "AD-ACM-FULL-ACCESS" in AWS IAM Identity Center, they all need full access for AWS certificate manager access, for all of our 3 AWS accounts (12345678901, 12345678902, and 12345678903).
+
+{% highlight shell %}
+
+vim main.tf
+
+# For Request 1 for RDS read only access for 1 user in 1 AWS account 
+
+# for AWS in ap-southeast-2
+provider "aws" {
+ region = "ap-southeast-2"
+}
+
+# Define the AWS SSO Instance ARN
+data "aws_ssoadmin_instances" "main" {}
+
+resource "aws_ssoadmin_permission_set" "request1" {
+ instance_arn = data.aws_ssoadmin_instances.main.arns[0]
+ name         = "RDS-ReadOnly"
+ description  = "Read-only access to RDS resources"
+ session_duration = "PT1H"
+
+ # Add the policies you need for this permission set
+ managed_policies = [
+ "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess",
+ ]
+}
+
+resource "aws_ssoadmin_account_assignment" "request1" {
+ instance_arn       = data.aws_ssoadmin_instances.main.arns[0]
+ permission_set_arn = aws_ssoadmin_permission_set.request1.arn
+ principal_id       = "user1@company.com"
+ principal_type     = "USER"
+ target_id          = "123456789"  # Replace with your AWS Account ID
+ target_type        = "AWS_ACCOUNT"
+}
+
+# Ensure the user is part of the required group
+data "aws_identitystore_group" "request1" {
+ identity_store_id = data.aws_ssoadmin_instances.main.identity_store_id
+ display_name      = "AD-RDS-READ-ONLY"
+}
+
+resource "aws_ssoadmin_group_membership" "request1" {
+ identity_store_id = data.aws_ssoadmin_instances.main.identity_store_id
+ group_id          = data.aws_identitystore_group.request1.group_id
+ user_ids          = ["user1@company.com"]
+}
+
+# handle request 2 for ACM full access for whole security team in all 3 AWS accounts 
+
+vim main.tf
+
+# use existing main.tf file  
+# provider "aws" {
+#  region = "ap-southeast-2"
+# }
+# data "aws_ssoadmin_instances" "main" {}
+
+# Create the Permission Set for ACM Full Access
+resource "aws_ssoadmin_permission_set" "acm_full_access" {
+ instance_arn = data.aws_ssoadmin_instances.main.arns[0]
+ name         = "ACM-FullAccess"
+ description  = "Full access to AWS Certificate Manager"
+ session_duration = "PT1H"
+
+ managed_policies = [
+ "arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess",
+ ]
+}
+
+# List of AWS account IDs
+# here we use terrafom "locals", "dynamic" and "for_each" to loop SSO user assignment for security team within all AWS accounts 
+locals {
+ aws_account_ids = ["12345678901", "12345678902", "12345678903"]
+}
+
+# Security team members
+locals {
+ security_team_members = ["security1@company.com", "security2@company.com", "security3@company.com"]
+}
+
+# Ensure the users are part of the required group
+data "aws_identitystore_group" "acm_full_access_group" {
+ identity_store_id = data.aws_ssoadmin_instances.main.identity_store_id
+ display_name      = "AD-ACM-FULL-ACCESS"
+}
+
+resource "aws_ssoadmin_group_membership" "acm_full_access_membership" {
+ identity_store_id = data.aws_ssoadmin_instances.main.identity_store_id
+ group_id          = data.aws_identitystore_group.acm_full_access_group.group_id
+ user_ids          = local.security_team_members
+}
+
+# Assign the Permission Set to Each User for Each Account
+resource "aws_ssoadmin_account_assignment" "acm_full_access_assignments" {
+ for_each = { for acc_id in local.aws_account_ids : acc_id => acc_id }
+
+ instance_arn       = data.aws_ssoadmin_instances.main.arns[0]
+ permission_set_arn = aws_ssoadmin_permission_set.acm_full_access.arn
+ principal_type     = "USER"
+ target_type        = "AWS_ACCOUNT"
+
+ dynamic "assignment" {
+ for_each = local.security_team_members
+ content {
+ principal_id = assignment.value
+ target_id    = each.key
+ }
+ }
+}
+{% endhighlight %}
+
 <b> Terraform Modularity </b>
 
-Luckily, I found a solution to use Terraform module. There are many benefits to infrastructure as code with modularity. It can reduce code duplication, easy update, and have a clear code structure, which fits my AWS SSO user assignment task and challenge perfectly.
+How about the Terraform module, as I will get different user assignment requests with different permission sets and AWS accounts? I guess a Terraform module for SSO user assignment is the best way to make the Terraform code more clean and reuseable. There are many benefits to infrastructure as code with modularity. It can reduce code duplication, is easy to update, and has a clear code structure, which fits my AWS SSO user assignment task and challenge perfectly.
 
-To achieve this, I will need:
+To achieve this, I will need to create a folder called "sso_user_assignment_module", inside the folder it will contain:
 
-- A "main.tf" file to define the module; this allow the terraform code to be reusable and to handle SSO account assignments and manage each user scenario configuration easily
+- A "main.tf" file to define the resources for creating permission sets and assigning them to users.
+
 {% highlight shell %}
 # modules/sso_account_assignment/main.tf
 
-variable "sso_instance_arn" {
- description = "The ARN of the AWS SSO instance"
- type    = string
+provider "aws" {
+ region = var.aws_region
 }
 
-variable "account_id" {
- description = "The AWS account ID"
- type    = string
+data "aws_ssoadmin_instances" "main" {}
+
+resource "aws_ssoadmin_permission_set" "this" {
+ for_each = var.permission_sets
+
+ instance_arn = data.aws_ssoadmin_instances.main.arns[0]
+ name         = each.key
+ description  = each.value.description
+ session_duration = each.value.session_duration
+
+ managed_policies = each.value.managed_policies
 }
 
-variable "users" {
- description = "List of users with their target IDs and permission set ARNs"
- type    = list(object({
-  principal_id   = string
-  permission_set_arn = string
- }))
+resource "aws_ssoadmin_account_assignment" "this" {
+ for_each = { for ps_key, ps_value in var.permission_sets : ps_key => ps_value.accounts }
+
+ instance_arn       = data.aws_ssoadmin_instances.main.arns[0]
+ permission_set_arn = aws_ssoadmin_permission_set.this[each.key].arn
+ principal_type     = "USER"
+ target_type        = "AWS_ACCOUNT"
+
+ dynamic "assignment" {
+ for_each = each.value.users
+ content {
+ principal_id = assignment.value
+ target_id    = each.value.account_id
+ }
+ }
 }
 
-resource "aws_ssoadmin_account_assignment" "assignments" {
- for_each = { for idx, user in var.users : idx => user }
+data "aws_identitystore_group" "this" {
+ for_each = var.groups
 
- instance_arn   = var.sso_instance_arn
- target_id     = var.account_id
- principal_id   = each.value.principal_id
- principal_type  = "USER"
- permission_set_arn = each.value.permission_set_arn
+ identity_store_id = data.aws_ssoadmin_instances.main.identity_store_id
+ display_name      = each.key
+}
+
+resource "aws_ssoadmin_group_membership" "this" {
+ for_each = var.groups
+
+ identity_store_id = data.aws_ssoadmin_instances.main.identity_store_id
+ group_id          = data.aws_identitystore_group.this[each.key].group_id
+ user_ids          = each.value
 }
 {% endhighlight %}
 
-- A "main.tf" to create configuration to utilize the module, in here we will define the provider, and a few variables like "sso_instance_arn", "sso_user_assignments" and "region", also use "for_each" function to process each assignment. Then use "principal_id" and "permission_set_arn" to map user from the var list.
-
+- A "variables.tf" to define the input variables for the module
 {% highlight shell %}
-# main.tf
+# variables.tf
+vim variables.tf
 
 provider "aws" {
- region = var.region
+ region = var.region
 }
 
 variable "sso_instance_arn" {
- description = "The ARN of the AWS SSO instance"
- type    = string
+ description = "The ARN of the AWS SSO instance"
+ type    = string
 }
 
 variable "assignments" {
- description = "Map of account IDs to users and their permission sets"
- type    = map(list(object({
-  principal_id   = string
-  permission_set_arn = string
- })))
+ description = "Map of account IDs to users and their permission sets"
+ type    = map(list(object({
+ principal_id   = string
+ permission_set_arn = string
+ })))
 }
 
 variable "region" {
- description = "AWS region"
- type    = string
- default  = "ap-southeast-2"
+ description = "AWS region"
+ type    = string
+ default  = "ap-southeast-2"
 }
 
 module "sso_account_assignments" {
- source = "./modules/sso_account_assignment"
+ source = "./modules/sso_account_assignment"
 
- for_each    = var.assignments
- sso_instance_arn = var.sso_instance_arn
- account_id   = each.key
- users     = each.value
+ for_each    = var.assignments
+ sso_instance_arn = var.sso_instance_arn
+ account_id   = each.key
+ users     = each.value
 }
 {% endhighlight %}
 
-- A "terraform.tfvars" file to define and manage assignments using variables, here to define each unique assignment per request with each "target_id" and "permission_set_arn" to achieve dynamically assigning users to different accounts with various permission sets.
+- A "outputs.tf" file to define the outputs of the module.
 
 {% highlight shell %}
-# terraform.tfvars
-
-sso_instance_arn = "arn:aws:sso:::instance/ssoins-a2oxxxxxxxxxxxc3"
-
-assignments = {
- "2024-05-21-assginment" = [
-  {
-   target_id   = "570xxxxxx88"  # AWS account ID
-   principal_id = "zack.z@xxx.com" # SSO user name 
-   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"
-  },
-  {
-   target_id   = "679xxxxxx01"  # AWS account ID
-   principal_id = "John.Alax@xxx.com" # SSO user name 
-   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"
-  }
- ],
- "2024-05-23-assginment" = [
-  {
-   target_id   = "809xxxxxx00"  # AWS account ID
-   principal_id = "harry.chen@xxx.com" # SSO user name 
-   permission_set_arn = "arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835" # Permission sets ARN
-  }
- ]
+vim outputs.tf
+# define outputs of permission_set_arns and group_ids
+output "permission_set_arns" {
+ value = { for k, v in aws_ssoadmin_permission_set.this : k => v.arn }
 }
+
+output "group_ids" {
+ value = { for k, v in data.aws_identitystore_group.this : k => v.group_id }
+}
+{% endhighlight %}
+
+- now we need to Create a Terraform configuration that uses this module and set the environment variables accordingly. go back to the root folder, create a root "main.tf" file to call the module and pass the necessary variables.
+
+{% highlight shell %}
+cd ..
+vim main.tf
+# the root main.tf file
+module "sso_permission_sets" {
+ source = "./modules/aws_sso_permission_sets"
+
+ aws_region       = var.aws_region
+ permission_sets  = var.permission_sets
+ groups           = var.groups
+}
+
+# Optionally output the values
+output "permission_set_arns" {
+ value = module.sso_permission_sets.permission_set_arns
+}
+
+output "group_ids" {
+ value = module.sso_permission_sets.group_ids
+}
+
+{% endhighlight %}
+
+- root "variables.tf" file to define the input variables for the root configuration.
+{% highlight shell %}
+# the root variables.tf
+vim variables.tf
+
+variable "aws_region" {
+ description = "The AWS region to use."
+ type        = string
+ default     = "ap-southeast-2"
+}
+
+variable "permission_sets" {
+ description = "A map of permission sets with their configurations."
+ type = map(object({
+ description     = string
+ session_duration = string
+ managed_policies = list(string)
+ accounts        = map(object({
+ account_id = string
+ users      = list(string)
+ }))
+ }))
+}
+
+variable "groups" {
+ description = "A map of groups with their associated user emails."
+ type        = map(list(string))
+}
+{% endhighlight %}
+
+- now is the place we can reuse the module to create the root "terraform.tfvars" which provides the actual values for the variables to define each assignment request. in future we only set each request here as environment variables, and then apply the terraform module.
+
+{% highlight shell %}
+aws_region = "ap-southeast-2"
+
+permission_sets = {
+ # The 1st request RDS read-only permission sets and user assignment redefine in the module using variables
+ "RDS-ReadOnly" = {
+ description     = "Read-only access to RDS resources"
+ session_duration = "PT1H"
+ managed_policies = [
+ "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess",
+ ]
+ accounts = {
+ "123456789" = {
+ account_id = "123456789"
+ users      = ["user1@company.com"]
+ }
+ }
+ }
+ # the 2nd request security full access for ACM redefine in the module using variables
+ "ACM-FullAccess" = {
+ description     = "Full access to AWS Certificate Manager"
+ session_duration = "PT1H"
+ managed_policies = [
+ "arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess",
+ ]
+ accounts = {
+ "12345678901" = {
+ account_id = "12345678901"
+ users      = ["security1@company.com", "security2@company.com", "security3@company.com"]
+ },
+ "12345678902" = {
+ account_id = "12345678902"
+ users      = ["security1@company.com", "security2@company.com", "security3@company.com"]
+ },
+ "12345678903" = {
+ account_id = "12345678903"
+ users      = ["security1@company.com", "security2@company.com", "security3@company.com"]
+ }
+ }
+ }
+
+ # Add 3rd request a developer needs S3 full access for 2 AWS accounts redefine in the module using variables
+ "S3-ModifyAccess" = {
+ description     = "Modify access to S3 buckets"
+ session_duration = "PT1H"
+ managed_policies = [
+ "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+ ]
+ accounts = {
+ "12345678902" = {
+ account_id = "12345678902"
+ users      = ["developer1@company.com"]
+ },
+ "12345678903" = {
+ account_id = "12345678903"
+ users      = ["developer1@company.com"]
+ }
+ }
+ }
+}
+
+groups = {
+ "AD-RDS-EAD-ONLY" = ["user1@company.com"]
+ "AD-ACM-FULL-ACCESS" = ["security1@company.com", "security2@company.com", "security3@company.com"]
+ # Optionally add a group for the developer, if needed:
+ # "AD-S3-Modify-Access" = ["developer1@company.com"]
+}
+
 {% endhighlight %}
 
 <b> Conclusion</b>
 
-Now, we have a Terraform module to handle the creation of AWS SSO users more efficiently, dynamically, and reusable. In future we only define permission sets and maintain new users and assignment in the environment variables .tf file, then run terrafom apply to get the job done. The change also can be tracked when leveraging with Git as version control. 
+Now, we can achieve the task individually via terraform code and a Terraform module to handle the creation of AWS SSO users, This setup combines all three requests into a single Terraform configuration, leveraging the reusable module for creating permission sets and managing user assignments, it is more efficient, dynamically, and reusable. In future, we only define permission sets and maintain new users and assignments in the environment variables .tf file, then run Terraform apply to get the job done. The change also can be tracked when leveraging Git as version control. 
 
 
 
 [Streamlining AWS SSO in Complex Multi-Account Environments](https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11)
+
 
 
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-27T07:56:53+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Istio: Distributed Tracing with Jaeger</title><link href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" rel="alternate" type="text/html" title="Istio: Distributed Tracing with Jaeger" /><published>2024-05-24T10:15:29+10:00</published><updated>2024-05-24T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/24/istio2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"><![CDATA[<p><b>About Jaeger</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-05-29T10:39:52+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops  [京ICP备2024056683号-1]</subtitle><entry><title type="html">Istio: Distributed Tracing with Jaeger</title><link href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" rel="alternate" type="text/html" title="Istio: Distributed Tracing with Jaeger" /><published>2024-05-24T10:15:29+10:00</published><updated>2024-05-24T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/24/istio2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"><![CDATA[<p><b>About Jaeger</b></p>
 
 <p>Last post we are able to depoly <a href="https://zackz.online/jekyll/cat2/2024/05/22/istio.html">Istio</a> and manage traffic for a book review microservice application. This session we will dive deeper into Istia for it add-on Jaeger for Microservice tracing.</p>
 
@@ -201,123 +201,376 @@ Spec:
 
 <p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
 
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Terraform Module for AWS SSO in Multi-Account Environments</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html" rel="alternate" type="text/html" title="Terraform Module for AWS SSO in Multi-Account Environments" /><published>2024-05-20T10:15:29+10:00</published><updated>2024-05-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
+<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html"> ”Terraform Module for AWS SSO User Assignment”</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html" rel="alternate" type="text/html" title=" ”Terraform Module for AWS SSO User Assignment”" /><published>2024-05-20T10:15:29+10:00</published><updated>2024-05-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
 
-<p>In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced into AWS Identity Center by AWS IAM Identity Center  and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.</p>
+<p>In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced by AWS IAM Identity Center and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.</p>
 
 <p>So far, I have tried shell script and Python script to read the user name, AWS account ID, and permission sets ARN from a CSV file, then complete the task with AWScli. However it is not smart enough when the request or scenario changes. I have to adjust the script everytime.</p>
 
+<p><b> Managing individual request via Terraform </b></p>
+
+<p>Let’s start with handling user assignment individually with terraform first. here I have 2 requests:</p>
+
+<ol>
+  <li>
+    <p>A user “user1@company.com”, under a group called “AD-RDS-READ-ONLY” in AWS IAM Identity Center, I need to create a permission set in aws account “123456789”, and assign to this user.</p>
+  </li>
+  <li>
+    <p>The second request is from security team, we have 3 security team members (security1@company.com, security2@company.com, security3@company.com), under a group called “AD-ACM-FULL-ACCESS” in AWS IAM Identity Center, they all need full access for AWS certificate manager access, for all of our 3 AWS accounts (12345678901, 12345678902, and 12345678903).</p>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim main.tf
+
+<span class="c"># For Request 1 for RDS read only access for 1 user in 1 AWS account </span>
+
+<span class="c"># for AWS in ap-southeast-2</span>
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+ region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+<span class="c"># Define the AWS SSO Instance ARN</span>
+data <span class="s2">"aws_ssoadmin_instances"</span> <span class="s2">"main"</span> <span class="o">{}</span>
+
+resource <span class="s2">"aws_ssoadmin_permission_set"</span> <span class="s2">"request1"</span> <span class="o">{</span>
+ instance_arn <span class="o">=</span> data.aws_ssoadmin_instances.main.arns[0]
+ name         <span class="o">=</span> <span class="s2">"RDS-ReadOnly"</span>
+ description  <span class="o">=</span> <span class="s2">"Read-only access to RDS resources"</span>
+ session_duration <span class="o">=</span> <span class="s2">"PT1H"</span>
+
+ <span class="c"># Add the policies you need for this permission set</span>
+ managed_policies <span class="o">=</span> <span class="o">[</span>
+ <span class="s2">"arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess"</span>,
+ <span class="o">]</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_ssoadmin_account_assignment"</span> <span class="s2">"request1"</span> <span class="o">{</span>
+ instance_arn       <span class="o">=</span> data.aws_ssoadmin_instances.main.arns[0]
+ permission_set_arn <span class="o">=</span> aws_ssoadmin_permission_set.request1.arn
+ principal_id       <span class="o">=</span> <span class="s2">"user1@company.com"</span>
+ principal_type     <span class="o">=</span> <span class="s2">"USER"</span>
+ target_id          <span class="o">=</span> <span class="s2">"123456789"</span>  # Replace with your AWS Account ID
+ target_type        <span class="o">=</span> <span class="s2">"AWS_ACCOUNT"</span>
+<span class="o">}</span>
+
+<span class="c"># Ensure the user is part of the required group</span>
+data <span class="s2">"aws_identitystore_group"</span> <span class="s2">"request1"</span> <span class="o">{</span>
+ identity_store_id <span class="o">=</span> data.aws_ssoadmin_instances.main.identity_store_id
+ display_name      <span class="o">=</span> <span class="s2">"AD-RDS-READ-ONLY"</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_ssoadmin_group_membership"</span> <span class="s2">"request1"</span> <span class="o">{</span>
+ identity_store_id <span class="o">=</span> data.aws_ssoadmin_instances.main.identity_store_id
+ group_id          <span class="o">=</span> data.aws_identitystore_group.request1.group_id
+ user_ids          <span class="o">=</span> <span class="o">[</span><span class="s2">"user1@company.com"</span><span class="o">]</span>
+<span class="o">}</span>
+
+<span class="c"># handle request 2 for ACM full access for whole security team in all 3 AWS accounts </span>
+
+vim main.tf
+
+<span class="c"># use existing main.tf file  </span>
+<span class="c"># provider "aws" {</span>
+<span class="c">#  region = "ap-southeast-2"</span>
+<span class="c"># }</span>
+<span class="c"># data "aws_ssoadmin_instances" "main" {}</span>
+
+<span class="c"># Create the Permission Set for ACM Full Access</span>
+resource <span class="s2">"aws_ssoadmin_permission_set"</span> <span class="s2">"acm_full_access"</span> <span class="o">{</span>
+ instance_arn <span class="o">=</span> data.aws_ssoadmin_instances.main.arns[0]
+ name         <span class="o">=</span> <span class="s2">"ACM-FullAccess"</span>
+ description  <span class="o">=</span> <span class="s2">"Full access to AWS Certificate Manager"</span>
+ session_duration <span class="o">=</span> <span class="s2">"PT1H"</span>
+
+ managed_policies <span class="o">=</span> <span class="o">[</span>
+ <span class="s2">"arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess"</span>,
+ <span class="o">]</span>
+<span class="o">}</span>
+
+<span class="c"># List of AWS account IDs</span>
+<span class="c"># here we use terrafom "locals", "dynamic" and "for_each" to loop SSO user assignment for security team within all AWS accounts </span>
+locals <span class="o">{</span>
+ aws_account_ids <span class="o">=</span> <span class="o">[</span><span class="s2">"12345678901"</span>, <span class="s2">"12345678902"</span>, <span class="s2">"12345678903"</span><span class="o">]</span>
+<span class="o">}</span>
+
+<span class="c"># Security team members</span>
+locals <span class="o">{</span>
+ security_team_members <span class="o">=</span> <span class="o">[</span><span class="s2">"security1@company.com"</span>, <span class="s2">"security2@company.com"</span>, <span class="s2">"security3@company.com"</span><span class="o">]</span>
+<span class="o">}</span>
+
+<span class="c"># Ensure the users are part of the required group</span>
+data <span class="s2">"aws_identitystore_group"</span> <span class="s2">"acm_full_access_group"</span> <span class="o">{</span>
+ identity_store_id <span class="o">=</span> data.aws_ssoadmin_instances.main.identity_store_id
+ display_name      <span class="o">=</span> <span class="s2">"AD-ACM-FULL-ACCESS"</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_ssoadmin_group_membership"</span> <span class="s2">"acm_full_access_membership"</span> <span class="o">{</span>
+ identity_store_id <span class="o">=</span> data.aws_ssoadmin_instances.main.identity_store_id
+ group_id          <span class="o">=</span> data.aws_identitystore_group.acm_full_access_group.group_id
+ user_ids          <span class="o">=</span> local.security_team_members
+<span class="o">}</span>
+
+<span class="c"># Assign the Permission Set to Each User for Each Account</span>
+resource <span class="s2">"aws_ssoadmin_account_assignment"</span> <span class="s2">"acm_full_access_assignments"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> <span class="o">{</span> <span class="k">for </span>acc_id <span class="k">in </span>local.aws_account_ids : acc_id <span class="o">=&gt;</span> acc_id <span class="o">}</span>
+
+ instance_arn       <span class="o">=</span> data.aws_ssoadmin_instances.main.arns[0]
+ permission_set_arn <span class="o">=</span> aws_ssoadmin_permission_set.acm_full_access.arn
+ principal_type     <span class="o">=</span> <span class="s2">"USER"</span>
+ target_type        <span class="o">=</span> <span class="s2">"AWS_ACCOUNT"</span>
+
+ dynamic <span class="s2">"assignment"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> local.security_team_members
+ content <span class="o">{</span>
+ principal_id <span class="o">=</span> assignment.value
+ target_id    <span class="o">=</span> each.key
+ <span class="o">}</span>
+ <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
 <p><b> Terraform Modularity </b></p>
 
-<p>Luckily, I found a solution to use Terraform module. There are many benefits to infrastructure as code with modularity. It can reduce code duplication, easy update, and have a clear code structure, which fits my AWS SSO user assignment task and challenge perfectly.</p>
+<p>How about the Terraform module, as I will get different user assignment requests with different permission sets and AWS accounts? I guess a Terraform module for SSO user assignment is the best way to make the Terraform code more clean and reuseable. There are many benefits to infrastructure as code with modularity. It can reduce code duplication, is easy to update, and has a clear code structure, which fits my AWS SSO user assignment task and challenge perfectly.</p>
 
-<p>To achieve this, I will need:</p>
+<p>To achieve this, I will need to create a folder called “sso_user_assignment_module”, inside the folder it will contain:</p>
 
 <ul>
-  <li>A “main.tf” file to define the module; this allow the terraform code to be reusable and to handle SSO account assignments and manage each user scenario configuration easily</li>
+  <li>A “main.tf” file to define the resources for creating permission sets and assigning them to users.</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># modules/sso_account_assignment/main.tf</span>
 
-variable <span class="s2">"sso_instance_arn"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"The ARN of the AWS SSO instance"</span>
- type    <span class="o">=</span> string
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+ region <span class="o">=</span> var.aws_region
 <span class="o">}</span>
 
-variable <span class="s2">"account_id"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"The AWS account ID"</span>
- type    <span class="o">=</span> string
+data <span class="s2">"aws_ssoadmin_instances"</span> <span class="s2">"main"</span> <span class="o">{}</span>
+
+resource <span class="s2">"aws_ssoadmin_permission_set"</span> <span class="s2">"this"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> var.permission_sets
+
+ instance_arn <span class="o">=</span> data.aws_ssoadmin_instances.main.arns[0]
+ name         <span class="o">=</span> each.key
+ description  <span class="o">=</span> each.value.description
+ session_duration <span class="o">=</span> each.value.session_duration
+
+ managed_policies <span class="o">=</span> each.value.managed_policies
 <span class="o">}</span>
 
-variable <span class="s2">"users"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"List of users with their target IDs and permission set ARNs"</span>
- type    <span class="o">=</span> list<span class="o">(</span>object<span class="o">({</span>
-  principal_id   <span class="o">=</span> string
-  permission_set_arn <span class="o">=</span> string
- <span class="o">}))</span>
+resource <span class="s2">"aws_ssoadmin_account_assignment"</span> <span class="s2">"this"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> <span class="o">{</span> <span class="k">for </span>ps_key, ps_value <span class="k">in </span>var.permission_sets : ps_key <span class="o">=&gt;</span> ps_value.accounts <span class="o">}</span>
+
+ instance_arn       <span class="o">=</span> data.aws_ssoadmin_instances.main.arns[0]
+ permission_set_arn <span class="o">=</span> aws_ssoadmin_permission_set.this[each.key].arn
+ principal_type     <span class="o">=</span> <span class="s2">"USER"</span>
+ target_type        <span class="o">=</span> <span class="s2">"AWS_ACCOUNT"</span>
+
+ dynamic <span class="s2">"assignment"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> each.value.users
+ content <span class="o">{</span>
+ principal_id <span class="o">=</span> assignment.value
+ target_id    <span class="o">=</span> each.value.account_id
+ <span class="o">}</span>
+ <span class="o">}</span>
 <span class="o">}</span>
 
-resource <span class="s2">"aws_ssoadmin_account_assignment"</span> <span class="s2">"assignments"</span> <span class="o">{</span>
- for_each <span class="o">=</span> <span class="o">{</span> <span class="k">for </span>idx, user <span class="k">in </span>var.users : idx <span class="o">=&gt;</span> user <span class="o">}</span>
+data <span class="s2">"aws_identitystore_group"</span> <span class="s2">"this"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> var.groups
 
- instance_arn   <span class="o">=</span> var.sso_instance_arn
- target_id     <span class="o">=</span> var.account_id
- principal_id   <span class="o">=</span> each.value.principal_id
- principal_type  <span class="o">=</span> <span class="s2">"USER"</span>
- permission_set_arn <span class="o">=</span> each.value.permission_set_arn
+ identity_store_id <span class="o">=</span> data.aws_ssoadmin_instances.main.identity_store_id
+ display_name      <span class="o">=</span> each.key
+<span class="o">}</span>
+
+resource <span class="s2">"aws_ssoadmin_group_membership"</span> <span class="s2">"this"</span> <span class="o">{</span>
+ for_each <span class="o">=</span> var.groups
+
+ identity_store_id <span class="o">=</span> data.aws_ssoadmin_instances.main.identity_store_id
+ group_id          <span class="o">=</span> data.aws_identitystore_group.this[each.key].group_id
+ user_ids          <span class="o">=</span> each.value
 <span class="o">}</span></code></pre></figure>
 
 <ul>
-  <li>A “main.tf” to create configuration to utilize the module, in here we will define the provider, and a few variables like “sso_instance_arn”, “sso_user_assignments” and “region”, also use “for_each” function to process each assignment. Then use “principal_id” and “permission_set_arn” to map user from the var list.</li>
+  <li>A “variables.tf” to define the input variables for the module</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># variables.tf</span>
+vim variables.tf
 
 provider <span class="s2">"aws"</span> <span class="o">{</span>
- region <span class="o">=</span> var.region
+ region <span class="o">=</span> var.region
 <span class="o">}</span>
 
 variable <span class="s2">"sso_instance_arn"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"The ARN of the AWS SSO instance"</span>
- type    <span class="o">=</span> string
+ description <span class="o">=</span> <span class="s2">"The ARN of the AWS SSO instance"</span>
+ <span class="nb">type</span>    <span class="o">=</span> string
 <span class="o">}</span>
 
 variable <span class="s2">"assignments"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"Map of account IDs to users and their permission sets"</span>
- type    <span class="o">=</span> map<span class="o">(</span>list<span class="o">(</span>object<span class="o">({</span>
-  principal_id   <span class="o">=</span> string
-  permission_set_arn <span class="o">=</span> string
- <span class="o">})))</span>
+ description <span class="o">=</span> <span class="s2">"Map of account IDs to users and their permission sets"</span>
+ <span class="nb">type</span>    <span class="o">=</span> map<span class="o">(</span>list<span class="o">(</span>object<span class="o">({</span>
+ principal_id   <span class="o">=</span> string
+ permission_set_arn <span class="o">=</span> string
+ <span class="o">})))</span>
 <span class="o">}</span>
 
 variable <span class="s2">"region"</span> <span class="o">{</span>
- description <span class="o">=</span> <span class="s2">"AWS region"</span>
- type    <span class="o">=</span> string
- default  <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+ description <span class="o">=</span> <span class="s2">"AWS region"</span>
+ <span class="nb">type</span>    <span class="o">=</span> string
+ default  <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
 <span class="o">}</span>
 
 module <span class="s2">"sso_account_assignments"</span> <span class="o">{</span>
- source <span class="o">=</span> <span class="s2">"./modules/sso_account_assignment"</span>
+ <span class="nb">source</span> <span class="o">=</span> <span class="s2">"./modules/sso_account_assignment"</span>
 
- for_each    <span class="o">=</span> var.assignments
- sso_instance_arn <span class="o">=</span> var.sso_instance_arn
- account_id   <span class="o">=</span> each.key
- users     <span class="o">=</span> each.value
+ for_each    <span class="o">=</span> var.assignments
+ sso_instance_arn <span class="o">=</span> var.sso_instance_arn
+ account_id   <span class="o">=</span> each.key
+ <span class="nb">users</span>     <span class="o">=</span> each.value
 <span class="o">}</span></code></pre></figure>
 
 <ul>
-  <li>A “terraform.tfvars” file to define and manage assignments using variables, here to define each unique assignment per request with each “target_id” and “permission_set_arn” to achieve dynamically assigning users to different accounts with various permission sets.</li>
+  <li>A “outputs.tf” file to define the outputs of the module.</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># terraform.tfvars</span>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim outputs.tf
+<span class="c"># define outputs of permission_set_arns and group_ids</span>
+output <span class="s2">"permission_set_arns"</span> <span class="o">{</span>
+ value <span class="o">=</span> <span class="o">{</span> <span class="k">for </span>k, v <span class="k">in </span>aws_ssoadmin_permission_set.this : k <span class="o">=&gt;</span> v.arn <span class="o">}</span>
+<span class="o">}</span>
 
-sso_instance_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::instance/ssoins-a2oxxxxxxxxxxxc3"</span>
+output <span class="s2">"group_ids"</span> <span class="o">{</span>
+ value <span class="o">=</span> <span class="o">{</span> <span class="k">for </span>k, v <span class="k">in </span>data.aws_identitystore_group.this : k <span class="o">=&gt;</span> v.group_id <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
 
-assignments <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"2024-05-21-assginment"</span> <span class="o">=</span> <span class="o">[</span>
-  <span class="o">{</span>
-   target_id   <span class="o">=</span> <span class="s2">"570xxxxxx88"</span>  <span class="c"># AWS account ID</span>
-   principal_id <span class="o">=</span> <span class="s2">"zack.z@xxx.com"</span> <span class="c"># SSO user name </span>
-   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825xxxxxxxxxxaa/ps-6cxxxxxxxxxxe3"</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-   target_id   <span class="o">=</span> <span class="s2">"679xxxxxx01"</span>  <span class="c"># AWS account ID</span>
-   principal_id <span class="o">=</span> <span class="s2">"John.Alax@xxx.com"</span> <span class="c"># SSO user name </span>
-   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825yyyyyyyyy0aa/ps-b06yyyyyyyyy7c4"</span>
-  <span class="o">}</span>
- ],
- <span class="s2">"2024-05-23-assginment"</span> <span class="o">=</span> <span class="o">[</span>
-  <span class="o">{</span>
-   target_id   <span class="o">=</span> <span class="s2">"809xxxxxx00"</span>  <span class="c"># AWS account ID</span>
-   principal_id <span class="o">=</span> <span class="s2">"harry.chen@xxx.com"</span> <span class="c"># SSO user name </span>
-   permission_set_arn <span class="o">=</span> <span class="s2">"arn:aws:sso:::permissionSet/ssoins-825zzzzzzzzzzaa/ps-611ezzzzzzzzz835"</span> <span class="c"># Permission sets ARN</span>
-  <span class="o">}</span>
- ]
+<ul>
+  <li>now we need to Create a Terraform configuration that uses this module and set the environment variables accordingly. go back to the root folder, create a root “main.tf” file to call the module and pass the necessary variables.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">cd</span> ..
+vim main.tf
+<span class="c"># the root main.tf file</span>
+module <span class="s2">"sso_permission_sets"</span> <span class="o">{</span>
+ <span class="nb">source</span> <span class="o">=</span> <span class="s2">"./modules/aws_sso_permission_sets"</span>
+
+ aws_region       <span class="o">=</span> var.aws_region
+ permission_sets  <span class="o">=</span> var.permission_sets
+ <span class="nb">groups</span>           <span class="o">=</span> var.groups
+<span class="o">}</span>
+
+<span class="c"># Optionally output the values</span>
+output <span class="s2">"permission_set_arns"</span> <span class="o">{</span>
+ value <span class="o">=</span> module.sso_permission_sets.permission_set_arns
+<span class="o">}</span>
+
+output <span class="s2">"group_ids"</span> <span class="o">{</span>
+ value <span class="o">=</span> module.sso_permission_sets.group_ids
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>root “variables.tf” file to define the input variables for the root configuration.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># the root variables.tf</span>
+vim variables.tf
+
+variable <span class="s2">"aws_region"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"The AWS region to use."</span>
+ <span class="nb">type</span>        <span class="o">=</span> string
+ default     <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+variable <span class="s2">"permission_sets"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"A map of permission sets with their configurations."</span>
+ <span class="nb">type</span> <span class="o">=</span> map<span class="o">(</span>object<span class="o">({</span>
+ description     <span class="o">=</span> string
+ session_duration <span class="o">=</span> string
+ managed_policies <span class="o">=</span> list<span class="o">(</span>string<span class="o">)</span>
+ accounts        <span class="o">=</span> map<span class="o">(</span>object<span class="o">({</span>
+ account_id <span class="o">=</span> string
+ <span class="nb">users</span>      <span class="o">=</span> list<span class="o">(</span>string<span class="o">)</span>
+ <span class="o">}))</span>
+ <span class="o">}))</span>
+<span class="o">}</span>
+
+variable <span class="s2">"groups"</span> <span class="o">{</span>
+ description <span class="o">=</span> <span class="s2">"A map of groups with their associated user emails."</span>
+ <span class="nb">type</span>        <span class="o">=</span> map<span class="o">(</span>list<span class="o">(</span>string<span class="o">))</span>
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>now is the place we can reuse the module to create the root “terraform.tfvars” which provides the actual values for the variables to define each assignment request. in future we only set each request here as environment variables, and then apply the terraform module.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">aws_region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+
+permission_sets <span class="o">=</span> <span class="o">{</span>
+ <span class="c"># The 1st request RDS read-only permission sets and user assignment redefine in the module using variables</span>
+ <span class="s2">"RDS-ReadOnly"</span> <span class="o">=</span> <span class="o">{</span>
+ description     <span class="o">=</span> <span class="s2">"Read-only access to RDS resources"</span>
+ session_duration <span class="o">=</span> <span class="s2">"PT1H"</span>
+ managed_policies <span class="o">=</span> <span class="o">[</span>
+ <span class="s2">"arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess"</span>,
+ <span class="o">]</span>
+ accounts <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"123456789"</span> <span class="o">=</span> <span class="o">{</span>
+ account_id <span class="o">=</span> <span class="s2">"123456789"</span>
+ <span class="nb">users</span>      <span class="o">=</span> <span class="o">[</span><span class="s2">"user1@company.com"</span><span class="o">]</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="c"># the 2nd request security full access for ACM redefine in the module using variables</span>
+ <span class="s2">"ACM-FullAccess"</span> <span class="o">=</span> <span class="o">{</span>
+ description     <span class="o">=</span> <span class="s2">"Full access to AWS Certificate Manager"</span>
+ session_duration <span class="o">=</span> <span class="s2">"PT1H"</span>
+ managed_policies <span class="o">=</span> <span class="o">[</span>
+ <span class="s2">"arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess"</span>,
+ <span class="o">]</span>
+ accounts <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"12345678901"</span> <span class="o">=</span> <span class="o">{</span>
+ account_id <span class="o">=</span> <span class="s2">"12345678901"</span>
+ <span class="nb">users</span>      <span class="o">=</span> <span class="o">[</span><span class="s2">"security1@company.com"</span>, <span class="s2">"security2@company.com"</span>, <span class="s2">"security3@company.com"</span><span class="o">]</span>
+ <span class="o">}</span>,
+ <span class="s2">"12345678902"</span> <span class="o">=</span> <span class="o">{</span>
+ account_id <span class="o">=</span> <span class="s2">"12345678902"</span>
+ <span class="nb">users</span>      <span class="o">=</span> <span class="o">[</span><span class="s2">"security1@company.com"</span>, <span class="s2">"security2@company.com"</span>, <span class="s2">"security3@company.com"</span><span class="o">]</span>
+ <span class="o">}</span>,
+ <span class="s2">"12345678903"</span> <span class="o">=</span> <span class="o">{</span>
+ account_id <span class="o">=</span> <span class="s2">"12345678903"</span>
+ <span class="nb">users</span>      <span class="o">=</span> <span class="o">[</span><span class="s2">"security1@company.com"</span>, <span class="s2">"security2@company.com"</span>, <span class="s2">"security3@company.com"</span><span class="o">]</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+
+ <span class="c"># Add 3rd request a developer needs S3 full access for 2 AWS accounts redefine in the module using variables</span>
+ <span class="s2">"S3-ModifyAccess"</span> <span class="o">=</span> <span class="o">{</span>
+ description     <span class="o">=</span> <span class="s2">"Modify access to S3 buckets"</span>
+ session_duration <span class="o">=</span> <span class="s2">"PT1H"</span>
+ managed_policies <span class="o">=</span> <span class="o">[</span>
+ <span class="s2">"arn:aws:iam::aws:policy/AmazonS3FullAccess"</span>,
+ <span class="o">]</span>
+ accounts <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"12345678902"</span> <span class="o">=</span> <span class="o">{</span>
+ account_id <span class="o">=</span> <span class="s2">"12345678902"</span>
+ <span class="nb">users</span>      <span class="o">=</span> <span class="o">[</span><span class="s2">"developer1@company.com"</span><span class="o">]</span>
+ <span class="o">}</span>,
+ <span class="s2">"12345678903"</span> <span class="o">=</span> <span class="o">{</span>
+ account_id <span class="o">=</span> <span class="s2">"12345678903"</span>
+ <span class="nb">users</span>      <span class="o">=</span> <span class="o">[</span><span class="s2">"developer1@company.com"</span><span class="o">]</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="nb">groups</span> <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"AD-RDS-EAD-ONLY"</span> <span class="o">=</span> <span class="o">[</span><span class="s2">"user1@company.com"</span><span class="o">]</span>
+ <span class="s2">"AD-ACM-FULL-ACCESS"</span> <span class="o">=</span> <span class="o">[</span><span class="s2">"security1@company.com"</span>, <span class="s2">"security2@company.com"</span>, <span class="s2">"security3@company.com"</span><span class="o">]</span>
+ <span class="c"># Optionally add a group for the developer, if needed:</span>
+ <span class="c"># "AD-S3-Modify-Access" = ["developer1@company.com"]</span>
 <span class="o">}</span></code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>Now, we have a Terraform module to handle the creation of AWS SSO users more efficiently, dynamically, and reusable. In future we only define permission sets and maintain new users and assignment in the environment variables .tf file, then run terrafom apply to get the job done. The change also can be tracked when leveraging with Git as version control.</p>
+<p>Now, we can achieve the task individually via terraform code and a Terraform module to handle the creation of AWS SSO users, This setup combines all three requests into a single Terraform configuration, leveraging the reusable module for creating permission sets and managing user assignments, it is more efficient, dynamically, and reusable. In future, we only define permission sets and maintain new users and assignments in the environment variables .tf file, then run Terraform apply to get the job done. The change also can be tracked when leveraging Git as version control.</p>
 
 <p><a href="https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11">Streamlining AWS SSO in Complex Multi-Account Environments</a></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Challange About AWS SSO User Assignment]]></summary></entry><entry><title type="html">Python: File Handling for EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling for EC2 tagging" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
 
