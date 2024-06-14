@@ -23,7 +23,6 @@ email: zhbsoftboy1@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   ## AWS   ## Jenkins  ## Microservices ## Automation
   ## K8S   ## CICD     ## Gitops 
-  [京ICP备2024056683号-1]
 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com

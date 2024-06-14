@@ -39,4 +39,4 @@ This is the design of CICD pipeline in GitHub Action workflow to auto build dock
 
 ![image tooltip here](/assets/cicd.png)
 
-[Zack's Blog]: http://zackdevops.online
+[Zack's Blog]: http://zackz.site
