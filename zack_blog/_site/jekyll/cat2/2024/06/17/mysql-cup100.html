@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Handling a RDS MySQL cluster CPU 100% | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Handling a RDS MySQL cluster CPU 100%" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The Incident" />
+<meta property="og:description" content="The Incident" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-06-17T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Handling a RDS MySQL cluster CPU 100%" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-06-17T10:15:29+10:00","datePublished":"2024-06-17T10:15:29+10:00","description":"The Incident","headline":"Handling a RDS MySQL cluster CPU 100%","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"},"url":"http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Handling a RDS MySQL cluster CPU 100%</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-06-17T10:15:29+10:00" itemprop="datePublished">Jun 17, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>The Incident</b></p>
+
+<p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
+
+<p>I started to look into bellow areas for investigation:</p>
+
+<ul>
+  <li>AWS CloudWatch Metrics for RDS</li>
+</ul>
+
+<p>AWS CloudWatch provides a wide range of metrics that can help diagnose resource usage for databases. So I started with</p>
+
+<p><em>CloudWatch - Metrics - All metrics - Add query - RDS - Top 10 RDS instances by highest CPU utilization</em></p>
+
+<p>This only queries the recent 3 hours metrics, but it is enough for me to identify the issue: CPU 100%</p>
+
+<p><img src="/assets/mysqlcpu1.png" alt="image tooltip here" /></p>
+
+<p>To further understand the high CUP, I go:</p>
+
+<p><em>CloudWatch - Metrics - All metrics - Browse - RDS - DBClusterIdentifier - CPUUtilization</em></p>
+
+<p>which gives me a long period of monitoring, so I can see it started to 100% CPU since yesterday morning.</p>
+
+<p><img src="/assets/mysqlcpu2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>AWS console RDS Logs &amp; events</li>
+</ul>
+
+<p>Now let’s find out from the RDS logs to see if any errors can indicate who could be the person. So I go</p>
+
+<p><em>RDS - “the DB cluster” - “the DB instance” - “Logs &amp; events” - “error/mysql-error-running.log.2024-06-18.02”</em></p>
+
+<p>I got :</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">2024-06-18T00:04:58.750212Z 2831474 <span class="o">[</span>Note] Aborted connection 2831474 to db: <span class="s1">'xxxxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Unknown error<span class="o">)</span>
+2024-06-18T00:12:00.798173Z 2831498 <span class="o">[</span>Note] Aborted connection 2831498 to db: <span class="s1">'xxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Got an error writing communication packets<span class="o">)</span>
+<span class="nt">-----------------------</span> END OF LOG <span class="nt">----------------------</span></code></pre></figure>
+
+<p>Up to here I generally have an idea of what is going on and can locate the person “xxxx” who was running something at the time CPU 100%.</p>
+
+<ul>
+  <li>MySQL Client Tool to list, identiry and terminate long-running queries</li>
+</ul>
+
+<p>It is time to log in to the RDS endpoint to see what is happening and which queries might cause the usage. Here we need “root” to be able to see all other users’ running processes. Then pay attention to the high “Time” and “State” values indicating all the stuck processes, then we kill them and restart the RDS instance</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mysql <span class="nt">-u</span> root <span class="nt">-p</span> <span class="nt">-h</span> rds_endpoint
+SHOW PROCESSLIST<span class="p">;</span>
+KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
+
+<p>Then I go <em>AWS RDS console - Actions - Reboot</em> the RDS instance.</p>
+
+<ul>
+  <li>Now the CPU usage started to drop and back to normal after terminating the stuck processes and DB instance reboot.</li>
+</ul>
+
+<p><img src="/assets/mysqlcpu3.png" alt="image tooltip here" /></p>
+
+<p>Done.</p>
+
+<p><b> Conclusion</b></p>
+
+<p>Even the issue had been fixed, I was still thinking how to better monitor RDS resource usage. I think we need:</p>
+
+<ul>
+  <li>
+    <p>A “CloudWatch Alarm” to set “CPUUtilization” metric threshold to 80%, then specify the period (e.g., 5 minutes) and the number of periods (e.g., 2 out of 3) that the metric must breach the threshold to trigger the alarm.</p>
+  </li>
+  <li>
+    <p>Create “SNS topic” with team Email for the alarm to send a notification</p>
+  </li>
+  <li>
+    <p>Enable “RDS Performance Insights”, this can monitor the load on the database, identify the source of bottlenecks, and understand how the DB is performing, especially during troubleshooting.</p>
+  </li>
+  <li>
+    <p>Enable “Enhanced Monitoring” and select the monitoring interval (e.g., 1 minute), which provides real-time metrics for the operating system that the DB instance runs on, this helps for immediate investigation on OS level</p>
+  </li>
+  <li>
+    <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
+  </li>
+</ul>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/06/17/mysql-cup100.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

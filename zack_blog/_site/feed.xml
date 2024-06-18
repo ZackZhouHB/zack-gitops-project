@@ -1,4 +1,86 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-06-14T19:25:33+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Istio: Distributed Tracing with Jaeger</title><link href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" rel="alternate" type="text/html" title="Istio: Distributed Tracing with Jaeger" /><published>2024-05-24T10:15:29+10:00</published><updated>2024-05-24T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/24/istio2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"><![CDATA[<p><b>About Jaeger</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-06-18T23:18:00+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
+
+<p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
+
+<p>I started to look into bellow areas for investigation:</p>
+
+<ul>
+  <li>AWS CloudWatch Metrics for RDS</li>
+</ul>
+
+<p>AWS CloudWatch provides a wide range of metrics that can help diagnose resource usage for databases. So I started with</p>
+
+<p><em>CloudWatch - Metrics - All metrics - Add query - RDS - Top 10 RDS instances by highest CPU utilization</em></p>
+
+<p>This only queries the recent 3 hours metrics, but it is enough for me to identify the issue: CPU 100%</p>
+
+<p><img src="/assets/mysqlcpu1.png" alt="image tooltip here" /></p>
+
+<p>To further understand the high CUP, I go:</p>
+
+<p><em>CloudWatch - Metrics - All metrics - Browse - RDS - DBClusterIdentifier - CPUUtilization</em></p>
+
+<p>which gives me a long period of monitoring, so I can see it started to 100% CPU since yesterday morning.</p>
+
+<p><img src="/assets/mysqlcpu2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>AWS console RDS Logs &amp; events</li>
+</ul>
+
+<p>Now let’s find out from the RDS logs to see if any errors can indicate who could be the person. So I go</p>
+
+<p><em>RDS - “the DB cluster” - “the DB instance” - “Logs &amp; events” - “error/mysql-error-running.log.2024-06-18.02”</em></p>
+
+<p>I got :</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">2024-06-18T00:04:58.750212Z 2831474 <span class="o">[</span>Note] Aborted connection 2831474 to db: <span class="s1">'xxxxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Unknown error<span class="o">)</span>
+2024-06-18T00:12:00.798173Z 2831498 <span class="o">[</span>Note] Aborted connection 2831498 to db: <span class="s1">'xxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Got an error writing communication packets<span class="o">)</span>
+<span class="nt">-----------------------</span> END OF LOG <span class="nt">----------------------</span></code></pre></figure>
+
+<p>Up to here I generally have an idea of what is going on and can locate the person “xxxx” who was running something at the time CPU 100%.</p>
+
+<ul>
+  <li>MySQL Client Tool to list, identiry and terminate long-running queries</li>
+</ul>
+
+<p>It is time to log in to the RDS endpoint to see what is happening and which queries might cause the usage. Here we need “root” to be able to see all other users’ running processes. Then pay attention to the high “Time” and “State” values indicating all the stuck processes, then we kill them and restart the RDS instance</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mysql <span class="nt">-u</span> root <span class="nt">-p</span> <span class="nt">-h</span> rds_endpoint
+SHOW PROCESSLIST<span class="p">;</span>
+KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
+
+<p>Then I go <em>AWS RDS console - Actions - Reboot</em> the RDS instance.</p>
+
+<ul>
+  <li>Now the CPU usage started to drop and back to normal after terminating the stuck processes and DB instance reboot.</li>
+</ul>
+
+<p><img src="/assets/mysqlcpu3.png" alt="image tooltip here" /></p>
+
+<p>Done.</p>
+
+<p><b> Conclusion</b></p>
+
+<p>Even the issue had been fixed, I was still thinking how to better monitor RDS resource usage. I think we need:</p>
+
+<ul>
+  <li>
+    <p>A “CloudWatch Alarm” to set “CPUUtilization” metric threshold to 80%, then specify the period (e.g., 5 minutes) and the number of periods (e.g., 2 out of 3) that the metric must breach the threshold to trigger the alarm.</p>
+  </li>
+  <li>
+    <p>Create “SNS topic” with team Email for the alarm to send a notification</p>
+  </li>
+  <li>
+    <p>Enable “RDS Performance Insights”, this can monitor the load on the database, identify the source of bottlenecks, and understand how the DB is performing, especially during troubleshooting.</p>
+  </li>
+  <li>
+    <p>Enable “Enhanced Monitoring” and select the monitoring interval (e.g., 1 minute), which provides real-time metrics for the operating system that the DB instance runs on, this helps for immediate investigation on OS level</p>
+  </li>
+  <li>
+    <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
+  </li>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry><entry><title type="html">Istio: Distributed Tracing with Jaeger</title><link href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" rel="alternate" type="text/html" title="Istio: Distributed Tracing with Jaeger" /><published>2024-05-24T10:15:29+10:00</published><updated>2024-05-24T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/24/istio2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"><![CDATA[<p><b>About Jaeger</b></p>
 
 <p>Last post we are able to depoly <a href="https://zackz.online/jekyll/cat2/2024/05/22/istio.html">Istio</a> and manage traffic for a book review microservice application. This session we will dive deeper into Istia for it add-on Jaeger for Microservice tracing.</p>
 
@@ -2181,260 +2263,4 @@ exit
 
 <p><b> Conclusion</b></p>
 
-<p>Now we are able to run a PostgreSQL primary and standby instances to test replication and failover, in the next blog I will discover how to depoly a single PostgreSQL on kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Replication]]></summary></entry><entry><title type="html">PostgreSQL: Get Started</title><link href="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html" rel="alternate" type="text/html" title="PostgreSQL: Get Started" /><published>2024-05-06T10:15:29+10:00</published><updated>2024-05-06T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/06/PS1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/06/PS1.html"><![CDATA[<p><b> The Scenario</b></p>
-
-<p>PostgreSQL is a very popular open-source relational database management systems (RDBMS), for its Extensibility and Feature-Rich, suitable for mission-critical applications, not to mention its active PostgreSQL community.</p>
-
-<p>In the upcoming posts, I will start a series of PostgreSQL study to :</p>
-
-<ul>
-  <li>
-    <p>explore PostgreSQL main features, installation, basic administration tasks</p>
-  </li>
-  <li>
-    <p>deploy PostgreSQL cluster onto K8S with PostgreSQL Operater, validate backup and rolling upgrade</p>
-  </li>
-  <li>
-    <p>create a simple Flash microservice application to connect PostgreSQL cluster and validate failover</p>
-  </li>
-  <li>
-    <p>integrate the whole deployment into CICD pipeline for automation</p>
-  </li>
-  <li>
-    <p>create AWS RDS PostgreSQL, with S3 Block storage as replica</p>
-  </li>
-</ul>
-
-<p>By the end of the series we should be able to have a comprehensive understanding of PostgreSQL from a DevOps perspective</p>
-
-<p><b>PostgreSQL Basic</b></p>
-
-<p>To begin, we will</p>
-
-<ul>
-  <li>install PostgreSQL as a docker container on a local Ubuntu machine to get it up and running,</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># ubuntu install docker</span>
-root@ubt-server:~# curl <span class="nt">-fsSL</span> https://get.docker.com <span class="nt">-o</span> get-docker.sh
-root@ubt-server:~# sh get-docker.sh
-root@ubt-server:~# docker <span class="nt">--version</span>
-root@ubt-server:~# systemctl <span class="nb">enable </span>docker
-
-<span class="c"># install PostgreSQL 15.0</span>
-root@ubt-server:~#  docker run <span class="nt">--name</span> zack-postgres <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>password <span class="nt">-d</span> postgres:15.0
-root@ubt-server:~# docker ps
-CONTAINER ID   IMAGE           COMMAND                  CREATED         STATUS         PORTS      NAMES
-b4fc638dfde3   postgres:15.0   <span class="s2">"docker-entrypoint.s…"</span>   7 seconds ago   Up 6 seconds   5432/tcp   zack-postgres</code></pre></figure>
-
-<ul>
-  <li>Run a simple PostgreSQL database with docker compose</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create docker-compose.yaml and run postgres and adminer from dockercompose</span>
-root@ubt-server:~# vim docker-compose.yaml
-
-version: <span class="s1">'3.1'</span>
-services:
-  db:
-    image: postgres:15.0
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: password
-    ports:
-    - 5000:5432
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
-<span class="c"># run docker compose</span>
-root@ubt-server:~# docker compose up</code></pre></figure>
-
-<ul>
-  <li>Validate from adminer web console locahost:8080 with password set in the environment variables</li>
-</ul>
-
-<p><img src="/assets/ps1-1.png" alt="image tooltip here" />
-<img src="/assets/ps1-2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Persist data to mount the PostgreSQL container volume, validate data table after start/stop container 
-PostgreSQL stores its data by default under /var/lib/postgresql/data, here we create a /pgdata folder on local machine to mount PostgreSQL default volume</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create local Persist data directory /pgdata</span>
-root@ubt-server:~# <span class="nb">mkdir </span>pgdata
-<span class="c"># run PostgreSQL to mount local Persist data and Bind a different port</span>
-root@ubt-server:~# docker run <span class="nt">-d</span> <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--name</span> zack-postgres2 <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>password <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/pgdata:/var/lib/postgresql/data <span class="nt">-p</span> 5000:5432 postgres:15.0
-
-PostgreSQL Database directory appears to contain a database<span class="p">;</span> Skipping initialization
-
-2024-05-08 00:58:47.540 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
-2024-05-08 00:58:47.541 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
-2024-05-08 00:58:47.541 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
-2024-05-08 00:58:47.542 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
-2024-05-08 00:58:47.545 UTC <span class="o">[</span>28] LOG:  database system was shut down at 2024-05-08 00:57:45 UTC
-2024-05-08 00:58:47.547 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections</code></pre></figure>
-
-<ul>
-  <li>Connect to DB container and validate</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># enter the container</span>
-root@ubt-server:~# docker <span class="nb">exec</span> <span class="nt">-it</span> zack-postgres2 bash
-<span class="c"># login to postgres</span>
-root@d7386c566872:/# psql <span class="nt">-h</span> localhost <span class="nt">-U</span> postgres
-psql <span class="o">(</span>15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">))</span>
-Type <span class="s2">"help"</span> <span class="k">for </span>help.
-<span class="c"># create a table</span>
-<span class="nv">postgres</span><span class="o">=</span><span class="c"># CREATE TABLE customers (firstname text,lastname text, customer_id serial);</span>
-CREATE TABLE
-<span class="c"># add record</span>
-<span class="nv">postgres</span><span class="o">=</span><span class="c"># INSERT INTO customers (firstname, lastname) VALUES ( 'Bob', 'Smith');</span>
-INSERT 0 1
-<span class="c"># show table</span>
-<span class="nv">postgres</span><span class="o">=</span><span class="c"># \dt</span>
-           List of relations
- Schema |   Name    | Type  |  Owner   
-<span class="nt">--------</span>+-----------+-------+----------
- public | customers | table | postgres
-<span class="o">(</span>1 row<span class="o">)</span>
-<span class="c"># get records</span>
-<span class="nv">postgres</span><span class="o">=</span><span class="c"># SELECT * FROM customers;</span>
- firstname | lastname | customer_id 
-<span class="nt">-----------</span>+----------+-------------
- Bob       | Smith    |           1
-<span class="o">(</span>1 row<span class="o">)</span>
-<span class="c"># quit </span>
-<span class="nv">postgres</span><span class="o">=</span><span class="c"># \q</span>
-<span class="c"># exit db container</span>
-root@d7386c566872:/# <span class="nb">exit
-exit</span></code></pre></figure>
-
-<ul>
-  <li>add persist data in docker-compose and run PostgreSQL from compose</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add presist data folder in compose yaml</span>
-root@ubt-server:~# vim docker-compose.yaml
-
-version: <span class="s1">'3.1'</span>
-services:
-  db:
-    image: postgres:15.0
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: admin123
-    ports:
-    - 5000:5432
-    volumes:
-    - ./pgdata:/var/lib/postgresql/data
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
-root@ubt-server:~# docker compose up</code></pre></figure>
-
-<ul>
-  <li>Validate the previous table and record from adminer console</li>
-</ul>
-
-<p>Table and record still there because of the persistent data mount
-<img src="/assets/ps1-3.png" alt="image tooltip here" /></p>
-
-<p><b>PostgreSQL Configuration</b></p>
-
-<p>Before jumping into replication, it is more important to explore the PostgreSQL configuration files to have a better understanding of its important config, take the default conf files out of a running database and learn it and make own configuration, then mount these conf files into container, so tell PostgreSQL to use my own configuration files to perform my prefered way.</p>
-
-<p>To achieve this, we need the db user “postgres” has ID of 999 with access to custom conf files.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/postgresql.conf
-root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_hba.conf
-root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_ident.conf
-
-root@ubt-server:~/pgdata# ll <span class="k">*</span>.conf
-<span class="nt">-rw-------</span> 1 lxd docker  4821 May  8 00:30 pg_hba.conf
-<span class="nt">-rw-------</span> 1 lxd docker  1636 May  8 00:30 pg_ident.conf
-<span class="nt">-rw-------</span> 1 lxd docker    88 May  8 00:30 postgresql.auto.conf
-<span class="nt">-rw-------</span> 1 lxd docker 29525 May  8 00:30 postgresql.conf
-
-root@ubt-server:~# <span class="nb">mkdir </span>config
-root@ubt-server:~# <span class="nb">cd </span>config/
-root@ubt-server:~# <span class="nb">cp</span> <span class="k">*</span>.conf /config
-
-root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/postgresql.conf
-root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_hba.conf
-root@ubt-server:~/pgdata# <span class="nb">chown </span>999:999 config/pg_ident.conf</code></pre></figure>
-
-<p>The official PostgreSQL documentation explains those configuration files as below:</p>
-
-<ul>
-  <li>pg_hba.conf:</li>
-</ul>
-
-<p>This file stands for “PostgreSQL Host-Based Authentication.” It controls client authentication based on the host and user information. It specifies which hosts are allowed to connect to the PostgreSQL server, which databases and users they can access, and what authentication methods they must use. It’s a crucial security measure for controlling access to PostgreSQL server.</p>
-
-<ul>
-  <li>pg_ident.conf:</li>
-</ul>
-
-<p>This file, “PostgreSQL Identification Mapping,” allows to define mappings between external (e.g., operating system) and internal (PostgreSQL) user names.</p>
-
-<ul>
-  <li>postgresql.conf:
-Main configuration file for PostgreSQL which contains global settings to tailor its behavior to specific requirements and environment.</li>
-</ul>
-
-<p>Create custom config file 
-<img src="/assets/ps1-4.png" alt="image tooltip here" /></p>
-
-<p>now we can adjust the command by adding environment variables to run PostgreSQL from docker and docker-compose using our custom conf files</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim docker-compose.yaml
-version: <span class="s1">'3.1'</span>
-services:
-  db:
-    container_name: postgres
-    image: postgres:15.0
-<span class="c"># important: passing argument to postgres container tell where conf file located # to match the custom conf file we created before when DB initiate       </span>
-    <span class="nb">command</span>: <span class="s2">"postgres -c config_file=/config/postgresql.conf"</span>
-    environment:
-      POSTGRES_USER: <span class="s2">"postgresadmin"</span>
-      POSTGRES_PASSWORD: <span class="s2">"admin123"</span>
-      POSTGRES_DB: <span class="s2">"postgresdb"</span>
-      PGDATA: <span class="s2">"/data"</span>
-    volumes:
-    - ./pgdata:/data
-    - ./config:/config/
-    ports:
-    - 5000:5432
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
-root@ubt-server:~# docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--name</span> postgres <span class="nt">-e</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span>postgresadmin <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>admin123 <span class="nt">-e</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span>postgresdb <span class="nt">-e</span> <span class="nv">PGDATA</span><span class="o">=</span><span class="s2">"/data"</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/pgdata:/data <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/config:/config <span class="nt">-p</span> 5000:5432 postgres:15.0 <span class="nt">-c</span> <span class="s1">'config_file=/config/postgresql.conf'</span>
-
-PostgreSQL Database directory appears to contain a database<span class="p">;</span> Skipping initialization
-
-2024-05-10 10:40:44.685 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
-2024-05-10 10:40:44.685 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
-2024-05-10 10:40:44.685 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
-2024-05-10 10:40:44.686 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
-2024-05-10 10:40:44.688 UTC <span class="o">[</span>28] LOG:  database system was shut down at 2024-05-10 10:30:42 UTC
-2024-05-10 10:40:44.690 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections
-
-root@ubt-server:~# docker compose up <span class="nt">-d</span>
-WARN[0000] /root/docker-compose.yaml: <span class="sb">`</span>version<span class="sb">`</span> is obsolete 
-<span class="o">[</span>+] Running 2/2
- ✔ Container postgres        Started                                                                                            0.4s 
- ✔ Container root-adminer-1  Started</code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we can run a PostgreSQL container from docker and docker-compose with Persist data and custom configuration mount into the container, in the next blog we will discover primary and standby replication, WAL (write ahead log) options.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Scenario]]></summary></entry></feed>
+<p>Now we are able to run a PostgreSQL primary and standby instances to test replication and failover, in the next blog I will discover how to depoly a single PostgreSQL on kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Replication]]></summary></entry></feed>
