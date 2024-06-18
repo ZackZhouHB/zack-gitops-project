@@ -48,13 +48,16 @@ Up to here I generally have an idea of what is going on and can locate the perso
 
 - MySQL Client Tool to list, identiry and terminate long-running queries
 
-It is time to log in to the RDS endpoint to see what is happening and which queries might cause the usage. Here we need "root" to be able to see all other users' running processes. Then pay attention to the high "Time" and "State" values indicating all the stuck processes, then we kill them and restart the RDS instance
+It is time to log in to the RDS endpoint to see what is happening and which queries might cause the CPU usage. Here we need login via MySQL "root" to be able to see all other users' running processes. Then pay attention to the high "Time" and "State" values indicating all the stuck processes, then we kill them and restart the RDS instance
 
 {% highlight shell %}
 mysql -u root -p -h rds_endpoint
 SHOW PROCESSLIST;
 KILL <process_id>;
 {% endhighlight %}
+
+![image tooltip here](/assets/mysqlcpu4.png)
+
 
 Then I go _AWS RDS console - Actions - Reboot_ the RDS instance.
 
