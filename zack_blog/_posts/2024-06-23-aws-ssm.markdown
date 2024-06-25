@@ -1,0 +1,233 @@
+---
+layout: post
+title:  "Automatic Software Package Deploy via AWS System Manager"
+date:   2024-06-23 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+{% highlight shell %}
+
+{% endhighlight %}
+
+
+<b>The task</b>
+
+Recently we got a task from the Company’s security team, to install 2 security agents which will be used to perform centralized security scans for all active AWS EC2 instances. here I will see how to use AWS Systems Manager for software distribution and installation for mutiple AWS accounts and infrastructure at scale.
+
+SSM features will be used : 
+
+- <b>Session Manager</b>: ensure the EC2 instance has the SSM Agent installed and running and The instances need an IAM role with at least the `AmazonSSMManagedInstanceCore` policy attached  
+- <b>Run Command</b>: send command and execute security agent software package installation scripts and command to varify post-installation status on remote instances for task automation
+
+
+
+Prerequisites:
+- <b>AWSCLI</b>: programatically manage all the operation bellow.
+
+- <b>SSM Agent</b>: Ensure the SSM Agent is installed and running on all EC2 instances. Most Amazon Machine Images (AMIs) have the SSM Agent pre-installed.
+
+- <b>IAM Role</b>: Attach an IAM role to each instance with the AmazonSSMManagedInstanceCore policy.
+
+{% highlight shell %}
+[cloudshell-user@ip-10-134-56-72 ~]$ vim trust-policy.json
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+
+[cloudshell-user@ip-10-134-56-72 ~]$ aws iam create-role --role-name SSMAccessRole --assume-role-policy-document file://trust-policy.json
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "SSMAccessRole",
+        "RoleId": "AROA4MTWLTSHKK3QL3NOU",
+        "Arn": "arn:aws:iam::85xxxxxx1342:role/SSMAccessRole",
+        "CreateDate": "2024-06-25T00:29:07+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "ec2.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
+
+[cloudshell-user@ip-10-134-56-72 ~]$ aws iam attach-role-policy --role-name SSMAccessRole --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+[cloudshell-user@ip-10-134-56-72 ~]$ aws iam create-instance-profile --instance-profile-name SSMInstanceProfile
+{
+    "InstanceProfile": {
+        "Path": "/",
+        "InstanceProfileName": "SSMInstanceProfile",
+        "InstanceProfileId": "AIPA4MTWLTSHF7KJRFLYC",
+        "Arn": "arn:aws:iam::851xxxxxxx42:instance-profile/SSMInstanceProfile",
+        "CreateDate": "2024-06-25T00:31:25+00:00",
+        "Roles": []
+    }
+}
+
+[cloudshell-user@ip-10-134-56-72 ~]$ INSTANCE_IDS=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text)
+for INSTANCE_ID in $INSTANCE_IDS; do
+>   aws ec2 associate-iam-instance-profile --instance-id $INSTANCE_ID --iam-instance-profile Name=SSMInstanceProfile
+> done
+
+{
+    "IamInstanceProfileAssociation": {
+        "AssociationId": "iip-assoc-04e81626bf6bcd9b5",
+        "InstanceId": "i-0762xxxxxxxcf2",
+        "IamInstanceProfile": {
+            "Arn": "arn:aws:iam::8517xxxxxxx42:instance-profile/SSMInstanceProfile",
+            "Id": "AIPA4MTWLTSHF7KJRFLYC"
+        },
+        "State": "associating"
+    }
+}
+{
+    "IamInstanceProfileAssociation": {
+        "AssociationId": "iip-assoc-09233165b3a53ca68",
+        "InstanceId": "i-01a2xxxxxx048c",
+        "IamInstanceProfile": {
+            "Arn": "arn:aws:iam::851xxxx42:instance-profile/SSMInstanceProfile",
+            "Id": "AIPA4MTWLTSHF7KJRFLYC"
+        },
+        "State": "associating"
+    }
+}
+{
+    "IamInstanceProfileAssociation": {
+        "AssociationId": "iip-assoc-09236a8ee456e39cd",
+        "InstanceId": "i-07axxxxxxb823",
+        "IamInstanceProfile": {
+            "Arn": "arn:aws:iam::85xxxxxxx42:instance-profile/SSMInstanceProfile",
+            "Id": "AIPA4MTWLTSHF7KJRFLYC"
+        },
+        "State": "associating"
+    }
+}
+
+[cloudshell-user@ip-10-134-56-72 ~]$ aws ssm describe-instance-information
+{% endhighlight %}
+
+or varify from session manager
+
+![image tooltip here](/assets/ssm1.png)
+
+
+
+- Tag Instances
+
+Tag EC2 instances to identify which instances need the security agent to be installed:
+
+{% highlight shell %}
+Key=InstallSecurityAgent, Value=True.
+{% endhighlight %}
+
+{% highlight shell %}
+# List all instance IDs
+INSTANCE_IDS=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text)
+
+# Tag all instances with Key=InstallSecurityAgent and Value=True
+for INSTANCE_ID in $INSTANCE_IDS; do
+  aws ec2 create-tags --resources $INSTANCE_ID --tags Key=InstallSecurityAgent,Value=True
+done
+{% endhighlight %}
+
+
+
+- SSM Run Command to Create custom SSM document that contains the script to install the security agent
+
+{% highlight shell %}
+[cloudshell-user@ip-10-134-56-72 ~]$ vim install_security_agent.json
+{
+  "schemaVersion": "2.2",
+  "description": "Install Security Agent",
+  "mainSteps": [
+    {
+      "action": "aws:runShellScript",
+      "name": "installSecurityAgent",
+      "inputs": {
+        "runCommand": [
+          "curl -o /tmp/security-agent-installer.sh https://github.com/ZackZhouHB/zack-gitops-project/blob/editing/Python_scripts/security-agent-installer.sh",
+          "chmod +x /tmp/security-agent-installer.sh",
+          "/tmp/security-agent-installer.sh"
+        ]
+      }
+    }
+  ]
+}
+{% endhighlight %}
+
+
+Use the SSM Run Command to execute the installation script on all tagged instances.
+
+{% highlight shell %}
+[cloudshell-user@ip-10-134-56-72 ~]$ aws ssm send-command \
+  --document-name "InstallSecurityAgent" \
+  --targets "Key=tag:InstallSecurityAgent,Values=True" \
+  --comment "Installing security agent on all instances with the specified tag" \
+  --max-concurrency "50" \
+  --max-errors "0" \
+  --region ap-southeast-2
+{% endhighlight %}
+
+Create an SSM Document to Check the Service Status
+
+{% highlight shell %}
+[cloudshell-user@ip-10-134-56-72 ~]$ vim check_security_agent.json
+
+{
+  "schemaVersion": "2.2",
+  "description": "Check the status of the security-agent service",
+  "mainSteps": [
+    {
+      "action": "aws:runShellScript",
+      "name": "checkSecurityAgentStatus",
+      "inputs": {
+        "runCommand": [
+          "systemctl is-active security-agent",
+          "systemctl is-enabled security-agent"
+        ]
+      }
+    }
+  ]
+}
+{% endhighlight %}
+
+Create this document using the AWS CLI:
+
+{% highlight shell %}
+
+[cloudshell-user@ip-10-134-56-72 ~]$ aws ssm create-document \
+  --name "CheckSecurityAgentStatus" \
+  --document-type "Command" \
+  --content file://check_security_agent.json
+
+[cloudshell-user@ip-10-134-56-72 ~]$ aws ssm send-command \
+  --document-name "CheckSecurityAgentStatus" \
+  --targets "Key=tag:InstallSecurityAgent,Values=True" \
+  --comment "Check the status of security-agent on all instances" \
+  --max-concurrency "50" \
+  --max-errors "0" \
+  --region ap-southeast-2
+{% endhighlight %}
+
+use the command ID to get the detailed output
+{% highlight shell %}
+[cloudshell-user@ip-10-134-56-72 ~]$ aws ssm list-command-invocations --command-id $COMMAND_ID --details
+
+{% endhighlight %}

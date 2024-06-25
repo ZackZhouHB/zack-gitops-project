@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Automatic Software Package Deploy via AWS System Manager | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Automatic Software Package Deploy via AWS System Manager" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops" />
+<meta property="og:description" content="AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-06-23T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Automatic Software Package Deploy via AWS System Manager" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-06-23T10:15:29+10:00","datePublished":"2024-06-23T10:15:29+10:00","description":"AWS ## Jenkins ## Microservices ## Automation ## K8S ## CICD ## Gitops","headline":"Automatic Software Package Deploy via AWS System Manager","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"},"url":"http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Automatic Software Package Deploy via AWS System Manager</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-06-23T10:15:29+10:00" itemprop="datePublished">Jun 23, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    
+<p><b>The task</b></p>
+
+<p>Recently we got a task from the Company’s security team, to install 2 security agents which will be used to perform centralized security scans for all active AWS EC2 instances. here I will see how to use AWS Systems Manager for software distribution and installation for mutiple AWS accounts and infrastructure at scale.</p>
+
+<p>SSM features will be used :</p>
+
+<ul>
+  <li><b>Session Manager</b>: ensure the EC2 instance has the SSM Agent installed and running and The instances need an IAM role with at least the <code class="language-plaintext highlighter-rouge">AmazonSSMManagedInstanceCore</code> policy attached</li>
+  <li><b>Run Command</b>: send command and execute security agent software package installation scripts and command to varify post-installation status on remote instances for task automation</li>
+</ul>
+
+<p>Prerequisites:</p>
+<ul>
+  <li>
+    <p><b>AWSCLI</b>: programatically manage all the operation bellow.</p>
+  </li>
+  <li>
+    <p><b>SSM Agent</b>: Ensure the SSM Agent is installed and running on all EC2 instances. Most Amazon Machine Images (AMIs) have the SSM Agent pre-installed.</p>
+  </li>
+  <li>
+    <p><b>IAM Role</b>: Attach an IAM role to each instance with the AmazonSSMManagedInstanceCore policy.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>vim trust-policy.json
+
+<span class="o">{</span>
+  <span class="s2">"Version"</span>: <span class="s2">"2012-10-17"</span>,
+  <span class="s2">"Statement"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"Effect"</span>: <span class="s2">"Allow"</span>,
+      <span class="s2">"Principal"</span>: <span class="o">{</span>
+        <span class="s2">"Service"</span>: <span class="s2">"ec2.amazonaws.com"</span>
+      <span class="o">}</span>,
+      <span class="s2">"Action"</span>: <span class="s2">"sts:AssumeRole"</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+
+<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws iam create-role <span class="nt">--role-name</span> SSMAccessRole <span class="nt">--assume-role-policy-document</span> file://trust-policy.json
+<span class="o">{</span>
+    <span class="s2">"Role"</span>: <span class="o">{</span>
+        <span class="s2">"Path"</span>: <span class="s2">"/"</span>,
+        <span class="s2">"RoleName"</span>: <span class="s2">"SSMAccessRole"</span>,
+        <span class="s2">"RoleId"</span>: <span class="s2">"AROA4MTWLTSHKK3QL3NOU"</span>,
+        <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::85xxxxxx1342:role/SSMAccessRole"</span>,
+        <span class="s2">"CreateDate"</span>: <span class="s2">"2024-06-25T00:29:07+00:00"</span>,
+        <span class="s2">"AssumeRolePolicyDocument"</span>: <span class="o">{</span>
+            <span class="s2">"Version"</span>: <span class="s2">"2012-10-17"</span>,
+            <span class="s2">"Statement"</span>: <span class="o">[</span>
+                <span class="o">{</span>
+                    <span class="s2">"Effect"</span>: <span class="s2">"Allow"</span>,
+                    <span class="s2">"Principal"</span>: <span class="o">{</span>
+                        <span class="s2">"Service"</span>: <span class="s2">"ec2.amazonaws.com"</span>
+                    <span class="o">}</span>,
+                    <span class="s2">"Action"</span>: <span class="s2">"sts:AssumeRole"</span>
+                <span class="o">}</span>
+            <span class="o">]</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws iam attach-role-policy <span class="nt">--role-name</span> SSMAccessRole <span class="nt">--policy-arn</span> arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws iam create-instance-profile <span class="nt">--instance-profile-name</span> SSMInstanceProfile
+<span class="o">{</span>
+    <span class="s2">"InstanceProfile"</span>: <span class="o">{</span>
+        <span class="s2">"Path"</span>: <span class="s2">"/"</span>,
+        <span class="s2">"InstanceProfileName"</span>: <span class="s2">"SSMInstanceProfile"</span>,
+        <span class="s2">"InstanceProfileId"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>,
+        <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::851xxxxxxx42:instance-profile/SSMInstanceProfile"</span>,
+        <span class="s2">"CreateDate"</span>: <span class="s2">"2024-06-25T00:31:25+00:00"</span>,
+        <span class="s2">"Roles"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> text<span class="si">)</span>
+<span class="k">for </span>INSTANCE_ID <span class="k">in</span> <span class="nv">$INSTANCE_IDS</span><span class="p">;</span> <span class="k">do</span>
+<span class="o">&gt;</span>   aws ec2 associate-iam-instance-profile <span class="nt">--instance-id</span> <span class="nv">$INSTANCE_ID</span> <span class="nt">--iam-instance-profile</span> <span class="nv">Name</span><span class="o">=</span>SSMInstanceProfile
+<span class="o">&gt;</span> <span class="k">done</span>
+
+<span class="o">{</span>
+    <span class="s2">"IamInstanceProfileAssociation"</span>: <span class="o">{</span>
+        <span class="s2">"AssociationId"</span>: <span class="s2">"iip-assoc-04e81626bf6bcd9b5"</span>,
+        <span class="s2">"InstanceId"</span>: <span class="s2">"i-0762xxxxxxxcf2"</span>,
+        <span class="s2">"IamInstanceProfile"</span>: <span class="o">{</span>
+            <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::8517xxxxxxx42:instance-profile/SSMInstanceProfile"</span>,
+            <span class="s2">"Id"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>
+        <span class="o">}</span>,
+        <span class="s2">"State"</span>: <span class="s2">"associating"</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="o">{</span>
+    <span class="s2">"IamInstanceProfileAssociation"</span>: <span class="o">{</span>
+        <span class="s2">"AssociationId"</span>: <span class="s2">"iip-assoc-09233165b3a53ca68"</span>,
+        <span class="s2">"InstanceId"</span>: <span class="s2">"i-01a2xxxxxx048c"</span>,
+        <span class="s2">"IamInstanceProfile"</span>: <span class="o">{</span>
+            <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::851xxxx42:instance-profile/SSMInstanceProfile"</span>,
+            <span class="s2">"Id"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>
+        <span class="o">}</span>,
+        <span class="s2">"State"</span>: <span class="s2">"associating"</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="o">{</span>
+    <span class="s2">"IamInstanceProfileAssociation"</span>: <span class="o">{</span>
+        <span class="s2">"AssociationId"</span>: <span class="s2">"iip-assoc-09236a8ee456e39cd"</span>,
+        <span class="s2">"InstanceId"</span>: <span class="s2">"i-07axxxxxxb823"</span>,
+        <span class="s2">"IamInstanceProfile"</span>: <span class="o">{</span>
+            <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::85xxxxxxx42:instance-profile/SSMInstanceProfile"</span>,
+            <span class="s2">"Id"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>
+        <span class="o">}</span>,
+        <span class="s2">"State"</span>: <span class="s2">"associating"</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm describe-instance-information</code></pre></figure>
+
+<p>or varify from session manager</p>
+
+<p><img src="/assets/ssm1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Tag Instances</li>
+</ul>
+
+<p>Tag EC2 instances to identify which instances need the security agent to be installed:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">Key</span><span class="o">=</span>InstallSecurityAgent, <span class="nv">Value</span><span class="o">=</span>True.</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># List all instance IDs</span>
+<span class="nv">INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> text<span class="si">)</span>
+
+<span class="c"># Tag all instances with Key=InstallSecurityAgent and Value=True</span>
+<span class="k">for </span>INSTANCE_ID <span class="k">in</span> <span class="nv">$INSTANCE_IDS</span><span class="p">;</span> <span class="k">do
+  </span>aws ec2 create-tags <span class="nt">--resources</span> <span class="nv">$INSTANCE_ID</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span>InstallSecurityAgent,Value<span class="o">=</span>True
+<span class="k">done</span></code></pre></figure>
+
+<ul>
+  <li>SSM Run Command to Create custom SSM document that contains the script to install the security agent</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>vim install_security_agent.json
+<span class="o">{</span>
+  <span class="s2">"schemaVersion"</span>: <span class="s2">"2.2"</span>,
+  <span class="s2">"description"</span>: <span class="s2">"Install Security Agent"</span>,
+  <span class="s2">"mainSteps"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"action"</span>: <span class="s2">"aws:runShellScript"</span>,
+      <span class="s2">"name"</span>: <span class="s2">"installSecurityAgent"</span>,
+      <span class="s2">"inputs"</span>: <span class="o">{</span>
+        <span class="s2">"runCommand"</span>: <span class="o">[</span>
+          <span class="s2">"curl -o /tmp/security-agent-installer.sh https://github.com/ZackZhouHB/zack-gitops-project/blob/editing/Python_scripts/security-agent-installer.sh"</span>,
+          <span class="s2">"chmod +x /tmp/security-agent-installer.sh"</span>,
+          <span class="s2">"/tmp/security-agent-installer.sh"</span>
+        <span class="o">]</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Use the SSM Run Command to execute the installation script on all tagged instances.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm send-command <span class="se">\</span>
+  <span class="nt">--document-name</span> <span class="s2">"InstallSecurityAgent"</span> <span class="se">\</span>
+  <span class="nt">--targets</span> <span class="s2">"Key=tag:InstallSecurityAgent,Values=True"</span> <span class="se">\</span>
+  <span class="nt">--comment</span> <span class="s2">"Installing security agent on all instances with the specified tag"</span> <span class="se">\</span>
+  <span class="nt">--max-concurrency</span> <span class="s2">"50"</span> <span class="se">\</span>
+  <span class="nt">--max-errors</span> <span class="s2">"0"</span> <span class="se">\</span>
+  <span class="nt">--region</span> ap-southeast-2</code></pre></figure>
+
+<p>Create an SSM Document to Check the Service Status</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>vim check_security_agent.json
+
+<span class="o">{</span>
+  <span class="s2">"schemaVersion"</span>: <span class="s2">"2.2"</span>,
+  <span class="s2">"description"</span>: <span class="s2">"Check the status of the security-agent service"</span>,
+  <span class="s2">"mainSteps"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"action"</span>: <span class="s2">"aws:runShellScript"</span>,
+      <span class="s2">"name"</span>: <span class="s2">"checkSecurityAgentStatus"</span>,
+      <span class="s2">"inputs"</span>: <span class="o">{</span>
+        <span class="s2">"runCommand"</span>: <span class="o">[</span>
+          <span class="s2">"systemctl is-active security-agent"</span>,
+          <span class="s2">"systemctl is-enabled security-agent"</span>
+        <span class="o">]</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Create this document using the AWS CLI:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm create-document <span class="se">\</span>
+  <span class="nt">--name</span> <span class="s2">"CheckSecurityAgentStatus"</span> <span class="se">\</span>
+  <span class="nt">--document-type</span> <span class="s2">"Command"</span> <span class="se">\</span>
+  <span class="nt">--content</span> file://check_security_agent.json
+
+<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm send-command <span class="se">\</span>
+  <span class="nt">--document-name</span> <span class="s2">"CheckSecurityAgentStatus"</span> <span class="se">\</span>
+  <span class="nt">--targets</span> <span class="s2">"Key=tag:InstallSecurityAgent,Values=True"</span> <span class="se">\</span>
+  <span class="nt">--comment</span> <span class="s2">"Check the status of security-agent on all instances"</span> <span class="se">\</span>
+  <span class="nt">--max-concurrency</span> <span class="s2">"50"</span> <span class="se">\</span>
+  <span class="nt">--max-errors</span> <span class="s2">"0"</span> <span class="se">\</span>
+  <span class="nt">--region</span> ap-southeast-2</code></pre></figure>
+
+<p>use the command ID to get the detailed output</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm list-command-invocations <span class="nt">--command-id</span> <span class="nv">$COMMAND_ID</span> <span class="nt">--details</span></code></pre></figure>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/06/23/aws-ssm.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
