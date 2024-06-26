@@ -29,24 +29,54 @@ when a company facing challenge to manage its Linux environments across local an
 
 - A web-based management front-end running on Apache
 
+To set a Idm server on AWS, configure the security groups to allow ports required by IdM. IdM desires bellow to be opene:
 
-<b> A Typical AD User Authentication Flow across AWS and IdM would be: </b>
+HTTP/HTTPS — 80, 443 — TCP
+
+LDAP/LDAPS — 389, 636 — TCP
+
+Kerberos — 88, 464 — Both TCP and UDP
+
+DNS — 53 — Both TCP and UDP
+
+NTP — 123 — UDP
+
+<b> A Typical AD User Authentication Flow End-to-End: </b>
 
 
-- When a user attempts to access AWS resources, they first authenticate through Azure AD using their Azure AD credentials.
+User Creation and Management:
 
-- Azure AD authenticates the user and issues a security token.
+- Azure AD / Local AD: Users are created in the Azure Active Directory or local Active Directory.
 
-- The user accesses AWS SSO, which is configured to use Red Hat IDM as an identity provider.
+- Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the one-way trust established between AD and IdM.
 
-- AWS SSO redirects the user to the Red Hat IDM authentication page.
+Access Request:
 
-- The user enters their Red Hat IDM credentials and authenticates against the IdM server.
+- AWS SSO Integration: AWS Single Sign-On (SSO) is integrated with Azure AD. Users log in to the AWS Management Console or AWS CLI via AWS SSO using their Azure AD credentials.
 
-- Red Hat IDM validates the user's credentials and issues a SAML assertion to AWS SSO.
+User Authentication:
 
-- AWS SSO validates the SAML assertion and grants the user access to the requested AWS resources.
+- Azure AD Authentication: When users attempt to log in via AWS SSO, they are redirected to Azure AD for authentication.
 
+- MFA Enforcement: Azure AD can enforce multi-factor authentication (MFA) as per the organization's security policies.
+
+Role Assignment and Access Control:
+
+- Role-Based Access Control (RBAC): AWS SSO uses SAML assertions to map authenticated users to AWS roles and permissions based on their group memberships in Azure AD.
+
+- AWS IAM Roles: These roles define the permissions for accessing various AWS services, including EC2 instances.
+
+Accessing EC2 Instances via SSH:
+
+- User Sync to RedHat IdM: Users synchronized to RedHat IdM are assigned roles and permissions, including SSH access to specific EC2 instances.
+
+- SSH Key Management: SSH keys for users can be managed within RedHat IdM and propagated to the EC2 instances as needed.
+
+Host-Based Access Control (HBAC):
+
+- HBAC Rules: RedHat IdM enforces HBAC rules to control which users can access specific EC2 instances.
+
+- SSH Access Control: When a user attempts to SSH into an EC2 instance, RedHat IdM verifies the user's identity and permissions, allowing or denying access based on the defined HBAC rules.
 
 
 <b> FreeIPA: the opensource version of RedHat IdM </b>
