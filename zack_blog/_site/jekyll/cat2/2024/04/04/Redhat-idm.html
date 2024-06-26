@@ -413,42 +413,24 @@ pam-auth-update</code></pre></figure>
 <img src="/assets/linuxidm3.png" alt="image tooltip here" /></p>
 
 <ul>
-  <li>verify to use user “alice” and its passwd to ssh login to ubuntu client from freeIPA server</li>
+  <li>verify to use user “alice” and its passwd to ssh login to ubuntu client from SSH client</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# ssh alice@freeipa-client2.zackz.oonline
-Password: 
-Welcome to Ubuntu 22.04.4 LTS <span class="o">(</span>GNU/Linux 5.15.0-101-generic x86_64<span class="o">)</span>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">zack@zackz MINGW64 /d/zhbso/Desktop
+<span class="nv">$ </span>ssh alice@11.0.1.151
+The authenticity of host <span class="s1">'11.0.1.81 (11.0.1.151)'</span> can<span class="s1">'t be established.
+ED25519 key fingerprint is SHA256:YMa3Hya5N4ICtQUmI9CedCS2jVZbI3lByrXGlWx5efA.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '</span>11.0.1.151<span class="s1">' (ED25519) to the list of known hosts.
+(alice@11.0.1.151) Password:
+Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-107-generic x86_64)
 
- <span class="k">*</span> Documentation:  https://help.ubuntu.com
- <span class="k">*</span> Management:     https://landscape.canonical.com
- <span class="k">*</span> Support:        https://ubuntu.com/pro
+Last login: Wed Jun 26 06:20:22 2024 from 11.0.1.80
+alice@freeipa-client1:~$
 
-  System information as of Thu Apr  4 01:02:00 PM UTC 2024
-
-  System load:  0.0               Processes:              234
-  Usage of /:   8.0% of 93.93GB   Users logged <span class="k">in</span>:        1
-  Memory usage: 11%               IPv4 address <span class="k">for </span>ens33: 11.0.1.72
-  Swap usage:   0%
-
- <span class="k">*</span> Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
-   just raised the bar <span class="k">for </span>easy, resilient and secure K8s cluster deployment.
-
-   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
-
-Expanded Security Maintenance <span class="k">for </span>Applications is not enabled.
-
-18 updates can be applied immediately.
-To see these additional updates run: apt list <span class="nt">--upgradable</span>
-
-Enable ESM Apps to receive additional future security updates.
-See https://ubuntu.com/esm or run: <span class="nb">sudo </span>pro status
-
-
-Last login: Thu Apr  4 11:47:37 2024 from 11.0.1.150
-alice@freeipa-client2:~<span class="nv">$ </span><span class="nb">id
-</span><span class="nv">uid</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1239800001<span class="o">(</span>alice<span class="o">)</span>
-alice@freeipa-client2:~<span class="nv">$ </span></code></pre></figure>
+alice@freeipa-client2:~$ id
+uid=171200003(alice) gid=171200003(alice) groups=171200003(alice)</span></code></pre></figure>
 
 <p><b> Conclusion</b></p>
 

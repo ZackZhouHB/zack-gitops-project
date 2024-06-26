@@ -341,42 +341,25 @@ now back to console, the 2 client hosts had been added and enrolled into freeIPA
 ![image tooltip here](/assets/linuxidm3.png)
 
 
-- verify to use user "alice" and its passwd to ssh login to ubuntu client from freeIPA server
+- verify to use user "alice" and its passwd to ssh login to ubuntu client from SSH client
 
 {% highlight shell %}
-[root@freeipa-server ~]# ssh alice@freeipa-client2.zackz.oonline
-Password: 
-Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-101-generic x86_64)
+zack@zackz MINGW64 /d/zhbso/Desktop
+$ ssh alice@11.0.1.151
+The authenticity of host '11.0.1.81 (11.0.1.151)' can't be established.
+ED25519 key fingerprint is SHA256:YMa3Hya5N4ICtQUmI9CedCS2jVZbI3lByrXGlWx5efA.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '11.0.1.151' (ED25519) to the list of known hosts.
+(alice@11.0.1.151) Password:
+Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-107-generic x86_64)
 
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
+Last login: Wed Jun 26 06:20:22 2024 from 11.0.1.80
+alice@freeipa-client1:~$
 
-  System information as of Thu Apr  4 01:02:00 PM UTC 2024
-
-  System load:  0.0               Processes:              234
-  Usage of /:   8.0% of 93.93GB   Users logged in:        1
-  Memory usage: 11%               IPv4 address for ens33: 11.0.1.72
-  Swap usage:   0%
-
- * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
-   just raised the bar for easy, resilient and secure K8s cluster deployment.
-
-   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
-
-Expanded Security Maintenance for Applications is not enabled.
-
-18 updates can be applied immediately.
-To see these additional updates run: apt list --upgradable
-
-Enable ESM Apps to receive additional future security updates.
-See https://ubuntu.com/esm or run: sudo pro status
-
-
-Last login: Thu Apr  4 11:47:37 2024 from 11.0.1.150
 alice@freeipa-client2:~$ id
-uid=1239800001(alice) gid=1239800001(alice) groups=1239800001(alice)
-alice@freeipa-client2:~$ 
+uid=171200003(alice) gid=171200003(alice) groups=171200003(alice)
+
 {% endhighlight %}
 
 <b> Conclusion</b>
