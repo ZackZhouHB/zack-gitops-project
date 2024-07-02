@@ -1,0 +1,10 @@
+---
+# tasks file for phpinfo
+- name: install the latest version of php
+  yum:
+    name: php
+    state: latest
+- name: Copy file with owner and permissions
+  copy:
+    src: hello.php
+    dest: /var/www/html

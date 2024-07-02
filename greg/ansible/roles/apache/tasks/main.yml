@@ -1,0 +1,40 @@
+---
+# defaults file for roles/apache
+#
+- name: Install the latest version of Apache
+  ansible.builtin.yum:
+    name: httpd
+    state: latest
+
+- name: Enable service httpd, and not touch the state
+  ansible.builtin.systemd:
+    name: httpd
+    enabled: yes
+    state: started
+
+- name: Ensure firewalld is installed
+  ansible.builtin.yum:
+    name: firewalld
+    state: present
+
+- name: Ensure firewalld is running and enabled
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: enable and firewalld                         
+  ansible.builtin.command: 
+    cmd: firewall-cmd --permanent --add-service=http
+
+- name: enable and firewalld
+  ansible.builtin.command: 
+    cmd: firewall-cmd --reload
+
+- template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+
+
+
