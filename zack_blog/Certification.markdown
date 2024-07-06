@@ -39,6 +39,19 @@ South-Central University -- 2004-2008     China
 
 ![image tooltip here](/assets/k8s-cka.png)
 
+<b>RedHat Certification</b>
+
+**  Red Hat Certified Engineer (RHCE)
+
+![image tooltip here](/assets/rhce.png)
+
+<b>RedHat Certification</b>
+
+**  Red Hat Certified System Administrator (RHCSA)
+
+![image tooltip here](/assets/rhcsa.png)
+
+
 <b>VMware Certification</b>
 
 
