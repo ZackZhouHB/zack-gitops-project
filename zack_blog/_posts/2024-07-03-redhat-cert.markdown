@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "RedHat certifications RHCSA & RHCE"
+title:  "RedHat Certified RHCSA & RHCE"
 date:   2024-07-03 11:15:29 +1100
 categories: jekyll Cat2
 ---
