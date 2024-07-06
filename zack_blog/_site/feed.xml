@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-06-26T16:24:20+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-06T13:22:55+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently we got a task from the Company’s security team, to install 2 security agents which will be used to perform centralized security scans for all active AWS EC2 instances. here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and infrastructure at scale.</p>
 
@@ -293,91 +293,7 @@
 
 <p><b> Conclusion</b></p>
 
-<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">Back to Qin</title><link href="http://localhost:4000/jekyll/cat2/2024/06/20/backtoqin2.html" rel="alternate" type="text/html" title="Back to Qin" /><published>2024-06-20T10:15:29+10:00</published><updated>2024-06-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/20/backtoqin2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/20/backtoqin2.html"><![CDATA[<p><b>Chapter 1: The Adventure Begins</b></p>
-
-<p>Our story begins in the city of Xi’an, where a bus was speeding down a long highway. Most of the passengers were headed to the same destination: the Terracotta Army Museum.</p>
-
-<p>In the middle of the bus sat a boy named Joe and his father, Zack.</p>
-
-<p>“I wonder what Qin Shi Huangdi’s creation will look like, and how large Pit One is,” Joe asked his father with curiosity.</p>
-
-<p>“You’ll find out soon enough. We’re about to see some glorious artifacts and the remarkable clay figures built thousands of years ago,” Zack replied.</p>
-
-<p>Eventually, the loudspeaker boomed, “Approaching final destination.” Joe and Zack jumped off the bus and rushed to the entrance. Joe stared at the long line of visitors while waiting for his father to print their tickets.</p>
-
-<p>As he waited, Joe’s mind wandered to the Terracotta Army. Despite having watched many videos about them at home, he couldn’t help but imagine what they might look like in person. The more he thought about it, the hungrier he felt.</p>
-
-<p>Glancing at his watch, he realized 20 minutes had already passed.</p>
-
-<p>Just then, he saw his father coming towards him with two sandwiches and the tickets in hand. They decided to finish lunch before entering the museum.</p>
-
-<p>Little did you know that the young boy sitting outside the museum entrance eating a sandwich was about to experience an extraordinary adventure that would change his life forever.</p>
-
-<p><b>Chapter 2: A Touch of History</b></p>
-
-<p>After finishing their lunch, Joe and Zack finally entered the museum. The halls were filled with awe-inspiring artifacts and displays that captured the grandeur of ancient China. Joe was especially drawn to the life-sized Terracotta Warriors standing in perfect formation.</p>
-
-<p>As they walked through the museum, Joe’s excitement grew. He couldn’t wait to see Pit One, where thousands of these warriors were arranged in battle formation. When they finally reached the pit, Joe’s eyes widened in amazement. The sight was even more incredible than he had imagined.</p>
-
-<p>“Stay close,” Zack reminded him, but Joe’s curiosity got the better of him. He edged closer to the barrier, wanting a better look at one of the warriors. Without thinking, he reached out and touched the cold, clay surface of the figure.</p>
-
-<p>Suddenly, the ground beneath Joe’s feet began to tremble. A strange, swirling mist enveloped him, and before he knew it, everything went black.</p>
-
-<p>When he opened his eyes, Joe found himself standing in the middle of a bustling ancient city. The sounds of merchants calling out their wares and the sight of people dressed in traditional robes filled his senses.</p>
-
-<p>“Where am I?” Joe wondered aloud.</p>
-
-<p>“You are in Xianyang, the capital of the Qin Empire,” a voice answered. Joe turned to see an elderly man with a long beard and wise eyes. “I am Li Si, the Prime Minister of Qin. You must have come from a faraway land.”</p>
-
-<p>Joe was too stunned to speak. He realized he had somehow traveled back in time, over 2000 years ago, to the era of Qin Shi Huangdi.</p>
-
-<p><b>Chapter 3: The Qin Journey</b></p>
-
-<p>Li Si took Joe to the grand palace, where he was presented to Emperor Qin Shi Huangdi himself. The emperor was a formidable figure, with a commanding presence and eyes that seemed to see right through Joe.</p>
-
-<p>“Who are you, and how did you come to be in my kingdom?” the emperor demanded.</p>
-
-<p>Joe explained his strange journey, and to his surprise, the emperor listened intently. Intrigued by Joe’s knowledge of the future and the modern world, Qin Shi Huangdi decided to keep him close.</p>
-
-<p>“You will serve as my advisor and share with me the knowledge of your time,” the emperor declared.</p>
-
-<p>Joe quickly adapted to life in ancient China. He learned about the daily life of the people, the emperor’s vesion to unify China, the construction of the Great Wall, and the emperor’s quest for immortality.</p>
-
-<p>As Joe became a trusted advisor to the emperor, he helped establish rules and policies to improve the lives of the people, shared his knowledge of modern technology, and even played a role in the construction of the Great Wall.</p>
-
-<p>Grateful for Joe’s contribution, Qin Shi Huangdi rewarded him with a magnificent jade pendant.</p>
-
-<p><b>Chapter 4: The Tyrant</b></p>
-
-<p>However, the more states the emperor conquered, the more Joe started to feel something different.</p>
-
-<p>The emperor became more ruthless and obsessed with power. He started to impose harsher laws and punishments, executed those who disagreed with him, and burned books that recorded his crucial activities.</p>
-
-<p>Joe noticed the fear in the eyes of the people and the growing unrest in the empire. He felt a heavy weight in his chest and couldn’t ignore the changes he was seeing. Determined to help, Joe decided to speak with Qin Shi Huangdi.</p>
-
-<p>“Your Majesty, I must speak with you,” Joe said, entering the emperor’s chamber.</p>
-
-<p>“What is it, Joe?” the emperor asked, sensing the urgency in Joe’s voice.</p>
-
-<p>“Your actions are causing great suffering among the people. The harsh laws and punishments, the endless conquests – it’s too much. You are becoming a tyrant,” Joe said boldly.</p>
-
-<p>The emperor’s eyes flashed with anger. “How dare you speak to me this way! I am the Son of Heaven, and my rule is absolute.”</p>
-
-<p>For a moment, Joe felt a deep chill down his spine, realizing it was impossible to change the emperor. He knew he had to leave before things got worse.</p>
-
-<p><b>Chapter 5: The Journey Home</b></p>
-
-<p>One day, while standing in the emperor’s garden, Joe felt a familiar tremor beneath his feet. he realized it is time to return home.</p>
-
-<p>With a final farewell, Joe offered some advice to the emperor one last time and then was transported back to the present day.</p>
-
-<p>When he found himself standing in the museum, his hand still touching the clay figure. Everything looked the same, but Joe knew he had experienced something extraordinary.</p>
-
-<p>“Joe, where have you been?” Zack’s voice broke through his thoughts. “I’ve been looking for you.”</p>
-
-<p>Joe smiled and gently put the jade pendant into his pocket, he looked at the Terracotta Warrior then replied to his father, “Just on an adventure, Dad. Just on an adventure.”</p>
-
-<p><img src="/assets/backtoqin2.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Chapter 1: The Adventure Begins]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
+<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
 
 <p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
 
@@ -2212,4 +2128,247 @@ generating data <span class="o">(</span>client-side<span class="o">)</span>...
 
 <p><b> Conclusion</b></p>
 
-<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry></feed>
+<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry><entry><title type="html">PostgreSQL: Deploy into K8S</title><link href="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html" rel="alternate" type="text/html" title="PostgreSQL: Deploy into K8S" /><published>2024-05-10T10:15:29+10:00</published><updated>2024-05-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/10/PS3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html"><![CDATA[<p><b> Single PostgreSQL deployment in K8S</b></p>
+
+<p>PostgreSQL by default doesnot build for kubernetes, and a database with statefulset workload in k8s can be brutal to manage. In my lab k8s cluster, here we create namespace, secret, configuremap, PVC and statefulset to run a single PostgreSQL</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create namespace "postgresql"</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl create ns postgresql
+namespace/postgresql created
+
+<span class="c"># create secret to store database creds</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl <span class="nt">-n</span> postgresql create secret generic postgresql <span class="nt">--from-literal</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span><span class="s2">"postgresadmin"</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="s1">'admin123'</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span><span class="s2">"postgresdb"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_USER</span><span class="o">=</span><span class="s2">"replicationuser"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_PASSWORD</span><span class="o">=</span><span class="s1">'replicationPassword'</span>
+secret/postgresql created
+
+<span class="c"># create configmap, pvc, statefulset with init container to run postgresql</span>
+<span class="o">[</span>root@freeipa-server ~]# vim stateful.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres
+data: 
+  pg_hba.conf: |+
+    <span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+    host     replication     replicationuser         0.0.0.0/0        md5
+    <span class="c"># "local" is for Unix domain socket connections only</span>
+    <span class="nb">local   </span>all             all                                     trust
+    <span class="c"># IPv4 local connections:</span>
+    host    all             all             127.0.0.1/32            trust
+    <span class="c"># IPv6 local connections:</span>
+    host    all             all             ::1/128                 trust
+    <span class="c"># Allow replication connections from localhost, by a user with the</span>
+    <span class="c"># replication privilege.</span>
+    <span class="nb">local   </span>replication     all                                     trust
+    host    replication     all             127.0.0.1/32            trust
+    host    replication     all             ::1/128                 trust
+
+    host all all all scram-sha-256
+  postgresql.conf: |+
+    data_directory <span class="o">=</span> <span class="s1">'/data/pgdata'</span>
+    hba_file <span class="o">=</span> <span class="s1">'/config/pg_hba.conf'</span>
+    ident_file <span class="o">=</span> <span class="s1">'/config/pg_ident.conf'</span>
+
+    port <span class="o">=</span> 5432
+    listen_addresses <span class="o">=</span> <span class="s1">'*'</span>
+    max_connections <span class="o">=</span> 100
+    shared_buffers <span class="o">=</span> 128MB
+    dynamic_shared_memory_type <span class="o">=</span> posix
+    max_wal_size <span class="o">=</span> 1GB
+    min_wal_size <span class="o">=</span> 80MB
+    log_timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
+    datestyle <span class="o">=</span> <span class="s1">'iso, mdy'</span>
+    timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
+
+    <span class="c">#locale settings</span>
+    lc_messages <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for system error message</span>
+    lc_monetary <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for monetary formatting</span>
+    lc_numeric <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for number formatting</span>
+    lc_time <span class="o">=</span> <span class="s1">'en_US.utf8'</span>				<span class="c"># locale for time formatting</span>
+
+    default_text_search_config <span class="o">=</span> <span class="s1">'pg_catalog.english'</span>
+
+    <span class="c">#replication</span>
+    wal_level <span class="o">=</span> replica
+    archive_mode <span class="o">=</span> on
+    archive_command <span class="o">=</span> <span class="s1">'test ! -f /data/archive/%f &amp;&amp; cp %p /data/archive/%f'</span>
+    max_wal_senders <span class="o">=</span> 3
+<span class="nt">---</span>
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: <span class="s2">"postgres"</span>
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init
+        image: postgres:15.0
+        <span class="nb">command</span>: <span class="o">[</span> <span class="s2">"bash"</span>, <span class="s2">"-c"</span> <span class="o">]</span>
+        args:
+        - |
+          <span class="c">#create archive directory</span>
+          <span class="nb">mkdir</span> <span class="nt">-p</span> /data/archive <span class="o">&amp;&amp;</span> <span class="nb">chown</span> <span class="nt">-R</span> 999:999 /data/archive
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: <span class="nb">false
+      </span>containers:
+      - name: postgres
+        image: postgres:15.0
+        args: <span class="o">[</span><span class="s2">"-c"</span>, <span class="s2">"config_file=/config/postgresql.conf"</span><span class="o">]</span>
+        ports:
+        - containerPort: 5432
+          name: database
+        <span class="nb">env</span>:
+        - name: PGDATA
+          value: <span class="s2">"/data/pgdata"</span>
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_USER
+              optional: <span class="nb">false</span>
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_PASSWORD
+              optional: <span class="nb">false</span>
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_DB
+              optional: <span class="nb">false
+        </span>volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: <span class="nb">false</span>
+        - name: data
+          mountPath: /data
+          readOnly: <span class="nb">false
+      </span>volumes:
+      - name: config
+        configMap:
+          name: postgres
+          defaultMode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: <span class="o">[</span> <span class="s2">"ReadWriteOnce"</span> <span class="o">]</span>
+      storageClassName: <span class="s2">"standard"</span>
+      resources:
+        requests:
+          storage: 100Mi
+<span class="nt">---</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  clusterIP: None
+  selector:
+    app: postgres
+
+<span class="o">[</span>root@freeipa-server ~]# kubectl create <span class="nt">-f</span> stateful.yaml <span class="nt">-n</span> postgresql 
+configmap/postgres created
+statefulset.apps/postgres created
+service/postgres created
+
+<span class="c"># validate for pvc, pods</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl get pvc <span class="nt">-n</span> postgresql 
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+data-postgres-0   Bound    pvc-dd89fc0a-915f-40eb-b61f-917234074a61   100Mi      RWO            longhorn       19m
+
+<span class="o">[</span>root@freeipa-server ~]# kubectl get all <span class="nt">-n</span> postgresql 
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          6m29s
+
+NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+service/postgres   ClusterIP   None         &lt;none&gt;        5432/TCP   6m29s
+
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     6m29s
+
+<span class="c"># check container logs for database connection status</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl logs <span class="nt">-n</span> postgresql postgres-0 
+Defaulted container <span class="s2">"postgres"</span> out of: postgres, init <span class="o">(</span>init<span class="o">)</span>
+The files belonging to this database system will be owned by user <span class="s2">"postgres"</span><span class="nb">.</span>
+This user must also own the server process.
+
+The database cluster will be initialized with locale <span class="s2">"en_US.utf8"</span><span class="nb">.</span>
+The default database encoding has accordingly been <span class="nb">set </span>to <span class="s2">"UTF8"</span><span class="nb">.</span>
+The default text search configuration will be <span class="nb">set </span>to <span class="s2">"english"</span><span class="nb">.</span>
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /data/pgdata ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default <span class="nb">time </span>zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+initdb: warning: enabling <span class="s2">"trust"</span> authentication <span class="k">for </span><span class="nb">local </span>connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option <span class="nt">-A</span>, or <span class="nt">--auth-local</span> and <span class="nt">--auth-host</span>, the next <span class="nb">time </span>you run initdb.
+syncing data to disk ... ok
+
+
+Success. You can now start the database server using:
+
+    pg_ctl <span class="nt">-D</span> /data/pgdata <span class="nt">-l</span> logfile start
+
+waiting <span class="k">for </span>server to start....2024-05-12 00:52:56.718 UTC <span class="o">[</span>49] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-12 00:52:56.719 UTC <span class="o">[</span>49] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-12 00:52:56.730 UTC <span class="o">[</span>49] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
+2024-05-12 00:52:56.733 UTC <span class="o">[</span>52] LOG:  database system was shut down at 2024-05-12 00:52:55 UTC
+2024-05-12 00:52:56.744 UTC <span class="o">[</span>49] LOG:  database system is ready to accept connections
+ <span class="k">done
+</span>server started
+CREATE DATABASE
+
+
+/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/<span class="k">*</span>
+
+2024-05-12 00:52:56.957 UTC <span class="o">[</span>49] LOG:  received fast shutdown request
+waiting <span class="k">for </span>server to shut down....2024-05-12 00:52:56.961 UTC <span class="o">[</span>49] LOG:  aborting any active transactions
+2024-05-12 00:52:56.962 UTC <span class="o">[</span>49] LOG:  background worker <span class="s2">"logical replication launcher"</span> <span class="o">(</span>PID 56<span class="o">)</span> exited with <span class="nb">exit </span>code 1
+2024-05-12 00:52:56.963 UTC <span class="o">[</span>50] LOG:  shutting down
+2024-05-12 00:52:57.042 UTC <span class="o">[</span>50] LOG:  checkpoint starting: shutdown immediate
+..2024-05-12 00:52:59.314 UTC <span class="o">[</span>50] LOG:  checkpoint <span class="nb">complete</span>: wrote 918 buffers <span class="o">(</span>5.6%<span class="o">)</span><span class="p">;</span> 0 WAL file<span class="o">(</span>s<span class="o">)</span> added, 0 removed, 1 recycled<span class="p">;</span> <span class="nv">write</span><span class="o">=</span>0.434 s, <span class="nb">sync</span><span class="o">=</span>0.014 s, <span class="nv">total</span><span class="o">=</span>2.279 s<span class="p">;</span> <span class="nb">sync </span><span class="nv">files</span><span class="o">=</span>250, <span class="nv">longest</span><span class="o">=</span>0.007 s, <span class="nv">average</span><span class="o">=</span>0.001 s<span class="p">;</span> <span class="nv">distance</span><span class="o">=</span>11271 kB, <span class="nv">estimate</span><span class="o">=</span>11271 kB
+2024-05-12 00:52:59.318 UTC <span class="o">[</span>49] LOG:  database system is shut down
+ <span class="k">done
+</span>server stopped
+
+PostgreSQL init process <span class="nb">complete</span><span class="p">;</span> ready <span class="k">for </span>start up.
+
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-05-12 00:52:59.389 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-12 00:52:59.398 UTC <span class="o">[</span>1] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
+2024-05-12 00:52:59.404 UTC <span class="o">[</span>67] LOG:  database system was shut down at 2024-05-12 00:52:59 UTC
+2024-05-12 00:52:59.415 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Single PostgreSQL deployment in K8S]]></summary></entry></feed>
