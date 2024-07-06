@@ -1,5 +1,0 @@
----
-collections:
-- name: http://classroom/materials/redhat-insights-1.0.7.tar.gz
-- name: http://classroom/materials/community-general-5.5.0.tar.gz
-- name: http://classroom/materials/redhat-rhel_system_roles-1.19.3.tar.gz
