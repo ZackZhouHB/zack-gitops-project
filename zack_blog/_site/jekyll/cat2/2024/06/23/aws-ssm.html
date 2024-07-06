@@ -178,7 +178,7 @@
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">Key</span><span class="o">=</span>InstallSecurityAgent, <span class="nv">Value</span><span class="o">=</span>True.</code></pre></figure>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># List all instance IDs</span>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># List all instance IDs #: </span>
 <span class="nv">INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> text<span class="si">)</span>
 
 <span class="c"># Tag all instances with Key=InstallSecurityAgent and Value=True</span>

@@ -133,7 +133,7 @@ Key=InstallSecurityAgent, Value=True.
 {% endhighlight %}
 
 {% highlight shell %}
-# List all instance IDs
+# List all instance IDs #: 
 INSTANCE_IDS=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text)
 
 # Tag all instances with Key=InstallSecurityAgent and Value=True
