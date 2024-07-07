@@ -1,1185 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-06T20:39:07+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Certified RHCSA &amp;amp; RHCE</title><link href="http://localhost:4000/jekyll/cat2/2024/07/03/redhat-cert.html" rel="alternate" type="text/html" title="RedHat Certified RHCSA &amp;amp; RHCE" /><published>2024-07-03T10:15:29+10:00</published><updated>2024-07-03T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/03/redhat-cert</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/03/redhat-cert.html"><![CDATA[<p><b>The RedHat Certs</b></p>
-
-<p>Recently I have been working on Redhat certifications to add to all my <a href="https://www.credly.com/users/zhou-zack/badges"><b>professional certs on Credly</b></a>.</p>
-
-<p>Here are the RedHat exam results and preparations.</p>
-
-<p><img src="/assets/rhcert1.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Red Hat Certified System Administrator (RHCSA)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># RHCSA</span>
-<span class="c"># Red Hat Enterprise Linux 9</span>
-
-1. network
- 
-hostnamectl nmcli <span class="nt">-h</span>
- 
- 
-hostnamectl set-hostname node1.domain250.example.com
- 
-nmcli connection modify <span class="s2">"Wired connection 1"</span> ipv4.method manual ipv4.dns 172.25.250.254 ipv4.addresses 172.25.250.100/24 ipv4.gateway 172.25.250.254 autoconnect <span class="nb">yes
- 
- 
-</span>nmcli connection up <span class="s2">"Wired connection 1"</span>
- 
- 
-2. yum repo
- 
-yum repolist
-yum repoinfo
- 
-vim /etc/yum/yum.repos.d/rhcsa.repo
- 
-<span class="o">[</span>base]
-<span class="nv">name</span><span class="o">=</span>base
-<span class="nv">baseurl</span><span class="o">=</span>http://content/rhel9.0/x86_64/dvd/BaseOS
-<span class="nv">gpgcheck</span><span class="o">=</span>0
-<span class="nv">enabled</span><span class="o">=</span>1
- 
-<span class="o">[</span>app]
-<span class="nv">name</span><span class="o">=</span>app
-<span class="nv">baseurl</span><span class="o">=</span>http://content/rhel9.0/x86_64/dvd/appstream
-<span class="nv">gpgcheck</span><span class="o">=</span>0
-<span class="nv">enabled</span><span class="o">=</span>1
- 
-validate:
- 
-3. SElinux
-
-semanage <span class="nt">-h</span>
-man semanage port
-man semanage fcontext   <span class="c"># !!!</span>
-
-<span class="nb">ls</span> <span class="nt">-Z</span> /var/www/html  <span class="c"># check se content</span>
-
-systemctl status httpd
-
-semanage port <span class="nt">-a</span> <span class="nt">-t</span> http_port_t <span class="nt">-p</span> tcp 82
-
-firewall-cmd  <span class="nt">--add-port</span><span class="o">=</span>82/tcp <span class="nt">--permanent</span>
-firewall-cmd  <span class="nt">--add-service</span><span class="o">=</span>http <span class="nt">--permanent</span>
-firewall-cmd <span class="nt">--reload</span>
-
-semanage fcontext <span class="nt">-m</span> <span class="nt">-t</span> httpd_sys_content_t /var/www/html/file1  <span class="c"># !!!</span>
-
-restorecon <span class="nt">-Rv</span> /var/www/html/  <span class="c"># -R v must !!</span>
-
-systemctl restart httpd
-systemctl <span class="nb">enable </span>httpd
-systemctl status httpd
-
-4. add user and group
- 
-groupadd sysmgrs
-useradd harry <span class="nt">-G</span> sysmgrs
-useradd natasha <span class="nt">-G</span> sysmgrs
-useradd sarah <span class="nt">-s</span> /sbin/nologin
- 
-passwd harry
- 
-5. cron
-
-crontab <span class="nt">-e</span> <span class="nt">-u</span> harry
- 
-23 14 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="s2">"/usr/bin/echo hello"</span>
-
-
-<span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> command_to_be_executed
-- - - - -
-| | | | |
-| | | | +----- Day of the week <span class="o">(</span>0 - 7<span class="o">)</span> <span class="o">(</span><span class="nv">Sunday</span><span class="o">=</span>0 or 7<span class="o">)</span>
-| | | +------- Month <span class="o">(</span>1 - 12<span class="o">)</span> <span class="o">(</span><span class="nv">January</span><span class="o">=</span>1, <span class="nv">December</span><span class="o">=</span>12<span class="o">)</span>
-| | +--------- Day of the month <span class="o">(</span>1 - 31<span class="o">)</span>
-| +----------- Hour <span class="o">(</span>0 - 23<span class="o">)</span>
-+------------- Minute <span class="o">(</span>0 - 59<span class="o">)</span>
- 
-6. collborative directory
- 
- 
-<span class="nb">mkdir</span> /home/managers
-<span class="nb">chgrp </span>sysmgrs /home/managers
-<span class="nb">chmod </span>2770 /home/managers
- 
-2770: group <span class="o">=</span> rwx, owner <span class="o">=</span> rwx, user <span class="o">=</span> none specialpermission <span class="o">=</span> group
-
-Three special permission bits: setuid <span class="o">(</span>4<span class="o">)</span>, setgid <span class="o">(</span>2<span class="o">)</span>, and sticky <span class="o">(</span>1<span class="o">)</span><span class="nb">.</span>
-
-setuid <span class="o">(</span>4<span class="o">)</span>: When <span class="nb">set </span>on an executable file, this bit allows the file to be executed with the permissions of the file owner.
-
-<span class="nb">chmod </span>4755 /path/to/executable
-The permissions of the executable file become rwsr-xr-x.
-The s <span class="k">in </span>the owner’s execute position <span class="o">(</span>rws<span class="o">)</span> indicates the setuid bit is set.
-
-setgid <span class="o">(</span>2<span class="o">)</span>: When <span class="nb">set </span>on a directory, files created <span class="k">in </span>the directory inherit the group ID of the directory, rather than the group ID of the user <span class="nb">who </span>created the file.
-<span class="nb">chmod </span>2770 /home/managers
-The permissions of the directory become rwxrws---.
-The s <span class="k">in </span>the group’s execute position <span class="o">(</span>rws<span class="o">)</span> indicates the setgid bit is set.
-Any file created <span class="k">in</span> /home/managers will have its group <span class="nb">set </span>to the group of the directory <span class="o">(</span>managers<span class="o">)</span><span class="nb">.</span>
-rwx <span class="o">(</span>7<span class="o">)</span> <span class="k">for </span>the owner means the owner has <span class="nb">read</span>, write, and execute permissions.
-rws <span class="o">(</span>7<span class="o">)</span> <span class="k">for </span>the group means the group has <span class="nb">read</span>, write, and execute permissions, and the setgid bit is <span class="nb">set</span> <span class="o">(</span>indicated by s<span class="o">)</span><span class="nb">.</span>
-<span class="nt">---</span> <span class="o">(</span>0<span class="o">)</span> <span class="k">for </span>others means no permissions <span class="k">for </span>others.
-
-sticky <span class="o">(</span>1<span class="o">)</span>: When <span class="nb">set </span>on a directory, <span class="nb">users </span>can only delete or rename files within that directory <span class="k">if </span>they are the owner of the file or the directory.
-<span class="nb">chmod </span>1777 /tmp
-The permissions of the directory become rwxrwxrwt.
-The t <span class="k">in </span>the others’ execute position <span class="o">(</span>rwt<span class="o">)</span> indicates the sticky bit is set.
-This is often used <span class="k">in </span>directories like /tmp to prevent <span class="nb">users </span>from deleting each other’s files.
-
-setuid + setgid <span class="o">(</span>4 + 2 <span class="o">=</span> 6<span class="o">)</span>:
-<span class="nb">chmod </span>6755 /path/to/executable
-The permissions become rwsr-sr-x.
-
-setgid + sticky <span class="o">(</span>2 + 1 <span class="o">=</span> 3<span class="o">)</span>:
-<span class="nb">chmod </span>3770 /home/shared
-The permissions become rwxrws--t.
-
-7. NTP
-
-yum search ntp
-
-vim /etc/chrony.conf
-
-server materials.example.com iburst
-
-systemctl restart chronyd
-
-8. autofs
-
-<span class="nb">id </span>remoteuser1
-
-yum <span class="nb">install </span>autofs <span class="nt">-y</span>
-yum <span class="nb">install </span>nfs-utils
-
-showmount <span class="nt">-e</span> materials.example.com
-
-vim /etc/auto.master
-
-/rhome /etc/autofs.misc
-
-vim /etc/autofs.misc
-
-remoteuser1     <span class="nt">-rw</span>     materials.example.com:/rhome/remoteuser1
-remoteuser1 	<span class="nt">-fstype</span><span class="o">=</span>nfs,rw 	materials.example.com:/rhome/remoteuser1
-
-systemctl restart autofs
-
-validate 
-
-from other machine
-ssh remoteuser1@node1
-<span class="nb">cd</span> /rhome
-<span class="nb">cd </span>remoteuser1
-<span class="nb">df</span> <span class="nt">-h</span>
-
-mount | <span class="nb">grep </span>rhome
-
-9. user with uid
-
-useradd <span class="nt">-u</span> 3533 manalo
-passwd manalo
-
-10. find file by user
-
-find <span class="nt">-h</span>
-man find
-
-<span class="nb">mkdir</span> /root/findfiles
-
-find <span class="nt">-user</span> jacques <span class="nt">-exec</span> <span class="nb">cp</span> <span class="nt">-a</span> <span class="o">{}</span> /root/findfiles <span class="se">\;</span>  <span class="c"># need to be remembered</span>
-
-11. <span class="nb">grep </span>line from file
-
-<span class="nb">cat</span> /usr/share/xml/iso-codes/iso_639_3.xml | <span class="nb">grep </span>ng <span class="o">&gt;</span> /root/list
-
-12. <span class="nb">tar </span>bzip2 and <span class="nb">gzip
-
-tar</span> <span class="nt">-cvjf</span> /root/backup.tar.bz2 /usr/local  <span class="c"># j need to be remembered</span>
-
-<span class="nb">tar</span> <span class="nt">-cvzf</span> /root/backup.tar.gz /usr/local  <span class="c"># z for gz </span>
-
-<span class="nb">tar</span> <span class="nt">-xjf</span> backup.tar.bz2  <span class="c"># untar bz2</span>
-
-<span class="nb">tar</span> <span class="nt">-xzf</span> backup.tar.gz   <span class="c"># untar gz </span>
-
-
-validate 
-
-file /root/backup.tar.bz2
-
-
-13. podman build
-
-use root to :
-
-yum search container
-
-yum <span class="nb">install </span>container-tools.noarch <span class="nt">-y</span>  <span class="c"># need to be done first !!</span>
-
-
-ssh wallah@node1 <span class="c">## very important</span>
-
-wget http://classroom/Containerfile
-
-podman login <span class="nt">-u</span> admin <span class="nt">-p</span> redhat321 registry.lab.example.com
-
-man podman build
-
-podman build <span class="nt">-t</span> pdf <span class="nb">.</span>
-
-
-
-14. container as a service 
-
-as user wallah
-
-<span class="nb">sudo mkdir</span> /opt/file
-<span class="nb">sudo mkdir</span> /opt/progress
-
-<span class="nb">sudo chown </span>wallah:wallah /opt/file
-<span class="nb">sudo chown </span>wallah:wallah /opt/progress
-
-podman run <span class="nt">-d</span> <span class="nt">--name</span> ascii2pdf <span class="nt">-v</span> /opt/file:/dir1 <span class="nt">-v</span> /opt/progress:/dir2 pdf  <span class="c"># --name and -d !!!</span>
-
-podman ps
-
-<span class="nb">mkdir</span> <span class="nt">-p</span> ~/.config/systemd/user <span class="c"># -p </span>
-
-<span class="nb">cd</span> ~/.config/systemd/user
-
-podman generate systemd <span class="nt">-n</span> ascii2pdf <span class="nt">-f</span> <span class="nt">--new</span>  <span class="c"># podman generate systemd --help</span>
-
-podman stop ascii2pdf
-podman container <span class="nb">rm </span>ascii2pdf
-
-
-
-loginctl <span class="nt">--help</span>
-
-loginctl enable-linger wallah
-loginctl show-user wallah
-
-
-systemctl <span class="nt">--user</span> daemon-reload
-systemctl <span class="nt">--user</span> start container-ascii2pdf
-systemctl <span class="nt">--user</span> <span class="nb">enable </span>container-ascii2pdf
-
-validate:
-
-<span class="nb">sudo </span>reboot
-
-podman ps
-
-
-
-15. <span class="nb">sudo </span>no password
-
-visudo 
-
-%sysmgrs       <span class="nv">ALL</span><span class="o">=(</span>ALL<span class="o">)</span>       NOPASSWD: ALL 
-
-validate 
-
-su - natasha
-
-<span class="nb">sudo cat</span> /etc/shadow
-
-16. <span class="nb">break </span>root 
-
-
-add rw rd.break  <span class="c">#  need to be remembered</span>
-
-<span class="nb">chroot</span> /sysroot
-passwd root
-
-<span class="nb">touch</span> /.autorelabel  <span class="c"># need to be remembered</span>
-<span class="nb">sync
-
-exit
-</span>reboot
-
-17. configure yum repo
-
-18. logic volume size
-
-lvextend <span class="nt">-L</span> 230M /dev/myvol/vo <span class="c"># need remember</span>
-
-blkid /dev/mapper/myvol-vo: <span class="nv">UUID</span><span class="o">=</span><span class="s2">"d68a6907-91b6-4ca4-b736-e143936954b8"</span> <span class="nv">BLOCK_SIZE</span><span class="o">=</span><span class="s2">"1024"</span> <span class="nv">TYPE</span><span class="o">=</span><span class="s2">"ext4"</span>  <span class="c"># type</span>
-
-resize2fs /dev/myvol/vo  <span class="c"># if ext4</span>
-
-<span class="c"># xfs_growfs /dev/myvol/vo  # if xfs  !!!</span>
-
-19. SWAP
-
-lsblk  <span class="c"># check device</span>
-    <span class="c"># decide which device to go</span>
-
-fdisk /dev/sdc
-
-n <span class="c"># create new</span>
-last sector +512M
-<span class="c"># write</span>
-
-mkswap /dev/sdc1   <span class="c"># initialize </span>
-
-vim /etc/fstab 
-/dev/vdb3 swap swap defaults 0 0 <span class="c"># add new swap to boot </span>
-
-swapon /dev/sdd1
-swapon <span class="nt">-a</span>  <span class="c"># activate all swap</span>
-swapon <span class="c"># list all activated swap</span>
-
-20. VG LV
-
-lsblk  <span class="c"># check device</span>
-    <span class="c"># decide which device to go</span>
-
-fdisk /dev/sdc
-n <span class="c"># new</span>
-p <span class="c"># primary</span>
-2 <span class="c"># default partition</span>
-last  <span class="nv">60x16mb</span><span class="o">=</span>960mb +1200M
-w <span class="c"># write</span>
-
-lsblk  <span class="c"># check device now should with new sdc2 with 1.2GB</span>
-
-vgcreate <span class="nt">-h</span>
-man vgcreate 
-vgcreate <span class="nt">-s</span> 16M qagroup /dev/sdc2  <span class="c"># cerate pv with #  name : qagroup, # -s to define each physical extent size pv size 16M # use /dev/sdc2</span>
-
-lvcreate <span class="nt">-h</span>
-man lvcreate 
-lvcreate <span class="nt">-l</span> 60 <span class="nt">-n</span> qa qagroup
-lvscan
-
-mkfs.  <span class="c"># check which type </span>
-<span class="c"># yum provides */mkfs.vfat</span>
-
-mkfs.vfat /dev/qagroup/qa
-
-<span class="nb">mkdir</span> /mnt/qa
-
-vim /etc/fstab
-/dev/qagroup/qa /mnt/qa vfat defaults 0 0    <span class="c"># not vdd1, /dev/qagroup/qa , typy xfat</span>
-
-mount <span class="nt">-a</span>   <span class="c"># remember</span>
-
-df-Th
-
-
-21. tuned
-
-yum <span class="nt">-y</span> <span class="nb">install </span>tuned
-systemctl <span class="nb">enable </span>tuned
-systemctl restart tuned
-tuned-adm active
-tuned-adm recommend
-
-tuned-adm profile virtual-guest
-tuned-adm active</code></pre></figure>
-
-<ul>
-  <li>Red Hat Certified Engineer (RHCE)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># RHCE</span>
-<span class="c"># Ansible Automation Platform 2.2</span>
-<span class="c"># Red Hat Enterprise Linux 9</span>
-ssh greg@control
-
-Q1: <span class="nb">install </span>ansible
-<span class="nb">pwd</span> 
-
-<span class="c"># install ansible core and navigator</span>
-
-<span class="nb">sudo </span>yum <span class="nb">install </span>ansible-core <span class="nt">-y</span>
-<span class="nb">sudo </span>yum <span class="nb">install </span>ansible-navigator.noarch <span class="nt">-y</span>
-
-<span class="c"># define user greg's ansible folder</span>
-<span class="c"># with inventory file</span>
-<span class="c"># generate ansible.cfg from default cat /etc/ansible/ansible.cfg</span>
-<span class="c"># create folders for mycollections and roles</span>
-
-<span class="nb">mkdir </span>ansible
-<span class="nb">cd </span>ansible
-<span class="nb">touch </span>inventory
-
-<span class="nb">mkdir</span> <span class="nt">-p</span> mycollections
-<span class="nb">mkdir </span>roles
-
-<span class="o">[</span>greg@control ansible]<span class="nv">$ </span>ll
-
-<span class="nt">-rw-r--r--</span><span class="nb">.</span> 1 greg greg 54183 Jul  1 06:31 ansible.cfg
-<span class="nt">-rw-r--r--</span><span class="nb">.</span> 1 greg greg    96 Jul  1 06:20 inventory
-drwxr-xr-x. 2 greg greg     6 Jul  1 06:26 mycollection
-drwxr-xr-x. 2 greg greg     6 Jul  1 06:26 roles
-
-<span class="nb">cat</span> /etc/ansible/ansible.cfg
-
-ansible-config init <span class="nt">--disabled</span> <span class="nt">-t</span> all <span class="o">&gt;</span> ansible.cfg
-
-<span class="c"># define defaults for remote_user, inventory, host_key_checking, collection_path and roles_path</span>
-
-vim ansible.cfg
-
-<span class="o">[</span>defaults]
-
-inventory <span class="o">=</span> /home/greg/ansible/inventory
-remote_user <span class="o">=</span> greg
-host_key_checking <span class="o">=</span> False
-collections_path <span class="o">=</span> /home/greg/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections
-roles_path <span class="o">=</span> /home/greg/ansible/roles:~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
-
-<span class="o">[</span>privilege_escalation]
-<span class="nv">become</span><span class="o">=</span>True
-
-<span class="c"># define inventory, use : children to define a group in another group</span>
-
-vim inventory
-
-<span class="o">[</span>dev]
-node1
-
-<span class="o">[</span><span class="nb">test</span><span class="o">]</span>
-node2
-
-<span class="o">[</span>prod]
-node3
-node4
-
-<span class="o">[</span>balancers]
-node5
-
-<span class="o">[</span>webservers:children]
-prod
-
-Validation:
-
-ansible <span class="nt">--version</span>
-
-ansible-inventory <span class="nt">--graph</span>
-ansible all <span class="nt">-a</span> <span class="s2">"hostname"</span>
-
-podman login <span class="nt">-u</span> admin <span class="nt">-p</span> redhat utility.lab.example.com
-
-ansible-navigator images
-ansible-navigator collections
-
-<span class="c">###########################################################</span>
-Q2: yum_repository
-
-<span class="c"># search yum module </span>
-ansible-doc <span class="nt">-l</span> | <span class="nb">grep </span>yum
-ansible-doc yum_repository
-
-vim yum_repo.yml
-
-<span class="nt">---</span>
-- name: Add multiple repositories into the same file <span class="o">(</span>1/2<span class="o">)</span>
-  hosts: all
-  tasks:
-  - ansible.builtin.yum_repository:
-      name: EX294_BASE
-      description: EX294 base software
-      baseurl: http://content/rhel9.0/x86_64/dvd/BaseOS
-      gpgcheck: <span class="nb">yes
-      </span>enabled: <span class="nb">yes
-      </span>gpgkey: http://content/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
- 
-  - ansible.builtin.yum_repository:
-      name: EX294_STREAM
-      description: EX294 stream software
-      gpgkey: http://content/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
-      baseurl: http://content/rhel9.0/x86_64/dvd/AppStream
-      enabled: <span class="nb">yes
-      </span>gpgcheck: <span class="nb">yes
-
-</span>ansible-playbook <span class="nt">--syntax-check</span> yum_repo.yml
-
-ansible-navigator run yum_repo.yml <span class="nt">-m</span> stdout
-
-ansible all <span class="nt">-a</span> <span class="s2">"yum repoinfo"</span>
-ansible all <span class="nt">-a</span> <span class="s2">"yum install ftp -y"</span>
-
-Q3: package
-
-ansible-doc yum
-
-vim packages.yml
-
-
-<span class="nt">---</span>
-- name: php
-  hosts: dev,test,prod
-  tasks:
-  - ansible.builtin.yum:
-      name: <span class="s2">""</span>
-      state: present <span class="c"># add state</span>
-    vars:     
-      packages:
-      - php   
-      - mariadb
-
-- name: devtools
-  hosts: dev
-  tasks:
-  - ansible.builtin.yum:
-      name: <span class="s2">"@RPM Development Tools"</span> <span class="c"># where the @ symbol indicates that "Development Tools" is a package group</span>
-      state: present <span class="c"># add state</span>
-
-- name: <span class="nb">install </span>dev update
-  hosts: dev
-  tasks:
-  - ansible.builtin.yum:
-      name: <span class="s1">'*'</span>
-      state: latest
-
-ansible-navigator run <span class="nt">-m</span> stdout packages.yml
-
-ansible-playbook <span class="nt">--syntax-check</span> packages.yml
-
-
-validate:
-
-ansible dev <span class="nt">-a</span> <span class="s2">"php --version"</span>
-ansible <span class="nb">test</span> <span class="nt">-a</span> <span class="s2">"mariadb --version"</span>
-ansible dev <span class="nt">-a</span> <span class="s2">"yum update"</span>
-ansible dev <span class="nt">-a</span> <span class="s2">"yum grouplist"</span>  <span class="c"># need remember</span>
-
-Q4: selinux roles
-
-yum search roles
-<span class="nb">sudo </span>yum <span class="nb">install </span>rhel-system-roles.noarch <span class="nt">-y</span>  <span class="c"># remember to search role</span>
-
-ansible-galaxy list            <span class="c"># when role = galaxy to list installed roles</span>
-<span class="c"># /home/greg/ansible/roles</span>
-<span class="c"># /usr/share/ansible/roles</span>
-- rhel-system-roles.selinux
-
-<span class="c"># go /usr/share/doc tp find example</span>
-
-<span class="nb">cp</span> /usr/share/doc/rhel-system-roles/selinux/example-selinux-playbook.yml /home/greg/ansible/selinux.yml
-
-vim /home/greg/ansible/selinux.yml
-
-remove and keep:
-
-vars: <span class="c"># keep </span>
-
-tasks: 
-    block
-
-
-<span class="nt">---</span>
-- hosts: all
-  become: <span class="nb">true
-  </span>become_method: <span class="nb">sudo
-  </span>become_user: root
-  vars:
-    <span class="c"># Use "targeted" SELinux policy type</span>
-    selinux_policy: targeted
-    <span class="c"># Set "enforcing" mode</span>
-    selinux_state: enforcing
-    <span class="c"># Switch some SELinux booleans</span>
-  tasks:
-    - name: execute the role and catch errors
-      block:
-        - name: Include selinux role
-          include_role:
-            name: rhel-system-roles.selinux
-      rescue:
-        <span class="c"># Fail if failed for a different reason than selinux_reboot_required.</span>
-        - name: handle errors
-          fail:
-            msg: <span class="s2">"role failed"</span>
-          when: not selinux_reboot_required
-
-        - name: restart managed host
-          reboot:
-
-        - name: <span class="nb">wait </span><span class="k">for </span>managed host to come back
-          wait_for_connection:
-            delay: 10
-            <span class="nb">timeout</span>: 300
-
-        - name: reapply the role
-          include_role:
-            name: rhel-system-roles.selinux
-
-ansible-playbook <span class="nt">--syntax-check</span> selinux.yml
-
-USE ansible-playbook
-ansible-playbook selinux.yml
-
-
-Validate:
-
-<span class="c"># getenforce</span>
-ansible all <span class="nt">-a</span> <span class="s2">"getenforce"</span>
-<span class="c"># /ect/selinux/config, use grep -E `^SELINUX=` </span>
-ansible all <span class="nt">-a</span> <span class="s2">"grep -E '^SELINUX=' /etc/selinux/config"</span>
-
-
-Q5: <span class="nb">install </span>collections
-
-ansible-galaxy collection <span class="nb">install</span> <span class="nt">-r</span> <span class="nt">-p</span>
-
-vim requirements.yml  <span class="c"># need remember !! all as yml</span>
-
-<span class="nt">---</span>
-collections:
-- name: http://classroom/materials/redhat-insights-1.0.7.tar.gz
-- name: http://classroom/materials/community-general-5.5.0.tar.gz
-- name: http://classroom/materials/redhat-rhel_system_roles-1.19.3.tar.gz
-
-ansible-galaxy collection <span class="nb">install</span> <span class="nt">-r</span> requirements.yml <span class="nt">-p</span> /home/greg/ansible/mycollection
-
-validation:
-
-ansible-navigator collections
-ansible-galaxy collection list
-
-Q6: Galaxy <span class="nb">install </span>roles
-
-
-ansible-galaxy role <span class="nb">install</span> <span class="nt">--help</span>
-
-vim /home/greg/ansible/roles/requirements.yml
-
-<span class="c"># no roles here !!!</span>
-<span class="nt">---</span>
-- src: http://classroom/materials/haproxy.tar
-  name: balancer
-- src: http://classroom/materials/phpinfo.tar
-  name: phpinfo
-
-ansible-galaxy role <span class="nb">install</span> <span class="nt">-r</span> /home/greg/ansible/roles/requirements.yml <span class="nt">-p</span> /home/greg/ansible/roles/
-
-validate:
-ansible-galaxy list
-<span class="c"># /home/greg/ansible/roles</span>
-- balancer, <span class="o">(</span>unknown version<span class="o">)</span>
-- phpinfo, <span class="o">(</span>unknown version<span class="o">)</span>
-
-ll /home/greg/ansible/roles/
-total 4
-drwxr-xr-x. 9 greg greg 122 Jul  1 07:35 balancer
-drwxr-xr-x. 9 greg greg 118 Jul  1 07:35 phpinfo
-<span class="nt">-rw-r--r--</span><span class="nb">.</span> 1 greg greg 129 Jul  1 07:34 requirements.yml
-
-Q7: galaxy init role apache
-
-<span class="c"># initiate apache role, remember the path</span>
-ansible-galaxy role init roles/apache
-
-<span class="c"># get fact by setup module, search for "ansible_nodename" and "ansible_default_ipv4"</span>
-ansible dev <span class="nt">-m</span> setup <span class="o">&gt;</span> xxx.txt
-vim xxx.txt
-/nodename
-/ansible_default_ipv4
-
-<span class="c"># create file "index.html.j2" under roles/apache/templates/ to define content</span>
-<span class="c"># use  to define build in vars for ansible</span>
-
-vim roles/apache/templates/index.html.j2
-Welcome to  on 
-
-<span class="c"># check for tree for apache role</span>
-tree roles/apache
-
-<span class="c"># add task in /roles/apache/tasks/main.yml</span>
-vim /home/greg/ansible/roles/apache/tasks/main.yml
-
-<span class="c"># search for yum module to install httpd and firewalld</span>
-<span class="c"># search for systemd module to enable and start httpd and firewalld service</span>
-<span class="c"># search for command module, use cmd to pass shell command to add firewall-cmd for http service and reload</span>
-<span class="c"># use -template with src and dest to define j2 template</span>
-<span class="c"># ansible-navigator collections</span>
-<span class="c"># go ansible.posix</span>
-<span class="c"># go firewalld  / EXAMPLES  !!! immediate: yes</span>
-<span class="nt">---</span>
-- name: Install the latest version of Apache
-  ansible.builtin.yum:
-    name: httpd
-    state: latest
-
-- name: Enable and start service httpd
-  ansible.builtin.systemd:
-    name: httpd
-    enabled: <span class="nb">yes
-    </span>state: started
-
-- name: Ensure firewalld is installed
-  ansible.builtin.yum:
-    name: firewalld
-    state: present
-
-- name: Ensure firewalld is running and enabled
-  ansible.builtin.systemd:
-    name: firewalld
-    state: started
-    enabled: <span class="nb">yes</span>
-
-<span class="c">#- name: enable http on firewalld                         </span>
-<span class="c">#  ansible.builtin.command: </span>
-<span class="c">#    cmd: firewall-cmd --permanent --add-service=http</span>
-
-<span class="c">#- name: reload firewalld</span>
-<span class="c">#  ansible.builtin.command: </span>
-<span class="c">#    cmd: firewall-cmd --reload</span>
-
-- name: Start apache
-  ansible.posix.firewalld:  <span class="c"># 注意防火墙中Apache服务名不是httpd</span>
-    service: http
-    permanent: <span class="nb">yes
-    </span>state: enabled
-    immediate: <span class="nb">yes</span>  <span class="c"># immediate</span>
-
-
-- template:
-    src: index.html.j2
-    dest: /var/www/html/index.html
-
-<span class="c"># create a apache.yml to use the role</span>
-
-vim /home/greg/ansible/apache.yml
-
-<span class="nt">---</span>
-- name: apache role
-  hosts: webservers
-  roles:
-  - apache
-
-<span class="c"># run apache.yml to apply the role</span>
-ansible-navigator run apache.yml <span class="nt">-m</span> stdout
-
-validate 
-
-go browser
-http://node3
-http://node4
-
-
-Q8: use role <span class="s2">"phpinfo"</span> and <span class="s2">"balancer"</span> from galaxy
-
-vim /home/greg/ansible/roles.yml
-
-<span class="nt">---</span>
-- name: balacer role
-  hosts: balancers
-  roles:
-  - balancer
-
-- name: phpinfo role
-  hosts: webservers
-  roles:
-  - phpinfo
-
-ansible-navigator run roles.yml <span class="nt">-m</span> stdout
-
-validate:
-
-go browser
-
-http://node5
-http://node5
-
-http://node3/hello.php
-http://node4/hello.php
-
-Q9: Create and use LV
-
-ansible-navigator doc
-
-ansible-navigator doc community.general.system.lvol
-ansible-navigator doc community.general.system.filesystem
-
-ansible-doc debug
-
-vim /xxx.txt
-/ find lvm
-ansible_lvm.vgs.research
-
-/home/greg/ansible/lv.yml
-
-<span class="nt">---</span>
-- name: lv
-  hosts: all
-  tasks:
-  - block  <span class="c"># remember</span>
-    - name: Create a logical volume of 1500m        
-      community.general.lvol:  
-        vg: research           
-        lv: data               
-        size: 1500             
- 
-    - name: Create a ext4 filesystem
-      community.general.filesystem:
-        fstype: ext4           
-        dev: /dev/research/data
-
-    rescue: <span class="c"># rescue indentation </span>
-    - name: Create a logical volume of 800m        
-      community.general.lvol:  
-        vg: research           
-        lv: data               
-        size: 800             
- 
-    - name: Create a ext4 filesystem
-      community.general.filesystem:
-        fstype: ext4           
-        dev: /dev/research/data
-    
-    - ansible.builtin.debug:
-        msg: Could not create logical volume of that size
-      when: ansible_lvm.vgs.research is defined   <span class="c"># vim setup for ansible fact </span>
-
-  - ansible.builtin.debug:           <span class="c"># ~~ remember indentation</span>
-      msg: Volume group <span class="k">done </span>not exist
-    when: ansible_lvm.vgs.research is not defined       
-
-ansible-playbook <span class="nt">--syntax-check</span> lv.yml
-ansible-navigator run lv.yml <span class="nt">-m</span> stdout
-
-validate
-
-ansible all <span class="nt">-a</span> <span class="s2">"blkid /dev/research/data"</span>
-ansible all <span class="nt">-m</span> shell <span class="nt">-a</span> <span class="s1">'lsblk'</span>
-
-
-Q10: myhosts j2
-
-vim xxx.txt
-
-<span class="c"># /find bellow keywords for j2 </span>
-ipv4
-nodename
-<span class="nb">hostname</span>
-
-
-<span class="c"># understand ansible biuldin vars</span>
-
-groups.all
-groups.dev
-inventory_hostname
-hostvars[i]
-
-<span class="c"># j2 for loop</span>
-
-
-<span class="c"># ansible-doc template</span>
-
-wget http://classroom/materials/hosts.j2
-
-vim /home/greg/ansible/hosts.yml
-
-<span class="nt">---</span>
-- name: j2
-  hosts: all  <span class="c"># has to go all to get all groups.all hosts</span>
-  tasks:
-  - name: Template a hostfile
-    ansible.builtin.template:template
-      src: /home/greg/ansible/hosts.j2
-      dest: /etc/myhosts
-    when: inventory_hostname <span class="k">in </span>groups.dev <span class="c"># only excute for dev hosts</span>
-
-vim hosts.j2
-
-
-
-ansible-navigator run hosts.yml <span class="nt">-m</span> stdout
-
-
-validate:
-
-ansible dev <span class="nt">-a</span> <span class="s2">"cat /etc/myhosts"</span>
-
-Q11: issue, change file
-
-groups.dev
-groups.test
-inventory_hostname
-
-ansible-doc copy
-
-vim /home/greg/ansible/issue.yml
-
-<span class="nt">---</span>
-- name: issue
-  hosts: all
-  tasks:
-  - name: dev
-    ansible.builtin.copy:
-      content: <span class="s1">'Development'</span>
-      dest: /etc/issue
-    when: inventory_hostname <span class="k">in </span>groups.dev
-
-  - name: <span class="nb">test
-    </span>ansible.builtin.copy:
-      content: <span class="s1">'Test'</span>
-      dest: /etc/issue
-    when: inventory_hostname <span class="k">in </span>groups.test
-
-  - name: prod
-    ansible.builtin.copy:
-      content: <span class="s1">'Production'</span>
-      dest: /etc/issue
-    when: inventory_hostname <span class="k">in </span>groups.prd
-
-ansible-navigator run issue.yml <span class="nt">-m</span> stdout
-
-validate:
-
-ansible all <span class="nt">-a</span> <span class="s2">"cat /etc/issue"</span>
-
-Q12: create WEB content
-
-ansible-doc copy   <span class="o">!!</span>  setype
-
-ansible-doc file
-ansible-doc group
-
-ansible dev <span class="nt">-a</span> <span class="s2">"ls -Z /var/www/html"</span>
-
-vim /home/greg/ansible/webcontent.yml
-<span class="nt">---</span>
-- name: create web
-  hosts: dev
-  roles:
-  - apache
-  tasks:
-  - name: Ensure group <span class="s2">"webdev"</span> exists
-    ansible.builtin.group:
-      name: webdev
-      state: present
-
-  - name: create <span class="nb">dir
-    </span>ansible.builtin.file:
-      path: /webdev
-      state: directory
-      mode: u+rwx,g+rws,o+rx
-      group: webdev
-
-  - name: <span class="nb">link
-    </span>ansible.builtin.file:
-      src: /webdev   <span class="c"># remember order for syc and dest</span>
-      dest: /var/www/html/webdev
-      state: <span class="nb">link</span>
-
-  - name: copy content
-    ansible.builtin.copy:
-      content: <span class="s1">'Development'</span>
-      dest: /webdev/index.html
-      setype: httpd_sys_content_t   <span class="c"># man semanage fcontext for httpd_sys_content_t</span>
-
-ansible dev <span class="nt">-a</span> <span class="s2">"ls -Z /var/www/html"</span>
-
-validate :
-
-http://node1/devweb
-
-
-Q13: hardware report
-
-<span class="c"># get empty report, understand keywords</span>
-wget http://materials/hwreport.empty
-vim hwreport.empty
-
-
-vim xxx.txt
-<span class="c"># /find vars in setup</span>
-ansible_memtotal_mb
-ansible_bios_version
-vda
-ansible_devices.vda.size
-
-<span class="c"># user get_url and lininfile module</span>
-ansible-doc get_url
-
-ansible-doc lineinfile
-
-
-vim /home/greg/ansible/hwreport.yml
-<span class="nt">---</span>
-- name: hardware report
-  hosts: all
-  tasks:
-  - name: Copy file 
-    ansible.builtin.get_url:
-      url: http://classroom/materials/hwreport.empty
-      dest: /root/hwreport.txt
-
-  - name: <span class="nb">hostname
-    </span>ansible.builtin.lineinfile:
-      path: /root/hwreport.txt
-      regexp: <span class="s1">'^HOST='</span>
-      line: <span class="s2">"HOST="</span>
-  - name: memory
-    ansible.builtin.lineinfile:
-      path: /root/hwreport.txt
-      regexp: <span class="s1">'^MEMORY='</span>
-      line: <span class="s2">"MEMORY="</span>
-  - name: bios
-    ansible.builtin.lineinfile:
-      path: /root/hwreport.txt
-      regexp: <span class="s1">'^BIOS='</span>
-      line: <span class="s2">"BIOS="</span>
-  - name: vda
-    ansible.builtin.lineinfile:
-      path: /root/hwreport.txt
-      regexp: <span class="s1">'^DISK_SIZE_VDA='</span>
-      line: <span class="s2">"DISK_SIZE_VDA="</span>
-  - name: <span class="nb">hostname
-    </span>ansible.builtin.lineinfile:
-      path: /root/hwreport.txt
-      regexp: <span class="s1">'^DISK_SIZE_VDB='</span>
-      line: <span class="s2">"DISK_SIZE_VDB="</span> <span class="c"># remember # () need remember</span>
-
-ansible-playbook <span class="nt">--syntax-check</span> hwreport.yml
-ansible-navigator run <span class="nt">-m</span> stdout hwreport.yml
-
-validate 
-ansible all <span class="nt">-a</span> <span class="s2">"cat /root/hwreport.txt"</span>
-
-
-Q14: vault
-
-ansible-vault <span class="nt">--help</span>
-
-ansible-vault create /home/greg/ansible/locker.yml 
-password
-
-<span class="nb">echo </span>whenyouwishuponastar <span class="o">&gt;</span> /home/greg/ansible/secret.txt
-
-validate:
-
-<span class="nb">cat</span> /home/greg/ansible/locker.yml
-ansible-vault view /home/greg/ansible/locker.yml
-password
-
-
-
-
-Q15: user
-
-<span class="c"># understand user list</span>
-wget  http://classroom/materials/user_list.yml
-<span class="nb">cat </span>user_list.yml 
-
-<span class="c"># understand user and group module</span>
-ansible-doc user
-ansible-doc group
-
-<span class="c"># define vars_files in playbook</span>
-vars_files
-/home/greg/ansible/user_list.yml
-/home/greg/ansible/locker.yml
-
-<span class="c"># set passwd file in ansible.cfg, # search for vault then add bellow</span>
-vim ansible.cfg1
-vim ansible.cfg
-
-vault_password_file <span class="o">=</span> /home/greg/ansible/secret.txt
-
-<span class="c"># understand passwd hash</span>
-passwd hash512
-| password_hash<span class="o">(</span><span class="s1">'sha512'</span><span class="o">)</span> 
-
-
-vim /home/greg/ansible/users.yml
-
-<span class="nt">---</span>
-- name: u1
-  hosts: dev, <span class="nb">test
-  </span>vars_files:
-  - /home/greg/ansible/user_list.yml
-  - /home/greg/ansible/locker.yml
-  tasks:
-  - name: group1
-    ansible.builtin.group:
-      name: devops
-      state: present
-  - name: u1
-    ansible.builtin.user:
-      name: <span class="s2">""</span>
-      password_expire_max: <span class="s2">""</span>  
-      uid: <span class="s2">""</span>
-      group: devops
-      password: <span class="s2">""</span>  <span class="c"># remember </span>
-    loop: <span class="s2">""</span>
-    when: item.job <span class="o">==</span> <span class="s2">"developer"</span> 
-
-- name: u2
-  hosts: prod
-  vars_files:
-  - /home/greg/ansible/user_list.yml
-  - /home/greg/ansible/locker.yml
-  tasks:
-  - name: group2
-    ansible.builtin.group:
-      name: opsmgr
-      state: present
-  - name: Set u2
-    ansible.builtin.user:
-      name: <span class="s2">""</span>
-      password_expire_max: <span class="s2">""</span>
-      <span class="nb">groups</span>: opsmgr
-      password: <span class="s2">""</span>
-      uid: <span class="s2">""</span>
-    loop: <span class="s2">""</span>
-    when: item.job <span class="o">==</span> <span class="s2">"manager"</span>
-
-
-validate 
-
-ansible all <span class="nt">-a</span> <span class="s2">"id bob"</span>
-ansible all <span class="nt">-a</span> <span class="s2">"id sally"</span>
-
-ssh bob@node1 Imadev
-ssh sally@node3 Imamgr
-
-Q16: vault rekey
-
-wget http://classroom/materials/salaries.yml
-
-ansible-vault rekey salaries.yml
-old password
-new password
-
-vaildate:
-
-<span class="nb">cat </span>salaries.yml 
-
-ansible-vault view salaries.yml 
-Vault password: 
-
-Q17: cron
-
-ansible-doc cron
-
-
-vim /home/greg/ansible/cron.yml
-
-<span class="nt">---</span>
-- name: cron
-  hosts: <span class="nb">test
-  </span>tasks:
-  - name: cron job
-    ansible.builtin.cron:
-      name: <span class="s2">"cron job1"</span>
-      minute: <span class="s2">"*/2"</span>   <span class="c"># remember "" to inlude </span>
-      job: <span class="s1">'logger "EX200 in progress"'</span> <span class="c"># remember '""'</span>
-      user: natasha
-
-ansible-playbook <span class="nt">--syntax-check</span> cron.yml
-ansible-navigator run <span class="nt">-m</span> stdout cron.yml
-
-validate:
-
-ansible <span class="nb">test</span> <span class="nt">-a</span> <span class="s2">"crontab -l -u natasha"</span></code></pre></figure>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The RedHat Certs]]></summary></entry><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-07T22:58:34+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently we got a task from the Company’s security team, to install 2 security agents which will be used to perform centralized security scans for all active AWS EC2 instances. here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and infrastructure at scale.</p>
 
@@ -3309,4 +2128,247 @@ generating data <span class="o">(</span>client-side<span class="o">)</span>...
 
 <p><b> Conclusion</b></p>
 
-<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry></feed>
+<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry><entry><title type="html">PostgreSQL: Deploy into K8S</title><link href="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html" rel="alternate" type="text/html" title="PostgreSQL: Deploy into K8S" /><published>2024-05-10T10:15:29+10:00</published><updated>2024-05-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/10/PS3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html"><![CDATA[<p><b> Single PostgreSQL deployment in K8S</b></p>
+
+<p>PostgreSQL by default doesnot build for kubernetes, and a database with statefulset workload in k8s can be brutal to manage. In my lab k8s cluster, here we create namespace, secret, configuremap, PVC and statefulset to run a single PostgreSQL</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create namespace "postgresql"</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl create ns postgresql
+namespace/postgresql created
+
+<span class="c"># create secret to store database creds</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl <span class="nt">-n</span> postgresql create secret generic postgresql <span class="nt">--from-literal</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span><span class="s2">"postgresadmin"</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="s1">'admin123'</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span><span class="s2">"postgresdb"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_USER</span><span class="o">=</span><span class="s2">"replicationuser"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_PASSWORD</span><span class="o">=</span><span class="s1">'replicationPassword'</span>
+secret/postgresql created
+
+<span class="c"># create configmap, pvc, statefulset with init container to run postgresql</span>
+<span class="o">[</span>root@freeipa-server ~]# vim stateful.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres
+data: 
+  pg_hba.conf: |+
+    <span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+    host     replication     replicationuser         0.0.0.0/0        md5
+    <span class="c"># "local" is for Unix domain socket connections only</span>
+    <span class="nb">local   </span>all             all                                     trust
+    <span class="c"># IPv4 local connections:</span>
+    host    all             all             127.0.0.1/32            trust
+    <span class="c"># IPv6 local connections:</span>
+    host    all             all             ::1/128                 trust
+    <span class="c"># Allow replication connections from localhost, by a user with the</span>
+    <span class="c"># replication privilege.</span>
+    <span class="nb">local   </span>replication     all                                     trust
+    host    replication     all             127.0.0.1/32            trust
+    host    replication     all             ::1/128                 trust
+
+    host all all all scram-sha-256
+  postgresql.conf: |+
+    data_directory <span class="o">=</span> <span class="s1">'/data/pgdata'</span>
+    hba_file <span class="o">=</span> <span class="s1">'/config/pg_hba.conf'</span>
+    ident_file <span class="o">=</span> <span class="s1">'/config/pg_ident.conf'</span>
+
+    port <span class="o">=</span> 5432
+    listen_addresses <span class="o">=</span> <span class="s1">'*'</span>
+    max_connections <span class="o">=</span> 100
+    shared_buffers <span class="o">=</span> 128MB
+    dynamic_shared_memory_type <span class="o">=</span> posix
+    max_wal_size <span class="o">=</span> 1GB
+    min_wal_size <span class="o">=</span> 80MB
+    log_timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
+    datestyle <span class="o">=</span> <span class="s1">'iso, mdy'</span>
+    timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
+
+    <span class="c">#locale settings</span>
+    lc_messages <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for system error message</span>
+    lc_monetary <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for monetary formatting</span>
+    lc_numeric <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for number formatting</span>
+    lc_time <span class="o">=</span> <span class="s1">'en_US.utf8'</span>				<span class="c"># locale for time formatting</span>
+
+    default_text_search_config <span class="o">=</span> <span class="s1">'pg_catalog.english'</span>
+
+    <span class="c">#replication</span>
+    wal_level <span class="o">=</span> replica
+    archive_mode <span class="o">=</span> on
+    archive_command <span class="o">=</span> <span class="s1">'test ! -f /data/archive/%f &amp;&amp; cp %p /data/archive/%f'</span>
+    max_wal_senders <span class="o">=</span> 3
+<span class="nt">---</span>
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: <span class="s2">"postgres"</span>
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init
+        image: postgres:15.0
+        <span class="nb">command</span>: <span class="o">[</span> <span class="s2">"bash"</span>, <span class="s2">"-c"</span> <span class="o">]</span>
+        args:
+        - |
+          <span class="c">#create archive directory</span>
+          <span class="nb">mkdir</span> <span class="nt">-p</span> /data/archive <span class="o">&amp;&amp;</span> <span class="nb">chown</span> <span class="nt">-R</span> 999:999 /data/archive
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: <span class="nb">false
+      </span>containers:
+      - name: postgres
+        image: postgres:15.0
+        args: <span class="o">[</span><span class="s2">"-c"</span>, <span class="s2">"config_file=/config/postgresql.conf"</span><span class="o">]</span>
+        ports:
+        - containerPort: 5432
+          name: database
+        <span class="nb">env</span>:
+        - name: PGDATA
+          value: <span class="s2">"/data/pgdata"</span>
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_USER
+              optional: <span class="nb">false</span>
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_PASSWORD
+              optional: <span class="nb">false</span>
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_DB
+              optional: <span class="nb">false
+        </span>volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: <span class="nb">false</span>
+        - name: data
+          mountPath: /data
+          readOnly: <span class="nb">false
+      </span>volumes:
+      - name: config
+        configMap:
+          name: postgres
+          defaultMode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: <span class="o">[</span> <span class="s2">"ReadWriteOnce"</span> <span class="o">]</span>
+      storageClassName: <span class="s2">"standard"</span>
+      resources:
+        requests:
+          storage: 100Mi
+<span class="nt">---</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  clusterIP: None
+  selector:
+    app: postgres
+
+<span class="o">[</span>root@freeipa-server ~]# kubectl create <span class="nt">-f</span> stateful.yaml <span class="nt">-n</span> postgresql 
+configmap/postgres created
+statefulset.apps/postgres created
+service/postgres created
+
+<span class="c"># validate for pvc, pods</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl get pvc <span class="nt">-n</span> postgresql 
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+data-postgres-0   Bound    pvc-dd89fc0a-915f-40eb-b61f-917234074a61   100Mi      RWO            longhorn       19m
+
+<span class="o">[</span>root@freeipa-server ~]# kubectl get all <span class="nt">-n</span> postgresql 
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          6m29s
+
+NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+service/postgres   ClusterIP   None         &lt;none&gt;        5432/TCP   6m29s
+
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     6m29s
+
+<span class="c"># check container logs for database connection status</span>
+<span class="o">[</span>root@freeipa-server ~]# kubectl logs <span class="nt">-n</span> postgresql postgres-0 
+Defaulted container <span class="s2">"postgres"</span> out of: postgres, init <span class="o">(</span>init<span class="o">)</span>
+The files belonging to this database system will be owned by user <span class="s2">"postgres"</span><span class="nb">.</span>
+This user must also own the server process.
+
+The database cluster will be initialized with locale <span class="s2">"en_US.utf8"</span><span class="nb">.</span>
+The default database encoding has accordingly been <span class="nb">set </span>to <span class="s2">"UTF8"</span><span class="nb">.</span>
+The default text search configuration will be <span class="nb">set </span>to <span class="s2">"english"</span><span class="nb">.</span>
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /data/pgdata ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default <span class="nb">time </span>zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+initdb: warning: enabling <span class="s2">"trust"</span> authentication <span class="k">for </span><span class="nb">local </span>connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option <span class="nt">-A</span>, or <span class="nt">--auth-local</span> and <span class="nt">--auth-host</span>, the next <span class="nb">time </span>you run initdb.
+syncing data to disk ... ok
+
+
+Success. You can now start the database server using:
+
+    pg_ctl <span class="nt">-D</span> /data/pgdata <span class="nt">-l</span> logfile start
+
+waiting <span class="k">for </span>server to start....2024-05-12 00:52:56.718 UTC <span class="o">[</span>49] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-12 00:52:56.719 UTC <span class="o">[</span>49] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-12 00:52:56.730 UTC <span class="o">[</span>49] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
+2024-05-12 00:52:56.733 UTC <span class="o">[</span>52] LOG:  database system was shut down at 2024-05-12 00:52:55 UTC
+2024-05-12 00:52:56.744 UTC <span class="o">[</span>49] LOG:  database system is ready to accept connections
+ <span class="k">done
+</span>server started
+CREATE DATABASE
+
+
+/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/<span class="k">*</span>
+
+2024-05-12 00:52:56.957 UTC <span class="o">[</span>49] LOG:  received fast shutdown request
+waiting <span class="k">for </span>server to shut down....2024-05-12 00:52:56.961 UTC <span class="o">[</span>49] LOG:  aborting any active transactions
+2024-05-12 00:52:56.962 UTC <span class="o">[</span>49] LOG:  background worker <span class="s2">"logical replication launcher"</span> <span class="o">(</span>PID 56<span class="o">)</span> exited with <span class="nb">exit </span>code 1
+2024-05-12 00:52:56.963 UTC <span class="o">[</span>50] LOG:  shutting down
+2024-05-12 00:52:57.042 UTC <span class="o">[</span>50] LOG:  checkpoint starting: shutdown immediate
+..2024-05-12 00:52:59.314 UTC <span class="o">[</span>50] LOG:  checkpoint <span class="nb">complete</span>: wrote 918 buffers <span class="o">(</span>5.6%<span class="o">)</span><span class="p">;</span> 0 WAL file<span class="o">(</span>s<span class="o">)</span> added, 0 removed, 1 recycled<span class="p">;</span> <span class="nv">write</span><span class="o">=</span>0.434 s, <span class="nb">sync</span><span class="o">=</span>0.014 s, <span class="nv">total</span><span class="o">=</span>2.279 s<span class="p">;</span> <span class="nb">sync </span><span class="nv">files</span><span class="o">=</span>250, <span class="nv">longest</span><span class="o">=</span>0.007 s, <span class="nv">average</span><span class="o">=</span>0.001 s<span class="p">;</span> <span class="nv">distance</span><span class="o">=</span>11271 kB, <span class="nv">estimate</span><span class="o">=</span>11271 kB
+2024-05-12 00:52:59.318 UTC <span class="o">[</span>49] LOG:  database system is shut down
+ <span class="k">done
+</span>server stopped
+
+PostgreSQL init process <span class="nb">complete</span><span class="p">;</span> ready <span class="k">for </span>start up.
+
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-05-12 00:52:59.389 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-05-12 00:52:59.398 UTC <span class="o">[</span>1] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
+2024-05-12 00:52:59.404 UTC <span class="o">[</span>67] LOG:  database system was shut down at 2024-05-12 00:52:59 UTC
+2024-05-12 00:52:59.415 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Single PostgreSQL deployment in K8S]]></summary></entry></feed>
