@@ -7,6 +7,7 @@ categories: jekyll Cat2
 
 <b> RedHat idm on AWS design </b>
 
+# 
 The proof of concept aims to achieve that, where a Red Hat IDM (Identity Management) server hosted in AWS with its own domain (zack.linux.com) is integrated with an existing AWS Managed AD (zack.existing.com) for authentication of Linux EC2 instances across multiple AWS accounts. The AWS managed AD also synced with Azure AD. 
 
 In the future picture, all users will be created and maintained centrally from Azure AD, then placed into an OU named "idm" if they require AWS Linux EC2 instances access. Then Red Hat IDM would be able to add or sync those users and configure RBAC and HBAC accordingly.
