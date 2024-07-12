@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Move Zack's Blog to AWS Fargate"
+title:  "Serverless with AWS Fargate"
 date:   2024-07-10 11:15:29 +1100
 categories: jekyll Cat2
 ---
