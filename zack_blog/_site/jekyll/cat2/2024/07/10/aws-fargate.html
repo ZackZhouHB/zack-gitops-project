@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Move Zack’s Blog to AWS Fargate | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Move Zack’s Blog to AWS Fargate" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Why go serverless" />
+<meta property="og:description" content="Why go serverless" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-07-10T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Move Zack’s Blog to AWS Fargate" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-07-10T10:15:29+10:00","datePublished":"2024-07-10T10:15:29+10:00","description":"Why go serverless","headline":"Move Zack’s Blog to AWS Fargate","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html"},"url":"http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Move Zack&#39;s Blog to AWS Fargate</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-07-10T10:15:29+10:00" itemprop="datePublished">Jul 10, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Why go serverless</b></p>
+
+<p>Some of the company’s applications recently moved from Rancher to Fargate, which is understandable as the cloud resource and traffic will be very intensive only during a certain period (HSC exam), hence AWS serverless with Fargate can be a better option for such business mode so rest of the year without exam we can save cost significantly.</p>
+
+<p><b>Hosting our blog on Fargate? Why not!</b></p>
+
+<p>In the past, I used to try different methods to host this blog:</p>
+
+<ul>
+  <li><a href="https://zackz.site/jekyll/cat2/2023/11/02/about-this-project.html">EC2 with docker</a></li>
+  <li><a href="https://zackz.site/jekyll/cat2/2023/11/07/ArgoCD.html">K8s with ArgoCD</a></li>
+  <li><a href="https://zackz.site/jekyll/cat2/2024/04/30/serverless.html">S3 with static website</a></li>
+  <li><a href="https://zackz.site/jekyll/cat2/2024/05/12/Helm.html">Customize Helm Chart for Zack’ Blog</a></li>
+</ul>
+
+<p>Here I will use AWS Fargate, together with AWS ECR, Docker, Terraform and Github Action workflow to move this blog to AWS serverless compute for containers.</p>
+
+<ul>
+  <li>Terraform Provisioning</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Provider Configuration  "provider.tf"</span>
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+ region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+<span class="c"># Create an ECR Repository "ecr.tf"</span>
+resource <span class="s2">"aws_ecr_repository"</span> <span class="s2">"zackblog_repo"</span> <span class="o">{</span>
+ name <span class="o">=</span> <span class="s2">"zackblog-repo"</span>
+<span class="o">}</span>
+
+<span class="c"># Fargate Task Definition  "task_definition.tf"</span>
+resource <span class="s2">"aws_ecs_task_definition"</span> <span class="s2">"zackblog_task"</span> <span class="o">{</span>
+ family                   <span class="o">=</span> <span class="s2">"zackblog-task"</span>
+ network_mode             <span class="o">=</span> <span class="s2">"awsvpc"</span>
+ requires_compatibilities <span class="o">=</span> <span class="o">[</span><span class="s2">"FARGATE"</span><span class="o">]</span>
+ cpu                      <span class="o">=</span> <span class="s2">"256"</span>
+ memory                   <span class="o">=</span> <span class="s2">"512"</span>
+
+ container_definitions <span class="o">=</span> jsonencode<span class="o">([</span>
+ <span class="o">{</span>
+ name      <span class="o">=</span> <span class="s2">"zackblog-container"</span>,
+ image     <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">aws_ecr_repository</span><span class="p">.zackblog_repo.repository_url</span><span class="k">}</span><span class="s2">:latest"</span>,
+ essential <span class="o">=</span> <span class="nb">true</span>,
+ portMappings <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span>
+ containerPort <span class="o">=</span> 80,
+ hostPort      <span class="o">=</span> 80,
+ protocol      <span class="o">=</span> <span class="s2">"tcp"</span>
+ <span class="o">}</span>
+ <span class="o">]</span>
+ <span class="o">}</span>
+ <span class="o">])</span>
+<span class="o">}</span>
+
+<span class="c"># Create an ECS Cluster "cluster.tf"</span>
+resource <span class="s2">"aws_ecs_cluster"</span> <span class="s2">"zackblog_cluster"</span> <span class="o">{</span>
+ name <span class="o">=</span> <span class="s2">"zackblog-cluster"</span>
+<span class="o">}</span>
+
+<span class="c"># Configure Networking to Use Default VPC - save cost haha</span>
+<span class="c"># use the data block to fetch existing resources</span>
+data <span class="s2">"aws_vpc"</span> <span class="s2">"default"</span> <span class="o">{</span>
+ default <span class="o">=</span> <span class="nb">true</span>
+<span class="o">}</span>
+
+data <span class="s2">"aws_subnet"</span> <span class="s2">"default"</span> <span class="o">{</span>
+ filter <span class="o">{</span>
+ name   <span class="o">=</span> <span class="s2">"vpc-id"</span>
+ values <span class="o">=</span> <span class="o">[</span>data.aws_vpc.default.id]
+ <span class="o">}</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_security_group"</span> <span class="s2">"zackblog_sg"</span> <span class="o">{</span>
+ name_prefix <span class="o">=</span> <span class="s2">"zackblog-sg"</span>
+ vpc_id      <span class="o">=</span> data.aws_vpc.default.id
+
+ ingress <span class="o">{</span>
+ from_port   <span class="o">=</span> 80
+ to_port     <span class="o">=</span> 80
+ protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
+ cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+ <span class="o">}</span>
+
+ egress <span class="o">{</span>
+ from_port   <span class="o">=</span> 0
+ to_port     <span class="o">=</span> 0
+ protocol    <span class="o">=</span> <span class="s2">"-1"</span>
+ cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Define the ECS Service "service.tf"</span>
+resource <span class="s2">"aws_ecs_service"</span> <span class="s2">"zackblog_service"</span> <span class="o">{</span>
+ name            <span class="o">=</span> <span class="s2">"zackblog-service"</span>
+ cluster         <span class="o">=</span> aws_ecs_cluster.zackblog_cluster.id
+ task_definition <span class="o">=</span> aws_ecs_task_definition.zackblog_task.arn
+ desired_count   <span class="o">=</span> 1
+ launch_type     <span class="o">=</span> <span class="s2">"FARGATE"</span>
+
+ network_configuration <span class="o">{</span>
+ subnets         <span class="o">=</span> <span class="o">[</span><span class="k">for </span>subnet <span class="k">in </span>data.aws_subnet.default : subnet.id]
+ security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.zackblog_sg.id]
+ assign_public_ip <span class="o">=</span> <span class="nb">true</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Configure Load Balancer and attach to Fargate service "load_balancer.tf"</span>
+resource <span class="s2">"aws_lb"</span> <span class="s2">"zackblog_lb"</span> <span class="o">{</span>
+ name               <span class="o">=</span> <span class="s2">"zackblog-lb"</span>
+ internal           <span class="o">=</span> <span class="nb">false
+ </span>load_balancer_type <span class="o">=</span> <span class="s2">"application"</span>
+ security_groups    <span class="o">=</span> <span class="o">[</span>aws_security_group.zackblog_sg.id]
+ subnets            <span class="o">=</span> <span class="o">[</span><span class="k">for </span>subnet <span class="k">in </span>data.aws_subnet.default : subnet.id]
+<span class="o">}</span>
+
+resource <span class="s2">"aws_lb_target_group"</span> <span class="s2">"zackblog_tg"</span> <span class="o">{</span>
+ name     <span class="o">=</span> <span class="s2">"zackblog-tg"</span>
+ port     <span class="o">=</span> 80
+ protocol <span class="o">=</span> <span class="s2">"HTTP"</span>
+ vpc_id   <span class="o">=</span> data.aws_vpc.default.id
+<span class="o">}</span>
+
+resource <span class="s2">"aws_lb_listener"</span> <span class="s2">"zackblog_listener"</span> <span class="o">{</span>
+ load_balancer_arn <span class="o">=</span> aws_lb.zackblog_lb.arn
+ port              <span class="o">=</span> 80
+ protocol          <span class="o">=</span> <span class="s2">"HTTP"</span>
+
+ default_action <span class="o">{</span>
+ <span class="nb">type</span>             <span class="o">=</span> <span class="s2">"forward"</span>
+ target_group_arn <span class="o">=</span> aws_lb_target_group.zackblog_tg.arn
+ <span class="o">}</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_lb_target_group_attachment"</span> <span class="s2">"zackblog_tg_attachment"</span> <span class="o">{</span>
+ target_group_arn <span class="o">=</span> aws_lb_target_group.zackblog_tg.arn
+ target_id        <span class="o">=</span> aws_ecs_service.zackblog_service.id
+ port             <span class="o">=</span> 80
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>Github Action Workflow fo CICD</li>
+</ul>
+
+<p>1.First we need to create Github Secret to contain dockerhub and aws credentials and some other vars:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">AWS_ACCESS_KEY_ID
+
+AWS_SECRET_ACCESS_KEY
+
+AWS_REGION
+
+<span class="c"># xxx.dkr.ecr.ap-southeast-2.amazonaws.com</span>
+ECR_REGISTRY  
+
+<span class="c"># zackblog-repo</span>
+ECR_REPOSITORY  
+
+<span class="c"># zackblog-cluster</span>
+ECS_CLUSTER 
+
+<span class="c"># zackblog-service</span>
+ECS_SERVICE </code></pre></figure>
+
+<p>2.Then define the workflow to create /.github/workflows/zackblog-fargate.yaml, in this configure Github runner, it will :</p>
+
+<p>Log in to Amazon ECR</p>
+
+<p>Build and push Docker Image to the ECR repository</p>
+
+<p>Deploy to ECS by updating the ECS service to use the new image by forcing a new deployment</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">name</span><span class="pi">:</span> <span class="s">Deploy to AWS Fargate</span>
+
+<span class="na">on</span><span class="pi">:</span>
+ <span class="na">push</span><span class="pi">:</span>
+ <span class="na">branches</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="s">editing  # not main branch</span>
+
+<span class="na">jobs</span><span class="pi">:</span>
+ <span class="na">deploy</span><span class="pi">:</span>
+ <span class="na">runs-on</span><span class="pi">:</span> <span class="s">ubuntu-latest</span>
+
+ <span class="na">steps</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Checkout code</span>
+ <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/checkout@v3</span>
+
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Set up Docker Buildx</span>
+ <span class="na">uses</span><span class="pi">:</span> <span class="s">docker/setup-buildx-action@v2</span>
+
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Log in to Amazon ECR</span>
+ <span class="na">env</span><span class="pi">:</span>
+ <span class="na">AWS_REGION</span><span class="pi">:</span> <span class="s">${{ secrets.AWS_REGION }}</span>
+ <span class="na">run</span><span class="pi">:</span> <span class="pi">|</span>
+ <span class="s">aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}</span>
+
+ <span class="s">- name: Build and push Docker image</span>
+ <span class="s">env:</span>
+ <span class="s">IMAGE_TAG: ${{ github.sha }}</span>
+ <span class="s">ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}</span>
+ <span class="s">ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}</span>
+ <span class="s">run: |</span>
+ <span class="s">docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .</span>
+ <span class="s">docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG</span>
+
+ <span class="s">- name: Deploy to ECS</span>
+ <span class="s">env:</span>
+ <span class="s">AWS_REGION: ${{ secrets.AWS_REGION }}</span>
+ <span class="s">ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}</span>
+ <span class="s">ECS_SERVICE: ${{ secrets.ECS_SERVICE }}</span>
+ <span class="s">ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}</span>
+ <span class="s">ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}</span>
+ <span class="s">IMAGE_TAG: ${{ github.sha }}</span>
+ <span class="s">run: |</span>
+ <span class="s">aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_REGION</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/07/10/aws-fargate.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

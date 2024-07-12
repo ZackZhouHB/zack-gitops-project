@@ -1,4 +1,222 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-10T20:21:49+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-12T23:28:02+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Move Zack’s Blog to AWS Fargate</title><link href="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html" rel="alternate" type="text/html" title="Move Zack’s Blog to AWS Fargate" /><published>2024-07-10T10:15:29+10:00</published><updated>2024-07-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html"><![CDATA[<p><b>Why go serverless</b></p>
+
+<p>Some of the company’s applications recently moved from Rancher to Fargate, which is understandable as the cloud resource and traffic will be very intensive only during a certain period (HSC exam), hence AWS serverless with Fargate can be a better option for such business mode so rest of the year without exam we can save cost significantly.</p>
+
+<p><b>Hosting our blog on Fargate? Why not!</b></p>
+
+<p>In the past, I used to try different methods to host this blog:</p>
+
+<ul>
+  <li><a href="https://zackz.site/jekyll/cat2/2023/11/02/about-this-project.html">EC2 with docker</a></li>
+  <li><a href="https://zackz.site/jekyll/cat2/2023/11/07/ArgoCD.html">K8s with ArgoCD</a></li>
+  <li><a href="https://zackz.site/jekyll/cat2/2024/04/30/serverless.html">S3 with static website</a></li>
+  <li><a href="https://zackz.site/jekyll/cat2/2024/05/12/Helm.html">Customize Helm Chart for Zack’ Blog</a></li>
+</ul>
+
+<p>Here I will use AWS Fargate, together with AWS ECR, Docker, Terraform and Github Action workflow to move this blog to AWS serverless compute for containers.</p>
+
+<ul>
+  <li>Terraform Provisioning</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Provider Configuration  "provider.tf"</span>
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+ region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+<span class="c"># Create an ECR Repository "ecr.tf"</span>
+resource <span class="s2">"aws_ecr_repository"</span> <span class="s2">"zackblog_repo"</span> <span class="o">{</span>
+ name <span class="o">=</span> <span class="s2">"zackblog-repo"</span>
+<span class="o">}</span>
+
+<span class="c"># Fargate Task Definition  "task_definition.tf"</span>
+resource <span class="s2">"aws_ecs_task_definition"</span> <span class="s2">"zackblog_task"</span> <span class="o">{</span>
+ family                   <span class="o">=</span> <span class="s2">"zackblog-task"</span>
+ network_mode             <span class="o">=</span> <span class="s2">"awsvpc"</span>
+ requires_compatibilities <span class="o">=</span> <span class="o">[</span><span class="s2">"FARGATE"</span><span class="o">]</span>
+ cpu                      <span class="o">=</span> <span class="s2">"256"</span>
+ memory                   <span class="o">=</span> <span class="s2">"512"</span>
+
+ container_definitions <span class="o">=</span> jsonencode<span class="o">([</span>
+ <span class="o">{</span>
+ name      <span class="o">=</span> <span class="s2">"zackblog-container"</span>,
+ image     <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">aws_ecr_repository</span><span class="p">.zackblog_repo.repository_url</span><span class="k">}</span><span class="s2">:latest"</span>,
+ essential <span class="o">=</span> <span class="nb">true</span>,
+ portMappings <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span>
+ containerPort <span class="o">=</span> 80,
+ hostPort      <span class="o">=</span> 80,
+ protocol      <span class="o">=</span> <span class="s2">"tcp"</span>
+ <span class="o">}</span>
+ <span class="o">]</span>
+ <span class="o">}</span>
+ <span class="o">])</span>
+<span class="o">}</span>
+
+<span class="c"># Create an ECS Cluster "cluster.tf"</span>
+resource <span class="s2">"aws_ecs_cluster"</span> <span class="s2">"zackblog_cluster"</span> <span class="o">{</span>
+ name <span class="o">=</span> <span class="s2">"zackblog-cluster"</span>
+<span class="o">}</span>
+
+<span class="c"># Configure Networking to Use Default VPC - save cost haha</span>
+<span class="c"># use the data block to fetch existing resources</span>
+data <span class="s2">"aws_vpc"</span> <span class="s2">"default"</span> <span class="o">{</span>
+ default <span class="o">=</span> <span class="nb">true</span>
+<span class="o">}</span>
+
+data <span class="s2">"aws_subnet"</span> <span class="s2">"default"</span> <span class="o">{</span>
+ filter <span class="o">{</span>
+ name   <span class="o">=</span> <span class="s2">"vpc-id"</span>
+ values <span class="o">=</span> <span class="o">[</span>data.aws_vpc.default.id]
+ <span class="o">}</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_security_group"</span> <span class="s2">"zackblog_sg"</span> <span class="o">{</span>
+ name_prefix <span class="o">=</span> <span class="s2">"zackblog-sg"</span>
+ vpc_id      <span class="o">=</span> data.aws_vpc.default.id
+
+ ingress <span class="o">{</span>
+ from_port   <span class="o">=</span> 80
+ to_port     <span class="o">=</span> 80
+ protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
+ cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+ <span class="o">}</span>
+
+ egress <span class="o">{</span>
+ from_port   <span class="o">=</span> 0
+ to_port     <span class="o">=</span> 0
+ protocol    <span class="o">=</span> <span class="s2">"-1"</span>
+ cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Define the ECS Service "service.tf"</span>
+resource <span class="s2">"aws_ecs_service"</span> <span class="s2">"zackblog_service"</span> <span class="o">{</span>
+ name            <span class="o">=</span> <span class="s2">"zackblog-service"</span>
+ cluster         <span class="o">=</span> aws_ecs_cluster.zackblog_cluster.id
+ task_definition <span class="o">=</span> aws_ecs_task_definition.zackblog_task.arn
+ desired_count   <span class="o">=</span> 1
+ launch_type     <span class="o">=</span> <span class="s2">"FARGATE"</span>
+
+ network_configuration <span class="o">{</span>
+ subnets         <span class="o">=</span> <span class="o">[</span><span class="k">for </span>subnet <span class="k">in </span>data.aws_subnet.default : subnet.id]
+ security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.zackblog_sg.id]
+ assign_public_ip <span class="o">=</span> <span class="nb">true</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Configure Load Balancer and attach to Fargate service "load_balancer.tf"</span>
+resource <span class="s2">"aws_lb"</span> <span class="s2">"zackblog_lb"</span> <span class="o">{</span>
+ name               <span class="o">=</span> <span class="s2">"zackblog-lb"</span>
+ internal           <span class="o">=</span> <span class="nb">false
+ </span>load_balancer_type <span class="o">=</span> <span class="s2">"application"</span>
+ security_groups    <span class="o">=</span> <span class="o">[</span>aws_security_group.zackblog_sg.id]
+ subnets            <span class="o">=</span> <span class="o">[</span><span class="k">for </span>subnet <span class="k">in </span>data.aws_subnet.default : subnet.id]
+<span class="o">}</span>
+
+resource <span class="s2">"aws_lb_target_group"</span> <span class="s2">"zackblog_tg"</span> <span class="o">{</span>
+ name     <span class="o">=</span> <span class="s2">"zackblog-tg"</span>
+ port     <span class="o">=</span> 80
+ protocol <span class="o">=</span> <span class="s2">"HTTP"</span>
+ vpc_id   <span class="o">=</span> data.aws_vpc.default.id
+<span class="o">}</span>
+
+resource <span class="s2">"aws_lb_listener"</span> <span class="s2">"zackblog_listener"</span> <span class="o">{</span>
+ load_balancer_arn <span class="o">=</span> aws_lb.zackblog_lb.arn
+ port              <span class="o">=</span> 80
+ protocol          <span class="o">=</span> <span class="s2">"HTTP"</span>
+
+ default_action <span class="o">{</span>
+ <span class="nb">type</span>             <span class="o">=</span> <span class="s2">"forward"</span>
+ target_group_arn <span class="o">=</span> aws_lb_target_group.zackblog_tg.arn
+ <span class="o">}</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_lb_target_group_attachment"</span> <span class="s2">"zackblog_tg_attachment"</span> <span class="o">{</span>
+ target_group_arn <span class="o">=</span> aws_lb_target_group.zackblog_tg.arn
+ target_id        <span class="o">=</span> aws_ecs_service.zackblog_service.id
+ port             <span class="o">=</span> 80
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li>Github Action Workflow fo CICD</li>
+</ul>
+
+<p>1.First we need to create Github Secret to contain dockerhub and aws credentials and some other vars:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">AWS_ACCESS_KEY_ID
+
+AWS_SECRET_ACCESS_KEY
+
+AWS_REGION
+
+<span class="c"># xxx.dkr.ecr.ap-southeast-2.amazonaws.com</span>
+ECR_REGISTRY  
+
+<span class="c"># zackblog-repo</span>
+ECR_REPOSITORY  
+
+<span class="c"># zackblog-cluster</span>
+ECS_CLUSTER 
+
+<span class="c"># zackblog-service</span>
+ECS_SERVICE </code></pre></figure>
+
+<p>2.Then define the workflow to create /.github/workflows/zackblog-fargate.yaml, in this configure Github runner, it will :</p>
+
+<p>Log in to Amazon ECR</p>
+
+<p>Build and push Docker Image to the ECR repository</p>
+
+<p>Deploy to ECS by updating the ECS service to use the new image by forcing a new deployment</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">name</span><span class="pi">:</span> <span class="s">Deploy to AWS Fargate</span>
+
+<span class="na">on</span><span class="pi">:</span>
+ <span class="na">push</span><span class="pi">:</span>
+ <span class="na">branches</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="s">editing  # not main branch</span>
+
+<span class="na">jobs</span><span class="pi">:</span>
+ <span class="na">deploy</span><span class="pi">:</span>
+ <span class="na">runs-on</span><span class="pi">:</span> <span class="s">ubuntu-latest</span>
+
+ <span class="na">steps</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Checkout code</span>
+ <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/checkout@v3</span>
+
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Set up Docker Buildx</span>
+ <span class="na">uses</span><span class="pi">:</span> <span class="s">docker/setup-buildx-action@v2</span>
+
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Log in to Amazon ECR</span>
+ <span class="na">env</span><span class="pi">:</span>
+ <span class="na">AWS_REGION</span><span class="pi">:</span> <span class="s">${{ secrets.AWS_REGION }}</span>
+ <span class="na">run</span><span class="pi">:</span> <span class="pi">|</span>
+ <span class="s">aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}</span>
+
+ <span class="s">- name: Build and push Docker image</span>
+ <span class="s">env:</span>
+ <span class="s">IMAGE_TAG: ${{ github.sha }}</span>
+ <span class="s">ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}</span>
+ <span class="s">ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}</span>
+ <span class="s">run: |</span>
+ <span class="s">docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .</span>
+ <span class="s">docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG</span>
+
+ <span class="s">- name: Deploy to ECS</span>
+ <span class="s">env:</span>
+ <span class="s">AWS_REGION: ${{ secrets.AWS_REGION }}</span>
+ <span class="s">ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}</span>
+ <span class="s">ECS_SERVICE: ${{ secrets.ECS_SERVICE }}</span>
+ <span class="s">ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}</span>
+ <span class="s">ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}</span>
+ <span class="s">IMAGE_TAG: ${{ github.sha }}</span>
+ <span class="s">run: |</span>
+ <span class="s">aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_REGION</span></code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Why go serverless]]></summary></entry><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently we got a task from the Company’s security team, to install 2 security agents which will be used to perform centralized security scans for all active AWS EC2 instances. here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and infrastructure at scale.</p>
 
@@ -2128,247 +2346,4 @@ generating data <span class="o">(</span>client-side<span class="o">)</span>...
 
 <p><b> Conclusion</b></p>
 
-<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry><entry><title type="html">PostgreSQL: Deploy into K8S</title><link href="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html" rel="alternate" type="text/html" title="PostgreSQL: Deploy into K8S" /><published>2024-05-10T10:15:29+10:00</published><updated>2024-05-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/10/PS3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/10/PS3.html"><![CDATA[<p><b> Single PostgreSQL deployment in K8S</b></p>
-
-<p>PostgreSQL by default doesnot build for kubernetes, and a database with statefulset workload in k8s can be brutal to manage. In my lab k8s cluster, here we create namespace, secret, configuremap, PVC and statefulset to run a single PostgreSQL</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create namespace "postgresql"</span>
-<span class="o">[</span>root@freeipa-server ~]# kubectl create ns postgresql
-namespace/postgresql created
-
-<span class="c"># create secret to store database creds</span>
-<span class="o">[</span>root@freeipa-server ~]# kubectl <span class="nt">-n</span> postgresql create secret generic postgresql <span class="nt">--from-literal</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span><span class="s2">"postgresadmin"</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="s1">'admin123'</span> <span class="nt">--from-literal</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span><span class="s2">"postgresdb"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_USER</span><span class="o">=</span><span class="s2">"replicationuser"</span> <span class="nt">--from-literal</span> <span class="nv">REPLICATION_PASSWORD</span><span class="o">=</span><span class="s1">'replicationPassword'</span>
-secret/postgresql created
-
-<span class="c"># create configmap, pvc, statefulset with init container to run postgresql</span>
-<span class="o">[</span>root@freeipa-server ~]# vim stateful.yaml
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres
-data: 
-  pg_hba.conf: |+
-    <span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
-    host     replication     replicationuser         0.0.0.0/0        md5
-    <span class="c"># "local" is for Unix domain socket connections only</span>
-    <span class="nb">local   </span>all             all                                     trust
-    <span class="c"># IPv4 local connections:</span>
-    host    all             all             127.0.0.1/32            trust
-    <span class="c"># IPv6 local connections:</span>
-    host    all             all             ::1/128                 trust
-    <span class="c"># Allow replication connections from localhost, by a user with the</span>
-    <span class="c"># replication privilege.</span>
-    <span class="nb">local   </span>replication     all                                     trust
-    host    replication     all             127.0.0.1/32            trust
-    host    replication     all             ::1/128                 trust
-
-    host all all all scram-sha-256
-  postgresql.conf: |+
-    data_directory <span class="o">=</span> <span class="s1">'/data/pgdata'</span>
-    hba_file <span class="o">=</span> <span class="s1">'/config/pg_hba.conf'</span>
-    ident_file <span class="o">=</span> <span class="s1">'/config/pg_ident.conf'</span>
-
-    port <span class="o">=</span> 5432
-    listen_addresses <span class="o">=</span> <span class="s1">'*'</span>
-    max_connections <span class="o">=</span> 100
-    shared_buffers <span class="o">=</span> 128MB
-    dynamic_shared_memory_type <span class="o">=</span> posix
-    max_wal_size <span class="o">=</span> 1GB
-    min_wal_size <span class="o">=</span> 80MB
-    log_timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
-    datestyle <span class="o">=</span> <span class="s1">'iso, mdy'</span>
-    timezone <span class="o">=</span> <span class="s1">'Etc/UTC'</span>
-
-    <span class="c">#locale settings</span>
-    lc_messages <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for system error message</span>
-    lc_monetary <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for monetary formatting</span>
-    lc_numeric <span class="o">=</span> <span class="s1">'en_US.utf8'</span>			<span class="c"># locale for number formatting</span>
-    lc_time <span class="o">=</span> <span class="s1">'en_US.utf8'</span>				<span class="c"># locale for time formatting</span>
-
-    default_text_search_config <span class="o">=</span> <span class="s1">'pg_catalog.english'</span>
-
-    <span class="c">#replication</span>
-    wal_level <span class="o">=</span> replica
-    archive_mode <span class="o">=</span> on
-    archive_command <span class="o">=</span> <span class="s1">'test ! -f /data/archive/%f &amp;&amp; cp %p /data/archive/%f'</span>
-    max_wal_senders <span class="o">=</span> 3
-<span class="nt">---</span>
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-spec:
-  selector:
-    matchLabels:
-      app: postgres
-  serviceName: <span class="s2">"postgres"</span>
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      terminationGracePeriodSeconds: 30
-      initContainers:
-      - name: init
-        image: postgres:15.0
-        <span class="nb">command</span>: <span class="o">[</span> <span class="s2">"bash"</span>, <span class="s2">"-c"</span> <span class="o">]</span>
-        args:
-        - |
-          <span class="c">#create archive directory</span>
-          <span class="nb">mkdir</span> <span class="nt">-p</span> /data/archive <span class="o">&amp;&amp;</span> <span class="nb">chown</span> <span class="nt">-R</span> 999:999 /data/archive
-        volumeMounts:
-        - name: data
-          mountPath: /data
-          readOnly: <span class="nb">false
-      </span>containers:
-      - name: postgres
-        image: postgres:15.0
-        args: <span class="o">[</span><span class="s2">"-c"</span>, <span class="s2">"config_file=/config/postgresql.conf"</span><span class="o">]</span>
-        ports:
-        - containerPort: 5432
-          name: database
-        <span class="nb">env</span>:
-        - name: PGDATA
-          value: <span class="s2">"/data/pgdata"</span>
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: postgresql
-              key: POSTGRES_USER
-              optional: <span class="nb">false</span>
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgresql
-              key: POSTGRES_PASSWORD
-              optional: <span class="nb">false</span>
-        - name: POSTGRES_DB
-          valueFrom:
-            secretKeyRef:
-              name: postgresql
-              key: POSTGRES_DB
-              optional: <span class="nb">false
-        </span>volumeMounts:
-        - name: config
-          mountPath: /config
-          readOnly: <span class="nb">false</span>
-        - name: data
-          mountPath: /data
-          readOnly: <span class="nb">false
-      </span>volumes:
-      - name: config
-        configMap:
-          name: postgres
-          defaultMode: 0755
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: <span class="o">[</span> <span class="s2">"ReadWriteOnce"</span> <span class="o">]</span>
-      storageClassName: <span class="s2">"standard"</span>
-      resources:
-        requests:
-          storage: 100Mi
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres
-  labels:
-    app: postgres
-spec:
-  ports:
-  - port: 5432
-    targetPort: 5432
-    name: postgres
-  clusterIP: None
-  selector:
-    app: postgres
-
-<span class="o">[</span>root@freeipa-server ~]# kubectl create <span class="nt">-f</span> stateful.yaml <span class="nt">-n</span> postgresql 
-configmap/postgres created
-statefulset.apps/postgres created
-service/postgres created
-
-<span class="c"># validate for pvc, pods</span>
-<span class="o">[</span>root@freeipa-server ~]# kubectl get pvc <span class="nt">-n</span> postgresql 
-NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-data-postgres-0   Bound    pvc-dd89fc0a-915f-40eb-b61f-917234074a61   100Mi      RWO            longhorn       19m
-
-<span class="o">[</span>root@freeipa-server ~]# kubectl get all <span class="nt">-n</span> postgresql 
-NAME             READY   STATUS    RESTARTS   AGE
-pod/postgres-0   1/1     Running   0          6m29s
-
-NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
-service/postgres   ClusterIP   None         &lt;none&gt;        5432/TCP   6m29s
-
-NAME                        READY   AGE
-statefulset.apps/postgres   1/1     6m29s
-
-<span class="c"># check container logs for database connection status</span>
-<span class="o">[</span>root@freeipa-server ~]# kubectl logs <span class="nt">-n</span> postgresql postgres-0 
-Defaulted container <span class="s2">"postgres"</span> out of: postgres, init <span class="o">(</span>init<span class="o">)</span>
-The files belonging to this database system will be owned by user <span class="s2">"postgres"</span><span class="nb">.</span>
-This user must also own the server process.
-
-The database cluster will be initialized with locale <span class="s2">"en_US.utf8"</span><span class="nb">.</span>
-The default database encoding has accordingly been <span class="nb">set </span>to <span class="s2">"UTF8"</span><span class="nb">.</span>
-The default text search configuration will be <span class="nb">set </span>to <span class="s2">"english"</span><span class="nb">.</span>
-
-Data page checksums are disabled.
-
-fixing permissions on existing directory /data/pgdata ... ok
-creating subdirectories ... ok
-selecting dynamic shared memory implementation ... posix
-selecting default max_connections ... 100
-selecting default shared_buffers ... 128MB
-selecting default <span class="nb">time </span>zone ... Etc/UTC
-creating configuration files ... ok
-running bootstrap script ... ok
-performing post-bootstrap initialization ... ok
-initdb: warning: enabling <span class="s2">"trust"</span> authentication <span class="k">for </span><span class="nb">local </span>connections
-initdb: hint: You can change this by editing pg_hba.conf or using the option <span class="nt">-A</span>, or <span class="nt">--auth-local</span> and <span class="nt">--auth-host</span>, the next <span class="nb">time </span>you run initdb.
-syncing data to disk ... ok
-
-
-Success. You can now start the database server using:
-
-    pg_ctl <span class="nt">-D</span> /data/pgdata <span class="nt">-l</span> logfile start
-
-waiting <span class="k">for </span>server to start....2024-05-12 00:52:56.718 UTC <span class="o">[</span>49] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
-2024-05-12 00:52:56.719 UTC <span class="o">[</span>49] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
-2024-05-12 00:52:56.730 UTC <span class="o">[</span>49] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
-2024-05-12 00:52:56.733 UTC <span class="o">[</span>52] LOG:  database system was shut down at 2024-05-12 00:52:55 UTC
-2024-05-12 00:52:56.744 UTC <span class="o">[</span>49] LOG:  database system is ready to accept connections
- <span class="k">done
-</span>server started
-CREATE DATABASE
-
-
-/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/<span class="k">*</span>
-
-2024-05-12 00:52:56.957 UTC <span class="o">[</span>49] LOG:  received fast shutdown request
-waiting <span class="k">for </span>server to shut down....2024-05-12 00:52:56.961 UTC <span class="o">[</span>49] LOG:  aborting any active transactions
-2024-05-12 00:52:56.962 UTC <span class="o">[</span>49] LOG:  background worker <span class="s2">"logical replication launcher"</span> <span class="o">(</span>PID 56<span class="o">)</span> exited with <span class="nb">exit </span>code 1
-2024-05-12 00:52:56.963 UTC <span class="o">[</span>50] LOG:  shutting down
-2024-05-12 00:52:57.042 UTC <span class="o">[</span>50] LOG:  checkpoint starting: shutdown immediate
-..2024-05-12 00:52:59.314 UTC <span class="o">[</span>50] LOG:  checkpoint <span class="nb">complete</span>: wrote 918 buffers <span class="o">(</span>5.6%<span class="o">)</span><span class="p">;</span> 0 WAL file<span class="o">(</span>s<span class="o">)</span> added, 0 removed, 1 recycled<span class="p">;</span> <span class="nv">write</span><span class="o">=</span>0.434 s, <span class="nb">sync</span><span class="o">=</span>0.014 s, <span class="nv">total</span><span class="o">=</span>2.279 s<span class="p">;</span> <span class="nb">sync </span><span class="nv">files</span><span class="o">=</span>250, <span class="nv">longest</span><span class="o">=</span>0.007 s, <span class="nv">average</span><span class="o">=</span>0.001 s<span class="p">;</span> <span class="nv">distance</span><span class="o">=</span>11271 kB, <span class="nv">estimate</span><span class="o">=</span>11271 kB
-2024-05-12 00:52:59.318 UTC <span class="o">[</span>49] LOG:  database system is shut down
- <span class="k">done
-</span>server stopped
-
-PostgreSQL init process <span class="nb">complete</span><span class="p">;</span> ready <span class="k">for </span>start up.
-
-2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
-2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
-2024-05-12 00:52:59.385 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
-2024-05-12 00:52:59.389 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
-2024-05-12 00:52:59.398 UTC <span class="o">[</span>1] LOG:  could not open usermap file <span class="s2">"/config/pg_ident.conf"</span>: No such file or directory
-2024-05-12 00:52:59.404 UTC <span class="o">[</span>67] LOG:  database system was shut down at 2024-05-12 00:52:59 UTC
-2024-05-12 00:52:59.415 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections</code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Single PostgreSQL deployment in K8S]]></summary></entry></feed>
+<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry></feed>
