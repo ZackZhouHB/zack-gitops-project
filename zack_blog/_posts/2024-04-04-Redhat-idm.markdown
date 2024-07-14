@@ -48,7 +48,7 @@ User Creation and Management:
 
 - Azure AD / Local AD: Users are created in the Azure Active Directory or local Active Directory.
 
-- Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the one-way trust established between AD and IdM.
+- Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the two-way trust established between AD and IdM.
 
 Access Request:
 

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>RedHat Identity Management (IdM) with AD Intergration | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="RedHat Identity Management (IdM) with AD Intergration" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Linux Identity Management" />
+<meta property="og:description" content="About Linux Identity Management" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-07-13T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="RedHat Identity Management (IdM) with AD Intergration" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-07-13T10:15:29+10:00","datePublished":"2024-07-13T10:15:29+10:00","description":"About Linux Identity Management","headline":"RedHat Identity Management (IdM) with AD Intergration","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"},"url":"http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> RedHat Identity Management (IdM) with AD Intergration </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-07-13T10:15:29+10:00" itemprop="datePublished">Jul 13, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> About Linux Identity Management </b></p>
+
+<p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
+
+<ul>
+  <li>
+    <p>With Local AD and Azure AD (AAD) Integration</p>
+  </li>
+  <li>
+    <p>With AWS SSO Integration as externel identity provider</p>
+  </li>
+  <li>
+    <p>LDAP, Kerberos and NTP</p>
+  </li>
+  <li>
+    <p>A web-based management front-end running on Apache</p>
+  </li>
+</ul>
+
+<p><b> A Typical AD User Authentication Flow End-to-End: </b></p>
+
+<p>User Creation and Management:</p>
+
+<ul>
+  <li>
+    <p>Azure AD / Local AD: Users are created in the Azure Active Directory or local Active Directory.</p>
+  </li>
+  <li>
+    <p>Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the two-way trust established between AD and IdM.</p>
+  </li>
+</ul>
+
+<p>Accessing EC2 Instances via SSH:</p>
+
+<ul>
+  <li>User Sync to RedHat IdM: Users synchronized to RedHat IdM are assigned roles and permissions, including SSH access to specific EC2 instances.</li>
+</ul>
+
+<p>Host-Based Access Control (HBAC):</p>
+
+<ul>
+  <li>
+    <p>HBAC Rules: RedHat IdM enforces HBAC rules to control which users can access specific EC2 instances.</p>
+  </li>
+  <li>
+    <p>SSH Access Control: When a user attempts to SSH into an EC2 instance, RedHat IdM verifies the user’s identity and permissions, allowing or denying access based on the defined HBAC rules.</p>
+  </li>
+</ul>
+
+<p><b> The design:</b></p>
+
+<p>For Idm on AWS, configure the security groups to allow ports required by IdM. IdM desires below to be open:</p>
+
+<p>HTTP/HTTPS — 80, 443 — TCP</p>
+
+<p>LDAP/LDAPS — 389, 636 — TCP</p>
+
+<p>Kerberos — 88, 464 — Both TCP and UDP</p>
+
+<p>DNS — 53 — Both TCP and UDP</p>
+
+<p>NTP — 123 — UDP</p>
+
+<p>Here I am going to:</p>
+
+<ul>
+  <li>
+    <p>install and configure a local freeIPA server</p>
+  </li>
+  <li>
+    <p>enroll 2 Linux client machines (both CentOS and Ubuntu)</p>
+  </li>
+  <li>
+    <p>Setup a local AD,</p>
+  </li>
+  <li>
+    <p>build a 2 way trust between idm and AD</p>
+  </li>
+  <li>
+    <p>Validate IDM and AD user to ssh into idm client machines.</p>
+  </li>
+</ul>
+
+<p><b> Prerequisites: </b></p>
+
+<ul>
+  <li>
+    <p>Windows AD Domain <b> ad.zack.world</b> and Idm Domain <b> ipa.zack.world</b></p>
+  </li>
+  <li>
+    <p>Windows AD: 11.0.1.181 dc01.ad.zack.world (win server 2019)</p>
+  </li>
+  <li>
+    <p>Windows client1: 11.0.1.182 win-client.ad.zack.world (win server 2019)</p>
+  </li>
+  <li>
+    <p>idm Server: 11.0.1.180 server1.ipa.zack.world (CentOS 9)</p>
+  </li>
+  <li>
+    <p>idm Client2: 11.0.1.184 ubt-client02.ipa.zack.world (Ubuntu 24.04)</p>
+  </li>
+  <li>
+    <p>idm Client3: 11.0.1.185 idm-client3-centos7.ipa.zack.world (CentOS 9)</p>
+  </li>
+</ul>
+
+<p><b> FreeIPA Installation </b></p>
+
+<p>On freeIPA Server server1.ipa.zack.world 11.0.1.180 (CentOS 9):</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname, IP and DNS</span>
+hostnamectl set-hostname server1.ipa.zack.world
+
+<span class="c"># add 3 hosts to /etc/hosts</span>
+<span class="nb">echo </span>11.0.1.180 server1.ipa.zack.world  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.184 ubt-client02.ipa.zack.world ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.185  idm-client3-centos7.ipa.zack.world  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.181  dc01.ad.zack.world ipa <span class="o">&gt;&gt;</span> /etc/hosts
+
+<span class="c"># install ipa-server</span>
+dnf <span class="nt">-y</span> <span class="nb">install </span>freeipa-server freeipa-server-dns freeipa-client
+
+<span class="c"># Configure ipa-server and DNS, here set ipa console and domain admin password</span>
+ipa-server-install <span class="nt">--setup-dns</span>
+
+<span class="c"># confirm or change NetBIOS domain name</span>
+NetBIOS domain name <span class="o">[</span>IPA]: IPA01
+
+The ipa-server-install <span class="nb">command </span>was successful.
+
+<span class="c"># Configure firewall rules and services</span>
+firewall-cmd <span class="nt">--add-service</span><span class="o">={</span>freeipa-ldap,freeipa-ldaps,dns,ntp<span class="o">}</span>
+firewall-cmd <span class="nt">--runtime-to-permanent</span>
+firewall-cmd <span class="nt">--reload</span> 
+
+<span class="c"># check ipastatus</span>
+<span class="o">[</span>root@freeipa ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+ntpd Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl <span class="nb">command </span>was successful
+
+<span class="c"># Obtain a Kerberos ticket for the Kerberos admin user and Verify the ticket</span>
+kinit admin
+klist
+
+Ticket cache: KEYRING:persistent:0:0
+Default principal: admin@ZACKZ.OONLINE
+
+Valid starting     Expires            Service principal
+07/13/24 22:17:29  07/14/24 22:02:43  HTTP/server1.ipa.zack.world@IPA.ZACK.WORLD
+
+<span class="c"># check content of /etc/resolv.conf</span>
+<span class="nb">cat</span> /etc/resolv.conf
+search ipa.zack.world
+nameserver 127.0.0.1
+
+<span class="c"># Configure default login shell to Bash and Create User tina</span>
+ipa config-mod <span class="nt">--defaultshell</span><span class="o">=</span>/bin/bash
+ipa user-add tina <span class="nt">--first</span><span class="o">=</span>tina <span class="nt">--last</span><span class="o">=</span>qi <span class="nt">--password</span></code></pre></figure>
+
+<p><img src="/assets/idm3.png" alt="image tooltip here" /></p>
+
+<p><b> Idm client Enrollment </b></p>
+
+<p>Now the idm web portal should be accessible, by adding “11.0.1.180 server1.ipa.zack.world” into local “c:/wondows/system32/drivers/etc/hosts.</p>
+
+<p>Then enrol both centos and Ubuntu IDM client machines</p>
+
+<ul>
+  <li>On FreeIPA Server, add DNS entry for FreeIPA Client machines</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># ipa dnsrecord-add [domain name] [record name] [record type] [record]</span>
+ipa dnsrecord-add ipa.zack.world idm-client3-centos7 <span class="nt">--a-rec</span> 11.0.1.185
+ipa dnsrecord-add ipa.zack.world ubt-client02 <span class="nt">--a-rec</span> 11.0.1.184
+
+- <span class="nb">set </span>IP, <span class="nb">hostname</span>, DNS on idm client
+<span class="c"># set idm server ID as client DNS</span>
+nmcli connection modify ens33 ipv4.dns 11.0.1.180
+nmcli connection up ens33
+
+<span class="c"># Install FreeIPA Client packages.</span>
+dnf <span class="nt">-y</span> <span class="nb">install </span>freeipa-client
+
+<span class="c"># enrol client to idm server with domain name</span>
+ipa-client-install <span class="nt">--server</span><span class="o">=</span>server1.ipa.zack.world <span class="nt">--domain</span> ipa.zack.world
+
+Enrolled <span class="k">in </span>IPA realm IPA.ZACK.WORLD
+Configuring ipa.zack.world as NIS domain.
+Client configuration complete.
+The ipa-client-install <span class="nb">command </span>was successful
+
+<span class="c"># set create home directory at initial login</span>
+authselect enable-feature with-mkhomedir
+systemctl <span class="nb">enable</span> <span class="nt">--now</span> oddjobd
+
+<span class="c"># same as Ubuntu client</span>
+<span class="nb">echo </span>11.0.1.180 server1.ipa.zack.world server1 <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.184 ubt-client02.ipa.zack.world ubt-client02 <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.185 idm-client3-centos7.ipa.zack.world idm-client3-centos7 <span class="o">&gt;&gt;</span> /etc/hosts
+
+<span class="c"># Edit host file and install client, then enrol into idm server domain</span>
+apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install </span>freeipa-client oddjob-mkhomedir <span class="nt">-y</span>
+ipa-client-install <span class="nt">--server</span><span class="o">=</span>server1.ipa.zack.world <span class="nt">--domain</span> ipa.zack.world
+
+Client configuration complete.
+The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
+
+<p><img src="/assets/idm2.png" alt="image tooltip here" /></p>
+
+<p><b> Setup idm and AD trust</b></p>
+
+<p>On Windows DC, setup AD</p>
+
+<ul>
+  <li>
+    <p>install ADDC role and feature</p>
+  </li>
+  <li>
+    <p>create forest “ad.zack.world”</p>
+  </li>
+  <li>
+    <p>promote to primary DC</p>
+  </li>
+  <li>
+    <p>test AD to join Windows client machine to domain</p>
+  </li>
+  <li>
+    <p>create AD user joez@ad.zack.world</p>
+  </li>
+  <li>
+    <p>add idm domain to Windows AD zones</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># dnscmd 127.0.0.1 /ZoneAdd [FreeIPA domain name] /Secondary [FreeIPA IP address]</span>
+C:<span class="se">\U</span>sers<span class="se">\A</span>dministrator&gt;dnscmd 127.0.0.1 /ZoneAdd ipa.zack.world /Secondary 11.0.1.180
+DNS Server 127.0.0.1 created zone ipa.zack.world:
+
+Command completed successfully.
+
+<span class="c"># Verify both AD and Idm DNS resolution, then setup trust</span>
+dig SRV _ldap._tcp.ipa.zack.world
+dig SRV _ldap._tcp.ad.zack.world</code></pre></figure>
+
+<p><img src="/assets/idm1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Install required packages then setup trust on FreeIPA Server</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Install packages</span>
+dnf <span class="nt">-y</span> <span class="nb">install </span>ipa-server-trust-ad
+<span class="c"># setup ad trust</span>
+ipa-adtrust-install
+
+<span class="c"># FreeIPA admin password</span>
+admin password:
+<span class="o">=============================================================================</span>
+Setup <span class="nb">complete</span>
+
+<span class="c"># add firewall service and ports for ad trust</span>
+firewall-cmd <span class="nt">--add-service</span><span class="o">=</span>freeipa-trust
+
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>135/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>138/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>139/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>445/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>1024-1300/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>3268/tcp
+<span class="c"># Open UDP ports</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>138/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>139/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>389/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>445/udp
+<span class="c"># Open TCP ports</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>80/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>443/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>389/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>636/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>88/tcp
+<span class="nb">sudo </span>firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>464/tcp
+<span class="nb">sudo </span>firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>53/tcp
+<span class="c"># Open UDP ports</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>88/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>464/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>53/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>123/udp
+
+firewall-cmd <span class="nt">--reload</span>
+
+<span class="c"># Configure DNS Setting on FreeIPA Server</span>
+<span class="c"># ipa dnsforwardzone-add [AD domain name] --forwarder=[AD IP address] --forward-policy=only</span>
+ipa dnsforwardzone-add ad.zack.world <span class="nt">--forwarder</span><span class="o">=</span>11.0.1.181 <span class="nt">--forward-policy</span><span class="o">=</span>only
+<span class="c"># ipa dnszone-mod [IPA domain name] --allow-transfer=[AD IP address]</span>
+ipa dnszone-mod ipa.zack.world <span class="nt">--allow-transfer</span><span class="o">=</span>11.0.1.181
+
+<span class="c"># ipa trust-add --type=ad [AD domain name] --admin Administrator --password</span>
+ipa trust-add <span class="nt">--two-way</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--type</span><span class="o">=</span>ad ad.zack.world <span class="nt">--admin</span> Administrator <span class="nt">--password</span>
+Active Directory domain administrator<span class="s1">'s password:
+-----------------------------------------------------
+Added Active Directory trust for realm "ad.zack.world"
+-----------------------------------------------------
+ Realm name: ad.zack.world
+ Domain NetBIOS name: AD01
+ Domain Security Identifier: S-1-5-21-726412840-3773945212-2352305327
+ Trust direction: Two-way trust
+ Trust type: Active Directory domain
+ Trust status: Established and verified
+
+# set  home directory at initial login
+authselect enable-feature with-mkhomedir
+systemctl enable --now oddjobd</span></code></pre></figure>
+
+<p><img src="/assets/idm4.png" alt="image tooltip here" /></p>
+
+<p><b> Validation of both idm clients with idm and AD user</b></p>
+
+<ul>
+  <li>Validate ssh into ubuntu client with AD user “joez@ad.zack.world”</li>
+</ul>
+
+<p><img src="/assets/idm6.png" alt="image tooltip here" /></p>
+
+<p>Validate ssh into Centos client with idm user “tina”</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">login as: tina
+Keyboard-interactive authentication prompts from server:
+| Password:
+End of keyboard-interactive prompts from server
+Last login: Sun Jul 14 20:48:42 2024 from 11.0.1.1
+<span class="o">[</span>tina@idm-client3-centos7 ~]<span class="nv">$ </span><span class="nb">id
+</span><span class="nv">uid</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> 
+<span class="nv">context</span><span class="o">=</span>unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we install Redhat IdM server and can enrol client hosts, set up AD trust, ssh and authenticate with both idm and AD users. IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.</p>
+
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=freeipa&amp;f=8">FreeIPA:FreeIPA trust AD</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/07/13/Redhatidm.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

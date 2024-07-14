@@ -1,4 +1,349 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-13T15:07:13+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Serverless with AWS Fargate</title><link href="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html" rel="alternate" type="text/html" title="Serverless with AWS Fargate" /><published>2024-07-10T10:15:29+10:00</published><updated>2024-07-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html"><![CDATA[<p><b>Why go serverless</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-14T23:16:35+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
+
+<p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
+
+<ul>
+  <li>
+    <p>With Local AD and Azure AD (AAD) Integration</p>
+  </li>
+  <li>
+    <p>With AWS SSO Integration as externel identity provider</p>
+  </li>
+  <li>
+    <p>LDAP, Kerberos and NTP</p>
+  </li>
+  <li>
+    <p>A web-based management front-end running on Apache</p>
+  </li>
+</ul>
+
+<p><b> A Typical AD User Authentication Flow End-to-End: </b></p>
+
+<p>User Creation and Management:</p>
+
+<ul>
+  <li>
+    <p>Azure AD / Local AD: Users are created in the Azure Active Directory or local Active Directory.</p>
+  </li>
+  <li>
+    <p>Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the two-way trust established between AD and IdM.</p>
+  </li>
+</ul>
+
+<p>Accessing EC2 Instances via SSH:</p>
+
+<ul>
+  <li>User Sync to RedHat IdM: Users synchronized to RedHat IdM are assigned roles and permissions, including SSH access to specific EC2 instances.</li>
+</ul>
+
+<p>Host-Based Access Control (HBAC):</p>
+
+<ul>
+  <li>
+    <p>HBAC Rules: RedHat IdM enforces HBAC rules to control which users can access specific EC2 instances.</p>
+  </li>
+  <li>
+    <p>SSH Access Control: When a user attempts to SSH into an EC2 instance, RedHat IdM verifies the user’s identity and permissions, allowing or denying access based on the defined HBAC rules.</p>
+  </li>
+</ul>
+
+<p><b> The design:</b></p>
+
+<p>For Idm on AWS, configure the security groups to allow ports required by IdM. IdM desires below to be open:</p>
+
+<p>HTTP/HTTPS — 80, 443 — TCP</p>
+
+<p>LDAP/LDAPS — 389, 636 — TCP</p>
+
+<p>Kerberos — 88, 464 — Both TCP and UDP</p>
+
+<p>DNS — 53 — Both TCP and UDP</p>
+
+<p>NTP — 123 — UDP</p>
+
+<p>Here I am going to:</p>
+
+<ul>
+  <li>
+    <p>install and configure a local freeIPA server</p>
+  </li>
+  <li>
+    <p>enroll 2 Linux client machines (both CentOS and Ubuntu)</p>
+  </li>
+  <li>
+    <p>Setup a local AD,</p>
+  </li>
+  <li>
+    <p>build a 2 way trust between idm and AD</p>
+  </li>
+  <li>
+    <p>Validate IDM and AD user to ssh into idm client machines.</p>
+  </li>
+</ul>
+
+<p><b> Prerequisites: </b></p>
+
+<ul>
+  <li>
+    <p>Windows AD Domain <b> ad.zack.world</b> and Idm Domain <b> ipa.zack.world</b></p>
+  </li>
+  <li>
+    <p>Windows AD: 11.0.1.181 dc01.ad.zack.world (win server 2019)</p>
+  </li>
+  <li>
+    <p>Windows client1: 11.0.1.182 win-client.ad.zack.world (win server 2019)</p>
+  </li>
+  <li>
+    <p>idm Server: 11.0.1.180 server1.ipa.zack.world (CentOS 9)</p>
+  </li>
+  <li>
+    <p>idm Client2: 11.0.1.184 ubt-client02.ipa.zack.world (Ubuntu 24.04)</p>
+  </li>
+  <li>
+    <p>idm Client3: 11.0.1.185 idm-client3-centos7.ipa.zack.world (CentOS 9)</p>
+  </li>
+</ul>
+
+<p><b> FreeIPA Installation </b></p>
+
+<p>On freeIPA Server server1.ipa.zack.world 11.0.1.180 (CentOS 9):</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname, IP and DNS</span>
+hostnamectl set-hostname server1.ipa.zack.world
+
+<span class="c"># add 3 hosts to /etc/hosts</span>
+<span class="nb">echo </span>11.0.1.180 server1.ipa.zack.world  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.184 ubt-client02.ipa.zack.world ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.185  idm-client3-centos7.ipa.zack.world  ipa <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.181  dc01.ad.zack.world ipa <span class="o">&gt;&gt;</span> /etc/hosts
+
+<span class="c"># install ipa-server</span>
+dnf <span class="nt">-y</span> <span class="nb">install </span>freeipa-server freeipa-server-dns freeipa-client
+
+<span class="c"># Configure ipa-server and DNS, here set ipa console and domain admin password</span>
+ipa-server-install <span class="nt">--setup-dns</span>
+
+<span class="c"># confirm or change NetBIOS domain name</span>
+NetBIOS domain name <span class="o">[</span>IPA]: IPA01
+
+The ipa-server-install <span class="nb">command </span>was successful.
+
+<span class="c"># Configure firewall rules and services</span>
+firewall-cmd <span class="nt">--add-service</span><span class="o">={</span>freeipa-ldap,freeipa-ldaps,dns,ntp<span class="o">}</span>
+firewall-cmd <span class="nt">--runtime-to-permanent</span>
+firewall-cmd <span class="nt">--reload</span> 
+
+<span class="c"># check ipastatus</span>
+<span class="o">[</span>root@freeipa ~]# ipactl status
+Directory Service: RUNNING
+krb5kdc Service: RUNNING
+kadmin Service: RUNNING
+httpd Service: RUNNING
+ipa-custodia Service: RUNNING
+ntpd Service: RUNNING
+pki-tomcatd Service: RUNNING
+ipa-otpd Service: RUNNING
+ipa: INFO: The ipactl <span class="nb">command </span>was successful
+
+<span class="c"># Obtain a Kerberos ticket for the Kerberos admin user and Verify the ticket</span>
+kinit admin
+klist
+
+Ticket cache: KEYRING:persistent:0:0
+Default principal: admin@ZACKZ.OONLINE
+
+Valid starting     Expires            Service principal
+07/13/24 22:17:29  07/14/24 22:02:43  HTTP/server1.ipa.zack.world@IPA.ZACK.WORLD
+
+<span class="c"># check content of /etc/resolv.conf</span>
+<span class="nb">cat</span> /etc/resolv.conf
+search ipa.zack.world
+nameserver 127.0.0.1
+
+<span class="c"># Configure default login shell to Bash and Create User tina</span>
+ipa config-mod <span class="nt">--defaultshell</span><span class="o">=</span>/bin/bash
+ipa user-add tina <span class="nt">--first</span><span class="o">=</span>tina <span class="nt">--last</span><span class="o">=</span>qi <span class="nt">--password</span></code></pre></figure>
+
+<p><img src="/assets/idm3.png" alt="image tooltip here" /></p>
+
+<p><b> Idm client Enrollment </b></p>
+
+<p>Now the idm web portal should be accessible, by adding “11.0.1.180 server1.ipa.zack.world” into local “c:/wondows/system32/drivers/etc/hosts.</p>
+
+<p>Then enrol both centos and Ubuntu IDM client machines</p>
+
+<ul>
+  <li>On FreeIPA Server, add DNS entry for FreeIPA Client machines</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># ipa dnsrecord-add [domain name] [record name] [record type] [record]</span>
+ipa dnsrecord-add ipa.zack.world idm-client3-centos7 <span class="nt">--a-rec</span> 11.0.1.185
+ipa dnsrecord-add ipa.zack.world ubt-client02 <span class="nt">--a-rec</span> 11.0.1.184
+
+- <span class="nb">set </span>IP, <span class="nb">hostname</span>, DNS on idm client
+<span class="c"># set idm server ID as client DNS</span>
+nmcli connection modify ens33 ipv4.dns 11.0.1.180
+nmcli connection up ens33
+
+<span class="c"># Install FreeIPA Client packages.</span>
+dnf <span class="nt">-y</span> <span class="nb">install </span>freeipa-client
+
+<span class="c"># enrol client to idm server with domain name</span>
+ipa-client-install <span class="nt">--server</span><span class="o">=</span>server1.ipa.zack.world <span class="nt">--domain</span> ipa.zack.world
+
+Enrolled <span class="k">in </span>IPA realm IPA.ZACK.WORLD
+Configuring ipa.zack.world as NIS domain.
+Client configuration complete.
+The ipa-client-install <span class="nb">command </span>was successful
+
+<span class="c"># set create home directory at initial login</span>
+authselect enable-feature with-mkhomedir
+systemctl <span class="nb">enable</span> <span class="nt">--now</span> oddjobd
+
+<span class="c"># same as Ubuntu client</span>
+<span class="nb">echo </span>11.0.1.180 server1.ipa.zack.world server1 <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.184 ubt-client02.ipa.zack.world ubt-client02 <span class="o">&gt;&gt;</span> /etc/hosts
+<span class="nb">echo </span>11.0.1.185 idm-client3-centos7.ipa.zack.world idm-client3-centos7 <span class="o">&gt;&gt;</span> /etc/hosts
+
+<span class="c"># Edit host file and install client, then enrol into idm server domain</span>
+apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install </span>freeipa-client oddjob-mkhomedir <span class="nt">-y</span>
+ipa-client-install <span class="nt">--server</span><span class="o">=</span>server1.ipa.zack.world <span class="nt">--domain</span> ipa.zack.world
+
+Client configuration complete.
+The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
+
+<p><img src="/assets/idm2.png" alt="image tooltip here" /></p>
+
+<p><b> Setup idm and AD trust</b></p>
+
+<p>On Windows DC, setup AD</p>
+
+<ul>
+  <li>
+    <p>install ADDC role and feature</p>
+  </li>
+  <li>
+    <p>create forest “ad.zack.world”</p>
+  </li>
+  <li>
+    <p>promote to primary DC</p>
+  </li>
+  <li>
+    <p>test AD to join Windows client machine to domain</p>
+  </li>
+  <li>
+    <p>create AD user joez@ad.zack.world</p>
+  </li>
+  <li>
+    <p>add idm domain to Windows AD zones</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># dnscmd 127.0.0.1 /ZoneAdd [FreeIPA domain name] /Secondary [FreeIPA IP address]</span>
+C:<span class="se">\U</span>sers<span class="se">\A</span>dministrator&gt;dnscmd 127.0.0.1 /ZoneAdd ipa.zack.world /Secondary 11.0.1.180
+DNS Server 127.0.0.1 created zone ipa.zack.world:
+
+Command completed successfully.
+
+<span class="c"># Verify both AD and Idm DNS resolution, then setup trust</span>
+dig SRV _ldap._tcp.ipa.zack.world
+dig SRV _ldap._tcp.ad.zack.world</code></pre></figure>
+
+<p><img src="/assets/idm1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Install required packages then setup trust on FreeIPA Server</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Install packages</span>
+dnf <span class="nt">-y</span> <span class="nb">install </span>ipa-server-trust-ad
+<span class="c"># setup ad trust</span>
+ipa-adtrust-install
+
+<span class="c"># FreeIPA admin password</span>
+admin password:
+<span class="o">=============================================================================</span>
+Setup <span class="nb">complete</span>
+
+<span class="c"># add firewall service and ports for ad trust</span>
+firewall-cmd <span class="nt">--add-service</span><span class="o">=</span>freeipa-trust
+
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>135/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>138/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>139/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>445/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>1024-1300/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>3268/tcp
+<span class="c"># Open UDP ports</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>138/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>139/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>389/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>445/udp
+<span class="c"># Open TCP ports</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>80/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>443/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>389/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>636/tcp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>88/tcp
+<span class="nb">sudo </span>firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>464/tcp
+<span class="nb">sudo </span>firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>53/tcp
+<span class="c"># Open UDP ports</span>
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>88/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>464/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>53/udp
+firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>123/udp
+
+firewall-cmd <span class="nt">--reload</span>
+
+<span class="c"># Configure DNS Setting on FreeIPA Server</span>
+<span class="c"># ipa dnsforwardzone-add [AD domain name] --forwarder=[AD IP address] --forward-policy=only</span>
+ipa dnsforwardzone-add ad.zack.world <span class="nt">--forwarder</span><span class="o">=</span>11.0.1.181 <span class="nt">--forward-policy</span><span class="o">=</span>only
+<span class="c"># ipa dnszone-mod [IPA domain name] --allow-transfer=[AD IP address]</span>
+ipa dnszone-mod ipa.zack.world <span class="nt">--allow-transfer</span><span class="o">=</span>11.0.1.181
+
+<span class="c"># ipa trust-add --type=ad [AD domain name] --admin Administrator --password</span>
+ipa trust-add <span class="nt">--two-way</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--type</span><span class="o">=</span>ad ad.zack.world <span class="nt">--admin</span> Administrator <span class="nt">--password</span>
+Active Directory domain administrator<span class="s1">'s password:
+-----------------------------------------------------
+Added Active Directory trust for realm "ad.zack.world"
+-----------------------------------------------------
+ Realm name: ad.zack.world
+ Domain NetBIOS name: AD01
+ Domain Security Identifier: S-1-5-21-726412840-3773945212-2352305327
+ Trust direction: Two-way trust
+ Trust type: Active Directory domain
+ Trust status: Established and verified
+
+# set  home directory at initial login
+authselect enable-feature with-mkhomedir
+systemctl enable --now oddjobd</span></code></pre></figure>
+
+<p><img src="/assets/idm4.png" alt="image tooltip here" /></p>
+
+<p><b> Validation of both idm clients with idm and AD user</b></p>
+
+<ul>
+  <li>Validate ssh into ubuntu client with AD user “joez@ad.zack.world”</li>
+</ul>
+
+<p><img src="/assets/idm6.png" alt="image tooltip here" /></p>
+
+<p>Validate ssh into Centos client with idm user “tina”</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">login as: tina
+Keyboard-interactive authentication prompts from server:
+| Password:
+End of keyboard-interactive prompts from server
+Last login: Sun Jul 14 20:48:42 2024 from 11.0.1.1
+<span class="o">[</span>tina@idm-client3-centos7 ~]<span class="nv">$ </span><span class="nb">id
+</span><span class="nv">uid</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> 
+<span class="nv">context</span><span class="o">=</span>unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we install Redhat IdM server and can enrol client hosts, set up AD trust, ssh and authenticate with both idm and AD users. IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.</p>
+
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=freeipa&amp;f=8">FreeIPA:FreeIPA trust AD</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity Management]]></summary></entry><entry><title type="html">Serverless with AWS Fargate</title><link href="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html" rel="alternate" type="text/html" title="Serverless with AWS Fargate" /><published>2024-07-10T10:15:29+10:00</published><updated>2024-07-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html"><![CDATA[<p><b>Why go serverless</b></p>
 
 <p>Some of the company’s applications recently moved from Rancher to Fargate, which is understandable as the cloud resource and traffic will be very intensive only during a certain period (HSC exam), hence AWS serverless with Fargate can be a better option for such business mode so rest of the year without exam we can save cost significantly.</p>
 
@@ -2073,277 +2418,4 @@ syncPolicy:
 
 <p>Finally, I had a chance to go over helm, it makes package management easier and more convenient, through charts, k8s deployment can be more flexible with values and templates that can be deployed and reusable into different environments, it provides versioning and rollbacks, also allow customization of the template. however using on-line chart can also be risky in a production environment with quality, dependency and security risks.</p>
 
-<p>Overall I think helm chart is a very good way to start deployment into k8s.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Helm]]></summary></entry><entry><title type="html">PostgreSQL: Prod-Grade with k8s Operator</title><link href="http://localhost:4000/jekyll/cat2/2024/05/11/PS4.html" rel="alternate" type="text/html" title="PostgreSQL: Prod-Grade with k8s Operator" /><published>2024-05-11T10:15:29+10:00</published><updated>2024-05-11T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/11/PS4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/11/PS4.html"><![CDATA[<p><b> Production grade PostgreSQL in K8S</b></p>
-
-<p>Despite all the challenges, in the last 2 years, clever people still managed ways to deploy production-grade database within a Kubernetes cluster by using Kubernetes as a platform to develop custom resource definition (CRDs) like helm charts like bitnami/postgresql-ha, and PostgreSQL Operator like CrunchyData/postgres-operator or zalando/postgres-operator.</p>
-
-<p>Last post I was able to deploy a single PostgreSQL in local k8s, but I had to manually create Kubernetes namespaces, define database creds, configuration and environment variables into k8s secret and configmap, also to define the statefulset yaml with volume claim template.</p>
-
-<p>Still I was not able to configure HA and failover as I found it is so limited and a headache within K8S if only relying on statefulset. Luckily there are engineers out there to develop helm and opeartor to get the job done.</p>
-
-<p><b> CrunchyData Postgres-Operator</b></p>
-
-<p>In this session, I will follow bellow steps to</p>
-
-<ul>
-  <li>Deploy PostgreSQL Operator</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Clone the CrunchyData Postgres Operator</span>
-<span class="o">[</span>root@freeipa-server ~]# git clone https://github.com/CrunchyData/postgres-operator-examples.git
-
-<span class="c"># create namespace and deploy GPO Postgres Operatorusing kustomize</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">-k</span> kustomize/install/namespace
-namespace/postgres-operator created
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">--server-side</span> <span class="nt">-k</span> kustomize/install/default
-customresourcedefinition.apiextensions.k8s.io/pgadmins.postgres-operator.crunchydata.com serverside-applied
-customresourcedefinition.apiextensions.k8s.io/pgupgrades.postgres-operator.crunchydata.com serverside-applied
-customresourcedefinition.apiextensions.k8s.io/postgresclusters.postgres-operator.crunchydata.com serverside-applied
-serviceaccount/pgo serverside-applied
-clusterrole.rbac.authorization.k8s.io/postgres-operator serverside-applied
-clusterrolebinding.rbac.authorization.k8s.io/postgres-operator serverside-applied
-deployment.apps/pgo serverside-applied
-
-<span class="c"># validate deploy status</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get all <span class="nt">-n</span> postgres-operator
-NAME                      READY   STATUS    RESTARTS   AGE
-pod/pgo-77d6b49b8-wrdjp   1/1     Running   0          2m47s
-
-NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/pgo   1/1     1            1           2m47s
-
-NAME                            DESIRED   CURRENT   READY   AGE
-replicaset.apps/pgo-77d6b49b8   1         1         1       2m47s</code></pre></figure>
-
-<ul>
-  <li>Deploy HA PostgreSQL Cluster</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create a Postgres Cluster named "hippo" in "postgres-operator" ns</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">-k</span> kustomize/postgres
-postgrescluster.postgres-operator.crunchydata.com/hippo created
-
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get all <span class="nt">-n</span> postgres-operator
-NAME                          READY   STATUS    RESTARTS   AGE
-pod/hippo-backup-dvks-m4z5m   1/1     Running   0          56s
-pod/hippo-instance1-582s-0    4/4     Running   0          2m14s
-pod/hippo-repo-host-0         2/2     Running   0          2m14s
-pod/pgo-77d6b49b8-wrdjp       1/1     Running   0          6m38s
-
-NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
-service/hippo-ha          ClusterIP   10.43.249.159   &lt;none&gt;        5432/TCP   2m14s
-service/hippo-ha-config   ClusterIP   None            &lt;none&gt;        &lt;none&gt;     2m14s
-service/hippo-pods        ClusterIP   None            &lt;none&gt;        &lt;none&gt;     2m14s
-service/hippo-primary     ClusterIP   None            &lt;none&gt;        5432/TCP   2m14s
-service/hippo-replicas    ClusterIP   10.43.17.57     &lt;none&gt;        5432/TCP   2m14s
-
-NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/pgo   1/1     1            1           6m38s
-
-NAME                            DESIRED   CURRENT   READY   AGE
-replicaset.apps/pgo-77d6b49b8   1         1         1       6m38s
-
-NAME                                    READY   AGE
-statefulset.apps/hippo-instance1-582s   1/1     2m14s
-statefulset.apps/hippo-repo-host        1/1     2m14s
-
-NAME                          COMPLETIONS   DURATION   AGE
-job.batch/hippo-backup-dvks   0/1           56s        56s
-
-<span class="c"># retrieve database password from Kubernetes secret</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get secret hippo-pguser-hippo <span class="nt">-n</span> postgres-operator <span class="nt">-o</span><span class="o">=</span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.data.password}'</span> | <span class="nb">base64</span> <span class="nt">--decode</span>
-jZiBWXMGRiEOA6wAEj<span class="p">;</span>lRhsM</code></pre></figure>
-
-<p>Connect an application to PostgreSQL cluster</p>
-
-<p>Here we use Keycloak, a popular open-source identity management tool that is backed by a PostgreSQL database. Using the hippo cluster we created, we can deploy the following manifest file</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create deployment keycloak to connect PostgreSQL database</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# vim kustomize/keycloak/keycloak.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: keycloak
-  namespace: postgres-operator
-  labels:
-    app.kubernetes.io/name: keycloak
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: keycloak
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: keycloak
-    spec:
-      containers:
-      - image: quay.io/keycloak/keycloak:latest
-        args: <span class="o">[</span><span class="s2">"start-dev"</span><span class="o">]</span>
-        name: keycloak
-        <span class="nb">env</span>:
-        - name: DB_VENDOR
-          value: <span class="s2">"postgres"</span>
-        - name: DB_ADDR
-          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: host <span class="o">}</span> <span class="o">}</span>
-        - name: DB_PORT
-          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: port <span class="o">}</span> <span class="o">}</span>
-        - name: DB_DATABASE
-          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: dbname <span class="o">}</span> <span class="o">}</span>
-        - name: DB_USER
-          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: user <span class="o">}</span> <span class="o">}</span>
-        - name: DB_PASSWORD
-          valueFrom: <span class="o">{</span> secretKeyRef: <span class="o">{</span> name: hippo-pguser-hippo, key: password <span class="o">}</span> <span class="o">}</span>
-        - name: KEYCLOAK_ADMIN
-          value: <span class="s2">"admin"</span>
-        - name: KEYCLOAK_ADMIN_PASSWORD
-          value: <span class="s2">"admin"</span>
-        - name: KC_PROXY
-          value: <span class="s2">"edge"</span>
-        ports:
-        - name: http
-          containerPort: 8080
-        - name: https
-          containerPort: 8443
-        readinessProbe:
-          httpGet:
-            path: /realms/master
-            port: 8080
-      restartPolicy: Always
-
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl apply <span class="nt">-f</span> kustomize/keycloak/keycloak.yaml
-deployment.apps/keycloak created
-
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl get deployment <span class="nt">-n</span> postgres-operator 
-NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-keycloak   1/1     1            1           4m27s
-pgo        1/1     1            1           176m</code></pre></figure>
-
-<ul>
-  <li>Scale Up / Down</li>
-</ul>
-
-<p>Edit manifest to add 2 more replicas</p>
-
-<p><img src="/assets/ps3-1.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server kustomize]# kubectl apply <span class="nt">-k</span> postgres <span class="nt">-n</span> postgres-operator
-postgrescluster.postgres-operator.crunchydata.com/hippo configured
-<span class="c"># watch change</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# watch kubectl get pod <span class="nt">-L</span> postgres-operator.crunchydata.com/role <span class="nt">-l</span> postgres-operator.crunchydata.com/instance <span class="nt">-n</span> postgres-operator</code></pre></figure>
-
-<p><img src="/assets/ps3-2.png" alt="image tooltip here" /></p>
-
-<p>Failover testing:</p>
-
-<p>Now I am going to delete the primary instance, one of the standby pod will take over and become primary automatically</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># delete the primary pod hippo-instance1-nhbc-0, then previous replica pod hippo-instance1-q8kk-0 promoted as master</span>
-<span class="c"># pod hippo-instance1-nhbc-0 will up again as a replica</span>
-<span class="o">[</span>root@freeipa-server kustomize]# kubectl delete po hippo-instance1-nhbc-0 <span class="nt">-n</span> postgres-operator 
-pod <span class="s2">"hippo-instance1-nhbc-0"</span> deleted</code></pre></figure>
-
-<p><img src="/assets/ps3-3.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Perform Minor version rolling upgrade</li>
-</ul>
-
-<p>Here I changed the database version to 16.1, the cluster will start a rolling update by</p>
-
-<ol>
-  <li>
-    <p>Applying new version to one of the standby pod first</p>
-  </li>
-  <li>
-    <p>Then update another replica pod</p>
-  </li>
-  <li>
-    <p>Promote the first upgraded replica as master</p>
-  </li>
-  <li>
-    <p>Lastly the previous master pod will be updated and become a replica</p>
-  </li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate DB version before miner upgrade</span>
-<span class="o">[</span>root@freeipa-server kustomize]# kubectl <span class="nb">exec</span> <span class="nt">-it</span> hippo-instance1-q8kk-0 <span class="nt">-n</span> postgres-operator <span class="nt">--</span> psql <span class="nt">--version</span>
-Defaulted container <span class="s2">"database"</span> out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup <span class="o">(</span>init<span class="o">)</span>, nss-wrapper-init <span class="o">(</span>init<span class="o">)</span>
-psql <span class="o">(</span>PostgreSQL<span class="o">)</span> 16.2</code></pre></figure>
-
-<p><img src="/assets/ps3-5.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/ps3-4.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate DB version after miner version change</span>
-<span class="o">[</span>root@freeipa-server kustomize]# kubectl <span class="nb">exec</span> <span class="nt">-it</span> hippo-instance1-q8kk-0 <span class="nt">-n</span> postgres-operator <span class="nt">--</span> psql <span class="nt">--version</span>
-Defaulted container <span class="s2">"database"</span> out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup <span class="o">(</span>init<span class="o">)</span>, nss-wrapper-init <span class="o">(</span>init<span class="o">)</span>
-psql <span class="o">(</span>PostgreSQL<span class="o">)</span> 16.1</code></pre></figure>
-
-<ul>
-  <li>Backup</li>
-</ul>
-
-<p>Add backup Cron job into manifest to add weekly full backup and daily incremental</p>
-
-<p><img src="/assets/ps3-6.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# kubectl get cronjobs <span class="nt">-n</span> postgres-operator 
-NAME               SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
-hippo-repo1-full   0 1 <span class="k">*</span> <span class="k">*</span> 0     False     0        &lt;none&gt;          5m21s
-hippo-repo1-incr   0 1 <span class="k">*</span> <span class="k">*</span> 1-6   False     0        &lt;none&gt;          5m21s</code></pre></figure>
-
-<ul>
-  <li>Deploy Monitoring (Prom + Grafaba)</li>
-</ul>
-
-<p>Finally, let’s set up the monitoring stack for PostgreSQL by using Pormthues and Grafana.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># deploy monitoring stack</span>
-<span class="o">[</span>root@freeipa-server kustomize]# kubectl apply <span class="nt">-k</span> monitoring
-serviceaccount/alertmanager created
-serviceaccount/grafana created
-serviceaccount/prometheus created
-clusterrole.rbac.authorization.k8s.io/prometheus created
-clusterrolebinding.rbac.authorization.k8s.io/prometheus created
-configmap/alert-rules-config created
-configmap/alertmanager-config created
-configmap/crunchy-prometheus created
-configmap/grafana-dashboards created
-configmap/grafana-datasources created
-secret/grafana-admin created
-service/crunchy-alertmanager created
-service/crunchy-grafana created
-service/crunchy-prometheus created
-persistentvolumeclaim/alertmanagerdata created
-persistentvolumeclaim/grafanadata created
-persistentvolumeclaim/prometheusdata created
-deployment.apps/crunchy-alertmanager created
-deployment.apps/crunchy-grafana created
-deployment.apps/crunchy-prometheus created
-<span class="c"># Edit Grafana service to NodePort</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl edit svc crunchy-grafana <span class="nt">-n</span> postgres-operator
-service/crunchy-grafana edited
-<span class="c"># exec into master database container, using pgbench to generate tables</span>
-<span class="o">[</span>root@freeipa-server postgres-operator-examples]# kubectl <span class="nb">exec</span> <span class="nt">-it</span> hippo-instance1-nhbc-0 <span class="nt">-c</span> database <span class="nt">-n</span> postgres-operator <span class="nt">--</span> bash
-
-bash-4.4<span class="nv">$ </span>pgbench <span class="nt">-i</span> <span class="nt">-s</span> 100 <span class="nt">-U</span> postgres <span class="nt">-d</span> postgres
-dropping old tables...
-NOTICE:  table <span class="s2">"pgbench_accounts"</span> does not exist, skipping
-NOTICE:  table <span class="s2">"pgbench_branches"</span> does not exist, skipping
-NOTICE:  table <span class="s2">"pgbench_history"</span> does not exist, skipping
-NOTICE:  table <span class="s2">"pgbench_tellers"</span> does not exist, skipping
-creating tables...
-generating data <span class="o">(</span>client-side<span class="o">)</span>...
-10000000 of 10000000 tuples <span class="o">(</span>100%<span class="o">)</span> <span class="k">done</span> <span class="o">(</span>elapsed 45.61 s, remaining 0.00 s<span class="o">)</span></code></pre></figure>
-
-<p><img src="/assets/ps3-7.png" alt="image tooltip here" /></p>
-
-<p>Some Grafana predefined PostgreSQL dashboard, unfortunately I donot have much data in it to show more monitoring status.</p>
-
-<p><img src="/assets/ps3-8.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/ps3-9.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Production grade PostgreSQL in K8S]]></summary></entry></feed>
+<p>Overall I think helm chart is a very good way to start deployment into k8s.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Helm]]></summary></entry></feed>
