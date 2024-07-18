@@ -27,7 +27,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile_gateway
+      dockerfile: Dockerfile_apigateway
     depends_on:
       - consul
       - user-service
