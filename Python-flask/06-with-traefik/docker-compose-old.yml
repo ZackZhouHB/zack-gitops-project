@@ -1,0 +1,71 @@
+version: '3'
+services:
+  consul:
+    image: consul
+    ports:
+      - "8500:8500"
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"
+      - "--providers.consulcatalog=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+    networks:
+      - web
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-user
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user-service.rule=Host(`user-service.local`)"
+      - "traefik.http.services.user-service.loadbalancer.server.port=5001"
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+    ports:
+      - "5001:5001"
+    networks:
+      - web
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-order
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.order-service.rule=Host(`order-service.local`)"
+      - "traefik.http.services.order-service.loadbalancer.server.port=5002"
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+    ports:
+      - "5002:5002"
+    networks:
+      - web
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile-gateway
+    depends_on:
+      - consul
+      - user-service
+      - order-service
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+    ports:
+      - "5000:5000"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
