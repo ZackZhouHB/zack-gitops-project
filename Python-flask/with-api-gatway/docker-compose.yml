@@ -17,6 +17,6 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile-gateway
+      dockerfile: Dockerfile_apigateway
     ports:
       - "5000:5000"
