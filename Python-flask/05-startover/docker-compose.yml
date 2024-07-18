@@ -4,30 +4,30 @@ services:
     image: consul:1.15.4
     ports:
       - "8500:8500"
+
   user-service:
     build:
-      context: .
-      dockerfile: Dockerfile_user
+      context: ./user_service
     depends_on:
       - consul
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
     ports:
       - "5001:5001"
+
   order-service:
     build:
-      context: .
-      dockerfile: Dockerfile_order
+      context: ./order_service
     depends_on:
       - consul
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
     ports:
       - "5002:5002"
+
   api-gateway:
     build:
-      context: .
-      dockerfile: Dockerfile_apigateway
+      context: ./api_gateway
     depends_on:
       - consul
       - user-service
