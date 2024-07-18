@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-19T00:08:19+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-19T01:06:18+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
 
 <p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
 
@@ -1514,86 +1514,99 @@ permission_sets <span class="o">=</span> <span class="o">{</span>
 
 <p>Now, we can achieve the task individually via terraform code and a Terraform module to handle the creation of AWS SSO users, This setup combines all three requests into a single Terraform configuration, leveraging the reusable module for creating permission sets and managing user assignments, it is more efficient, dynamically, and reusable. In future, we only define permission sets and maintain new users and assignments in the environment variables .tf file, then run Terraform apply to get the job done. The change also can be tracked when leveraging Git as version control.</p>
 
-<p><a href="https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11">Streamlining AWS SSO in Complex Multi-Account Environments</a></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Challange About AWS SSO User Assignment]]></summary></entry><entry><title type="html">Python Flask: Microservice Containerization</title><link href="http://localhost:4000/jekyll/cat2/2024/05/18/py-flask1.html" rel="alternate" type="text/html" title="Python Flask: Microservice Containerization" /><published>2024-05-18T10:15:29+10:00</published><updated>2024-05-18T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/18/py-flask1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/18/py-flask1.html"><![CDATA[<p><b> About Python Flask</b></p>
+<p><a href="https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11">Streamlining AWS SSO in Complex Multi-Account Environments</a></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Challange About AWS SSO User Assignment]]></summary></entry><entry><title type="html">Python Flask: API Gateway &amp;amp; Consul</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html" rel="alternate" type="text/html" title="Python Flask: API Gateway &amp;amp; Consul" /><published>2024-05-19T10:15:29+10:00</published><updated>2024-05-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html"><![CDATA[<p><b> About API Gateway</b></p>
 
-<p>Flask stands out as one of Python’s most popular web frameworks. Designed for versatility and ease of use, Flask offers a robust starting point for crafting web apps.</p>
+<p>API Gateway acts as a single entry point for all clients and handles the request routing, composition, and protocol translation in a microservices architecture, here I will create a API Gateway using Python Flask and requests library, to route both “user” and “order” services.</p>
 
-<p>By the following posts, I will use Flask to</p>
+<p>Create an API Gateway to handle the 2 services.</p>
 
-<ul>
-  <li>
-    <p>create a series of Python web applications from simple app (Hello Zack)</p>
-  </li>
-  <li>
-    <p>develop microservices applications (order and user), deploy using Docker compose</p>
-  </li>
-  <li>
-    <p>Create Python API gateway application to</p>
-  </li>
-  <li>
-    <p>Integrate with Consul for service discovery and register</p>
-  </li>
-  <li>
-    <p>Enable logging with ELK, monitoring with Prometheus &amp; Grafana</p>
-  </li>
-  <li>
-    <p>Last I will create Kubernetes manifast for K8S deployment.</p>
-  </li>
-  <li>
-    <p>I will skip ArgoCD and Github Action as I had done similar posts before.  </p>
-  </li>
-</ul>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder Structure</span>
+03-with-api-gatway/
+├── user_service/
+│   ├── Dockerfile
+│   └── user_service.py
+├── order_service/
+│   ├── Dockerfile
+│   └── order_service.py
+├── api_gateway/
+│   ├── Dockerfile
+│   └── api_gateway.py
+├── docker-compose.yml
 
-<p><b> Get started with Flask env and simple app</b></p>
-
-<p>I will skip the installation for Docker and python3 as those can be found via the official Docker and Python website.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># local create a new virtualenv </span>
-virtualenv flask
-<span class="c"># pip3 install virtualenv </span>
-<span class="nb">cd </span>flask
-<span class="c"># activate the virtualenv</span>
-<span class="nb">source </span>bin/activate
-
-<span class="c"># install flask</span>
-pip <span class="nb">install </span>flask
-
-<span class="c"># create a simple Flask app</span>
-vim app.py
-
-from flask import Flask
+<span class="c"># api_gateway.py</span>
+from flask import Flask, jsonify
+import requests
 
 app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
 
-@app.route<span class="o">(</span><span class="s1">'/'</span><span class="o">)</span>
-def hello_zack<span class="o">()</span>:
- <span class="k">return</span> <span class="s1">'Hello, Zack!'</span>
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+ response <span class="o">=</span> requests.get<span class="o">(</span><span class="s1">'http://user-service:5001/users'</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>response.json<span class="o">())</span>
+
+@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
+def get_orders<span class="o">()</span>:
+ response <span class="o">=</span> requests.get<span class="o">(</span><span class="s1">'http://order-service:5002/orders'</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>response.json<span class="o">())</span>
 
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
  app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5000<span class="o">)</span>
 
-<span class="c"># run it</span>
-<span class="o">(</span>flask<span class="o">)</span> root@ubt-server:~/zack-gitops-project/Python-flask/01-single-app# python3 app.py 
+<span class="c"># Dockerfile_apigateway</span>
 
- <span class="k">*</span> Serving Flask app <span class="s1">'app'</span>
- <span class="k">*</span> Debug mode: off
-WARNING: This is a development server. Do not use it <span class="k">in </span>a production deployment. Use a production WSGI server instead.
- <span class="k">*</span> Running on all addresses <span class="o">(</span>0.0.0.0<span class="o">)</span>
- <span class="k">*</span> Running on http://127.0.0.1:5000
- <span class="k">*</span> Running on http://11.0.1.199:5000
-Press CTRL+C to quit
-11.0.1.1 - - <span class="o">[</span>18/Jul/2024 13:50:41] <span class="s2">"GET / HTTP/1.1"</span> 200 -</code></pre></figure>
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
 
-<p><img src="/assets/flask1.png" alt="image tooltip here" /></p>
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
 
-<p><b> Create “user” and “order” flask microservice apps</b></p>
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
 
-<p>Now I will move to create 2 microservice applications with Flask.</p>
+<span class="c"># Install flask requests</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> flask requests
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># order_service.py</span>
+<span class="c"># Make port 5000 available to the world outside this container</span>
+EXPOSE 5000
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>api_gateway.py
+
+<span class="c"># Run api_gateway.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5000"</span><span class="o">]</span>
+
+<span class="c"># update docker-compose.yaml</span>
+
+.....
+
+ api-gateway:
+ build:
+ context: <span class="nb">.</span>
+ dockerfile: Dockerfile_apigateway
+ ports:
+ - <span class="s2">"5000:5000"</span>
+
+<span class="c"># run docker-compose up --build</span>
+
+docker-compose up <span class="nt">--build</span></code></pre></figure>
+
+<p>Verify the 2 services can be accessed via API Gateway address and port plus /users and /orders by defining request functions.</p>
+
+<p><img src="/assets/flask4.png" alt="image tooltip here" />
+<img src="/assets/flask5.png" alt="image tooltip here" /></p>
+
+<p><b> About Consul</b></p>
+
+<p>Consul is a popular open-source tool for service discovery and service registration, here I will update the py files to register both services with Consul</p>
+
+<p>In both user_service.py and order_service.py add service registration logic.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim order_service.py</span>
+import requests
 from flask import Flask, jsonify
+import <span class="nb">time
 
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+</span>app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
 
 @app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
 def get_orders<span class="o">()</span>:
@@ -1603,14 +1616,37 @@ def get_orders<span class="o">()</span>:
  <span class="o">]</span>
  <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
 
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Port"</span>: 5002
+ <span class="o">}</span>
+ <span class="k">while </span>True:
+ try:
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ print<span class="o">(</span><span class="s2">"Successfully registered order-service with Consul"</span><span class="o">)</span>
+ <span class="nb">break
+ </span><span class="k">else</span>:
+ print<span class="o">(</span>f<span class="s2">"Failed to register order-service with Consul, status code: {response.status_code}"</span><span class="o">)</span>
+ except requests.exceptions.RequestException as e:
+ print<span class="o">(</span>f<span class="s2">"Error registering order-service with Consul: {e}"</span><span class="o">)</span>
+ time.sleep<span class="o">(</span>5<span class="o">)</span>
+
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ print<span class="o">(</span><span class="s2">"Registering order-service with Consul"</span><span class="o">)</span>
+ register_service<span class="o">()</span>
  app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
 
 
-<span class="c"># user_service.py</span>
+<span class="c"># vim user_service.py</span>
+import requests
 from flask import Flask, jsonify
+import <span class="nb">time
 
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+</span>app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
 
 @app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
 def get_users<span class="o">()</span>:
@@ -1620,12 +1656,207 @@ def get_users<span class="o">()</span>:
  <span class="o">]</span>
  <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
 
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Port"</span>: 5001
+ <span class="o">}</span>
+ <span class="k">while </span>True:
+ try:
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ print<span class="o">(</span><span class="s2">"Successfully registered user-service with Consul"</span><span class="o">)</span>
+ <span class="nb">break
+ </span><span class="k">else</span>:
+ print<span class="o">(</span>f<span class="s2">"Failed to register user-service with Consul, status code: {response.status_code}"</span><span class="o">)</span>
+ except requests.exceptions.RequestException as e:
+ print<span class="o">(</span>f<span class="s2">"Error registering user-service with Consul: {e}"</span><span class="o">)</span>
+ time.sleep<span class="o">(</span>5<span class="o">)</span>
+
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span></code></pre></figure>
+ print<span class="o">(</span><span class="s2">"Registering user-service with Consul"</span><span class="o">)</span>
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
 
-<p>Create Dockerfile for containirztion</p>
+<span class="c"># update docker-compose.yaml</span>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Dockerfile-order</span>
+version: <span class="s1">'3'</span>
+services:
+ consul:
+ image: consul:1.15.4
+ ports:
+ - <span class="s2">"8500:8500"</span>
+
+ user-service:
+ build:
+ context: ./user_service
+ depends_on:
+ - consul
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5001:5001"</span>
+
+ order-service:
+ build:
+ context: ./order_service
+ depends_on:
+ - consul
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5002:5002"</span>
+
+ api-gateway:
+ build:
+ context: ./api_gateway
+ depends_on:
+ - consul
+ - user-service
+ - order-service
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5000:5000"</span></code></pre></figure>
+
+<p>Now run the docker-compose and verify in Consul via localhost:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
+
+Creating 04-with-consul_consul_1 ... <span class="k">done
+</span>Creating 04-with-consul_user-service_1  ... <span class="k">done
+</span>Creating 04-with-consul_order-service_1 ... <span class="k">done
+</span>Creating 04-with-consul_api-gateway_1   ... <span class="k">done
+
+</span>consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
+</span>consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] agent: Service <span class="k">in </span><span class="nb">sync</span>: <span class="nv">service</span><span class="o">=</span>order-service
+consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] agent: Service <span class="k">in </span><span class="nb">sync</span>: <span class="nv">service</span><span class="o">=</span>user-service</code></pre></figure>
+
+<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we can use API gateway and Consul to manage route and service discovery.</p>
+
+<p>In the next post, I will see how to enable logging with ELK stack and monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About API Gateway]]></summary></entry><entry><title type="html">Python Flask: Monitoring with Prometheus and Grafana</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask4.html" rel="alternate" type="text/html" title="Python Flask: Monitoring with Prometheus and Grafana" /><published>2024-05-19T00:17:29+10:00</published><updated>2024-05-19T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask4.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
+
+<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
+
+<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
+05-with-ELK/
+├── api_gateway/
+│   └── Dockerfile
+├── order_service/
+│   └── Dockerfile
+├── user_service/
+│   └── Dockerfile
+├── logstash.conf
+└── docker-compose.yml
+
+<span class="c"># create Logstash Configuration</span>
+<span class="c"># vim logstash.conf</span>
+input <span class="o">{</span>
+ gelf <span class="o">{</span>
+ port <span class="o">=&gt;</span> 12201
+ <span class="o">}</span>
+<span class="o">}</span>
+output <span class="o">{</span>
+ elasticsearch <span class="o">{</span>
+ hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
+ index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+<span class="c"># vim user_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+ <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Port"</span>: 5001
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
+
+<span class="c"># vim order_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
+def get_orders<span class="o">()</span>:
+ orders <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Port"</span>: 5002
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
+
+
+<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
+flask
+requests
+pygelf
+
+<span class="c"># modify each Dockerfile: Dockerfile-user</span>
 
 <span class="c"># Use an official Python runtime as a parent image</span>
 FROM python:3.9-slim
@@ -1634,10 +1865,34 @@ FROM python:3.9-slim
 WORKDIR /app
 
 <span class="c"># Copy the current directory contents into the container at /app</span>
-COPY order_service.py /app
+COPY <span class="nb">.</span> /app
 
 <span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> flask
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Make port 5001 available to the world outside this container</span>
+EXPOSE 5001
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
+
+<span class="c"># Run user_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
+
+
+<span class="c"># vim Dockerfile-order</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
 
 <span class="c"># Make port 5002 available to the world outside this container</span>
 EXPOSE 5002
@@ -1648,8 +1903,247 @@ ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
 <span class="c"># Run order_service.py when the container launches</span>
 CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
 
+<span class="c"># modify docker-compose.yaml</span>
 
-<span class="c"># Dockerfile-order</span>
+version: <span class="s1">'3'</span>
+services:
+ consul:
+ image: consul:1.15.4
+ ports:
+ - <span class="s2">"8500:8500"</span>
+
+ elasticsearch:
+ image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+ environment:
+ - discovery.type<span class="o">=</span>single-node
+ ports:
+ - <span class="s2">"9200:9200"</span>
+ - <span class="s2">"9300:9300"</span>
+ volumes:
+ - esdata:/usr/share/elasticsearch/data
+
+ logstash:
+ image: docker.elastic.co/logstash/logstash:7.13.2
+ volumes:
+ - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+ ports:
+ - <span class="s2">"12201:12201/udp"</span>
+ - <span class="s2">"5044:5044"</span>
+
+ kibana:
+ image: docker.elastic.co/kibana/kibana:7.13.2
+ ports:
+ - <span class="s2">"5601:5601"</span>
+ depends_on:
+ - elasticsearch
+
+ user-service:
+ build:
+ context: ./user_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5001:5001"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+ order-service:
+ build:
+ context: ./order_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5002:5002"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+ api-gateway:
+ build:
+ context: ./api_gateway
+ depends_on:
+ - consul
+ - user-service
+ - order-service
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5000:5000"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+volumes:
+ esdata:</code></pre></figure>
+
+<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
+
+Creating 05-with-elk_logstash_1      ... <span class="k">done
+</span>Creating 05-with-elk_consul_1        ... <span class="k">done
+</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
+</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
+</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
+</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
+</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
+
+
+</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
+logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
+consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
+consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
+</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
+elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
+kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
+
+<p><b> Verify ElasticSearch and Kibana</b></p>
+
+<ul>
+  <li>Validate ElasticSearch status via localhost:9200</li>
+</ul>
+
+<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
+</ul>
+
+<p><img src="/assets/flask8.png" alt="image tooltip here" />
+<b> Conclusion</b></p>
+
+<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
+
+<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Flask: Logging with ELK</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask3.html" rel="alternate" type="text/html" title="Python Flask: Logging with ELK" /><published>2024-05-19T00:16:29+10:00</published><updated>2024-05-19T00:16:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask3.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
+
+<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
+
+<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
+05-with-ELK/
+├── api_gateway/
+│   └── Dockerfile
+├── order_service/
+│   └── Dockerfile
+├── user_service/
+│   └── Dockerfile
+├── logstash.conf
+└── docker-compose.yml
+
+<span class="c"># create Logstash Configuration</span>
+<span class="c"># vim logstash.conf</span>
+input <span class="o">{</span>
+ gelf <span class="o">{</span>
+ port <span class="o">=&gt;</span> 12201
+ <span class="o">}</span>
+<span class="o">}</span>
+output <span class="o">{</span>
+ elasticsearch <span class="o">{</span>
+ hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
+ index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+<span class="c"># vim user_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+ <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Port"</span>: 5001
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
+
+<span class="c"># vim order_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
+def get_orders<span class="o">()</span>:
+ orders <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Port"</span>: 5002
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
+
+
+<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
+flask
+requests
+pygelf
+
+<span class="c"># modify each Dockerfile: Dockerfile-user</span>
 
 <span class="c"># Use an official Python runtime as a parent image</span>
 FROM python:3.9-slim
@@ -1658,10 +2152,10 @@ FROM python:3.9-slim
 WORKDIR /app
 
 <span class="c"># Copy the current directory contents into the container at /app</span>
-COPY user_service.py /app
+COPY <span class="nb">.</span> /app
 
 <span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> flask
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
 
 <span class="c"># Make port 5001 available to the world outside this container</span>
 EXPOSE 5001
@@ -1669,740 +2163,155 @@ EXPOSE 5001
 <span class="c"># Define environment variable</span>
 ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
 
+<span class="c"># Run user_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
+
+
+<span class="c"># vim Dockerfile-order</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Make port 5002 available to the world outside this container</span>
+EXPOSE 5002
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
+
 <span class="c"># Run order_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span></code></pre></figure>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
 
-<p>Build, tag and run it using docker-compose</p>
+<span class="c"># modify docker-compose.yaml</span>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># docker-compose.yml</span>
 version: <span class="s1">'3'</span>
 services:
+ consul:
+ image: consul:1.15.4
+ ports:
+ - <span class="s2">"8500:8500"</span>
+
+ elasticsearch:
+ image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+ environment:
+ - discovery.type<span class="o">=</span>single-node
+ ports:
+ - <span class="s2">"9200:9200"</span>
+ - <span class="s2">"9300:9300"</span>
+ volumes:
+ - esdata:/usr/share/elasticsearch/data
+
+ logstash:
+ image: docker.elastic.co/logstash/logstash:7.13.2
+ volumes:
+ - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+ ports:
+ - <span class="s2">"12201:12201/udp"</span>
+ - <span class="s2">"5044:5044"</span>
+
+ kibana:
+ image: docker.elastic.co/kibana/kibana:7.13.2
+ ports:
+ - <span class="s2">"5601:5601"</span>
+ depends_on:
+ - elasticsearch
+
  user-service:
  build:
- context: <span class="nb">.</span>
- dockerfile: Dockerfile_user
+ context: ./user_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
  ports:
  - <span class="s2">"5001:5001"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
  order-service:
  build:
- context: <span class="nb">.</span>
- dockerfile: Dockerfile_order
+ context: ./order_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
  ports:
  - <span class="s2">"5002:5002"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
 
-docker-compose up <span class="nt">--build</span>
+ api-gateway:
+ build:
+ context: ./api_gateway
+ depends_on:
+ - consul
+ - user-service
+ - order-service
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5000:5000"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
 
-Creating 02-microservice-docker-compose_user-service_1  ... <span class="k">done
-</span>Creating 02-microservice-docker-compose_order-service_1 ... <span class="k">done
-</span>Attaching to 02-microservice-docker-compose_order-service_1, 02-microservice-docker-compose_user-service_1
-order-service_1  |  <span class="k">*</span> Serving Flask app <span class="s1">'order_service.py'</span>
-order-service_1  |  <span class="k">*</span> Debug mode: off
-order-service_1  | WARNING: This is a development server. Do not use it <span class="k">in </span>a production deployment. Use a production WSGI server instead.
-order-service_1  |  <span class="k">*</span> Running on all addresses <span class="o">(</span>0.0.0.0<span class="o">)</span>
-order-service_1  |  <span class="k">*</span> Running on http://127.0.0.1:5002
-order-service_1  |  <span class="k">*</span> Running on http://192.168.16.3:5002
-order-service_1  | Press CTRL+C to quit
-user-service_1   |  <span class="k">*</span> Serving Flask app <span class="s1">'user_service.py'</span>
-user-service_1   |  <span class="k">*</span> Debug mode: off
-user-service_1   | WARNING: This is a development server. Do not use it <span class="k">in </span>a production deployment. Use a production WSGI server instead.
-user-service_1   |  <span class="k">*</span> Running on all addresses <span class="o">(</span>0.0.0.0<span class="o">)</span>
-user-service_1   |  <span class="k">*</span> Running on http://127.0.0.1:5001
-user-service_1   |  <span class="k">*</span> Running on http://192.168.16.2:5001
-user-service_1   | Press CTRL+C to quit</code></pre></figure>
+volumes:
+ esdata:</code></pre></figure>
 
-<p><img src="/assets/flask2.png" alt="image tooltip here" />
-<img src="/assets/flask3.png" alt="image tooltip here" /></p>
+<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
 
-<p><b> Conclusion</b></p>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
 
-<p>Now we can use Python flask to create a simple web application and containerized it using Dockerfile</p>
+Creating 05-with-elk_logstash_1      ... <span class="k">done
+</span>Creating 05-with-elk_consul_1        ... <span class="k">done
+</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
+</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
+</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
+</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
+</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
 
-<p>In the next post, I will see how to use Python Flask to redesign Zack’s blog for Web application development.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Python Flask]]></summary></entry><entry><title type="html">Python: File Handling for EC2 tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling for EC2 tagging" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
 
-<p>In the previous post I developed shell script + awscli to apply <a href="https://zackz.online/jekyll/cat2/2024/05/01/AWS-tagging.html">aws EC2 tages</a>, since the last post we discovered <a href="https://zackz.online/jekyll/cat2/2024/05/16/py1.html">Python Boto3</a> scripts for AWS resource automation and management, I think it is time to improve the EC2 tagging task with Python and boto3, together with file handling to achieve:</p>
+</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
+logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
+consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
+consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
+</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
+elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
+kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
 
-<ol>
-  <li>
-    <p>List and export ec2 information to a CSV file (instanceID, default instance name, Existing tags)</p>
-  </li>
-  <li>
-    <p>define 4 mandatory tags in CSV header (Env, BizOwner, Technology, Project)</p>
-  </li>
-  <li>
-    <p>validate exported tags against the 4 mandatory new tags, if any of the new mandatory tags exists, then keep the tage and value, if any of the new mandatory tags do not exist, add the key and leave the value blank</p>
-  </li>
-  <li>
-    <p>Get csv file fill with mandatory tags input from Biz team (manual work)</p>
-  </li>
-  <li>
-    <p>open the updated CSV file, apply the mandatory tags based on the input value</p>
-  </li>
-  <li>
-    <p>create and trigger lambda function with aws config rules to enforce 4 mandatory tags whenever a new instance launch  </p>
-  </li>
-</ol>
+<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
 
-<p><b> List and export ec2 information to a CSV</b></p>
+<p><b> Verify ElasticSearch and Kibana</b></p>
 
 <ul>
-  <li>Here we need Python libraries for “boto3” and “csv”, to call boto3 sessions to retrieve EC2 information, then use Python “with open” and “for” loops to write each ec2 info to a csv file, also add mandatory tags write in the header fields “Env”, “BizOwner”, “Technology”, “Project”:</li>
+  <li>Validate ElasticSearch status via localhost:9200</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/new# vim export1.py
-<span class="c"># Import libiaries</span>
-import boto3
-import csv
-<span class="c"># Define the mandatory tags</span>
-MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
-<span class="c"># Initialize boto3 clients</span>
-ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-
-def list_ec2_instances<span class="o">()</span>:
-    instances <span class="o">=</span> <span class="o">[]</span>
-    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
-            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
-            instance_info <span class="o">=</span> <span class="o">{</span>
-                <span class="s1">'InstanceId'</span>: instance_id,
-                <span class="s1">'DefaultName'</span>: default_name,
-                <span class="k">**</span>tags
-            <span class="o">}</span>
-            <span class="c"># Ensure mandatory tags are included with empty values if not present</span>
-            <span class="k">for </span>mandatory_tag <span class="k">in </span>MANDATORY_TAGS:
-                <span class="k">if </span>mandatory_tag not <span class="k">in </span>instance_info:
-                    instance_info[mandatory_tag] <span class="o">=</span> <span class="s1">''</span>
-            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
-    <span class="k">return </span>instances
-
-<span class="c"># Define export to csv</span>
-def export_to_csv<span class="o">(</span>instances, <span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances.csv'</span><span class="o">)</span>:
-    <span class="c"># Collect all possible tag keys</span>
-    all_tags <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
-    <span class="k">for </span>instance <span class="k">in </span>instances:
-        all_tags.update<span class="o">(</span>instance.keys<span class="o">())</span>
-    
-    <span class="c"># Ensure mandatory tags are included in the header</span>
-    all_tags.update<span class="o">(</span>MANDATORY_TAGS<span class="o">)</span>
-    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + sorted<span class="o">(</span>all_tags - <span class="o">{</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">})</span>
-    
-    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
-        writer.writeheader<span class="o">()</span>
-        <span class="k">for </span>instance <span class="k">in </span>instances:
-            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
-
-def main<span class="o">()</span>:
-    instances <span class="o">=</span> list_ec2_instances<span class="o">()</span>
-    export_to_csv<span class="o">(</span>instances<span class="o">)</span>
-    print<span class="o">(</span><span class="s2">"CSV export complete. Please update the mandatory tags in 'ec2_instances.csv'."</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    main<span class="o">()</span>
-
-root@ubt-server:~/pythonwork/new# python3 export1.py 
-CSV <span class="nb">export </span>complete. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances.csv'</span>.</code></pre></figure>
-
-<p><img src="/assets/py2-1.png" alt="image tooltip here" /></p>
+<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
 
 <ul>
-  <li>next download and update ‘ec2_instances.csv’ with all required tags, then remane and upload as ‘ec2_instances_updated.csv’, create second script “update1.py” to apply new tags</li>
+  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/new# vim update1.py
+<p><img src="/assets/flask8.png" alt="image tooltip here" />
+<b> Conclusion</b></p>
 
-import boto3
-import csv
+<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
 
-<span class="c"># Define the mandatory tags</span>
-MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
-
-def update_tags_from_csv<span class="o">(</span><span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances_updated.csv'</span><span class="o">)</span>:
-    ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
-        <span class="k">for </span>row <span class="k">in </span>reader:
-            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
-            <span class="k">if </span>tags:
-                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
-
-def main<span class="o">()</span>:
-    update_tags_from_csv<span class="o">()</span>
-    print<span class="o">(</span><span class="s2">"Tags updated successfully from 'ec2_instances_updated.csv'."</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    main<span class="o">()</span>
-
-root@ubt-server:~/pythonwork/new# python3 update1.py 
-Tags updated successfully from <span class="s1">'ec2_instances_updated.csv'</span>.</code></pre></figure>
-
-<p>Now the new tags had been applied.</p>
-
-<p><img src="/assets/py2-2.png" alt="image tooltip here" /></p>
-
-<p><b> How about managing tags for multiple AWS accounts </b></p>
-
-<p>Considering we have 20+ AWS accounts across the company and with more than 200 EC2 instances that need to apply tagging strategy, here I will</p>
-
-<ul>
-  <li>use AWScli profile to configure each AWS account creds, here I will use my own 2 AWS accounts (ZackBlog and JoeSite) to create AWScli profiles to validate the Python scripts</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Add account creds into ~/.aws/credentials</span>
-vim ~/.aws/credentials
-
-<span class="o">[</span>aws_account_zackblog]
-aws_access_key_id <span class="o">=</span> xxxx
-aws_secret_access_key <span class="o">=</span> yyyy
-
-<span class="o">[</span>aws_account_joesite]
-aws_access_key_id <span class="o">=</span> zzzz
-aws_secret_access_key <span class="o">=</span> yyyy</code></pre></figure>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add profiles into ~/.aws/config</span>
-vim ~/.aws/config
-
-<span class="o">[</span>profile aws_account_zackblog]
-region <span class="o">=</span> ap-southeast-2
-
-<span class="o">[</span>profile aws_account_joesite]
-region <span class="o">=</span> ap-southeast-2</code></pre></figure>
-
-<ul>
-  <li>now update Python scripts to call each account profile to apply all 20+ AWS accounts in sequence.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# <span class="nb">mkdir </span>mutiple-aws
-root@ubt-server:~/pythonwork# <span class="nb">cd </span>mutiple-aws/
-root@ubt-server:~/pythonwork/mutiple-aws# vim export2.py
-
-import boto3
-import csv
-from botocore.exceptions import ProfileNotFound
-
-<span class="c"># Define the mandatory tags</span>
-MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
-
-<span class="c"># List of AWS account profiles</span>
-AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
-
-def list_ec2_instances<span class="o">(</span>profile_name<span class="o">)</span>:
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
-    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    instances <span class="o">=</span> <span class="o">[]</span>
-    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
-            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
-            instance_info <span class="o">=</span> <span class="o">{</span>
-                <span class="s1">'InstanceId'</span>: instance_id,
-                <span class="s1">'DefaultName'</span>: default_name,
-                <span class="k">**</span>tags
-            <span class="o">}</span>
-            <span class="c"># Ensure mandatory tags are included with empty values if not present</span>
-            <span class="k">for </span>mandatory_tag <span class="k">in </span>MANDATORY_TAGS:
-                <span class="k">if </span>mandatory_tag not <span class="k">in </span>instance_info:
-                    instance_info[mandatory_tag] <span class="o">=</span> <span class="s1">''</span>
-            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
-    <span class="k">return </span>instances
-
-def export_to_csv<span class="o">(</span>instances, profile_name<span class="o">)</span>:
-    filename <span class="o">=</span> f<span class="s2">"ec2_instances_{profile_name}.csv"</span>
-    <span class="c"># Collect all possible tag keys</span>
-    all_tags <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
-    <span class="k">for </span>instance <span class="k">in </span>instances:
-        all_tags.update<span class="o">(</span>instance.keys<span class="o">())</span>
-    
-    <span class="c"># Ensure mandatory tags are included in the header</span>
-    all_tags.update<span class="o">(</span>MANDATORY_TAGS<span class="o">)</span>
-    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + sorted<span class="o">(</span>all_tags - <span class="o">{</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">})</span>
-    
-    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
-        writer.writeheader<span class="o">()</span>
-        <span class="k">for </span>instance <span class="k">in </span>instances:
-            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
-
-def process_all_profiles<span class="o">()</span>:
-    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
-        try:
-            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
-            instances <span class="o">=</span> list_ec2_instances<span class="o">(</span>profile<span class="o">)</span>
-            export_to_csv<span class="o">(</span>instances, profile<span class="o">)</span>
-            print<span class="o">(</span>f<span class="s2">"CSV export complete for profile {profile}. Please update the mandatory tags in 'ec2_instances_{profile}.csv'."</span><span class="o">)</span>
-        except ProfileNotFound:
-            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    process_all_profiles<span class="o">()</span></code></pre></figure>
-
-<ul>
-  <li>export 2 csv files for each aws account based on given profile, update mandatory tags in the 2 csv files, then upload and rename as <em>updated</em></li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># export 2 csv files</span>
-root@ubt-server:~/pythonwork/mutiple-aws# python3 export2.py 
-Processing profile: aws_account_zackblog
-CSV <span class="nb">export complete </span><span class="k">for </span>profile aws_account_zackblog. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances_aws_account_zackblog.csv'</span><span class="nb">.</span>
-Processing profile: aws_account_joesite
-CSV <span class="nb">export complete </span><span class="k">for </span>profile aws_account_joesite. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances_aws_account_joesite.csv'</span><span class="nb">.</span>
-
-<span class="c"># update all mandatory tags in the files</span>
-root@ubt-server:~/pythonwork/mutiple-aws# <span class="nb">cat </span>ec2_instances_updated_aws_account_zackblog.csv 
-
-InstanceId,DefaultName,BizOwner,Env,Name,Project,Technology,Tuned,zz1,zz2
-i-076226daa5aaf7cf2,zack-blog,Zack,Prod,zack-blog,zack-web,Jekyll,,aa1,aa2
-i-0b5c0fec84073a6d9,Py_test_zackweb,Zack,Testing,Py_test_zackweb,python-test,None,Yes,,
-
-root@ubt-server:~/pythonwork/mutiple-aws# <span class="nb">cat </span>ec2_instances_updated_aws_account_joesite.csv 
-
-InstanceId,DefaultName,BizOwner,Env,Location,Name,Project,Technology,TimeLaunched
-i-012fb886802435ff2,joe-account-py-test,Joe,Prod,SYD,joe-account-py-test,joesite,Ruby-Jekyll,
-i-052b0511339457efc,joe-site,Joe,Testing,,joe-site,Python-test,None,20240301</code></pre></figure>
-
-<ul>
-  <li>now create python script “update_tags_2.p” to apply new tags for 2 aws accounts by given profile</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/mutiple-aws# vim update_tags_2.py
-<span class="c"># Import libiaries</span>
-import boto3
-import csv
-from botocore.exceptions import ProfileNotFound
-
-<span class="c"># Define the mandatory tags</span>
-MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
-
-<span class="c"># List of AWS account profiles</span>
-AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
-
-def update_tags_from_csv<span class="o">(</span>profile_name<span class="o">)</span>:
-    filename <span class="o">=</span> f<span class="s2">"ec2_instances_updated_{profile_name}.csv"</span>
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
-    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
-        <span class="k">for </span>row <span class="k">in </span>reader:
-            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
-            <span class="k">if </span>tags:
-                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
-
-def process_all_profiles<span class="o">()</span>:
-    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
-        try:
-            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
-            update_tags_from_csv<span class="o">(</span>profile<span class="o">)</span>
-            print<span class="o">(</span>f<span class="s2">"Tags updated successfully from 'ec2_instances_updated_{profile}.csv' for profile {profile}."</span><span class="o">)</span>
-        except ProfileNotFound:
-            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
-        except FileNotFoundError:
-            print<span class="o">(</span>f<span class="s2">"Updated CSV file for profile {profile} not found. Skipping."</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    process_all_profiles<span class="o">()</span>
-
-<span class="c"># run to apply tags</span>
-root@ubt-server:~/pythonwork/mutiple-aws# python3 update_tags_2.py 
-Processing profile: aws_account_zackblog
-Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_account_zackblog.csv'</span> <span class="k">for </span>profile aws_account_zackblog.
-
-Processing profile: aws_account_joesite
-Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_account_joesite.csv'</span> <span class="k">for </span>profile aws_account_joesite.</code></pre></figure>
-
-<ul>
-  <li>now double check the tags for both accounts</li>
-</ul>
-
-<p><img src="/assets/py2-3.png" alt="image tooltip here" />
-<img src="/assets/py2-4.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we can use Python Boto3 and file handling to achieve mutiple-aws account EC2 tagging. With Python “csv” library, functions like “csv.DictReader”, “with open” and “csv.DictWriter” to open, update and export CSV file, Python also supports handling data in JSON format with dictionary.</p>
-
-<p>In the next post I will see how to use Python Flask to redesign Zack’s blog for Web application development.</p>
-
-<h1>====================</h1>
-
-<p><b> Just got another task to create more users in all account with python boto3</b></p>
-
-<ul>
-  <li>a csv file with list of users will be created, aws profile configured for all aws accounts</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# <span class="nb">cat </span>all_users.csv 
-Username
-ZackZ
-BobJ
-MattS</code></pre></figure>
-
-<ul>
-  <li>a python script with bellow IAM user creation</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# vim more_user_from_csv.py
-
-import boto3
-import csv
-from botocore.exceptions import ProfileNotFound, ClientError
-
-<span class="c"># List of AWS account profiles</span>
-AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
-
-<span class="c"># IAM User details</span>
-PASSWORD <span class="o">=</span> <span class="s2">"xxxxxxxx"</span>
-POLICY_ARN <span class="o">=</span> <span class="s2">"arn:aws:iam::aws:policy/AdministratorAccess"</span>
-CSV_FILE <span class="o">=</span> <span class="s2">"all_users.csv"</span>
-
-def read_users_from_csv<span class="o">(</span>filename<span class="o">)</span>:
-    <span class="nb">users</span> <span class="o">=</span> <span class="o">[]</span>
-    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
-        <span class="k">for </span>row <span class="k">in </span>reader:
-            users.append<span class="o">(</span>row[<span class="s1">'Username'</span><span class="o">])</span>
-    <span class="k">return </span><span class="nb">users
-
-</span>def create_iam_user<span class="o">(</span>profile_name, user_name<span class="o">)</span>:
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
-    iam <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'iam'</span><span class="o">)</span>
-    
-    try:
-        <span class="c"># Create IAM user</span>
-        iam.create_user<span class="o">(</span><span class="nv">UserName</span><span class="o">=</span>user_name<span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"User {user_name} created in profile {profile_name}."</span><span class="o">)</span>
-
-        <span class="c"># Create login profile for console access</span>
-        iam.create_login_profile<span class="o">(</span>
-            <span class="nv">UserName</span><span class="o">=</span>user_name,
-            <span class="nv">Password</span><span class="o">=</span>PASSWORD,
-            <span class="nv">PasswordResetRequired</span><span class="o">=</span>False
-        <span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"Login profile created for user {user_name} in profile {profile_name}."</span><span class="o">)</span>
-
-        <span class="c"># Attach AdministratorAccess policy</span>
-        iam.attach_user_policy<span class="o">(</span>
-            <span class="nv">UserName</span><span class="o">=</span>user_name,
-            <span class="nv">PolicyArn</span><span class="o">=</span>POLICY_ARN
-        <span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"AdministratorAccess policy attached to user {user_name} in profile {profile_name}."</span><span class="o">)</span>
-
-    except ClientError as e:
-        <span class="k">if </span>e.response[<span class="s1">'Error'</span><span class="o">][</span><span class="s1">'Code'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'EntityAlreadyExists'</span>:
-            print<span class="o">(</span>f<span class="s2">"User {user_name} already exists in profile {profile_name}."</span><span class="o">)</span>
-        <span class="k">else</span>:
-            print<span class="o">(</span>f<span class="s2">"Error creating user {user_name} in profile {profile_name}: {e}"</span><span class="o">)</span>
-
-def process_all_profiles<span class="o">(</span><span class="nb">users</span><span class="o">)</span>:
-    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
-        try:
-            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
-            <span class="k">for </span>user <span class="k">in </span><span class="nb">users</span>:
-                create_iam_user<span class="o">(</span>profile, user<span class="o">)</span>
-        except ProfileNotFound:
-            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    <span class="nb">users</span> <span class="o">=</span> read_users_from_csv<span class="o">(</span>CSV_FILE<span class="o">)</span>
-    process_all_profiles<span class="o">(</span><span class="nb">users</span><span class="o">)</span></code></pre></figure>
-
-<ul>
-  <li>Go to create all users</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# python3 more_user_from_csv.py 
-
-Processing profile: aws_account_zackblog
-
-User ZackZ created <span class="k">in </span>profile aws_account_zackblog.
-Login profile created <span class="k">for </span>user ZackZ <span class="k">in </span>profile aws_account_zackblog.
-AdministratorAccess policy attached to user ZackZ <span class="k">in </span>profile aws_account_zackblog.
-
-User BobJ created <span class="k">in </span>profile aws_account_zackblog.
-Login profile created <span class="k">for </span>user BobJ <span class="k">in </span>profile aws_account_zackblog.
-AdministratorAccess policy attached to user BobJ <span class="k">in </span>profile aws_account_zackblog.
-
-User MattS created <span class="k">in </span>profile aws_account_zackblog.
-Login profile created <span class="k">for </span>user MattS <span class="k">in </span>profile aws_account_zackblog.
-AdministratorAccess policy attached to user MattS <span class="k">in </span>profile aws_account_zackblog.
-
-Processing profile: aws_account_joesite
-
-User ZackZ created <span class="k">in </span>profile aws_account_joesite.
-Login profile created <span class="k">for </span>user ZackZ <span class="k">in </span>profile aws_account_joesite.
-AdministratorAccess policy attached to user ZackZ <span class="k">in </span>profile aws_account_joesite.
-
-User BobJ created <span class="k">in </span>profile aws_account_joesite.
-Login profile created <span class="k">for </span>user BobJ <span class="k">in </span>profile aws_account_joesite.
-AdministratorAccess policy attached to user BobJ <span class="k">in </span>profile aws_account_joesite.
-
-User MattS created <span class="k">in </span>profile aws_account_joesite.
-Login profile created <span class="k">for </span>user MattS <span class="k">in </span>profile aws_account_joesite.
-AdministratorAccess policy attached to user MattS <span class="k">in </span>profile aws_account_joesite.</code></pre></figure>
-
-<p><img src="/assets/py2-5.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Python File Handling]]></summary></entry><entry><title type="html">Python: Boto3 for AWS</title><link href="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html" rel="alternate" type="text/html" title="Python: Boto3 for AWS" /><published>2024-05-16T10:15:29+10:00</published><updated>2024-05-16T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/16/py1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/16/py1.html"><![CDATA[<p><b> About Boto3 </b></p>
-
-<p>Boto3 is the Amazon Web Services (AWS) Software Development Kit (SDK) for Python. It enables developers to build software that uses Amazon services like EC2, S3, RDS, etc.</p>
-
-<p>I will build a portable python3.9 + Boto3 docker environment to test some AWS automation tasks.</p>
-
-<p><b> Build and run a docker with Python3.9 + Boto3 </b></p>
-
-<p>As I do not want to install Python, Boto3, and AWScli on my local PC, creating a docker image with all software ready as a portable env is the best way to start.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim Dockerfile
-<span class="c"># Build from python:3.9.19-alpine3.19</span>
-From python:3.9.19-alpine3.19 
-<span class="c"># install boto3 and alwcli</span>
-RUN pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    pip <span class="nb">install</span> <span class="nt">--upgrade</span> awscli <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    pip <span class="nb">install</span> <span class="nt">--upgrade</span> boto3
-<span class="c"># set work dir</span>
-WORKDIR /work
-<span class="c"># run Python</span>
-CMD <span class="s2">"python"</span>
-<span class="c"># build a docker image from the above Dockerfile </span>
-root@ubt-server:~# docker image build <span class="nt">-t</span> zack_aws_boto3 <span class="nb">.</span>
-
-<span class="c"># ls docker images </span>
-root@ubt-server:~# docker image <span class="nb">ls
-</span>REPOSITORY               TAG             IMAGE ID       CREATED         SIZE
-zack_aws_boto3           v1              07a13f7801ed   1 days ago     998MB
-zackpy                   latest          287ba6873741   4 days ago      48.2MB
-zackz001/gitops-jekyll   latest          d92894f7be6d   6 days ago      70.9MB
-postgres                 15.0            027eba2e8939   19 months ago   377MB
-
-<span class="c"># run docker and mount local python work dir</span>
-root@ubt-server:~/pythonwork# docker run <span class="nt">-ti</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>:/work zack_aws_boto3:v1 bash
-root@c04670a43564:/# 
-root@c04670a43564:/# <span class="nb">cd </span>work <span class="o">&amp;&amp;</span> <span class="nb">ls</span>
-
-<span class="c"># configure aws in the container</span>
-root@c04670a43564:/work# aws configure 
-AWS Access Key ID <span class="o">[</span><span class="k">****************</span>GFNW]: 
-AWS Secret Access Key <span class="o">[</span><span class="k">****************</span>Db7O]: 
-Default region name <span class="o">[</span>ap-southeast-2]: 
-Default output format <span class="o">[</span>None]: 
-
-<span class="c"># validate aws cred by listing ec2 instance id </span>
-root@c04670a43564:/work# aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> json
-<span class="o">[</span>
-    <span class="o">[</span>
-        <span class="s2">"i-076226daa5aaf7cf2"</span>
-    <span class="o">]</span>
-<span class="o">]</span></code></pre></figure>
-
-<p><b>Manage AWS resource with Python Boto3 script</b></p>
-
-<p>Here we have Python and boto3 env ready; I will list some aws tasks that I want to be achieved by Python scripts</p>
-
-<ul>
-  <li>List ec2 instance name, instanceID and state</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# vim app.py
-<span class="c"># import boto3 library</span>
-import boto3
-
-def list_ec2_instances<span class="o">()</span>:
-    <span class="c"># Create a session using default AWS profile</span>
-    session <span class="o">=</span> boto3.Session<span class="o">()</span>
-    <span class="c"># Create an EC2 client</span>
-    ec2_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-
-    <span class="c"># Describe EC2 instances</span>
-    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
-
-    <span class="c"># Iterate over the instances</span>
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            <span class="c"># Get the instance ID</span>
-            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            
-            <span class="c"># Get the instance state</span>
-            instance_state <span class="o">=</span> instance[<span class="s1">'State'</span><span class="o">][</span><span class="s1">'Name'</span><span class="o">]</span>
-            
-            <span class="c"># Get the instance Name tag if exists</span>
-            instance_name <span class="o">=</span> <span class="s1">'No Name'</span>
-            <span class="k">if</span> <span class="s1">'Tags'</span> <span class="k">in </span>instance:
-                <span class="k">for </span>tag <span class="k">in </span>instance[<span class="s1">'Tags'</span><span class="o">]</span>:
-                    <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span>:
-                        instance_name <span class="o">=</span> tag[<span class="s1">'Value'</span><span class="o">]</span>
-                        <span class="nb">break</span>
-            
-            <span class="c"># Print instance ID, Name, and State</span>
-            print<span class="o">(</span>f<span class="s2">"Instance ID: {instance_id}, Name: {instance_name}, State: {instance_state}"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s2">"__main__"</span>:
-    list_ec2_instances<span class="o">()</span>
-
-root@c04670a43564:/work# python app.py 
-Instance ID: i-076226daa5aaf7cf2, Name: zack-blog, State: stopped</code></pre></figure>
-
-<ul>
-  <li>Filter ec2 instance without tag “owner”</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create app-untagged.py</span>
-root@ubt-server:~/pythonwork# vim app-untagged.py
-import boto3
-
-def get_untagged_ec2_instances<span class="o">()</span>:
-    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    response <span class="o">=</span> ec2_client.describe_instances<span class="o">()</span>
-    
-    untagged_instances <span class="o">=</span> <span class="o">[]</span>
-    
-    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
-        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
-            has_owner_tag <span class="o">=</span> False
-            <span class="k">if</span> <span class="s1">'Tags'</span> <span class="k">in </span>instance:
-                <span class="k">for </span>tag <span class="k">in </span>instance[<span class="s1">'Tags'</span><span class="o">]</span>:
-                    <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span>.lower<span class="o">()</span> <span class="o">==</span> <span class="s1">'owner'</span>:
-                        has_owner_tag <span class="o">=</span> True
-                        <span class="nb">break</span>
-            
-            <span class="k">if </span>not has_owner_tag:
-                instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
-                instance_state <span class="o">=</span> instance[<span class="s1">'State'</span><span class="o">][</span><span class="s1">'Name'</span><span class="o">]</span>
-                untagged_instances.append<span class="o">({</span><span class="s1">'InstanceId'</span>: instance_id, <span class="s1">'State'</span>: instance_state<span class="o">})</span>
-    
-    <span class="k">return </span>untagged_instances
-
-untagged_instances <span class="o">=</span> get_untagged_ec2_instances<span class="o">()</span>
-print<span class="o">(</span><span class="s2">"Untagged Instances:"</span>, untagged_instances<span class="o">)</span>
-
-<span class="c"># run script to filter untagged "owner" ec2 </span>
-root@c04670a43564:/work# python app-untagged.py 
-Untagged Instances: <span class="o">[{</span><span class="s1">'InstanceId'</span>: <span class="s1">'i-076226daa5aaf7cf2'</span>, <span class="s1">'State'</span>: <span class="s1">'stopped'</span><span class="o">}]</span></code></pre></figure>
-
-<ul>
-  <li>Create lambda function to list ebs volume snapshots older than 30 days and delete them</li>
-</ul>
-
-<p>To achieve this we need :</p>
-
-<ol>
-  <li>create lambda IAM role for lambda to manage EBS volume snapshot</li>
-  <li>create bellow python lambda function</li>
-  <li>zip and upload zip function</li>
-  <li>create CloudWatch Event to Trigger run it every 30 days</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create lambda function to delete snapshots older than 30 days</span>
-root@ubt-server:~/pythonwork# vim app-snapshot-older-30days.py
-import boto3
-from datetime import datetime, timezone, timedelta
-
-def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
-    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    
-    <span class="c"># Get the current time</span>
-    now <span class="o">=</span> datetime.now<span class="o">(</span>timezone.utc<span class="o">)</span>
-    
-    <span class="c"># Define the time threshold</span>
-    time_threshold <span class="o">=</span> now - <span class="nb">time </span>delta<span class="o">(</span><span class="nv">days</span><span class="o">=</span>30<span class="o">)</span>
-    
-    <span class="c"># Describe snapshots</span>
-    snapshots <span class="o">=</span> ec2_client.describe_snapshots<span class="o">(</span><span class="nv">OwnerIds</span><span class="o">=[</span><span class="s1">'self'</span><span class="o">])[</span><span class="s1">'Snapshots'</span><span class="o">]</span>
-    
-    <span class="c"># Filter snapshots older than 30 days</span>
-    old_snapshots <span class="o">=</span> <span class="o">[</span>snap <span class="k">for </span>snap <span class="k">in </span>snapshots <span class="k">if </span>snap[<span class="s1">'StartTime'</span><span class="o">]</span> &lt; time_threshold]
-    
-    <span class="c"># Delete old snapshots</span>
-    <span class="k">for </span>snapshot <span class="k">in </span>old_snapshots:
-        snapshot_id <span class="o">=</span> snapshot[<span class="s1">'SnapshotId'</span><span class="o">]</span>
-        ec2_client.delete_snapshot<span class="o">(</span><span class="nv">SnapshotId</span><span class="o">=</span>snapshot_id<span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"Deleted snapshot: {snapshot_id}"</span><span class="o">)</span>
-    
-    <span class="k">return</span> <span class="o">{</span>
-        <span class="s1">'statusCode'</span>: 200,
-        <span class="s1">'body'</span>: f<span class="s2">"Deleted {len(old_snapshots)} snapshots."</span>
-    <span class="o">}</span>
-
-<span class="c"># zip Package for the Lambda Function</span>
-root@ubt-server:~/pythonwork# zip <span class="k">function</span>.zip app-snapshot-older-30days.py</code></pre></figure>
-
-<ul>
-  <li>Email me when a security group allow inbound SSH (port 22) from everywhere (0.0.0.0/0)</li>
-</ul>
-
-<p>To achieve this, we need:</p>
-
-<ol>
-  <li>AWS CloudTrail enable</li>
-  <li>Create CloudWatch Event Rule to capture AWS CloudTrail logs for security group changes</li>
-  <li>Create bellow Lambda Function if inbound allow port 22 from everywhere are met</li>
-  <li>Allow CloudWatch Events to Invoke the Lambda Function</li>
-  <li>Add the Lambda Function as a Target for the CloudWatch Event Rule</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# vim app-sg-allow-22.py
-import boto3
-import json
-
-def lambda_handler<span class="o">(</span>event, context<span class="o">)</span>:
-    <span class="c"># Initialize boto3 clients</span>
-    ses_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ses'</span><span class="o">)</span>
-    ec2_client <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
-    
-    <span class="c"># Email details</span>
-    sender <span class="o">=</span> <span class="s1">'zhbsoftboy1@gmail.com'</span>
-    recipient <span class="o">=</span> <span class="s1">'zhbsoftboy1@gmail.com'</span>
-    subject <span class="o">=</span> <span class="s1">'Security Group Alert: Port 22 Open to everywhere'</span>
-    
-    <span class="c"># Extract details from the event</span>
-    detail <span class="o">=</span> event[<span class="s1">'detail'</span><span class="o">]</span>
-    event_name <span class="o">=</span> detail[<span class="s1">'eventName'</span><span class="o">]</span>
-    security_group_id <span class="o">=</span> None
-    
-    <span class="k">if </span>event_name <span class="o">==</span> <span class="s1">'AuthorizeSecurityGroupIngress'</span>:
-        security_group_id <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'groupId'</span><span class="o">]</span>
-        ip_permissions <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'ipPermissions'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>
-    <span class="k">elif </span>event_name <span class="o">==</span> <span class="s1">'CreateSecurityGroup'</span>:
-        security_group_id <span class="o">=</span> detail[<span class="s1">'responseElements'</span><span class="o">][</span><span class="s1">'groupId'</span><span class="o">]</span>
-        ip_permissions <span class="o">=</span> detail[<span class="s1">'requestParameters'</span><span class="o">][</span><span class="s1">'ipPermissionsEgress'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>
-    
-    <span class="c"># Check if port 22 is open to 0.0.0.0/0</span>
-    <span class="k">if </span>security_group_id and ip_permissions:
-        <span class="k">for </span>permission <span class="k">in </span>ip_permissions:
-            <span class="k">if</span> <span class="s1">'ipRanges'</span> <span class="k">in </span>permission:
-                <span class="k">for </span>ip_range <span class="k">in </span>permission[<span class="s1">'ipRanges'</span><span class="o">][</span><span class="s1">'items'</span><span class="o">]</span>:
-                    <span class="k">if </span>ip_range[<span class="s1">'cidrIp'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'0.0.0.0/0'</span> and permission[<span class="s1">'fromPort'</span><span class="o">]</span> <span class="o">==</span> 22 and permission[<span class="s1">'toPort'</span><span class="o">]</span> <span class="o">==</span> 22:
-                        <span class="c"># Compose email body</span>
-                        body_text <span class="o">=</span> <span class="o">(</span>f<span class="s2">"Security Group ID: {security_group_id} has been modified to allow port 22 from everywhere (0.0.0.0/0)."</span><span class="o">)</span>
-                        body_html <span class="o">=</span> f<span class="s2">"""&lt;html&gt;
-                        &lt;head&gt;&lt;/head&gt;
-                        &lt;body&gt;
-                          &lt;h1&gt;Security Group Alert&lt;/h1&gt;
-                          &lt;p&gt;Security Group ID: &lt;b&gt;{security_group_id}&lt;/b&gt; has been modified to allow port 22 from everywhere (0.0.0.0/0).&lt;/p&gt;
-                        &lt;/body&gt;
-                        &lt;/html&gt;"""</span>
-                        
-                        <span class="c"># Send email</span>
-                        response <span class="o">=</span> ses_client.send_email<span class="o">(</span>
-                            <span class="nv">Source</span><span class="o">=</span>sender,
-                            <span class="nv">Destination</span><span class="o">={</span><span class="s1">'ToAddresses'</span>: <span class="o">[</span>recipient]<span class="o">}</span>,
-                            <span class="nv">Message</span><span class="o">={</span>
-                                <span class="s1">'Subject'</span>: <span class="o">{</span><span class="s1">'Data'</span>: subject<span class="o">}</span>,
-                                <span class="s1">'Body'</span>: <span class="o">{</span>
-                                    <span class="s1">'Text'</span>: <span class="o">{</span><span class="s1">'Data'</span>: body_text<span class="o">}</span>,
-                                    <span class="s1">'Html'</span>: <span class="o">{</span><span class="s1">'Data'</span>: body_html<span class="o">}</span>
-                                <span class="o">}</span>
-                            <span class="o">}</span>
-                        <span class="o">)</span>
-                        print<span class="o">(</span>f<span class="s2">"Email sent! Message ID: {response['MessageId']}"</span><span class="o">)</span>
-    
-    <span class="k">return</span> <span class="o">{</span>
-        <span class="s1">'statusCode'</span>: 200,
-        <span class="s1">'body'</span>: json.dumps<span class="o">(</span><span class="s1">'Lambda function executed successfully!'</span><span class="o">)</span>
-    <span class="o">}</span></code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>There are many ways to automate AWS tasks using Python Boto3 script. Together with Lambda and trigger, many resource tasks can be scheduled and managed in a scripted way.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Boto3]]></summary></entry></feed>
+<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry></feed>

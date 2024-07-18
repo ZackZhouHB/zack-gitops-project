@@ -215,4 +215,4 @@ user-service_1   | Press CTRL+C to quit
 
 Now we can use Python flask to create a simple web application and containerized it using Dockerfile
 
-In the next post, I will see how to use Python Flask to redesign Zack's blog for Web application development.
+In the next post, I will see how to use API Gateway and Consul for more features to this Python applications.
