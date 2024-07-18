@@ -7,7 +7,7 @@ services:
   user-service:
     build:
       context: .
-      dockerfile: Dockerfile-user
+      dockerfile: Dockerfile_user
     depends_on:
       - consul
     environment:
@@ -17,7 +17,7 @@ services:
   order-service:
     build:
       context: .
-      dockerfile: Dockerfile-order
+      dockerfile: Dockerfile_order
     depends_on:
       - consul
     environment:
@@ -27,7 +27,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile-gateway
+      dockerfile: Dockerfile_apigateway
     depends_on:
       - consul
       - user-service
