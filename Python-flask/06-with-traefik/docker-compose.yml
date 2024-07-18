@@ -62,8 +62,7 @@ services:
 
   api-gateway:
     build:
-      context: .
-      dockerfile: Dockerfile-gateway
+      context: ./api_gateway
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api-gateway.rule=PathPrefix(`/`)"
