@@ -6,7 +6,7 @@ services:
       - "8500:8500"
 
   traefik:
-    image: traefik:v2.5
+    image: traefik:v2.9
     command:
       - "--api.insecure=true"
       - "--providers.consulcatalog=true"
@@ -17,13 +17,14 @@ services:
       - "8080:8080"
     depends_on:
       - consul
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
     networks:
       - web
 
   user-service:
     build:
-      context: .
-      dockerfile: Dockerfile-user
+      context: ./user_service
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.user-service.rule=PathPrefix(`/users`)"
@@ -32,6 +33,9 @@ services:
       - consul
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
+      - TRAEFIK_ENABLE=true
+      - TRAEFIK_HTTP_ROUTERS_USERSERVICE_RULE=PathPrefix(`/users`)
+      - TRAEFIK_HTTP_SERVICES_USERSERVICE_LOADBALANCER_SERVERSCHEME=http
     ports:
       - "5001:5001"
     networks:
@@ -39,8 +43,7 @@ services:
 
   order-service:
     build:
-      context: .
-      dockerfile: Dockerfile-order
+      context: ./order_service
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.order-service.rule=PathPrefix(`/orders`)"
@@ -49,6 +52,9 @@ services:
       - consul
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
+      - TRAEFIK_ENABLE=true
+      - TRAEFIK_HTTP_ROUTERS_ORDERSERVICE_RULE=PathPrefix(`/orders`)
+      - TRAEFIK_HTTP_SERVICES_ORDERSERVICE_LOADBALANCER_SERVERSCHEME=http
     ports:
       - "5002:5002"
     networks:
