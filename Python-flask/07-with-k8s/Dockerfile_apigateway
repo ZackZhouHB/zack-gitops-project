@@ -1,3 +1,5 @@
+# Dockerfile_apigateway
+
 # Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
@@ -7,11 +9,14 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Install Flask and requests
+# Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir flask requests
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
+# Define environment variable
+ENV FLASK_APP=api_gateway.py
+
 # Run api_gateway.py when the container launches
-CMD ["python", "api_gateway.py"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
