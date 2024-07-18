@@ -4,12 +4,12 @@ services:
   user-service:
     build:
       context: .
-      dockerfile: Dockerfile-user
+      dockerfile: Dockerfile_user
     ports:
       - "5001:5001"
   order-service:
     build:
       context: .
-      dockerfile: Dockerfile-order
+      dockerfile: Dockerfile_order
     ports:
       - "5002:5002"
