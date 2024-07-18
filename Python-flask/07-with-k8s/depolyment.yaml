@@ -37,7 +37,7 @@ spec:
     app: user-service
   ports:
     - protocol: TCP
-      port: 80
+      port: 5001
       targetPort: 5001
 
 ---
@@ -71,7 +71,7 @@ spec:
     app: order-service
   ports:
     - protocol: TCP
-      port: 80
+      port: 5002
       targetPort: 5002
 
 ---
@@ -106,5 +106,5 @@ spec:
     app: api-gateway
   ports:
     - protocol: TCP
-      port: 80
+      port: 5000
       targetPort: 5000
