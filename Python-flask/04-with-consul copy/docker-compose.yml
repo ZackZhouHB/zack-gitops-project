@@ -4,26 +4,37 @@ services:
     image: consul:1.15.4
     ports:
       - "8500:8500"
+    networks:
+      - consul-net
+
   user-service:
     build:
       context: .
-      dockerfile: Dockerfile_user
+      dockerfile: Dockerfile-user_service
     depends_on:
       - consul
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
     ports:
       - "5001:5001"
+    networks:
+      - consul-net
+    command: ["sh", "-c", "sleep 10 && python user_service.py"]
+
   order-service:
     build:
       context: .
-      dockerfile: Dockerfile_order
+      dockerfile: Dockerfile-order_service
     depends_on:
       - consul
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
     ports:
       - "5002:5002"
+    networks:
+      - consul-net
+    command: ["sh", "-c", "sleep 10 && python order_service.py"]
+
   api-gateway:
     build:
       context: .
@@ -36,3 +47,10 @@ services:
       - CONSUL_HTTP_ADDR=consul:8500
     ports:
       - "5000:5000"
+    networks:
+      - consul-net
+    command: ["sh", "-c", "sleep 15 && python api_gateway.py"]
+
+networks:
+  consul-net:
+    driver: bridge
