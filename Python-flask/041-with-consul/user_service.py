@@ -32,5 +32,6 @@ def register_service():
         time.sleep(5)
 
 if __name__ == '__main__':
+    print("Registering user-service with Consul")
     register_service()
     app.run(host='0.0.0.0', port=5001)
