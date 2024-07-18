@@ -1,0 +1,451 @@
+---
+layout: post
+title:  "Python Flask: Microservice Containerization"
+date:   2024-05-18 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b> About Python Flask</b>
+
+Flask stands out as one of Python’s most popular web frameworks. Designed for versatility and ease of use, Flask offers a robust starting point for crafting web apps.
+
+- Get start with Flask env and simple app
+
+# local create a new virtualenv 
+virtualenv flask
+# pip3 install virtualenv 
+cd flask
+# activate the virtualenv
+source bin/activate
+
+# install flask
+pip install flask
+
+- create 3 python flask microservice apps
+
+
+1. List and export ec2 information to a CSV file (instanceID, default instance name, Existing tags)
+
+
+2. define 4 mandatory tags in CSV header (Env, BizOwner, Technology, Project)
+
+
+3. validate exported tags against the 4 mandatory new tags, if any of the new mandatory tags exists, then keep the tage and value, if any of the new mandatory tags do not exist, add the key and leave the value blank
+
+
+3. Get csv file fill with mandatory tags input from Biz team (manual work)
+
+4. open the updated CSV file, apply the mandatory tags based on the input value
+
+
+5. create and trigger lambda function with aws config rules to enforce 4 mandatory tags whenever a new instance launch  
+
+
+
+<b> List and export ec2 information to a CSV</b>
+
+- Here we need Python libraries for "boto3" and "csv", to call boto3 sessions to retrieve EC2 information, then use Python "with open" and "for" loops to write each ec2 info to a csv file, also add mandatory tags write in the header fields "Env", "BizOwner", "Technology", "Project":
+
+{% highlight shell %}
+root@ubt-server:~/pythonwork/new# vim export1.py
+# Import libiaries
+import boto3
+import csv
+# Define the mandatory tags
+MANDATORY_TAGS = ["Env", "BizOwner", "Technology", "Project"]
+# Initialize boto3 clients
+ec2 = boto3.client('ec2')
+
+def list_ec2_instances():
+    instances = []
+    response = ec2.describe_instances()
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            instance_id = instance['InstanceId']
+            default_name = next((tag['Value'] for tag in instance.get('Tags', []) if tag['Key'] == 'Name'), 'No Name')
+            tags = {tag['Key']: tag['Value'] for tag in instance.get('Tags', [])}
+            instance_info = {
+                'InstanceId': instance_id,
+                'DefaultName': default_name,
+                **tags
+            }
+            # Ensure mandatory tags are included with empty values if not present
+            for mandatory_tag in MANDATORY_TAGS:
+                if mandatory_tag not in instance_info:
+                    instance_info[mandatory_tag] = ''
+            instances.append(instance_info)
+    return instances
+
+# Define export to csv
+def export_to_csv(instances, filename='ec2_instances.csv'):
+    # Collect all possible tag keys
+    all_tags = set()
+    for instance in instances:
+        all_tags.update(instance.keys())
+    
+    # Ensure mandatory tags are included in the header
+    all_tags.update(MANDATORY_TAGS)
+    fieldnames = ['InstanceId', 'DefaultName'] + sorted(all_tags - {'InstanceId', 'DefaultName'})
+    
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for instance in instances:
+            writer.writerow(instance)
+
+def main():
+    instances = list_ec2_instances()
+    export_to_csv(instances)
+    print("CSV export complete. Please update the mandatory tags in 'ec2_instances.csv'.")
+
+if __name__ == '__main__':
+    main()
+
+root@ubt-server:~/pythonwork/new# python3 export1.py 
+CSV export complete. Please update the mandatory tags in 'ec2_instances.csv'.
+{% endhighlight %}
+
+![image tooltip here](/assets/py2-1.png)
+
+- next download and update 'ec2_instances.csv' with all required tags, then remane and upload as 'ec2_instances_updated.csv', create second script "update1.py" to apply new tags 
+
+{% highlight shell %}
+root@ubt-server:~/pythonwork/new# vim update1.py
+
+import boto3
+import csv
+
+# Define the mandatory tags
+MANDATORY_TAGS = ["Env", "BizOwner", "Technology", "Project"]
+
+def update_tags_from_csv(filename='ec2_instances_updated.csv'):
+    ec2 = boto3.client('ec2')
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            instance_id = row['InstanceId']
+            tags = [{'Key': tag, 'Value': row[tag]} for tag in MANDATORY_TAGS if row[tag]]
+            if tags:
+                ec2.create_tags(Resources=[instance_id], Tags=tags)
+
+def main():
+    update_tags_from_csv()
+    print("Tags updated successfully from 'ec2_instances_updated.csv'.")
+
+if __name__ == '__main__':
+    main()
+
+root@ubt-server:~/pythonwork/new# python3 update1.py 
+Tags updated successfully from 'ec2_instances_updated.csv'.
+
+{% endhighlight %}
+
+Now the new tags had been applied.
+
+![image tooltip here](/assets/py2-2.png)
+
+<b> How about managing tags for multiple AWS accounts </b>
+
+Considering we have 20+ AWS accounts across the company and with more than 200 EC2 instances that need to apply tagging strategy, here I will 
+
+- use AWScli profile to configure each AWS account creds, here I will use my own 2 AWS accounts (ZackBlog and JoeSite) to create AWScli profiles to validate the Python scripts
+
+{% highlight shell %}
+# Add account creds into ~/.aws/credentials
+vim ~/.aws/credentials
+
+[aws_account_zackblog]
+aws_access_key_id = xxxx
+aws_secret_access_key = yyyy
+
+[aws_account_joesite]
+aws_access_key_id = zzzz
+aws_secret_access_key = yyyy
+{% endhighlight %}
+
+{% highlight shell %}
+# add profiles into ~/.aws/config
+vim ~/.aws/config
+
+[profile aws_account_zackblog]
+region = ap-southeast-2
+
+[profile aws_account_joesite]
+region = ap-southeast-2
+{% endhighlight %}
+
+- now update Python scripts to call each account profile to apply all 20+ AWS accounts in sequence. 
+
+{% highlight shell %}
+root@ubt-server:~/pythonwork# mkdir mutiple-aws
+root@ubt-server:~/pythonwork# cd mutiple-aws/
+root@ubt-server:~/pythonwork/mutiple-aws# vim export2.py
+
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound
+
+# Define the mandatory tags
+MANDATORY_TAGS = ["Env", "BizOwner", "Technology", "Project"]
+
+# List of AWS account profiles
+AWS_PROFILES = ["aws_account_zackblog", "aws_account_joesite"]  # Add more profiles as needed
+
+def list_ec2_instances(profile_name):
+    session = boto3.Session(profile_name=profile_name)
+    ec2 = session.client('ec2')
+    instances = []
+    response = ec2.describe_instances()
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            instance_id = instance['InstanceId']
+            default_name = next((tag['Value'] for tag in instance.get('Tags', []) if tag['Key'] == 'Name'), 'No Name')
+            tags = {tag['Key']: tag['Value'] for tag in instance.get('Tags', [])}
+            instance_info = {
+                'InstanceId': instance_id,
+                'DefaultName': default_name,
+                **tags
+            }
+            # Ensure mandatory tags are included with empty values if not present
+            for mandatory_tag in MANDATORY_TAGS:
+                if mandatory_tag not in instance_info:
+                    instance_info[mandatory_tag] = ''
+            instances.append(instance_info)
+    return instances
+
+def export_to_csv(instances, profile_name):
+    filename = f"ec2_instances_{profile_name}.csv"
+    # Collect all possible tag keys
+    all_tags = set()
+    for instance in instances:
+        all_tags.update(instance.keys())
+    
+    # Ensure mandatory tags are included in the header
+    all_tags.update(MANDATORY_TAGS)
+    fieldnames = ['InstanceId', 'DefaultName'] + sorted(all_tags - {'InstanceId', 'DefaultName'})
+    
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for instance in instances:
+            writer.writerow(instance)
+
+def process_all_profiles():
+    for profile in AWS_PROFILES:
+        try:
+            print(f"Processing profile: {profile}")
+            instances = list_ec2_instances(profile)
+            export_to_csv(instances, profile)
+            print(f"CSV export complete for profile {profile}. Please update the mandatory tags in 'ec2_instances_{profile}.csv'.")
+        except ProfileNotFound:
+            print(f"Profile {profile} not found. Skipping.")
+
+if __name__ == '__main__':
+    process_all_profiles()
+{% endhighlight %}
+
+- export 2 csv files for each aws account based on given profile, update mandatory tags in the 2 csv files, then upload and rename as _updated_
+
+{% highlight shell %}
+# export 2 csv files
+root@ubt-server:~/pythonwork/mutiple-aws# python3 export2.py 
+Processing profile: aws_account_zackblog
+CSV export complete for profile aws_account_zackblog. Please update the mandatory tags in 'ec2_instances_aws_account_zackblog.csv'.
+Processing profile: aws_account_joesite
+CSV export complete for profile aws_account_joesite. Please update the mandatory tags in 'ec2_instances_aws_account_joesite.csv'.
+
+# update all mandatory tags in the files
+root@ubt-server:~/pythonwork/mutiple-aws# cat ec2_instances_updated_aws_account_zackblog.csv 
+
+InstanceId,DefaultName,BizOwner,Env,Name,Project,Technology,Tuned,zz1,zz2
+i-076226daa5aaf7cf2,zack-blog,Zack,Prod,zack-blog,zack-web,Jekyll,,aa1,aa2
+i-0b5c0fec84073a6d9,Py_test_zackweb,Zack,Testing,Py_test_zackweb,python-test,None,Yes,,
+
+root@ubt-server:~/pythonwork/mutiple-aws# cat ec2_instances_updated_aws_account_joesite.csv 
+
+InstanceId,DefaultName,BizOwner,Env,Location,Name,Project,Technology,TimeLaunched
+i-012fb886802435ff2,joe-account-py-test,Joe,Prod,SYD,joe-account-py-test,joesite,Ruby-Jekyll,
+i-052b0511339457efc,joe-site,Joe,Testing,,joe-site,Python-test,None,20240301
+{% endhighlight %}
+
+- now create python script "update_tags_2.p" to apply new tags for 2 aws accounts by given profile
+{% highlight shell %}
+
+root@ubt-server:~/pythonwork/mutiple-aws# vim update_tags_2.py
+# Import libiaries
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound
+
+# Define the mandatory tags
+MANDATORY_TAGS = ["Env", "BizOwner", "Technology", "Project"]
+
+# List of AWS account profiles
+AWS_PROFILES = ["aws_account_zackblog", "aws_account_joesite"]  # Add more profiles as needed
+
+def update_tags_from_csv(profile_name):
+    filename = f"ec2_instances_updated_{profile_name}.csv"
+    session = boto3.Session(profile_name=profile_name)
+    ec2 = session.client('ec2')
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            instance_id = row['InstanceId']
+            tags = [{'Key': tag, 'Value': row[tag]} for tag in MANDATORY_TAGS if row[tag]]
+            if tags:
+                ec2.create_tags(Resources=[instance_id], Tags=tags)
+
+def process_all_profiles():
+    for profile in AWS_PROFILES:
+        try:
+            print(f"Processing profile: {profile}")
+            update_tags_from_csv(profile)
+            print(f"Tags updated successfully from 'ec2_instances_updated_{profile}.csv' for profile {profile}.")
+        except ProfileNotFound:
+            print(f"Profile {profile} not found. Skipping.")
+        except FileNotFoundError:
+            print(f"Updated CSV file for profile {profile} not found. Skipping.")
+
+if __name__ == '__main__':
+    process_all_profiles()
+
+# run to apply tags
+root@ubt-server:~/pythonwork/mutiple-aws# python3 update_tags_2.py 
+Processing profile: aws_account_zackblog
+Tags updated successfully from 'ec2_instances_updated_aws_account_zackblog.csv' for profile aws_account_zackblog.
+
+Processing profile: aws_account_joesite
+Tags updated successfully from 'ec2_instances_updated_aws_account_joesite.csv' for profile aws_account_joesite.
+{% endhighlight %}
+
+- now double check the tags for both accounts
+
+![image tooltip here](/assets/py2-3.png)
+![image tooltip here](/assets/py2-4.png)
+
+<b> Conclusion</b>
+
+Now we can use Python Boto3 and file handling to achieve mutiple-aws account EC2 tagging. With Python "csv" library, functions like "csv.DictReader", "with open" and "csv.DictWriter" to open, update and export CSV file, Python also supports handling data in JSON format with dictionary. 
+
+In the next post I will see how to use Python Flask to redesign Zack's blog for Web application development.
+
+====================
+====================
+
+
+<b> Just got another task to create more users in all account with python boto3</b>
+
+- a csv file with list of users will be created, aws profile configured for all aws accounts
+
+{% highlight shell %}
+root@ubt-server:~/pythonwork/user_creation# cat all_users.csv 
+Username
+ZackZ
+BobJ
+MattS
+{% endhighlight %}
+
+- a python script with bellow IAM user creation
+{% highlight shell %}
+root@ubt-server:~/pythonwork/user_creation# vim more_user_from_csv.py
+
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound, ClientError
+
+# List of AWS account profiles
+AWS_PROFILES = ["aws_account_zackblog", "aws_account_joesite"]  # Add more profiles as needed
+
+# IAM User details
+PASSWORD = "xxxxxxxx"
+POLICY_ARN = "arn:aws:iam::aws:policy/AdministratorAccess"
+CSV_FILE = "all_users.csv"
+
+def read_users_from_csv(filename):
+    users = []
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            users.append(row['Username'])
+    return users
+
+def create_iam_user(profile_name, user_name):
+    session = boto3.Session(profile_name=profile_name)
+    iam = session.client('iam')
+    
+    try:
+        # Create IAM user
+        iam.create_user(UserName=user_name)
+        print(f"User {user_name} created in profile {profile_name}.")
+
+        # Create login profile for console access
+        iam.create_login_profile(
+            UserName=user_name,
+            Password=PASSWORD,
+            PasswordResetRequired=False
+        )
+        print(f"Login profile created for user {user_name} in profile {profile_name}.")
+
+        # Attach AdministratorAccess policy
+        iam.attach_user_policy(
+            UserName=user_name,
+            PolicyArn=POLICY_ARN
+        )
+        print(f"AdministratorAccess policy attached to user {user_name} in profile {profile_name}.")
+
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'EntityAlreadyExists':
+            print(f"User {user_name} already exists in profile {profile_name}.")
+        else:
+            print(f"Error creating user {user_name} in profile {profile_name}: {e}")
+
+def process_all_profiles(users):
+    for profile in AWS_PROFILES:
+        try:
+            print(f"Processing profile: {profile}")
+            for user in users:
+                create_iam_user(profile, user)
+        except ProfileNotFound:
+            print(f"Profile {profile} not found. Skipping.")
+
+if __name__ == '__main__':
+    users = read_users_from_csv(CSV_FILE)
+    process_all_profiles(users)
+{% endhighlight %}
+
+- Go to create all users
+
+{% highlight shell %}
+
+root@ubt-server:~/pythonwork/user_creation# python3 more_user_from_csv.py 
+
+Processing profile: aws_account_zackblog
+
+User ZackZ created in profile aws_account_zackblog.
+Login profile created for user ZackZ in profile aws_account_zackblog.
+AdministratorAccess policy attached to user ZackZ in profile aws_account_zackblog.
+
+User BobJ created in profile aws_account_zackblog.
+Login profile created for user BobJ in profile aws_account_zackblog.
+AdministratorAccess policy attached to user BobJ in profile aws_account_zackblog.
+
+User MattS created in profile aws_account_zackblog.
+Login profile created for user MattS in profile aws_account_zackblog.
+AdministratorAccess policy attached to user MattS in profile aws_account_zackblog.
+
+Processing profile: aws_account_joesite
+
+User ZackZ created in profile aws_account_joesite.
+Login profile created for user ZackZ in profile aws_account_joesite.
+AdministratorAccess policy attached to user ZackZ in profile aws_account_joesite.
+
+User BobJ created in profile aws_account_joesite.
+Login profile created for user BobJ in profile aws_account_joesite.
+AdministratorAccess policy attached to user BobJ in profile aws_account_joesite.
+
+User MattS created in profile aws_account_joesite.
+Login profile created for user MattS in profile aws_account_joesite.
+AdministratorAccess policy attached to user MattS in profile aws_account_joesite.
+{% endhighlight %}
+
+![image tooltip here](/assets/py2-5.png)

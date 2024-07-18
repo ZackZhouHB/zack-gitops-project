@@ -1,6 +1,8 @@
+import logging
 import requests
 from flask import Flask, jsonify
-import time
+from pygelf import GelfUdpHandler
+import os
 
 app = Flask(__name__)
 
@@ -10,6 +12,7 @@ def get_orders():
         {'id': 1, 'item': 'Laptop', 'price': 1200},
         {'id': 2, 'item': 'Phone', 'price': 800}
     ]
+    app.logger.info("Fetched order data")
     return jsonify(orders)
 
 def register_service():
@@ -19,19 +22,18 @@ def register_service():
         "Address": "order-service",
         "Port": 5002
     }
-    while True:
-        try:
-            response = requests.put('http://consul:8500/v1/agent/service/register', json=payload)
-            if response.status_code == 200:
-                print("Successfully registered order-service with Consul")
-                break
-            else:
-                print(f"Failed to register order-service with Consul, status code: {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            print(f"Error registering order-service with Consul: {e}")
-        time.sleep(5)
+    response = requests.put('http://consul:8500/v1/agent/service/register', json=payload)
+    if response.status_code == 200:
+        app.logger.info("Order service registered successfully")
+    else:
+        app.logger.error("Failed to register order service")
 
 if __name__ == '__main__':
-    print("Registering order-service with Consul")
+    # Configure logging
+    logstash_host = os.getenv('LOGSTASH_HOST', 'localhost')
+    handler = GelfUdpHandler(host=logstash_host, port=12201)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
+    
     register_service()
     app.run(host='0.0.0.0', port=5002)

@@ -2,6 +2,7 @@ import logging
 import requests
 from flask import Flask, jsonify
 from pygelf import GelfUdpHandler
+import os
 
 app = Flask(__name__)
 
@@ -29,7 +30,8 @@ def register_service():
 
 if __name__ == '__main__':
     # Configure logging
-    handler = GelfUdpHandler(host='logstash', port=12201)
+    logstash_host = os.getenv('LOGSTASH_HOST', 'localhost')
+    handler = GelfUdpHandler(host=logstash_host, port=12201)
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     

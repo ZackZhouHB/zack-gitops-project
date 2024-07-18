@@ -38,12 +38,9 @@ services:
       - logstash
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
+      - LOGSTASH_HOST=logstash
     ports:
       - "5001:5001"
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://logstash:12201
 
   order-service:
     build:
@@ -53,12 +50,9 @@ services:
       - logstash
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
+      - LOGSTASH_HOST=logstash
     ports:
       - "5002:5002"
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://logstash:12201
 
   api-gateway:
     build:
@@ -70,12 +64,9 @@ services:
       - logstash
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
+      - LOGSTASH_HOST=logstash
     ports:
       - "5000:5000"
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://logstash:12201
 
 volumes:
   esdata:
