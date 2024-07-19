@@ -9,7 +9,11 @@ categories: jekyll Cat2
 
 API Gateway acts as a single entry point for all clients and handles the request routing, composition, and protocol translation in a microservices architecture, here I will create a API Gateway using Python Flask and requests library, to route both "user" and "order" services.
 
-Create an API Gateway to handle the 2 services.
+Here I will create an API Gateway to handle the 2 services (user and order). By importing the `requests` module, which allows us to send HTTP requests in Python. It's used for making API calls to other services.
+
+Then with `route` decorator to specify that the `get_users` function should handle requests to the `/users` URL endpoint.
+
+Then define `response` to send GET request to the user-service and order-service running on port 5001/5002 at each endpoint.
 
 {% highlight shell %}
 
@@ -94,7 +98,11 @@ Verify the 2 services can be accessed via API Gateway address and port plus /use
 
 Consul is a popular open-source tool for service discovery and service registration, here I will update the py files to register both services with Consul
 
-In both user_service.py and order_service.py add service registration logic.
+In both user_service.py and order_service.py, add service registration logic.
+
+To import `time` module, also define function named `register_service` that will handle the service registration logic with Consul, use dictionary defines the `payload` for the service registration. It includes the service ID, name, address, and port.
+
+I will use `while True` to start an infinite loop, which will keep trying to register the service with Consul until it succeeds, add `try`, `else`and `if` to handle exceptions during the registration process.
 
 {% highlight shell %}
 # vim order_service.py

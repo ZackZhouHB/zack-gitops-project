@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Terraform Module for AWS SSO User Assignment
-date:   2024-05-22 11:15:29 +1100
+date:   2024-05-13 11:15:29 +1100
 categories: jekyll Cat2
 ---
 

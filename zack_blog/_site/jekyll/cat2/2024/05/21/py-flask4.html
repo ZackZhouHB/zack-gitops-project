@@ -7,8 +7,8 @@
 <meta name="generator" content="Jekyll v4.3.2" />
 <meta property="og:title" content="Python Flask Microservice: Monitoring with Prometheus and Grafana" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="About logging with ELK (Elasticsearch, Logstash, Kibana) Stack" />
-<meta property="og:description" content="About logging with ELK (Elasticsearch, Logstash, Kibana) Stack" />
+<meta name="description" content="About Monitoring with Prometheus and Grafana" />
+<meta property="og:description" content="About Monitoring with Prometheus and Grafana" />
 <link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html" />
 <meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Python Flask Microservice: Monitoring with Prometheus and Grafana" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-21T00:17:29+10:00","datePublished":"2024-05-21T00:17:29+10:00","description":"About logging with ELK (Elasticsearch, Logstash, Kibana) Stack","headline":"Python Flask Microservice: Monitoring with Prometheus and Grafana","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-21T00:17:29+10:00","datePublished":"2024-05-21T00:17:29+10:00","description":"About Monitoring with Prometheus and Grafana","headline":"Python Flask Microservice: Monitoring with Prometheus and Grafana","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -47,294 +47,173 @@
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
+    <p><b> About Monitoring with Prometheus and Grafana</b></p>
 
-<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
+<p>Both Prometheus and Grafana are compatible with microservice applications, integrating Prometheus with Flask is straightforward to provide performance and monitoring metrics.</p>
 
-<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
+<p>Here I will update the docker-compose to add Prometheus and Grafana as services, then add Prometheus metrics in both order and user application code by importing <code class="language-plaintext highlighter-rouge">PrometheusMetrics</code> from the <code class="language-plaintext highlighter-rouge">prometheus_flask_exporter</code> module, which is used to expose Prometheus metrics for the Flask application. then initialize Prometheus metrics with <code class="language-plaintext highlighter-rouge">metrics = PrometheusMetrics(app)</code>. Use <code class="language-plaintext highlighter-rouge">@metrics.counter('get_orders_count', 'Count of calls to the get_orders endpoint')</code> to define a Prometheus counter metric that increments each time the get_orders endpoint is called.</p>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
-05-with-ELK/
-├── api_gateway/
-│   └── Dockerfile
-├── order_service/
-│   └── Dockerfile
-├── user_service/
-│   └── Dockerfile
+<p>Import <code class="language-plaintext highlighter-rouge">os</code> to enable environment variable for Logstash host, <code class="language-plaintext highlighter-rouge">logstash_host = os.getenv('LOGSTASH_HOST', 'localhost')</code> to fetche the Logstash host from environment variables, defaulting to localhost.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder structure</span>
+/06-with-monitoringstack
+├── api_gateway
+│   ├── api_gateway.py
+│   └── Dockerfile
+├── docker-compose.yml
 ├── logstash.conf
-└── docker-compose.yml
+├── order_service
+│   ├── Dockerfile
+│   ├── order_service.py
+├── prometheus.yaml
+└── user_service
+    ├── Dockerfile
+    └── user_service.py
 
-<span class="c"># create Logstash Configuration</span>
-<span class="c"># vim logstash.conf</span>
-input <span class="o">{</span>
- gelf <span class="o">{</span>
- port <span class="o">=&gt;</span> 12201
- <span class="o">}</span>
-<span class="o">}</span>
-output <span class="o">{</span>
- elasticsearch <span class="o">{</span>
- hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
- index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="c"># vim user_service.py</span>
+<span class="c"># add Prometheus and Grafana in docker-compose.yaml</span>
+version: <span class="s1">'3'</span>
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - <span class="s2">"9090:9090"</span>
+  grafana:
+    image: grafana/grafana
+    ports:
+      - <span class="s2">"3000:3000"</span>
 
+<span class="c"># create prometheus.yml for Prometheus configration</span>
+<span class="c"># vim prometheus.yml</span>
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: <span class="s1">'flask'</span>
+    static_configs:
+      - targets: <span class="o">[</span><span class="s1">'user-service:5001'</span>, <span class="s1">'order-service:5002'</span><span class="o">]</span>
+
+<span class="c"># add Monitoring logic into python code </span>
+
+<span class="c"># order_service.py</span>
 import logging
 import requests
 from flask import Flask, jsonify
 from pygelf import GelfUdpHandler
+from prometheus_flask_exporter import PrometheusMetrics
+import os
 
 app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
- <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Port"</span>: 5001
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
-
-<span class="c"># vim order_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+metrics <span class="o">=</span> PrometheusMetrics<span class="o">(</span>app<span class="o">)</span>
 
 @app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
 def get_orders<span class="o">()</span>:
- orders <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
+    orders <span class="o">=</span> <span class="o">[</span>
+        <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
+        <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
+    <span class="o">]</span>
+    app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
+    <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
 
 def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Port"</span>: 5002
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
+    payload <span class="o">=</span> <span class="o">{</span>
+        <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
+        <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
+        <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
+        <span class="s2">"Port"</span>: 5002
+    <span class="o">}</span>
+    response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+    <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+        app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
+    <span class="k">else</span>:
+        app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
 
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
+    <span class="c"># Configure logging</span>
+    logstash_host <span class="o">=</span> os.getenv<span class="o">(</span><span class="s1">'LOGSTASH_HOST'</span>, <span class="s1">'localhost'</span><span class="o">)</span>
+    handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span>logstash_host, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+    app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+    app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+    register_service<span class="o">()</span>
+    app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
 
 
-<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
-flask
-requests
-pygelf
+<span class="c"># user_service.py</span>
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+from prometheus_flask_exporter import PrometheusMetrics
+import os
 
-<span class="c"># modify each Dockerfile: Dockerfile-user</span>
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+metrics <span class="o">=</span> PrometheusMetrics<span class="o">(</span>app<span class="o">)</span>
 
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+    <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
+        <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
+        <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
+    <span class="o">]</span>
+    app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
+    <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
 
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
+def register_service<span class="o">()</span>:
+    payload <span class="o">=</span> <span class="o">{</span>
+        <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
+        <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
+        <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
+        <span class="s2">"Port"</span>: 5001
+    <span class="o">}</span>
+    response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+    <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+        app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
+    <span class="k">else</span>:
+        app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
 
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    <span class="c"># Configure logging</span>
+    logstash_host <span class="o">=</span> os.getenv<span class="o">(</span><span class="s1">'LOGSTASH_HOST'</span>, <span class="s1">'localhost'</span><span class="o">)</span>
+    handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span>logstash_host, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+    app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+    app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+    register_service<span class="o">()</span>
+    app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span></code></pre></figure>
 
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5001 available to the world outside this container</span>
-EXPOSE 5001
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
-
-<span class="c"># Run user_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
-
-
-<span class="c"># vim Dockerfile-order</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5002 available to the world outside this container</span>
-EXPOSE 5002
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
-
-<span class="c"># Run order_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
-
-<span class="c"># modify docker-compose.yaml</span>
-
-version: <span class="s1">'3'</span>
-services:
- consul:
- image: consul:1.15.4
- ports:
- - <span class="s2">"8500:8500"</span>
-
- elasticsearch:
- image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
- environment:
- - discovery.type<span class="o">=</span>single-node
- ports:
- - <span class="s2">"9200:9200"</span>
- - <span class="s2">"9300:9300"</span>
- volumes:
- - esdata:/usr/share/elasticsearch/data
-
- logstash:
- image: docker.elastic.co/logstash/logstash:7.13.2
- volumes:
- - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
- ports:
- - <span class="s2">"12201:12201/udp"</span>
- - <span class="s2">"5044:5044"</span>
-
- kibana:
- image: docker.elastic.co/kibana/kibana:7.13.2
- ports:
- - <span class="s2">"5601:5601"</span>
- depends_on:
- - elasticsearch
-
- user-service:
- build:
- context: ./user_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5001:5001"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- order-service:
- build:
- context: ./order_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5002:5002"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- api-gateway:
- build:
- context: ./api_gateway
- depends_on:
- - consul
- - user-service
- - order-service
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5000:5000"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
-volumes:
- esdata:</code></pre></figure>
-
-<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
+<p>Now Run docker-compose to bring all containers up and running. Should see all services with Prometheus and Grafana.</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
 
-Creating 05-with-elk_logstash_1      ... <span class="k">done
-</span>Creating 05-with-elk_consul_1        ... <span class="k">done
-</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
-</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
-</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
-</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
-</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
+Creating 06-with-monitoringstack_api-gateway_1   ... <span class="k">done
+</span>Creating 06-with-monitoringstack_order-service_1 ... <span class="k">done
+</span>Creating 06-with-monitoringstack_user-service_1  ... <span class="k">done
+</span>Creating 06-with-monitoringstack_kibana_1        ... <span class="k">done
+</span>Creating 06-with-monitoringstack_grafana_1       ... <span class="k">done
+</span>Creating 06-with-monitoringstack_logstash_1      ... <span class="k">done
+</span>Creating 06-with-monitoringstack_prometheus_1    ... <span class="k">done
+</span>Creating 06-with-monitoringstack_elasticsearch_1 ... <span class="k">done
+</span>Creating 06-with-monitoringstack_consul_1        ... <span class="k">done</span></code></pre></figure>
 
+<p><b> Verify Prometheus and Grafana</b></p>
 
-</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
-logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
-consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
-consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
-</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
-elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
-kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
+<p>Access Grafana via http://localhost:3000, log in with admin/admin.</p>
 
-<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
+<p>Add Prometheus as a Data Source in Grafana by setting the URL to http://localhost:9090 and save.</p>
 
-<p><b> Verify ElasticSearch and Kibana</b></p>
+<p>Create Dashboards in Grafana to use the Prometheus data source to visualize metrics from user-service and order-service.</p>
 
-<ul>
-  <li>Validate ElasticSearch status via localhost:9200</li>
-</ul>
+<p><img src="/assets/flask10.png" alt="image tooltip here" /></p>
 
-<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
+<p><img src="/assets/flask9.png" alt="image tooltip here" /></p>
 
-<ul>
-  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
-</ul>
+<p><b> Conclusion</b></p>
 
-<p><img src="/assets/flask8.png" alt="image tooltip here" />
-<b> Conclusion</b></p>
+<p>Now we can enable monitoring with Prometheus and Grafana.</p>
 
-<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
-
-<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>
+<p>In the next post, I will see how to depoly our Python Flask microservice into Kubernetes.</p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/05/21/py-flask4.html" hidden></a>
 </article>

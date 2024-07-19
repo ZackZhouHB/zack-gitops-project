@@ -28,6 +28,8 @@ By the following posts, I will use Flask to
 
 I will skip the installation for Docker and python3 as those can be found via the official Docker and Python website.
 
+In the application Python code, I will import the `Flask` class from the `flask` module. Flask is a micro web framework written in Python. The Flask class is used to create a Flask application instance, which will be used to handle incoming web requests and route them to the appropriate functions in our code.
+
 {% highlight shell %}
 # local create a new virtualenv 
 virtualenv flask
@@ -44,13 +46,24 @@ vim app.py
 
 from flask import Flask
 
+# create an instance of the Flask class and store it in the app variable, The __name__ variable is passed as an argument to the Flask constructor. This helps Flask determine the root path for the application, which is useful for locating resources, templates, and static files
 app = Flask(__name__)
 
+
+# This is a decorator that Flask provides. A decorator is a way to modify the behavior of a function or method. In this case, @app.route('/') tells Flask to execute the following function (in this case, hello_zack) when the root URL ('/') of the web application is accessed
 @app.route('/')
+
+# This line defines a function named hello_zack. This function will be called when a request to the root URL ('/') is made.
 def hello_zack():
+
+# This line returns the string 'Hello, Zack!' as the response to the web request. When someone accesses the root URL, they will see this message in their web browser.
  return 'Hello, Zack!'
 
+
+# This is a common Python idiom that checks whether the script is being run directly or being imported as a module in another script
 if __name__ == '__main__':
+
+# This line starts the Flask development server. The host='0.0.0.0' argument makes the server accessible from any network interface, with the default port for Flask is 5000
  app.run(host='0.0.0.0', port=5000)
 
 # run it
@@ -74,6 +87,8 @@ Press CTRL+C to quit
 <b> Create "user" and "order" flask microservice apps</b>
 
 Now I will move to create 2 microservice applications with Flask.
+
+In design I will import the `Flask` class and `jsonify` function to create a Flask application instance, define a route (/orders) and a corresponding function (get_orders) to handle requests to that route, then return a JSON response with order details. Same design for user.py as well.
 
 {% highlight shell %}
 

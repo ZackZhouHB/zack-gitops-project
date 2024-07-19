@@ -7,10 +7,13 @@ categories: jekyll Cat2
 
 <b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b>
 
-ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.
+ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. 
 
-Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.
+Here I need to extend the current configuration by adding services in docker-compose file for `Elasticsearch`, `Logstash`, and `Kibana`, and configure the microservices to send logs to Logstash.
 
+Also, I will need to configure the logging in both `user` and `order` Python application code to send logs to Logstash. By importing the built-in `logging` module and  `GelfUdpHandler` from the `pygelf` module, to provide a flexible framework for emitting log messages from Python programs to send log messages in the `GELF` (Graylog Extended Log Format) to a remote Graylog server, which is typically part of the ELK stack.
+
+By adding log messages using `app.logger.info` and `app.logger.error`, together with the defined the logging level, I can set the logging level to `INFO`, which means all log messages at this level or higher will be emitted.
 
 {% highlight shell %}
 # folder structure 

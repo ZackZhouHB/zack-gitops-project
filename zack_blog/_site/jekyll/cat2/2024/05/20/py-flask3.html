@@ -49,9 +49,13 @@
   <div class="post-content e-content" itemprop="articleBody">
     <p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
 
-<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
+<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs.</p>
 
-<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
+<p>Here I need to extend the current configuration by adding services in docker-compose file for <code class="language-plaintext highlighter-rouge">Elasticsearch</code>, <code class="language-plaintext highlighter-rouge">Logstash</code>, and <code class="language-plaintext highlighter-rouge">Kibana</code>, and configure the microservices to send logs to Logstash.</p>
+
+<p>Also, I will need to configure the logging in both <code class="language-plaintext highlighter-rouge">user</code> and <code class="language-plaintext highlighter-rouge">order</code> Python application code to send logs to Logstash. By importing the built-in <code class="language-plaintext highlighter-rouge">logging</code> module and  <code class="language-plaintext highlighter-rouge">GelfUdpHandler</code> from the <code class="language-plaintext highlighter-rouge">pygelf</code> module, to provide a flexible framework for emitting log messages from Python programs to send log messages in the <code class="language-plaintext highlighter-rouge">GELF</code> (Graylog Extended Log Format) to a remote Graylog server, which is typically part of the ELK stack.</p>
+
+<p>By adding log messages using <code class="language-plaintext highlighter-rouge">app.logger.info</code> and <code class="language-plaintext highlighter-rouge">app.logger.error</code>, together with the defined the logging level, I can set the logging level to <code class="language-plaintext highlighter-rouge">INFO</code>, which means all log messages at this level or higher will be emitted.</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
 05-with-ELK/

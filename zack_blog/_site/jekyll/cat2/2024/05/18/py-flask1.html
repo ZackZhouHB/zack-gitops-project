@@ -81,6 +81,8 @@
 
 <p>I will skip the installation for Docker and python3 as those can be found via the official Docker and Python website.</p>
 
+<p>In the application Python code, I will import the <code class="language-plaintext highlighter-rouge">Flask</code> class from the <code class="language-plaintext highlighter-rouge">flask</code> module. Flask is a micro web framework written in Python. The Flask class is used to create a Flask application instance, which will be used to handle incoming web requests and route them to the appropriate functions in our code.</p>
+
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># local create a new virtualenv </span>
 virtualenv flask
 <span class="c"># pip3 install virtualenv </span>
@@ -96,13 +98,24 @@ vim app.py
 
 from flask import Flask
 
+<span class="c"># create an instance of the Flask class and store it in the app variable, The __name__ variable is passed as an argument to the Flask constructor. This helps Flask determine the root path for the application, which is useful for locating resources, templates, and static files</span>
 app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
 
+
+<span class="c"># This is a decorator that Flask provides. A decorator is a way to modify the behavior of a function or method. In this case, @app.route('/') tells Flask to execute the following function (in this case, hello_zack) when the root URL ('/') of the web application is accessed</span>
 @app.route<span class="o">(</span><span class="s1">'/'</span><span class="o">)</span>
+
+<span class="c"># This line defines a function named hello_zack. This function will be called when a request to the root URL ('/') is made.</span>
 def hello_zack<span class="o">()</span>:
+
+<span class="c"># This line returns the string 'Hello, Zack!' as the response to the web request. When someone accesses the root URL, they will see this message in their web browser.</span>
  <span class="k">return</span> <span class="s1">'Hello, Zack!'</span>
 
+
+<span class="c"># This is a common Python idiom that checks whether the script is being run directly or being imported as a module in another script</span>
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+
+<span class="c"># This line starts the Flask development server. The host='0.0.0.0' argument makes the server accessible from any network interface, with the default port for Flask is 5000</span>
  app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5000<span class="o">)</span>
 
 <span class="c"># run it</span>
@@ -122,6 +135,8 @@ Press CTRL+C to quit
 <p><b> Create “user” and “order” flask microservice apps</b></p>
 
 <p>Now I will move to create 2 microservice applications with Flask.</p>
+
+<p>In design I will import the <code class="language-plaintext highlighter-rouge">Flask</code> class and <code class="language-plaintext highlighter-rouge">jsonify</code> function to create a Flask application instance, define a route (/orders) and a corresponding function (get_orders) to handle requests to that route, then return a JSON response with order details. Same design for user.py as well.</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># order_service.py</span>
 from flask import Flask, jsonify
