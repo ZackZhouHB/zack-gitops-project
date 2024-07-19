@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python Flask: Microservice Containerization"
+title:  "Python Flask Microservice: Containerization"
 date:   2024-05-18 11:15:29 +1100
 categories: jekyll Cat2
 ---

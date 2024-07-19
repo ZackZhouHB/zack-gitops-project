@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-19T01:06:18+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-19T16:21:26+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
 
 <p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
 
@@ -1037,113 +1037,7 @@ spec:
 
 <p>In this session we deep dive into Istio add-on Jaeger for distributed tracing, which Jaeger facilitates, involves tracking requests as they flow through various services and components of an application. This helps identify bottlenecks, understand service dependencies, and improve overall performance.</p>
 
-<p>In the next post I will see how to use Istio and Kiali to run some Canary Releases, Blue-Green deployment Rolling Updates and A/B Testing.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Jaeger]]></summary></entry><entry><title type="html">Istio: Traffic Routing</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html" rel="alternate" type="text/html" title="Istio: Traffic Routing" /><published>2024-05-22T10:15:29+10:00</published><updated>2024-05-22T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
-
-<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
-
-<p>Bookinfo Topology:</p>
-
-<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Helm install istio (istiod, istio-ingress)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
-helm pull istio/base
-helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
-
-helm pull istio/istiod
-helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
-
-kubectl create namespace istio-ingress
-helm pull istio/gateway
-helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
-NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
-istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
-istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
-NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
-istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
-
-<ul>
-  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
-kubectl apply <span class="nt">-f</span> bookinfo.yaml
-
-kubectl get po
-NAME                                                     READY   STATUS    RESTARTS       AGE
-details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
-ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
-reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
-reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
-reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
-kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
-
-<ul>
-  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
-kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
-
-<ul>
-  <li>
-    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
-<img src="/assets/kiali.png" alt="image tooltip here" /></p>
-  </li>
-  <li>
-    <p>define destination rules and virtual service for reviews</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
-wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
-
-kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
-kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
-
-kubectl get dr <span class="nt">-A</span>
-NAMESPACE      NAME          HOST          AGE
-istio-system   details       details       6m56s
-istio-system   productpage   productpage   6m56s
-istio-system   ratings       ratings       6m56s
-istio-system   reviews       reviews       6m56s
-kubectl get vs <span class="nt">-A</span>
-NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
-istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
-istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
-
-Spec:
-  Hosts:
-    reviews
-  Http:
-    Route:
-      Destination:
-        Host:    reviews
-        Subset:  v1
-      Weight:    10
-      Destination:
-        Host:    reviews
-        Subset:  v3
-      Weight:    90</code></pre></figure>
-
-<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
-
-<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
-
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Terraform Module for AWS SSO User Assignment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html" rel="alternate" type="text/html" title="Terraform Module for AWS SSO User Assignment" /><published>2024-05-20T10:15:29+10:00</published><updated>2024-05-20T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
+<p>In the next post I will see how to use Istio and Kiali to run some Canary Releases, Blue-Green deployment Rolling Updates and A/B Testing.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Jaeger]]></summary></entry><entry><title type="html">Terraform Module for AWS SSO User Assignment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/terraform1.html" rel="alternate" type="text/html" title="Terraform Module for AWS SSO User Assignment" /><published>2024-05-22T10:15:29+10:00</published><updated>2024-05-22T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/terraform1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/terraform1.html"><![CDATA[<p><b> Challange About AWS SSO User Assignment</b></p>
 
 <p>In the company, we use AWS SSO for user authentication; when a new user is created from Azure AD, it will automatically synced by AWS IAM Identity Center and Azure AD integration, and then our team will need to handle the SSO user assignment to put them in the required AWS accounts with requested permission sets, it became a pain when such requests coming more frequently and every time an individual user or a whole team with different accounts and permission requirements need to be fulfilled, so how to handle this efficiently become my recent topic.</p>
 
@@ -1514,7 +1408,687 @@ permission_sets <span class="o">=</span> <span class="o">{</span>
 
 <p>Now, we can achieve the task individually via terraform code and a Terraform module to handle the creation of AWS SSO users, This setup combines all three requests into a single Terraform configuration, leveraging the reusable module for creating permission sets and managing user assignments, it is more efficient, dynamically, and reusable. In future, we only define permission sets and maintain new users and assignments in the environment variables .tf file, then run Terraform apply to get the job done. The change also can be tracked when leveraging Git as version control.</p>
 
-<p><a href="https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11">Streamlining AWS SSO in Complex Multi-Account Environments</a></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Challange About AWS SSO User Assignment]]></summary></entry><entry><title type="html">Python Flask: API Gateway &amp;amp; Consul</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html" rel="alternate" type="text/html" title="Python Flask: API Gateway &amp;amp; Consul" /><published>2024-05-19T10:15:29+10:00</published><updated>2024-05-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html"><![CDATA[<p><b> About API Gateway</b></p>
+<p><a href="https://girishcodealchemy.medium.com/streamlining-aws-sso-in-complex-multi-account-environments-e82025792d11">Streamlining AWS SSO in Complex Multi-Account Environments</a></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Challange About AWS SSO User Assignment]]></summary></entry><entry><title type="html">Istio: Traffic Routing</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html" rel="alternate" type="text/html" title="Istio: Traffic Routing" /><published>2024-05-22T10:15:29+10:00</published><updated>2024-05-22T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
+
+<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
+
+<p>Bookinfo Topology:</p>
+
+<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Helm install istio (istiod, istio-ingress)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
+helm pull istio/base
+helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
+
+helm pull istio/istiod
+helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
+
+kubectl create namespace istio-ingress
+helm pull istio/gateway
+helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
+NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
+istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
+istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
+
+helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
+NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
+
+<ul>
+  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
+kubectl apply <span class="nt">-f</span> bookinfo.yaml
+
+kubectl get po
+NAME                                                     READY   STATUS    RESTARTS       AGE
+details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
+ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
+reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
+reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
+reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
+
+kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
+kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
+
+<ul>
+  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
+wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
+kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
+
+<ul>
+  <li>
+    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
+<img src="/assets/kiali.png" alt="image tooltip here" /></p>
+  </li>
+  <li>
+    <p>define destination rules and virtual service for reviews</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
+wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
+
+kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
+kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
+
+kubectl get dr <span class="nt">-A</span>
+NAMESPACE      NAME          HOST          AGE
+istio-system   details       details       6m56s
+istio-system   productpage   productpage   6m56s
+istio-system   ratings       ratings       6m56s
+istio-system   reviews       reviews       6m56s
+kubectl get vs <span class="nt">-A</span>
+NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
+istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
+istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
+
+Spec:
+  Hosts:
+    reviews
+  Http:
+    Route:
+      Destination:
+        Host:    reviews
+        Subset:  v1
+      Weight:    10
+      Destination:
+        Host:    reviews
+        Subset:  v3
+      Weight:    90</code></pre></figure>
+
+<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
+
+<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
+
+<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Python Flask Microservice: Monitoring with Prometheus and Grafana</title><link href="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html" rel="alternate" type="text/html" title="Python Flask Microservice: Monitoring with Prometheus and Grafana" /><published>2024-05-21T00:17:29+10:00</published><updated>2024-05-21T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
+
+<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
+
+<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
+05-with-ELK/
+├── api_gateway/
+│   └── Dockerfile
+├── order_service/
+│   └── Dockerfile
+├── user_service/
+│   └── Dockerfile
+├── logstash.conf
+└── docker-compose.yml
+
+<span class="c"># create Logstash Configuration</span>
+<span class="c"># vim logstash.conf</span>
+input <span class="o">{</span>
+ gelf <span class="o">{</span>
+ port <span class="o">=&gt;</span> 12201
+ <span class="o">}</span>
+<span class="o">}</span>
+output <span class="o">{</span>
+ elasticsearch <span class="o">{</span>
+ hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
+ index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+<span class="c"># vim user_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+ <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Port"</span>: 5001
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
+
+<span class="c"># vim order_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
+def get_orders<span class="o">()</span>:
+ orders <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Port"</span>: 5002
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
+
+
+<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
+flask
+requests
+pygelf
+
+<span class="c"># modify each Dockerfile: Dockerfile-user</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Make port 5001 available to the world outside this container</span>
+EXPOSE 5001
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
+
+<span class="c"># Run user_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
+
+
+<span class="c"># vim Dockerfile-order</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Make port 5002 available to the world outside this container</span>
+EXPOSE 5002
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
+
+<span class="c"># Run order_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
+
+<span class="c"># modify docker-compose.yaml</span>
+
+version: <span class="s1">'3'</span>
+services:
+ consul:
+ image: consul:1.15.4
+ ports:
+ - <span class="s2">"8500:8500"</span>
+
+ elasticsearch:
+ image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+ environment:
+ - discovery.type<span class="o">=</span>single-node
+ ports:
+ - <span class="s2">"9200:9200"</span>
+ - <span class="s2">"9300:9300"</span>
+ volumes:
+ - esdata:/usr/share/elasticsearch/data
+
+ logstash:
+ image: docker.elastic.co/logstash/logstash:7.13.2
+ volumes:
+ - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+ ports:
+ - <span class="s2">"12201:12201/udp"</span>
+ - <span class="s2">"5044:5044"</span>
+
+ kibana:
+ image: docker.elastic.co/kibana/kibana:7.13.2
+ ports:
+ - <span class="s2">"5601:5601"</span>
+ depends_on:
+ - elasticsearch
+
+ user-service:
+ build:
+ context: ./user_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5001:5001"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+ order-service:
+ build:
+ context: ./order_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5002:5002"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+ api-gateway:
+ build:
+ context: ./api_gateway
+ depends_on:
+ - consul
+ - user-service
+ - order-service
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5000:5000"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+volumes:
+ esdata:</code></pre></figure>
+
+<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
+
+Creating 05-with-elk_logstash_1      ... <span class="k">done
+</span>Creating 05-with-elk_consul_1        ... <span class="k">done
+</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
+</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
+</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
+</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
+</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
+
+
+</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
+logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
+consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
+consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
+</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
+elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
+kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
+
+<p><b> Verify ElasticSearch and Kibana</b></p>
+
+<ul>
+  <li>Validate ElasticSearch status via localhost:9200</li>
+</ul>
+
+<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
+</ul>
+
+<p><img src="/assets/flask8.png" alt="image tooltip here" />
+<b> Conclusion</b></p>
+
+<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
+
+<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Flask Microservice: Logging with ELK</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html" rel="alternate" type="text/html" title="Python Flask Microservice: Logging with ELK" /><published>2024-05-20T00:16:29+10:00</published><updated>2024-05-20T00:16:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
+
+<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
+
+<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
+05-with-ELK/
+├── api_gateway/
+│   └── Dockerfile
+├── order_service/
+│   └── Dockerfile
+├── user_service/
+│   └── Dockerfile
+├── logstash.conf
+└── docker-compose.yml
+
+<span class="c"># create Logstash Configuration</span>
+<span class="c"># vim logstash.conf</span>
+input <span class="o">{</span>
+ gelf <span class="o">{</span>
+ port <span class="o">=&gt;</span> 12201
+ <span class="o">}</span>
+<span class="o">}</span>
+output <span class="o">{</span>
+ elasticsearch <span class="o">{</span>
+ hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
+ index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+<span class="c"># vim user_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+ <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
+ <span class="s2">"Port"</span>: 5001
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
+
+<span class="c"># vim order_service.py</span>
+
+import logging
+import requests
+from flask import Flask, jsonify
+from pygelf import GelfUdpHandler
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
+def get_orders<span class="o">()</span>:
+ orders <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
+ <span class="o">]</span>
+ app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
+
+def register_service<span class="o">()</span>:
+ payload <span class="o">=</span> <span class="o">{</span>
+ <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
+ <span class="s2">"Port"</span>: 5002
+ <span class="o">}</span>
+ response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
+ <span class="k">if </span>response.status_code <span class="o">==</span> 200:
+ app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
+ <span class="k">else</span>:
+ app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ <span class="c"># Configure logging</span>
+ handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
+ app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
+ app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
+    
+ register_service<span class="o">()</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
+
+
+<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
+flask
+requests
+pygelf
+
+<span class="c"># modify each Dockerfile: Dockerfile-user</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Make port 5001 available to the world outside this container</span>
+EXPOSE 5001
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
+
+<span class="c"># Run user_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
+
+
+<span class="c"># vim Dockerfile-order</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY <span class="nb">.</span> /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Make port 5002 available to the world outside this container</span>
+EXPOSE 5002
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
+
+<span class="c"># Run order_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
+
+<span class="c"># modify docker-compose.yaml</span>
+
+version: <span class="s1">'3'</span>
+services:
+ consul:
+ image: consul:1.15.4
+ ports:
+ - <span class="s2">"8500:8500"</span>
+
+ elasticsearch:
+ image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+ environment:
+ - discovery.type<span class="o">=</span>single-node
+ ports:
+ - <span class="s2">"9200:9200"</span>
+ - <span class="s2">"9300:9300"</span>
+ volumes:
+ - esdata:/usr/share/elasticsearch/data
+
+ logstash:
+ image: docker.elastic.co/logstash/logstash:7.13.2
+ volumes:
+ - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+ ports:
+ - <span class="s2">"12201:12201/udp"</span>
+ - <span class="s2">"5044:5044"</span>
+
+ kibana:
+ image: docker.elastic.co/kibana/kibana:7.13.2
+ ports:
+ - <span class="s2">"5601:5601"</span>
+ depends_on:
+ - elasticsearch
+
+ user-service:
+ build:
+ context: ./user_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5001:5001"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+ order-service:
+ build:
+ context: ./order_service
+ depends_on:
+ - consul
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5002:5002"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+ api-gateway:
+ build:
+ context: ./api_gateway
+ depends_on:
+ - consul
+ - user-service
+ - order-service
+ - logstash
+ environment:
+ - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
+ ports:
+ - <span class="s2">"5000:5000"</span>
+ logging:
+ driver: gelf
+ options:
+ gelf-address: udp://logstash:12201
+
+volumes:
+ esdata:</code></pre></figure>
+
+<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
+
+Creating 05-with-elk_logstash_1      ... <span class="k">done
+</span>Creating 05-with-elk_consul_1        ... <span class="k">done
+</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
+</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
+</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
+</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
+</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
+
+
+</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
+logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
+consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
+consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
+</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
+elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
+kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
+
+<p><b> Verify ElasticSearch and Kibana</b></p>
+
+<ul>
+  <li>Validate ElasticSearch status via localhost:9200</li>
+</ul>
+
+<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
+</ul>
+
+<p><img src="/assets/flask8.png" alt="image tooltip here" />
+<b> Conclusion</b></p>
+
+<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
+
+<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Flask Microservice: API Gateway &amp;amp; Consul</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html" rel="alternate" type="text/html" title="Python Flask Microservice: API Gateway &amp;amp; Consul" /><published>2024-05-19T10:15:29+10:00</published><updated>2024-05-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html"><![CDATA[<p><b> About API Gateway</b></p>
 
 <p>API Gateway acts as a single entry point for all clients and handles the request routing, composition, and protocol translation in a microservices architecture, here I will create a API Gateway using Python Flask and requests library, to route both “user” and “order” services.</p>
 
@@ -1740,578 +2314,4 @@ consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] a
 
 <p>Now we can use API gateway and Consul to manage route and service discovery.</p>
 
-<p>In the next post, I will see how to enable logging with ELK stack and monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About API Gateway]]></summary></entry><entry><title type="html">Python Flask: Monitoring with Prometheus and Grafana</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask4.html" rel="alternate" type="text/html" title="Python Flask: Monitoring with Prometheus and Grafana" /><published>2024-05-19T00:17:29+10:00</published><updated>2024-05-19T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask4.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
-
-<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
-
-<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
-05-with-ELK/
-├── api_gateway/
-│   └── Dockerfile
-├── order_service/
-│   └── Dockerfile
-├── user_service/
-│   └── Dockerfile
-├── logstash.conf
-└── docker-compose.yml
-
-<span class="c"># create Logstash Configuration</span>
-<span class="c"># vim logstash.conf</span>
-input <span class="o">{</span>
- gelf <span class="o">{</span>
- port <span class="o">=&gt;</span> 12201
- <span class="o">}</span>
-<span class="o">}</span>
-output <span class="o">{</span>
- elasticsearch <span class="o">{</span>
- hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
- index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="c"># vim user_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
- <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Port"</span>: 5001
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
-
-<span class="c"># vim order_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
-def get_orders<span class="o">()</span>:
- orders <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Port"</span>: 5002
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
-
-
-<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
-flask
-requests
-pygelf
-
-<span class="c"># modify each Dockerfile: Dockerfile-user</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5001 available to the world outside this container</span>
-EXPOSE 5001
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
-
-<span class="c"># Run user_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
-
-
-<span class="c"># vim Dockerfile-order</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5002 available to the world outside this container</span>
-EXPOSE 5002
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
-
-<span class="c"># Run order_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
-
-<span class="c"># modify docker-compose.yaml</span>
-
-version: <span class="s1">'3'</span>
-services:
- consul:
- image: consul:1.15.4
- ports:
- - <span class="s2">"8500:8500"</span>
-
- elasticsearch:
- image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
- environment:
- - discovery.type<span class="o">=</span>single-node
- ports:
- - <span class="s2">"9200:9200"</span>
- - <span class="s2">"9300:9300"</span>
- volumes:
- - esdata:/usr/share/elasticsearch/data
-
- logstash:
- image: docker.elastic.co/logstash/logstash:7.13.2
- volumes:
- - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
- ports:
- - <span class="s2">"12201:12201/udp"</span>
- - <span class="s2">"5044:5044"</span>
-
- kibana:
- image: docker.elastic.co/kibana/kibana:7.13.2
- ports:
- - <span class="s2">"5601:5601"</span>
- depends_on:
- - elasticsearch
-
- user-service:
- build:
- context: ./user_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5001:5001"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- order-service:
- build:
- context: ./order_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5002:5002"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- api-gateway:
- build:
- context: ./api_gateway
- depends_on:
- - consul
- - user-service
- - order-service
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5000:5000"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
-volumes:
- esdata:</code></pre></figure>
-
-<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
-
-Creating 05-with-elk_logstash_1      ... <span class="k">done
-</span>Creating 05-with-elk_consul_1        ... <span class="k">done
-</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
-</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
-</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
-</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
-</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
-
-
-</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
-logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
-consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
-consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
-</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
-elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
-kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
-
-<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
-
-<p><b> Verify ElasticSearch and Kibana</b></p>
-
-<ul>
-  <li>Validate ElasticSearch status via localhost:9200</li>
-</ul>
-
-<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
-</ul>
-
-<p><img src="/assets/flask8.png" alt="image tooltip here" />
-<b> Conclusion</b></p>
-
-<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
-
-<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Flask: Logging with ELK</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask3.html" rel="alternate" type="text/html" title="Python Flask: Logging with ELK" /><published>2024-05-19T00:16:29+10:00</published><updated>2024-05-19T00:16:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask3.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
-
-<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs. here I need to extend the current configuration by adding services for Elasticsearch, Logstash, and Kibana, and configure the microservices to send logs to Logstash.</p>
-
-<p>Also, I will need to configure the logging in the Python applications to send logs to Logstash. Using the logging library in Python, I can send logs to Logstash using the GELF (Graylog Extended Log Format) format.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
-05-with-ELK/
-├── api_gateway/
-│   └── Dockerfile
-├── order_service/
-│   └── Dockerfile
-├── user_service/
-│   └── Dockerfile
-├── logstash.conf
-└── docker-compose.yml
-
-<span class="c"># create Logstash Configuration</span>
-<span class="c"># vim logstash.conf</span>
-input <span class="o">{</span>
- gelf <span class="o">{</span>
- port <span class="o">=&gt;</span> 12201
- <span class="o">}</span>
-<span class="o">}</span>
-output <span class="o">{</span>
- elasticsearch <span class="o">{</span>
- hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
- index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="c"># vim user_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
- <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Port"</span>: 5001
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
-
-<span class="c"># vim order_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
-def get_orders<span class="o">()</span>:
- orders <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Port"</span>: 5002
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
-
-
-<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
-flask
-requests
-pygelf
-
-<span class="c"># modify each Dockerfile: Dockerfile-user</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5001 available to the world outside this container</span>
-EXPOSE 5001
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
-
-<span class="c"># Run user_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
-
-
-<span class="c"># vim Dockerfile-order</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5002 available to the world outside this container</span>
-EXPOSE 5002
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
-
-<span class="c"># Run order_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
-
-<span class="c"># modify docker-compose.yaml</span>
-
-version: <span class="s1">'3'</span>
-services:
- consul:
- image: consul:1.15.4
- ports:
- - <span class="s2">"8500:8500"</span>
-
- elasticsearch:
- image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
- environment:
- - discovery.type<span class="o">=</span>single-node
- ports:
- - <span class="s2">"9200:9200"</span>
- - <span class="s2">"9300:9300"</span>
- volumes:
- - esdata:/usr/share/elasticsearch/data
-
- logstash:
- image: docker.elastic.co/logstash/logstash:7.13.2
- volumes:
- - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
- ports:
- - <span class="s2">"12201:12201/udp"</span>
- - <span class="s2">"5044:5044"</span>
-
- kibana:
- image: docker.elastic.co/kibana/kibana:7.13.2
- ports:
- - <span class="s2">"5601:5601"</span>
- depends_on:
- - elasticsearch
-
- user-service:
- build:
- context: ./user_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5001:5001"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- order-service:
- build:
- context: ./order_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5002:5002"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- api-gateway:
- build:
- context: ./api_gateway
- depends_on:
- - consul
- - user-service
- - order-service
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5000:5000"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
-volumes:
- esdata:</code></pre></figure>
-
-<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
-
-Creating 05-with-elk_logstash_1      ... <span class="k">done
-</span>Creating 05-with-elk_consul_1        ... <span class="k">done
-</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
-</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
-</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
-</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
-</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
-
-
-</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
-logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
-consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
-consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
-</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
-elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
-kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
-
-<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
-
-<p><b> Verify ElasticSearch and Kibana</b></p>
-
-<ul>
-  <li>Validate ElasticSearch status via localhost:9200</li>
-</ul>
-
-<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
-</ul>
-
-<p><img src="/assets/flask8.png" alt="image tooltip here" />
-<b> Conclusion</b></p>
-
-<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
-
-<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry></feed>
+<p>In the next post, I will see how to enable logging with ELK stack and monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About API Gateway]]></summary></entry></feed>

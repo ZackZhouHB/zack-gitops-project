@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Python Flask: Logging with ELK"
-date:   2024-05-19 1:16:29 +1100
+title:  "Python Flask Microservice: Monitoring with Prometheus and Grafana"
+date:   2024-05-21 1:17:29 +1100
 categories: jekyll Cat2
 ---
 
