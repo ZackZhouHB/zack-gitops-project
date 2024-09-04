@@ -19,7 +19,7 @@ Resources:
       SecurityGroups:
         - !Ref MySecurityGroup
       KeyName: zhbsoftboy20240406  # Name of the existing key-pair
-      ImageId: ami-0892a9c01908fafd1  # ubuntu24.04
+      ImageId: ami-0892a9c01908fafd1  # ubuntu24.04 @@
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
