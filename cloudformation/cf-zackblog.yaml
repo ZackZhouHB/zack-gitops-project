@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to deploy an EC2 instance with nginx serving a website
+
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t3.micro
+
+Resources:
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+#    DeletionPolicy: Retain
+    Properties:
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+        - !Ref MySecurityGroup
+      KeyName: zhbsoftboy20240406  # Name of the existing key-pair
+      ImageId: ami-0892a9c01908fafd1  # ubuntu24.04
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Switch to root user
+          sudo su
+          # Update package lists
+          apt-get update
+          # Install Git and Nginx
+          apt-get install -y git nginx
+          # Clone your Git repository
+          cd ~
+          git clone https://github.com/ZackZhouHB/zack-gitops-project.git
+          # Change directory to the cloned repository
+          cd ~/zack-gitops-project/
+          # Checkout to the editing branch
+          git checkout editing
+          # Stop Nginx service
+          systemctl stop nginx
+          # Remove all default files in the Nginx html directory
+          rm -rf /var/www/html/*
+          # Copy your zack-blog folder to Nginx html directory
+          cp ~/zack-gitops-project/zack_blog/_site/* /usr/share/nginx/html/ -r
+          cp ~/zack-gitops-project/zack_blog/_site/* /var/www/html/ -r
+          # Restart Nginx service
+          systemctl start nginx
+          # Enable Nginx to start on boot
+          systemctl enable nginx
+      Tags:
+        - Key: Name
+          Value: MyUbuntuEC2Instance
+
+  MySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+#    DeletionPolicy: Retain
+    Properties:
+      GroupDescription: Enable HTTP and HTTPS access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  PublicDNS:
+    Description: The public DNS of the instance
+    Value: !GetAtt MyEC2Instance.PublicDnsName
