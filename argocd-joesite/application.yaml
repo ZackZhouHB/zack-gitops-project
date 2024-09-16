@@ -12,7 +12,6 @@ spec:
     path: argocd-initialdeploy
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
-  sources: []
   project: default
   syncPolicy:
     automated:
