@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: joesite
+  labels:
+    app: joesite
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: joesite
+  template:
+    metadata:
+      labels:
+        app: joesite
+    spec:
+      containers:
+      - name: joesite
+        image: zackz001/joesite:latest
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: joesite-service
+spec:
+  selector:
+    app: joesite
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort # 
+  nodePort: 30500
+

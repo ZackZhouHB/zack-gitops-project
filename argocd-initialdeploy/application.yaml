@@ -1,14 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: zack-web
+  name: joe-site
+  namespace: argocd  # Add this to specify the ArgoCD namespace
 spec:
   destination:
     name: ''
-    namespace: zackapp-argo
+    namespace: joesite-argo
     server: 'https://kubernetes.default.svc'
   source:
-    path: argo-helm-zackblog
+    path: argocd-initialdeploy
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
   sources: []
