@@ -8,7 +8,7 @@ spec:
     namespace: zackapp-argo
     server: 'https://kubernetes.default.svc'
   source:
-    path: argocd-initialdeploy
+    path: argo-helm-zackblog
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
   sources: []

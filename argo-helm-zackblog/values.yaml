@@ -42,7 +42,8 @@ securityContext: {}
 service:
   type: NodePort
   port: 80
-
+  nodePort: 30400  # Add this line to specify the NodePort
+  
 ingress:
   enabled: false
   className: ""
