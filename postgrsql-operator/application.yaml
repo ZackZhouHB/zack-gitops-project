@@ -2,54 +2,19 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: postgresql-operator-app
-  namespace: argocd  # or whatever namespace your ArgoCD is running in
+  namespace: argocd
 spec:
   project: default
-
-  # The Git repository containing your Kustomize structure
-#  source:
-#    repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
-#    targetRevision: HEAD  # or a specific branch, tag, or commit
-#    directory:
-#      recurse: true
-#      # Path in the Git repo to the root of your kustomize files
-#      path: kustomize/install
-
+  source:
+    repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
+    targetRevision: editing
+    path: postgresql-operator/kustomize  # The root path of the master kustomization.yaml
   destination:
-    name: ''  
     server: 'https://kubernetes.default.svc'
-    namespace: postgres-operator  # The namespace where you want PostgreSQL operator to be installed
-
+    namespace: postgres-operator
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # Automatically create the namespace if it doesn't exist
-
-  # You can define the sync wave to control the order of deployment
-  sources:
-    - repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
-      targetRevision: editing
-      path: postgrsql-operator/kustomize/install/namespace
-      syncWave: -1  # First, create the namespace
-
-    - repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
-      targetRevision: editing
-      path: postgrsql-operator/kustomize/install/default
-      syncWave: 0  # Next, install the CRDs
-
-    - repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
-      targetRevision: editing
-      path: postgrsql-operator/kustomize/postgres
-      syncWave: 1  # Deploy PostgreSQL operator
-
-    - repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
-      targetRevision: editing
-      path: postgrsql-operator/kustomize/keycloak
-      syncWave: 2  # Deploy Keycloak application
-
-  # Optional: Add health checks if needed for each application
-  healthChecks:
-    - path: kustomize/postgres
-    - path: kustomize/keycloak
+      - CreateNamespace=true
