@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
     targetRevision: editing
-    path: postgresql-operator/kustomize  # The root path of the master kustomization.yaml
+    path: postgresql-operator  # The root path of the master kustomization.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: postgres-operator
