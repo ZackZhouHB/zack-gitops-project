@@ -7,15 +7,16 @@ spec:
   project: default
 
   # The Git repository containing your Kustomize structure
-  source:
-    repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
-    targetRevision: HEAD  # or a specific branch, tag, or commit
-    directory:
-      recurse: true
-      # Path in the Git repo to the root of your kustomize files
-      path: kustomize/install
+#  source:
+#    repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
+#    targetRevision: HEAD  # or a specific branch, tag, or commit
+#    directory:
+#      recurse: true
+#      # Path in the Git repo to the root of your kustomize files
+#      path: kustomize/install
 
   destination:
+    name: ''  
     server: 'https://kubernetes.default.svc'
     namespace: postgres-operator  # The namespace where you want PostgreSQL operator to be installed
 
