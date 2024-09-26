@@ -1,0 +1,15 @@
+artifact_uri: file:///mnt/f/zack-gitops-project/mlops-project/mlruns/0/aad5f9f18dd145aea6122b5072e6b2d5/artifacts
+end_time: 1726796401601
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: aad5f9f18dd145aea6122b5072e6b2d5
+run_name: intrigued-mouse-96
+run_uuid: aad5f9f18dd145aea6122b5072e6b2d5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1726796399975
+status: 3
+tags: []
+user_id: root
