@@ -9,7 +9,7 @@ pipeline {
         EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
         GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
         GIT_BRANCH = 'jenkins'  // Git branch
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub Cred
         SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
     }
     stages {
