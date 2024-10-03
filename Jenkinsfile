@@ -1,15 +1,23 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
-        SONAR_TOKEN = 'sonar'
+        REGISTRY_URL = 'https://index.docker.io/v1/'
+        IMAGE_NAME = "zackz001/jenkins"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        LATEST_TAG = "latest"
+        TRIVY_OUTPUT = "trivy-report.txt"
+        EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
+        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
+        GIT_BRANCH = 'jenkins'  // Git branch
+        DOCKERHUB_CREDENTIALS_ID = credentials('dockerhub') // Fetch credentials securely
+        SONAR_TOKEN = credentials('sonar')  // Fetch Sonar token securely
     }
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'jenkins',
+                git branch: "${GIT_BRANCH}",
                     credentialsId: 'gittoken',
-                    url: 'https://github.com/ZackZhouHB/zack-gitops-project.git'
+                    url: "${GIT_REPO_URL}"
             }
         }
         stage('Check Docker') {
@@ -21,22 +29,22 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image from the 'zack_blog' folder
-                    dockerImage = docker.build("zackz001/jenkins:${env.BUILD_NUMBER}", "zack_blog/")
+                    dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "zack_blog/")
                 }
             }
         }
         stage('Docker Image Scan') {
             steps {
                 // Use Trivy to scan the built Docker image
-                sh "trivy image --severity HIGH,CRITICAL zackz001/jenkins:${env.BUILD_NUMBER} > trivy-report.txt"
+                sh "trivy image --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} > ${TRIVY_OUTPUT}"
             }
         }
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS_ID}") {
-                        dockerImage.push("${env.BUILD_NUMBER}")
-                        dockerImage.push("latest") // Optionally push the image as 'latest'
+                    docker.withRegistry("${REGISTRY_URL}", "${DOCKERHUB_CREDENTIALS_ID}") {
+                        dockerImage.push("${IMAGE_TAG}")
+                        dockerImage.push("${LATEST_TAG}") // Push 'latest' tag
                     }
                 }
             }
@@ -44,8 +52,8 @@ pipeline {
         stage('Display Trivy Scan Results') {
             steps {
                 script {
-                    // Display the contents of the trivy-report.txt file
-                    def scanReport = readFile('trivy-report.txt')
+                    // Display the contents of the Trivy report
+                    def scanReport = readFile("${TRIVY_OUTPUT}")
                     echo "Trivy Scan Report:\n${scanReport}"
                 }
             }
@@ -54,16 +62,16 @@ pipeline {
     post {
         success {
             script {
-                def scanReport = readFile('trivy-report.txt')
+                def scanReport = readFile("${TRIVY_OUTPUT}")
                 emailext(
-                    to: "zhbsoftboy1@gmail.com",
-                    subject: "CI Pipeline Success: Build ${env.BUILD_NUMBER}",
+                    to: "${EMAIL_RECIPIENT}",
+                    subject: "CI Pipeline Success: Build ${IMAGE_TAG}",
                     body: """
                     The pipeline has successfully completed.
 
-                    Docker image has been built and pushed to DockerHub.
+                    Docker image ${IMAGE_NAME}:${IMAGE_TAG} has been built and pushed to DockerHub.
 
-                    Trivy Scan Report for zackz001/jenkins:${env.BUILD_NUMBER}:
+                    Trivy Scan Report:
                     ${scanReport}
                     """
                 )
@@ -71,8 +79,8 @@ pipeline {
         }
         failure {
             emailext(
-                to: "zhbsoftboy1@gmail.com",
-                subject: "CI Pipeline Failed: Build ${env.BUILD_NUMBER}",
+                to: "${EMAIL_RECIPIENT}",
+                subject: "CI Pipeline Failed: Build ${IMAGE_TAG}",
                 body: """
                 The pipeline has failed at some stage.
 
@@ -82,4 +90,3 @@ pipeline {
         }
     }
 }
-
