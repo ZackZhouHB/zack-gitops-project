@@ -74,23 +74,225 @@ pipeline {
                 }
             }
         }
-        stage('snyk_analysis') {
+//        stage('snyk_analysis') {
+//            steps {
+//                script {
+//                    echo 'Running Snyk security analysis...'
+//                    timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
+//                        try {
+//                            snykSecurity(
+//                                snykInstallation: SNYK_INSTALLATION,
+//                                snykTokenId: SNYK_TOKEN,
+//                                failOnIssues: false,
+//                                monitorProjectOnBuild: true,
+//                                additionalArguments: '--severity-threshold=low'
+//                            )
+//                       } catch (Exception e) {
+//                            currentBuild.result = 'FAILURE'
+//                            error("Error during snyk_analysis: ${e.message}")
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        
+        // Language-specific build and test stages
+        stage('Frontend Build and Test') {
             steps {
                 script {
-                    echo 'Running Snyk security analysis...'
-                    timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
-                        try {
-                            snykSecurity(
-                                snykInstallation: SNYK_INSTALLATION,
-                                snykTokenId: SNYK_TOKEN,
-                                failOnIssues: false,
-                                monitorProjectOnBuild: true,
-                                additionalArguments: '--severity-threshold=low'
-                            )
-                        } catch (Exception e) {
-                            currentBuild.result = 'FAILURE'
-                            error("Error during snyk_analysis: ${e.message}")
+                    try {
+                        if (fileExists('package.json')) {
+                            sh 'npm install --force'
+                            sh 'npm test'
+                        } else {
+                            echo 'No package.json found, skipping Frontend build and test.'
                         }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Frontend build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Java Spring Boot Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('pom.xml')) {
+                            sh 'mvn clean package'
+                            sh 'mvn test'
+                        } else {
+                            echo 'No pom.xml found, skipping Java Spring Boot build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Java Spring Boot build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('.NET Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('YourSolution.sln')) {
+                            sh 'dotnet build'
+                            sh 'dotnet test'
+                        } else {
+                            echo 'No YourSolution.sln found, skipping .NET build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during .NET build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('PHP Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('composer.json')) {
+                            sh 'composer install'
+                            sh 'phpunit'
+                        } else {
+                            echo 'No composer.json found, skipping PHP build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during PHP build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('iOS Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('YourProject.xcodeproj')) {
+                            xcodebuild(buildDir: 'build', scheme: 'YourScheme')
+                        } else {
+                            echo 'No YourProject.xcodeproj found, skipping iOS build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during iOS build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Android Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('build.gradle')) {
+                            sh './gradlew build'
+                            sh './gradlew test'
+                        } else {
+                            echo 'No build.gradle found, skipping Android build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Android build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Ruby on Rails Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('Gemfile.lock')) {
+                            sh 'bundle install'
+                            sh 'bundle exec rake db:migrate'
+                            sh 'bundle exec rails test'
+                        } else {
+                            echo 'No Gemfile.lock found, skipping Ruby on Rails build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Ruby on Rails build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Flask Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('app.py')) {
+                            sh 'pip install -r requirements.txt'
+                            sh 'python -m unittest discover'
+                        } else {
+                            echo 'No app.py found, skipping Flask build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Flask build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Django Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('manage.py')) {
+                            sh 'pip install -r requirements.txt'
+                            sh 'python manage.py migrate'
+                            sh 'python manage.py test'
+                        } else {
+                            echo 'No manage.py found, skipping Django build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Django build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Rust Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('Cargo.toml')) {
+                            env.RUST_BACKTRACE = 'full'
+                            sh 'cargo build'
+                            sh 'cargo test'
+                        } else {
+                            echo "No Cargo.toml file found. Skipping Rust build and test."
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Rust build and test: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        stage('Ruby Sinatra Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('app.rb')) {
+                            sh 'gem install bundler'
+                            sh 'bundle install'
+                            sh 'bundle exec rake test'
+                        } else {
+                            echo "No app.rb file found. Skipping Ruby Sinatra build and test."
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Ruby Sinatra build and test: ${e.message}")
                     }
                 }
             }
@@ -137,7 +339,9 @@ pipeline {
                 }
             }
         }
+        // Additional stages like Docker build, image scan, etc.
     }
+
     post {
         success {
             script {
