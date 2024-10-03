@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    environment {
-        SONAR_TOKEN = credentials('sonar') // Use Jenkins credentials
-    }
     stages {
         stage('Checkout Code') {
             steps {
@@ -14,10 +11,16 @@ pipeline {
         stage('SonarQube analysis') {
             steps {
                 script {
-                    scannerHome = tool 'sonarscanner' // Must match the SonarScanner installation
+                    scannerHome = tool 'sonarscanner'
                 }
                 withSonarQubeEnv('SonarCloud') {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
+                    withCredentials([string(credentialsId: 'sonar', variable: 'SONAR_TOKEN')]) {
+                        // If you have sonar-project.properties file in your repo
+                        //sh "${scannerHome}/bin/sonar-scanner"
+                        
+                        // Or if passing properties inline
+                         sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectKey=jenkins-sonar -Dsonar.sources=. -Dsonar.organization=zack2ci-org"
+                    }
                 }
             }
         }
