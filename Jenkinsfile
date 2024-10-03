@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
+        SONAR_TOKEN = 'sonar'
     stages {
         stage('Checkout Code') {
             steps {
@@ -15,10 +18,6 @@ pipeline {
         //        }
         //        withSonarQubeEnv('SonarCloud') {
         //            withCredentials([string(credentialsId: 'sonar', variable: 'SONAR_TOKEN')]) {
-        //                // If you have sonar-project.properties file in your repo
-        //                //sh "${scannerHome}/bin/sonar-scanner"
-        //                
-        //                // Or if passing properties inline
         //                 sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectKey=jenkins-sonar -Dsonar.sources=. -Dsonar.organization=zack2ci-org"
         //            }
         //        }
@@ -40,9 +39,9 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', "${dockerhub}") {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS_ID}") {
                         dockerImage.push("${env.BUILD_NUMBER}")
-                        dockerImage.push("latest") // Optionally tag as 'latest'
+                        dockerImage.push("latest") // Optionally push the image as 'latest'
                     }
                 }
             }
