@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        SONAR_TOKEN = credentials('sonar') // Use Jenkins credentials
+    }
     stages {
         stage('Checkout Code') {
             steps {
@@ -9,14 +12,14 @@ pipeline {
             }
         }
         stage('SonarQube analysis') {
-        steps {
-            script {
-                scannerHome = tool 'sonarscanner'// must match the name of an actual scanner installation directory on your Jenkins build agent
+            steps {
+                script {
+                    scannerHome = tool 'sonarscanner' // Must match the SonarScanner installation
+                }
+                withSonarQubeEnv('SonarCloud') {
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN}"
+                }
             }
-            withSonarQubeEnv('SonarCloud') {
-            sh "${scannerHome}/bin/sonar-scanner"
-            }
-        }
         }
     }
 }
