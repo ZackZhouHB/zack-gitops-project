@@ -8,9 +8,6 @@ pipeline {
                     url: 'https://github.com/ZackZhouHB/zack-gitops-project.git'
             }
         }
-    }
-
-    stages {
         stage('SonarQube analysis') {
         steps {
             script {
