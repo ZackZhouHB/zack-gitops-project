@@ -3,6 +3,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
         SONAR_TOKEN = 'sonar'
+    }
     stages {
         stage('Checkout Code') {
             steps {
@@ -11,18 +12,18 @@ pipeline {
                     url: 'https://github.com/ZackZhouHB/zack-gitops-project.git'
             }
         }
-        //stage('SonarQube analysis') {
-        //    steps {
-        //        script {
-        //           scannerHome = tool 'sonarscanner'
-        //        }
-        //        withSonarQubeEnv('SonarCloud') {
-        //            withCredentials([string(credentialsId: 'sonar', variable: 'SONAR_TOKEN')]) {
+        // stage('SonarQube analysis') {
+        //     steps {
+        //         script {
+        //            scannerHome = tool 'sonarscanner'
+        //         }
+        //         withSonarQubeEnv('SonarCloud') {
+        //             withCredentials([string(credentialsId: 'sonar', variable: 'SONAR_TOKEN')]) {
         //                 sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectKey=jenkins-sonar -Dsonar.sources=. -Dsonar.organization=zack2ci-org"
-        //            }
-        //        }
-        //    }
-        //}
+        //             }
+        //         }
+        //     }
+        // }
         stage('Check Docker') {
             steps {
                 sh 'docker --version'
@@ -55,5 +56,4 @@ pipeline {
             echo "Build or push failed."
         } 
     }
- }
 }
