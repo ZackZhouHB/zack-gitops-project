@@ -37,6 +37,23 @@ pipeline {
                 }
             }
         }
-
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', "${dockerhub}") {
+                        dockerImage.push("${env.BUILD_NUMBER}")
+                        dockerImage.push("latest") // Optionally tag as 'latest'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "Docker image successfully built and pushed to DockerHub."
+        }
+        failure {
+            echo "Build or push failed."
+        } 
     }
 }
