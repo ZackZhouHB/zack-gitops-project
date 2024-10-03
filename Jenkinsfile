@@ -28,7 +28,7 @@ pipeline {
         stage('Docker Image Scan') {
             steps {
                 // Use Trivy to scan the built Docker image
-                sh "trivy image --severity HIGH,CRITICAL zackz001/jenkins:${env.BUILD_NUMBER}"
+                sh "trivy image --severity HIGH,CRITICAL zackz001/jenkins:${env.BUILD_NUMBER} > trivy-report.txt"
             }
         }
         stage('Push Docker Image to DockerHub') {
@@ -38,6 +38,15 @@ pipeline {
                         dockerImage.push("${env.BUILD_NUMBER}")
                         dockerImage.push("latest") // Optionally push the image as 'latest'
                     }
+                }
+            }
+        }
+        stage('Display Trivy Scan Results') {
+            steps {
+                script {
+                    // Display the contents of the trivy-report.txt file
+                    def scanReport = readFile('trivy-report.txt')
+                    echo "Trivy Scan Report:\n${scanReport}"
                 }
             }
         }
