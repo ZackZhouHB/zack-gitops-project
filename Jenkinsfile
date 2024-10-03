@@ -71,7 +71,7 @@ pipeline {
         }
         failure {
             emailext(
-                to: "${env.EMAIL_RECIPIENT}",
+                to: "zhbsoftboy1@gmail.com",
                 subject: "CI Pipeline Failed: Build ${env.BUILD_NUMBER}",
                 body: """
                 The pipeline has failed at some stage.
