@@ -56,7 +56,7 @@ pipeline {
             script {
                 def scanReport = readFile('trivy-report.txt')
                 emailext(
-                    to: "${env.EMAIL_RECIPIENT}",
+                    to: "zhbsoftboy1@gmail.com",
                     subject: "CI Pipeline Success: Build ${env.BUILD_NUMBER}",
                     body: """
                     The pipeline has successfully completed.
