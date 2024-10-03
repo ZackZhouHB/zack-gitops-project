@@ -77,14 +77,15 @@ pipeline {
         stage('snyk_analysis') {
             steps {
                 script {
-                    echo 'Testing...'
+                echo 'Running Snyk security analysis...'
+                timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
                     try {
                         snykSecurity(
                             snykInstallation: SNYK_INSTALLATION,
                             snykTokenId: SNYK_TOKEN,
                             failOnIssues: false,
                             monitorProjectOnBuild: true,
-                            additionalArguments: '--all-projects --d'
+                            additionalArguments: '--severity-threshold=low'
                         )
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
