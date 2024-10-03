@@ -37,6 +37,12 @@ pipeline {
                 }
             }
         }
+        stage('Docker Image Scan') {
+            steps {
+                // Use Trivy to scan the built Docker image for vulnerabilities
+                sh 'docker run --rm aquasec/trivy --exit-code 1 --severity HIGH,CRITICAL zackz001/jenkins:${env.BUILD_NUMBER}'
+            }
+        }        
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
