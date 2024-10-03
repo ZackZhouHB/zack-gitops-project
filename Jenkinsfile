@@ -53,10 +53,33 @@ pipeline {
     }
     post {
         success {
-            echo "Docker image successfully built, scanned, and pushed to DockerHub."
+            script {
+                def scanReport = readFile('trivy-report.txt')
+                emailext(
+                    to: "${env.EMAIL_RECIPIENT}",
+                    subject: "CI Pipeline Success: Build ${env.BUILD_NUMBER}",
+                    body: """
+                    The pipeline has successfully completed.
+
+                    Docker image has been built and pushed to DockerHub.
+
+                    Trivy Scan Report for zackz001/jenkins:${env.BUILD_NUMBER}:
+                    ${scanReport}
+                    """
+                )
+            }
         }
         failure {
-            echo "Build, scan, or push failed."
-        } 
+            emailext(
+                to: "${env.EMAIL_RECIPIENT}",
+                subject: "CI Pipeline Failed: Build ${env.BUILD_NUMBER}",
+                body: """
+                The pipeline has failed at some stage.
+
+                Please check the Jenkins console logs for more details.
+                """
+            )
+        }
     }
 }
+
