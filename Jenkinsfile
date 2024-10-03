@@ -1,3 +1,25 @@
+// Define the detectJavaVersion function outside of the pipeline block
+def detectJavaVersion() {
+    def javaVersionOutput = sh(script: 'java -version 2>&1', returnStatus: false, returnStdout: true).trim()
+    def javaVersionMatch = javaVersionOutput =~ /openjdk version "(\d+\.\d+)/
+
+    if (javaVersionMatch) {
+        def javaVersion = javaVersionMatch[0][1]
+
+        if (javaVersion.startsWith("1.8")) {
+            return '8'
+        } else if (javaVersion.startsWith("11")) {
+            return '11'
+        } else if (javaVersion.startsWith("17")) {
+            return '17'
+        } else {
+            error("Unsupported Java version detected: ${javaVersion}")
+        }
+    } else {
+        error("Java version information not found in output.")
+    }
+}
+
 pipeline {
     agent any
     environment {
@@ -11,25 +33,70 @@ pipeline {
         GIT_BRANCH = 'jenkins'  // Git branch
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub Cred
         SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
+        SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
+        SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
     }
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }   
         stage('Checkout Code') {
             steps {
                 git branch: "${GIT_BRANCH}",
                     credentialsId: 'gittoken',
                     url: "${GIT_REPO_URL}"
-            }
+            }   
         }
-        stage('Check Docker') {
-            steps {
-                sh 'docker --version'
-            }
-        }
-        stage('Build Docker Image') {
+        stage('Detect and Set Java') {
             steps {
                 script {
-                    // Build the Docker image from the 'zack_blog' folder
-                    dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "zack_blog/")
+                    try {
+                        def javaVersion = detectJavaVersion()  // Detect the Java version
+                        tool name: "Java_${javaVersion}", type: 'jdk'  // Set the detected Java version
+                        sh 'java --version'  // Verify the Java version
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Error during Java version detection: ${e.message}")
+                    }
+                }
+            }
+        }
+        stage('snyk_analysis') {
+            steps {
+                script {
+                    echo 'Testing...'
+                    try {
+                        snykSecurity(
+                            snykInstallation: SNYK_INSTALLATION,
+                            snykTokenId: SNYK_TOKEN,
+                            failOnIssues: false,
+                            monitorProjectOnBuild: true,
+                            additionalArguments: '--all-projects --d'
+                        )
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        pipelineError = true
+                        error("Error during snyk_analysis: ${e.message}")
+                    }
+                }
+            }
+        }        
+        stage('Check and Build Docker Image') {
+            steps {
+                script {
+                    try {
+                        // Check if Docker is available
+                        sh 'docker --version'
+                        echo "Docker is installed. Proceeding to build the Docker image..."
+                        
+                        // Build the Docker image from the 'zack_blog' folder
+                        dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "zack_blog/")
+                    } catch (Exception e) {
+                        // Handle the error if Docker is not available
+                        error("Docker is not installed or accessible. Cannot proceed with the build.")
+                    }
                 }
             }
         }
