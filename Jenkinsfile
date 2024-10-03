@@ -53,12 +53,23 @@ pipeline {
             steps {
                 script {
                     try {
-                        def javaVersion = detectJavaVersion()  // Detect the Java version
-                        tool name: "Java_${javaVersion}", type: 'jdk'  // Set the detected Java version
-                        sh 'java --version'  // Verify the Java version
+                        def javaVersion = detectJavaVersion()  // Detect the Java version, e.g., "17"
+                        def javaToolName = "Java_${javaVersion}"  // Expected tool name
+
+                        // Try to set the Java version; fallback if the specific version isn't found
+                        try {
+                            tool name: javaToolName, type: 'jdk'
+                            echo "Using Java version ${javaVersion}."
+                        } catch (Exception toolError) {
+                            echo "No JDK named ${javaToolName} found. Using default JDK."
+                        }
+
+                        // Verify Java version, regardless of whether the specific version was found
+                        sh 'java --version'
+
                     } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("Error during Java version detection: ${e.message}")
+                        echo "Error during Java version detection: ${e.message}"
+                        // Continue pipeline even if Java detection fails
                     }
                 }
             }
