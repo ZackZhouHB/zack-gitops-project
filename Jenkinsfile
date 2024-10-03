@@ -31,7 +31,7 @@ pipeline {
         EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
         GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
         GIT_BRANCH = 'jenkins'  // Git branch
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub Cred
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
         SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
         SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
         SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
@@ -77,24 +77,24 @@ pipeline {
         stage('snyk_analysis') {
             steps {
                 script {
-                echo 'Running Snyk security analysis...'
-                timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
-                    try {
-                        snykSecurity(
-                            snykInstallation: SNYK_INSTALLATION,
-                            snykTokenId: SNYK_TOKEN,
-                            failOnIssues: false,
-                            monitorProjectOnBuild: true,
-                            additionalArguments: '--severity-threshold=low'
-                        )
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        pipelineError = true
-                        error("Error during snyk_analysis: ${e.message}")
+                    echo 'Running Snyk security analysis...'
+                    timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
+                        try {
+                            snykSecurity(
+                                snykInstallation: SNYK_INSTALLATION,
+                                snykTokenId: SNYK_TOKEN,
+                                failOnIssues: false,
+                                monitorProjectOnBuild: true,
+                                additionalArguments: '--severity-threshold=low'
+                            )
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error("Error during snyk_analysis: ${e.message}")
+                        }
                     }
                 }
             }
-        }        
+        }
         stage('Check and Build Docker Image') {
             steps {
                 script {
@@ -168,5 +168,4 @@ pipeline {
             )
         }
     }
- }
 }
