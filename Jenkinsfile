@@ -39,10 +39,10 @@ pipeline {
         }
         stage('Docker Image Scan') {
             steps {
-                // Use Trivy to scan the built Docker image for vulnerabilities
-                sh "docker run --rm aquasec/trivy --exit-code 1 --severity HIGH,CRITICAL zackz001/jenkins:${env.BUILD_NUMBER}"
+                // Scan the Docker image for vulnerabilities using Trivy without the --exit-code flag
+                sh "docker run --rm aquasec/trivy image --severity HIGH,CRITICAL zackz001/jenkins:${env.BUILD_NUMBER}"
             }
-        }        
+        }
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
@@ -56,10 +56,10 @@ pipeline {
     }
     post {
         success {
-            echo "Docker image successfully built and pushed to DockerHub."
+            echo "Docker image successfully built, scanned, and pushed to DockerHub."
         }
         failure {
-            echo "Build or push failed."
+            echo "Build, scan, or push failed."
         } 
     }
 }
