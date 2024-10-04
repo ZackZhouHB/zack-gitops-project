@@ -10,6 +10,7 @@ pipeline {
         GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
         GIT_BRANCH = 'editing'  // Git branch
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
+        REGION = 'ap-southeast-2'  // AWS region
         //SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
         //SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
         //SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
@@ -149,7 +150,48 @@ pipeline {
                }
             }
          }
-    }   
+        stage('Terraform Init') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        cd jenkins
+                        terraform init
+                        terraform apply -auto-approve -var "aws_region=${REGION}"
+                    '''
+                }
+            }
+        }
+
+        stage('Extract EC2 Public IP') {
+            steps {
+                script {
+                    def ec2Ip = sh(script: 'terraform output -raw ec2_public_ip', returnStdout: true).trim()
+                    echo "EC2 Public IP: ${ec2Ip}"
+                    env.EC2_PUBLIC_IP = ec2Ip
+                }
+            }
+        }
+
+//        stage('Install Docker and Run Image on EC2') {
+//            steps {
+//                script {
+//                    withCredentials([sshUserPrivateKey(credentialsId: 'your-ssh-key-id', keyFileVariable: 'SSH_KEY')]) {
+//                        sh '''
+//                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${EC2_PUBLIC_IP} << EOF
+//                            sudo apt-get update
+//                            sudo apt-get install -y docker.io
+//                            sudo systemctl start docker
+//                            sudo docker pull zackz001/jenkins:${BUILD_NUMBER}
+//                            sudo docker run -d -p 8080:8080 zackz001/jenkins:${BUILD_NUMBER}
+//                            EOF
+//                        '''
+//                    }
+//                }
+//            }
+        }
+    } 
     post {
         success {
             echo "Pipeline completed successfully."
