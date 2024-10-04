@@ -53,7 +53,7 @@ pipeline {
                     // Run the Ansible playbook using the hosts file from the repo
                     sh '''
                         echo "Running Ansible playbook:"
-                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform/hosts" "${WORKSPACE}/jenkins/terraform/test-playbook.yml"
+                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform/hosts" "${WORKSPACE}/jenkins/terraform/test-playbook.ymal"
                     '''
                 }
             }
