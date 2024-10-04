@@ -1,18 +1,18 @@
 pipeline {
     agent any
     environment {
-        REGISTRY_URL = 'https://index.docker.io/v1/'
+        //REGISTRY_URL = 'https://index.docker.io/v1/'
         IMAGE_NAME = "zackz001/jenkins"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         LATEST_TAG = "latest"
-        TRIVY_OUTPUT = "trivy-report.txt"
+        //TRIVY_OUTPUT = "trivy-report.txt"
         EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
         GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
         GIT_BRANCH = 'editing'  // Git branch
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
-        SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
-        SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
-        SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
+        //SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
+        //SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
+        //SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
     }
     stages {
         stage('Clean Workspace') {
@@ -56,7 +56,6 @@ pipeline {
                 }
             }
         }
-    }           
         stage('Check Installed Package Versions') {
             steps {
                 script {
@@ -137,19 +136,31 @@ pipeline {
                 }
             }
         }
-        stage('Install Ansible') {
+        stage('Test AWS Credentials') {
+            environment {
+                // Use the AWS credentials stored in Jenkins
+                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+            }
             steps {
                 script {
-                    // Install Ansible on the fly
+                    // Test AWS access by listing S3 buckets
                     sh '''
-                        UBUNTU_CODENAME=jammy
-                        wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
-                        echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/ansible.list
-                        sudo apt update && sudo apt install ansible
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws configure set region $AWS_REGION
+                        
+                        # Validate AWS access by listing S3 buckets
+                        if aws s3 ls; then
+                            echo "AWS credentials are working!"
+                        else
+                            echo "AWS credentials validation failed."
+                            exit 1
+                        fi
                     '''
                 }
             }
-        }  
+        }
         // Other stages (e.g., build, scan, push) can go here
     }
     post {
