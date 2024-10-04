@@ -1,33 +1,28 @@
 pipeline {
     agent any
     environment {
-        //REGISTRY_URL = 'https://index.docker.io/v1/'
         IMAGE_NAME = "zackz001/jenkins"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         LATEST_TAG = "latest"
-        //TRIVY_OUTPUT = "trivy-report.txt"
         EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
-        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
-        GIT_BRANCH = 'editing'  // Git branch
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
-        REGION = 'ap-southeast-2'  // AWS region
+        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'
+        GIT_BRANCH = 'editing'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
+        REGION = 'ap-southeast-2'
         EC2_PUBLIC_IP = ""
-        //SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
-        //SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
-        //SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
     }
     stages {
         stage('Clean Workspace') {
             steps {
                 cleanWs()
             }
-        }   
+        }
         stage('Checkout Code') {
             steps {
                 git branch: "${GIT_BRANCH}",
                     credentialsId: 'gittoken',
                     url: "${GIT_REPO_URL}"
-            }   
+            }
         }
         stage('Verify Ansible Installation') {
             steps {
@@ -142,16 +137,16 @@ pipeline {
         stage('hello AWS') {
             steps {
                 withAWS(credentials: 'aws', region: 'ap-southeast-2') { // Replace with correct AWS credentials ID
-            script {
-                // List all existing S3 buckets and output the result to the Jenkins console
-                sh '''
-                    echo "Listing all S3 buckets:"
-                    aws s3 ls
-                '''
-                  }
-               }
+                    script {
+                        // List all existing S3 buckets and output the result to the Jenkins console
+                        sh '''
+                            echo "Listing all S3 buckets:"
+                            aws s3 ls
+                        '''
+                    }
+                }
             }
-         }
+        }
         stage('Terraform Init and Apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
@@ -207,28 +202,10 @@ pipeline {
                             --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
                         '''
                     }
+                }
             }
         }
     }
-
-
-//        stage('Install Docker and Run Image on EC2') {
-//            steps {
-//                script {
-//                    withCredentials([sshUserPrivateKey(credentialsId: 'your-ssh-key-id', keyFileVariable: 'SSH_KEY')]) {
-//                        sh '''
-//                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${EC2_PUBLIC_IP} << EOF
-//                            sudo apt-get update
-//                            sudo apt-get install -y docker.io
-//                            sudo systemctl start docker
-//                            sudo docker pull zackz001/jenkins:${BUILD_NUMBER}
-//                            sudo docker run -d -p 8080:8080 zackz001/jenkins:${BUILD_NUMBER}
-//                            EOF
-//                        '''
-//                    }
-//                }
-//            }
-        }
     post {
         success {
             echo "Pipeline completed successfully."
@@ -238,4 +215,3 @@ pipeline {
         }
     }
 }
-
