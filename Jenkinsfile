@@ -18,13 +18,6 @@ pipeline {
                     url: "${GIT_REPO_URL}"
             }
         }
-        stage('Checkout Code') {
-            steps {
-                git branch: "${GIT_BRANCH}",
-                    credentialsId: 'gittoken',
-                    url: "${GIT_REPO_URL}"
-            }
-        }
         stage('Check Installed Package Versions') {
             steps {
                 script {
