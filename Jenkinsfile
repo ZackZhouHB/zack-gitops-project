@@ -138,13 +138,15 @@ pipeline {
         }
         stage('hello AWS') {
             steps {
-                withAWS(credentials: 'aws', region: 'ap-southeast-2') {
-                    sh 'echo "hello KB">hello.txt'
-                    s3Upload acl: 'Private', bucket: 'kb-bucket', file: 'hello.txt'
-                    s3Download bucket: 'kb-bucket', file: 'downloadedHello.txt', path: 'hello.txt'
-                    sh 'cat downloadedHello.txt'
-        // Other stages (e.g., build, scan, push) can go here
-              }
+                withAWS(credentials: 'aws', region: 'ap-southeast-2') { // Replace with correct AWS credentials ID
+            script {
+                // List all existing S3 buckets and output the result to the Jenkins console
+                sh '''
+                    echo "Listing all S3 buckets:"
+                    aws s3 ls
+                '''
+                  }
+               }
             }
          }
     post {
