@@ -17,14 +17,14 @@
 
     - name: Pull Docker image
       docker_image:
-        name: zackz001/jenkins
+        name: zackz001/joesite
         tag: latest
         source: pull   # Ensure the image is pulled from the registry
 
     - name: Run Docker container
       docker_container:
-        name: jenkins_web
-        image: zackz001/jenkins:latest
+        name: joesite
+        image: zackz001/joesite:latest
         state: started
         restart_policy: unless-stopped
         published_ports:
