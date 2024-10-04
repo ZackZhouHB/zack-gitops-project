@@ -11,9 +11,14 @@ pipeline {
         REGION = 'ap-southeast-2'  // AWS region
     }
     stages {
-        stage('Clean Workspace') {
+        stage('Checkout Code') {
             steps {
-                cleanWs()
+                git branch: "${GIT_BRANCH}",
+                    credentialsId: 'gittoken',
+                    url: "${GIT_REPO_URL}",
+                    changelog: false,   // Disable changelog to save time
+                    poll: false,        // Disable polling for changes
+                    depth: 1            // Shallow clone with a depth of 1 (latest commit only)
             }
         }
         stage('Checkout Code') {
