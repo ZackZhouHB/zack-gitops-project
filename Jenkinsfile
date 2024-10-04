@@ -11,11 +11,11 @@ pipeline {
         REGION = 'ap-southeast-2'  // AWS region
     }
     stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
+//        stage('Clean Workspace') {
+//            steps {
+//                cleanWs()
+//            }
+//       }
         stage('Checkout Code') {
             steps {
                 git branch: "${GIT_BRANCH}",
