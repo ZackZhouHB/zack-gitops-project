@@ -167,10 +167,13 @@ pipeline {
         // Stage 2: Extract EC2 Public IP
         stage('Extract EC2 Public IP') {
             steps {
-                script {
-                    def ec2Ip = sh(script: 'cd jenkins/terraform && terraform output -raw ec2_public_ip', returnStdout: true).trim()
-                    echo "EC2 Public IP: ${ec2Ip}"
-                    env.EC2_PUBLIC_IP = ec2Ip
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        cd jenkins/terraform
+                        terraform output -raw ec2_public_ip
+                    '''
                 }
             }
         }
