@@ -185,6 +185,23 @@ pipeline {
                 }
             }
         }
+        // Stage 4: Deploy Docker using Ansible
+    stage('Deploy Docker with Ansible') {
+        steps {
+            withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
+                script {
+                    // Run Ansible playbook to install Docker and deploy the app on the newly provisioned EC2 instance
+                    sh '''
+                        echo "Running Ansible Playbook for Docker Deployment..."
+                        ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform/deploy-docker-playbook.yml" \
+                        --user ec2-user \
+                        --private-key ${SSH_KEY} \
+                        --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
+                    '''
+                }
+            }
+        }
+    }
 
 
 //        stage('Install Docker and Run Image on EC2') {

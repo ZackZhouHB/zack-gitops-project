@@ -1,0 +1,29 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update and install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Pull Docker image
+      docker_image:
+        name: zackz001/jenkins
+        tag: latest
+
+    - name: Run Docker container
+      docker_container:
+        name: jenkins_web
+        image: zackz001/jenkins:latest
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "80:80"
