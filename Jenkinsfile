@@ -5,10 +5,10 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         LATEST_TAG = "latest"
         EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
-        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'
-        GIT_BRANCH = 'editing'
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
-        REGION = 'ap-southeast-2'
+        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
+        GIT_BRANCH = 'editing'  // Git branch
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
+        REGION = 'ap-southeast-2'  // AWS region
         EC2_PUBLIC_IP = ""
     }
     stages {
@@ -22,36 +22,6 @@ pipeline {
                 git branch: "${GIT_BRANCH}",
                     credentialsId: 'gittoken',
                     url: "${GIT_REPO_URL}"
-            }
-        }
-        stage('Verify Ansible Installation') {
-            steps {
-                script {
-                    try {
-                        // Check if Ansible is accessible in the Jenkins container
-                        sh '''
-                            if command -v ansible >/dev/null 2>&1; then
-                                echo "Ansible Version: $(ansible --version)"
-                            else
-                                echo "Ansible is not installed or not found"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: Ansible not found. ${e.message}"
-                    }
-                }
-            }
-        }
-        stage('Run Ansible Playbook') {
-            steps {
-                script {
-                    // Run the Ansible playbook using the hosts file from the repo
-                    sh '''
-                        echo "Running Ansible playbook:"
-                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform/hosts" "${WORKSPACE}/jenkins/terraform/test-playbook.yaml"
-                    '''
-                }
             }
         }
         stage('Check Installed Package Versions') {
@@ -112,12 +82,21 @@ pipeline {
                     } catch (Exception e) {
                         echo "Error: Trivy not found. ${e.message}"
                     }
-                }
-            }
-        }
-        stage('Check AWS CLI Version') {
-            steps {
-                script {
+
+                    try {
+                        // Check Ansible version
+                        sh '''
+                            if command -v ansible >/dev/null 2>&1; then
+                                echo "Ansible Version: $(ansible --version)"
+                            else
+                                echo "Ansible is not installed"
+                                exit 1
+                            fi
+                        '''
+                    } catch (Exception e) {
+                        echo "Error: Ansible not found. ${e.message}"
+                    }
+
                     try {
                         // Check AWS CLI version
                         sh '''
@@ -134,7 +113,18 @@ pipeline {
                 }
             }
         }
-        stage('hello AWS') {
+        stage('Run a testing Ansible Playbook') {
+            steps {
+                script {
+                    // Run the Ansible playbook using the hosts file from the repo
+                    sh '''
+                        echo "Running Ansible playbook:"
+                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform/hosts" "${WORKSPACE}/jenkins/terraform/test-playbook.yaml"
+                    '''
+                }
+            }
+        }
+        stage('Verify AWS credential') {
             steps {
                 withAWS(credentials: 'aws', region: 'ap-southeast-2') { // Replace with correct AWS credentials ID
                     script {
@@ -160,7 +150,6 @@ pipeline {
                 }
             }
         }
-        // Stage 2: Extract EC2 Public IP
         stage('Extract EC2 Public IP') {
             steps {
                 script {
@@ -169,15 +158,14 @@ pipeline {
                         terraform output -raw ec2_public_ip
                     ''', returnStdout: true).trim()
                     echo "EC2 Public IP: ${ec2Ip}"
-                    // Store EC2 IP into the environment variable
                     env.EC2_PUBLIC_IP = ec2Ip
                 }
             }
         }
         // Stage 3: Wait for EC2 Readiness (SSH Validation)
         stage('Wait for EC2 Readiness') {
-            retry(3) { // Retry in case EC2 is not immediately ready
-                steps {
+            steps {
+                retry(3) { // Retry in case EC2 is not immediately ready
                     sleep 15  // Wait for a bit before checking readiness
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                         script {
