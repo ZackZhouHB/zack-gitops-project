@@ -2,6 +2,16 @@ provider "aws" {
   region = "ap-southeast-2"
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "zz-lambda-tag"
+    key            = "terraform/state/terraform.tfstate"
+    region         = "ap-southeast-2"
+#    dynamodb_table = "your-dynamodb-lock-table"  # Optional: to enable state locking
+#    encrypt        = true
+  }
+}
+
 # Security Group Data
 data "aws_security_group" "existing_sg" {
   filter {
