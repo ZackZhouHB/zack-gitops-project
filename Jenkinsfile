@@ -52,7 +52,8 @@ pipeline {
                 script {
                     // Run the Ansible playbook on localhost
                     sh '''
-                        ls -l /etc/ansible/
+                        cd /etc/ansible
+                        ls -l
                         ansible-playbook -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
                     '''
                 }
