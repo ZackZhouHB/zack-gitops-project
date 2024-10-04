@@ -9,7 +9,6 @@ pipeline {
         GIT_BRANCH = 'editing'  // Git branch
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
         REGION = 'ap-southeast-2'  // AWS region
-        EC2_PUBLIC_IP = ""
     }
     stages {
         stage('Clean Workspace') {
@@ -151,7 +150,6 @@ pipeline {
             }
         }
         // Stage to extract EC2 public IP
-        // Stage to extract EC2 public IP
         stage('Extract EC2 Public IP') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
@@ -161,17 +159,18 @@ pipeline {
                             terraform output -raw ec2_public_ip
                         ''', returnStdout: true).trim()
                         echo "EC2 Public IP: ${ec2Ip}"
-                        // Set the environment variable for the next stages
+                        // Set the environment variable for the next stages explicitly
                         env.EC2_PUBLIC_IP = ec2Ip
                     }
                 }
             }
         }
 
-        // Stage to validate EC2_PUBLIC_IP
+        // **Fix: Adding a small sleep to ensure env is populated**
         stage('Validate EC2 Public IP') {
             steps {
                 script {
+                    sleep 5 // Ensure enough time for variable propagation
                     if (env.EC2_PUBLIC_IP == null || env.EC2_PUBLIC_IP == "") {
                         error "EC2 Public IP is not available or failed to fetch."
                     } else {
