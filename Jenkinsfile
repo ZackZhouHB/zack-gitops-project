@@ -194,7 +194,7 @@ pipeline {
                     sh '''
                         echo "Running Ansible Playbook for Docker Deployment..."
                         ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform/deploy-docker-playbook.yml" \
-                        --user ec2-user \
+                        --user ubuntu \
                         --private-key ${SSH_KEY} \
                         --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
                     '''
