@@ -210,6 +210,23 @@ pipeline {
                 }
             }
         }
+        // New stage: Validate web blog accessibility
+        stage('Validate Web Blog Access') {
+            steps {
+                script {
+                    echo "Validating web blog access via http://${env.EC2_PUBLIC_IP}..."
+
+                    // Use curl to validate HTTP response from the web blog
+                    def response = sh(script: "curl -o /dev/null -s -w '%{http_code}' http://${env.EC2_PUBLIC_IP}", returnStdout: true).trim()
+
+                    if (response == '200') {
+                        echo "Web blog is accessible and returned HTTP status code 200."
+                    } else {
+                        error "Web blog is not accessible. HTTP status code: ${response}"
+                    }
+                }
+            }
+        }        
     }
     post {
         success {
