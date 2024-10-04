@@ -52,7 +52,7 @@ pipeline {
                 script {
                     // Run the Ansible playbook on localhost
                     sh '''
-                        ansible-playbook --syntax-check -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
+                        ansible-playbook -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
                     '''
                 }
             }
