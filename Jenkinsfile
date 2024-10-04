@@ -15,10 +15,7 @@ pipeline {
             steps {
                 git branch: "${GIT_BRANCH}",
                     credentialsId: 'gittoken',
-                    url: "${GIT_REPO_URL}",
-                    changelog: false,   // Disable changelog to save time
-                    poll: false,        // Disable polling for changes
-                    depth: 1            // Shallow clone with a depth of 1 (latest commit only)
+                    url: "${GIT_REPO_URL}"
             }
         }
         stage('Checkout Code') {
