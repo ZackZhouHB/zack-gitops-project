@@ -150,38 +150,41 @@ pipeline {
                 }
             }
         }
+        // Stage to extract EC2 public IP
         stage('Extract EC2 Public IP') {
             steps {
-                script {
-                    def ec2Ip = sh(script: '''
-                        cd jenkins/terraform
-                        terraform output -raw ec2_public_ip
-                    ''', returnStdout: true).trim()
-                    echo "EC2 Public IP: ${ec2Ip}"
-                    env.EC2_PUBLIC_IP = ec2Ip
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
+                    script {
+                        def ec2Ip = sh(script: '''
+                            cd jenkins/terraform
+                            terraform output -raw ec2_public_ip
+                        ''', returnStdout: true).trim()
+                        echo "EC2 Public IP: ${ec2Ip}"
+                        env.EC2_PUBLIC_IP = ec2Ip
+                    }
                 }
             }
         }
-        // Stage 3: Wait for EC2 Readiness (SSH Validation)
+
+        // Wait for EC2 Readiness (SSH Validation)
         stage('Wait for EC2 Readiness') {
             steps {
-                retry(3) { // Retry in case EC2 is not immediately ready
-                    sleep 15  // Wait for a bit before checking readiness
+                retry(3) { 
+                    sleep 15  
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                         script {
-                            // Test SSH connection to EC2 instance
                             sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
                         }
                     }
                 }
             }
         }
-        // Stage 4: Deploy Docker using Ansible
+
+        // Deploy Docker using Ansible
         stage('Deploy Docker with Ansible') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                     script {
-                        // Run Ansible playbook to install Docker and deploy the app on the newly provisioned EC2 instance
                         sh '''
                             echo "Running Ansible Playbook for Docker Deployment..."
                             ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform/deploy-docker-playbook.yml" \
