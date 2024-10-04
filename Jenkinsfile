@@ -51,7 +51,7 @@ pipeline {
                 script {
                     // Run the Ansible playbook on localhost
                     sh '''
-                        ansible-playbook -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
+                        ansible-playbook --syntax-check -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
                     '''
                 }
             }
@@ -136,33 +136,17 @@ pipeline {
                 }
             }
         }
-        stage('Test AWS Credentials') {
-            environment {
-                // Use the AWS credentials stored in Jenkins
-                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-            }
+        stage('hello AWS') {
             steps {
-                script {
-                    // Test AWS access by listing S3 buckets
-                    sh '''
-                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                        aws configure set region $AWS_REGION
-                        
-                        # Validate AWS access by listing S3 buckets
-                        if aws s3 ls; then
-                            echo "AWS credentials are working!"
-                        else
-                            echo "AWS credentials validation failed."
-                            exit 1
-                        fi
-                    '''
-                }
-            }
-        }
+                withAWS(credentials: 'aws', region: 'ap-southeast-2') {
+                    sh 'echo "hello KB">hello.txt'
+                    s3Upload acl: 'Private', bucket: 'kb-bucket', file: 'hello.txt'
+                    s3Download bucket: 'kb-bucket', file: 'downloadedHello.txt', path: 'hello.txt'
+                    sh 'cat downloadedHello.txt'
         // Other stages (e.g., build, scan, push) can go here
-    }
+              }
+            }
+         }
     post {
         success {
             echo "Pipeline completed successfully."
