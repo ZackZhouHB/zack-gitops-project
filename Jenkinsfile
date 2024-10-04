@@ -143,7 +143,15 @@ pipeline {
                         export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
                         export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
                         cd jenkins/terraform
-                        terraform init
+
+                        # Check if Terraform has been initialized
+                        if [ ! -d ".terraform" ]; then
+                            echo "Terraform not initialized. Running 'terraform init'..."
+                            terraform init
+                        else
+                            echo "Terraform already initialized. Skipping 'terraform init'."
+                        fi
+
                         terraform apply -auto-approve -var "aws_region=${REGION}"
                     '''
                 }
@@ -183,8 +191,8 @@ pipeline {
         // Wait for EC2 Readiness (SSH Validation)
         stage('Wait for EC2 Readiness') {
             steps {
-                retry(4) { // Retry up to 4 times in case EC2 is not immediately ready
-                    sleep 15  // Wait for a bit before checking readiness
+                retry(10) { // Retry up to 4 times in case EC2 is not immediately ready
+                    sleep 5  // Wait for a bit before checking readiness
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                         script {
                             sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
