@@ -151,7 +151,7 @@ pipeline {
                }
             }
          }
-        stage('Terraform Init and apply') {
+        stage('Terraform Init and Apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
                     sh '''
@@ -165,21 +165,65 @@ pipeline {
             }
         }
 
-        stage('Extract EC2 Public IP') {
+        stage('Wait for EC2 and Docker to be Ready') {
             steps {
                 script {
+                    // Extract EC2 Public IP
                     def ec2Ip = sh(script: 'terraform output -raw ec2_public_ip', returnStdout: true).trim()
-                    echo "EC2 Public IP: ${ec2Ip}"
                     env.EC2_PUBLIC_IP = ec2Ip
+                    echo "EC2 Public IP: ${env.EC2_PUBLIC_IP}"
+
+                    // Wait until EC2 instance is up and Docker is ready
+                    def maxRetries = 30 // Maximum retries (adjust as needed)
+                    def interval = 30 // Interval between retries in seconds
+
+                    def isReady = false
+                    for (int i = 0; i < maxRetries; i++) {
+                        try {
+                            // Check if the web service is accessible on port 80
+                            def response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://${env.EC2_PUBLIC_IP}:80", returnStdout: true).trim()
+                            if (response == '200') {
+                                echo "EC2 instance and Docker container are ready! Web service is accessible."
+                                isReady = true
+                                break
+                            } else {
+                                echo "Waiting for EC2 and Docker to be ready... (Attempt: ${i + 1}/${maxRetries})"
+                            }
+                        } catch (Exception e) {
+                            echo "Failed to connect. Retrying in ${interval} seconds..."
+                        }
+                        sleep(interval)
+                    }
+
+                    if (!isReady) {
+                        error "EC2 instance or Docker container did not become ready in time."
+                    }
                 }
             }
         }
+
         stage('Test SSH Connection') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                     script {
                         // Test SSH connection to the EC2 instance
-                        sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${env.EC2_PUBLIC_IP} 'echo SSH connection successful!'"
+                        def sshCommand = "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${env.EC2_PUBLIC_IP} 'echo SSH connection successful!'"
+                        def sshSuccess = false
+                        retry(5) { // Retry 5 times in case SSH is not immediately ready
+                            try {
+                                sh sshCommand
+                                sshSuccess = true
+                            } catch (Exception e) {
+                                echo "SSH connection failed. Retrying..."
+                                sleep(10)
+                            }
+                        }
+
+                        if (!sshSuccess) {
+                            error "Failed to establish SSH connection after retries."
+                        } else {
+                            echo "SSH connection to EC2 instance successful!"
+                        }
                     }
                 }
             }
