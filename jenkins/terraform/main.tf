@@ -24,15 +24,15 @@ resource "aws_instance" "web" {
     data.aws_security_group.existing_sg.name
   ]
 
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update
-              sudo apt-get install -y docker.io
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo docker pull zackz001/jenkins:latest
-              sudo docker run -d --restart unless-stopped -p 80:80 zackz001/jenkins:latest
-              EOF
+#  user_data = <<-EOF
+#              #!/bin/bash
+#              sudo apt-get update
+#              sudo apt-get install -y docker.io
+#              sudo systemctl start docker
+#              sudo systemctl enable docker
+#              sudo docker pull zackz001/jenkins:latest
+#              sudo docker run -d --restart unless-stopped -p 80:80 zackz001/jenkins:latest
+#              EOF
 
   tags = {
     Name = "Jenkins-EC2"
