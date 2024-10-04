@@ -102,6 +102,25 @@ pipeline {
                 }
             }
         }
+        stage('Check AWS CLI Version') {
+            steps {
+                script {
+                    try {
+                        // Check AWS CLI version
+                        sh '''
+                            if command -v aws >/dev/null 2>&1; then
+                                echo "AWS CLI Version: $(aws --version)"
+                            else
+                                echo "AWS CLI is not installed"
+                                exit 1
+                            fi
+                        '''
+                    } catch (Exception e) {
+                        echo "Error: AWS CLI not found. ${e.message}"
+                    }
+                }
+            }
+        }
         stage('Install Ansible') {
             steps {
                 script {
