@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   tasks:
-  
+
     - name: Update and install Docker
       apt:
         name: docker.io
@@ -19,6 +19,7 @@
       docker_image:
         name: zackz001/jenkins
         tag: latest
+        source: pull   # Ensure the image is pulled from the registry
 
     - name: Run Docker container
       docker_container:
