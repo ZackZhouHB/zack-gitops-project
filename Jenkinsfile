@@ -151,6 +151,7 @@ pipeline {
             }
         }
         // Stage to extract EC2 public IP
+        // Stage to extract EC2 public IP
         stage('Extract EC2 Public IP') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
@@ -160,7 +161,21 @@ pipeline {
                             terraform output -raw ec2_public_ip
                         ''', returnStdout: true).trim()
                         echo "EC2 Public IP: ${ec2Ip}"
+                        // Set the environment variable for the next stages
                         env.EC2_PUBLIC_IP = ec2Ip
+                    }
+                }
+            }
+        }
+
+        // Stage to validate EC2_PUBLIC_IP
+        stage('Validate EC2 Public IP') {
+            steps {
+                script {
+                    if (env.EC2_PUBLIC_IP == null || env.EC2_PUBLIC_IP == "") {
+                        error "EC2 Public IP is not available or failed to fetch."
+                    } else {
+                        echo "EC2 Public IP is successfully fetched: ${env.EC2_PUBLIC_IP}"
                     }
                 }
             }
@@ -169,8 +184,8 @@ pipeline {
         // Wait for EC2 Readiness (SSH Validation)
         stage('Wait for EC2 Readiness') {
             steps {
-                retry(3) { 
-                    sleep 15  
+                retry(4) { // Retry up to 4 times in case EC2 is not immediately ready
+                    sleep 15  // Wait for a bit before checking readiness
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                         script {
                             sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
