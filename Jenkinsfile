@@ -11,6 +11,7 @@ pipeline {
         GIT_BRANCH = 'editing'  // Git branch
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
         REGION = 'ap-southeast-2'  // AWS region
+        EC2_PUBLIC_IP = ""
         //SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
         //SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
         //SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
@@ -167,41 +168,45 @@ pipeline {
         // Stage 2: Extract EC2 Public IP
         stage('Extract EC2 Public IP') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    sh '''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                script {
+                    def ec2Ip = sh(script: '''
                         cd jenkins/terraform
                         terraform output -raw ec2_public_ip
-                    '''
+                    ''', returnStdout: true).trim()
+                    echo "EC2 Public IP: ${ec2Ip}"
+                    // Store EC2 IP into the environment variable
+                    env.EC2_PUBLIC_IP = ec2Ip
                 }
             }
         }
         // Stage 3: Wait for EC2 Readiness (SSH Validation)
         stage('Wait for EC2 Readiness') {
-            steps {
-                retry(6) { // Retry SSH connection check
-                    sleep(time: 15, unit: 'SECONDS') // Wait for 15 seconds before retrying
+            retry(3) { // Retry in case EC2 is not immediately ready
+                steps {
+                    sleep 15  // Wait for a bit before checking readiness
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
-                        sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
+                        script {
+                            // Test SSH connection to EC2 instance
+                            sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
+                        }
                     }
                 }
             }
         }
         // Stage 4: Deploy Docker using Ansible
-    stage('Deploy Docker with Ansible') {
-        steps {
-            withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
-                script {
-                    // Run Ansible playbook to install Docker and deploy the app on the newly provisioned EC2 instance
-                    sh '''
-                        echo "Running Ansible Playbook for Docker Deployment..."
-                        ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform/deploy-docker-playbook.yml" \
-                        --user ubuntu \
-                        --private-key ${SSH_KEY} \
-                        --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
-                    '''
-                }
+        stage('Deploy Docker with Ansible') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
+                    script {
+                        // Run Ansible playbook to install Docker and deploy the app on the newly provisioned EC2 instance
+                        sh '''
+                            echo "Running Ansible Playbook for Docker Deployment..."
+                            ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform/deploy-docker-playbook.yml" \
+                            --user ubuntu \
+                            --private-key ${SSH_KEY} \
+                            --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
+                        '''
+                    }
             }
         }
     }
