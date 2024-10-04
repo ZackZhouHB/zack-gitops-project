@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   tasks:
-
+  
     - name: Update and install Docker
       apt:
         name: docker.io
@@ -15,16 +15,26 @@
         enabled: yes
         state: started
 
+    - name: Stop all running containers
+      shell: docker stop $(docker ps -q)
+      ignore_errors: true
+      register: stopped_containers
+
+    - name: Remove all stopped containers
+      shell: docker rm $(docker ps -a -q)
+      when: stopped_containers.rc == 0
+      ignore_errors: true
+
     - name: Pull Docker image
       docker_image:
-        name: zackz001/gitops-jekyll
+        name: zackz001/jenkins
         tag: latest
-        source: pull   # Ensure the image is pulled from the registry
+        state: present
 
     - name: Run Docker container
       docker_container:
-        name: zackblog
-        image: zackz001/gitops-jekyll:latest
+        name: jenkins_web
+        image: zackz001/jenkins:latest
         state: started
         restart_policy: unless-stopped
         published_ports:
