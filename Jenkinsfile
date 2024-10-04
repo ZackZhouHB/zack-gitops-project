@@ -52,11 +52,8 @@ pipeline {
                 script {
                     // Run the Ansible playbook on localhost
                     sh '''
-                        echo "Listing contents of /etc/ansible:"
-                        ls -l /etc/ansible
-
                         echo "Running Ansible playbook:"
-                        ansible-playbook -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
+                        ansible-playbook ${WORKSPACE}/jenkins/terraform/test-playbook.yml
                     '''
                 }
             }
