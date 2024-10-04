@@ -151,7 +151,7 @@ pipeline {
                }
             }
          }
-        stage('Terraform Init') {
+        stage('Terraform Init and apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
                     sh '''
@@ -174,7 +174,16 @@ pipeline {
                 }
             }
         }
-
+        stage('Test SSH Connection') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
+                    script {
+                        // Test SSH connection to the EC2 instance
+                        sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${env.EC2_PUBLIC_IP} 'echo SSH connection successful!'"
+                    }
+                }
+            }
+        }
 //        stage('Install Docker and Run Image on EC2') {
 //            steps {
 //                script {

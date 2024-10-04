@@ -31,7 +31,7 @@ resource "aws_instance" "web" {
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo docker pull zackz001/jenkins:latest
-              sudo docker run -d --restart unless-stopped -p 8080:8080 zackz001/jenkins:latest
+              sudo docker run -d --restart unless-stopped -p 80:80 zackz001/jenkins:latest
               EOF
 
   tags = {
