@@ -26,24 +26,40 @@ pipeline {
                     credentialsId: 'gittoken',
                     url: "${GIT_REPO_URL}"
             }   
-        }   
-        stage('Check Installed Package Versions') {
+        }
+        stage('Verify Ansible Installation') {
             steps {
                 script {
                     try {
-                        // Check Ansible version
+                        // Check if Ansible is accessible in the Jenkins container
                         sh '''
                             if command -v ansible >/dev/null 2>&1; then
                                 echo "Ansible Version: $(ansible --version)"
                             else
-                                echo "Ansible is not installed"
+                                echo "Ansible is not installed or not found"
                                 exit 1
                             fi
                         '''
                     } catch (Exception e) {
                         echo "Error: Ansible not found. ${e.message}"
                     }
-
+                }
+            }
+        }
+        stage('Run Ansible Playbook') {
+            steps {
+                script {
+                    // Run the Ansible playbook on localhost
+                    sh '''
+                        ansible-playbook -i /etc/ansible/hosts /etc/ansible/test-playbook.yml
+                    '''
+                }
+            }
+        }
+    }           
+        stage('Check Installed Package Versions') {
+            steps {
+                script {
                     try {
                         // Check Docker version
                         sh '''
