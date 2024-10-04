@@ -178,7 +178,7 @@ pipeline {
         stage('Validate EC2 Public IP') {
             steps {
                 script {
-                    sleep 5 // Ensure enough time for variable propagation
+                    sleep 2 // Ensure enough time for variable propagation
                     if (env.EC2_PUBLIC_IP == null || env.EC2_PUBLIC_IP == "") {
                         error "EC2 Public IP is not available or failed to fetch."
                     } else {
@@ -191,8 +191,8 @@ pipeline {
         // Wait for EC2 Readiness (SSH Validation)
         stage('Wait for EC2 Readiness') {
             steps {
-                retry(10) { // Retry up to 4 times in case EC2 is not immediately ready
-                    sleep 5  // Wait for a bit before checking readiness
+                retry(20) { // Retry up to 4 times in case EC2 is not immediately ready
+                    sleep 2  // Wait for a bit before checking readiness
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
                         script {
                             sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
