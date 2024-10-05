@@ -13,6 +13,11 @@ module "iam" {
   role_prefix = "production" # Add unique prefix for production
 }
 
+module "ecs_cluster" {
+  source = "../../modules/ecs_cluster"
+  name   = var.ecs_cluster_name
+}
+
 module "task_definition" {
   source             = "../../modules/task_definition"
   family             = var.task_family
@@ -48,9 +53,4 @@ module "ecs_service" {
   container_name      = var.container_name
   container_port      = var.container_port
   dependency          = module.alb.listener_arn
-}
-
-module "ecs_cluster" {
-  source = "../../modules/ecs_cluster"
-  name   = var.ecs_cluster_name
 }

@@ -12,6 +12,10 @@ module "iam" {
   source = "../../modules/iam"
   role_prefix = "staging"  # Add unique prefix for staging
 }
+module "ecs_cluster" {
+  source = "../../modules/ecs_cluster"
+  name   = var.ecs_cluster_name
+}
 
 module "task_definition" {
   source             = "../../modules/task_definition"
@@ -50,7 +54,4 @@ module "ecs_service" {
   dependency          = module.alb.listener_arn
 }
 
-module "ecs_cluster" {
-  source = "../../modules/ecs_cluster"
-  name   = var.ecs_cluster_name
-}
+
