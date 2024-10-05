@@ -1,7 +1,7 @@
 resource "aws_ecs_service" "app_service" {
   name            = var.service_name      # Parameterized
   cluster         = var.cluster_arn
-  task_definition = var.task_definition_arn
+  task_definition = module.task_definition.task_definition_arn  # Reference task definition created by the task_definition module
   launch_type     = var.launch_type       # Parameterized
 
   network_configuration {

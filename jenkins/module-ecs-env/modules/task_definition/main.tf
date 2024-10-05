@@ -18,4 +18,7 @@ resource "aws_ecs_task_definition" "app" {
       protocol      = "tcp"
     }]
   }])
+  lifecycle {
+    create_before_destroy = true  # Ensures that a new revision is created before destroying the old one
+  }
 }
