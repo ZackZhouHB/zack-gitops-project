@@ -145,12 +145,13 @@ pipeline {
                         cd jenkins/module-ecs-env/environments/stage
 
                         # Check if Terraform has been initialized
-                        if [ ! -d ".terraform" ]; then
-                            echo "Terraform not initialized. Running 'terraform init'..."
-                            terraform init
-                        else
-                            echo "Terraform already initialized. Skipping 'terraform init'."
-                        fi
+                    #    if [ ! -d ".terraform" ]; then
+                    #        echo "Terraform not initialized. Running 'terraform init'..."
+                    #        terraform init
+                    #    else
+                    #        echo "Terraform already initialized. Skipping 'terraform init'."
+                    #    fi
+                        terraform init
                         terraform validate
                         terraform apply -var-file="terraform.tfvars" -auto-approve -var "aws_region=${REGION}"
                     '''
