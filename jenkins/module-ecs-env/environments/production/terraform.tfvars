@@ -1,0 +1,20 @@
+aws_region       = "ap-southeast-2"
+ecs_cluster_name = "module-prod-ecs-cluster"
+subnets          = ["subnet-080880543de1ce69a", "subnet-073a3529e120d46db"]
+vpc_id           = "vpc-0de6953a6686478e8"
+desired_count    = 2
+s3_bucket        = "prod-ecs-tfstate-bucket"
+s3_key           = "prod/terraform/module/prod/ecs.tfstate"
+task_family      = "prod-task-family"
+container_image  = "zackz001/joesite:latest"
+cpu              = 256 # Changed to number
+memory           = 512 # Changed to number
+
+alb_name          = "prod-alb"
+alb_internal      = false
+target_group_name = "prod-target-group"
+target_group_port = 80
+listener_port     = 80
+service_name      = "prod-service"
+container_name    = "prod-app"
+container_port    = 80

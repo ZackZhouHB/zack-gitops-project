@@ -1,0 +1,76 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  
+    - name: Check if Docker is already installed
+      command: docker --version
+      register: docker_installed
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Install required packages (if Docker is not installed)
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+        update_cache: yes
+      when: docker_installed.rc != 0
+
+    - name: Add Docker's official GPG key (if Docker is not installed)
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: docker_installed.rc != 0
+
+    - name: Add Docker's official APT repository (if Docker is not installed)
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+      when: docker_installed.rc != 0
+
+    - name: Update APT cache (if Docker is not installed)
+      apt:
+        update_cache: yes
+      when: docker_installed.rc != 0
+
+    - name: Install Docker CE (if Docker is not installed)
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+      when: docker_installed.rc != 0
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Stop all running containers
+      shell: docker stop $(docker ps -q)
+      ignore_errors: true
+      register: stopped_containers
+
+    - name: Remove all stopped containers
+      shell: docker rm $(docker ps -a -q)
+      when: stopped_containers.rc == 0
+      ignore_errors: true
+
+    - name: Pull Docker image
+      docker_image:
+        name: zackz001/gitops-jekyll
+        tag: latest
+        source: pull
+
+    - name: Run Docker container
+      docker_container:
+        name: zackblog
+        image: zackz001/gitops-jekyll:latest
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "80:80"

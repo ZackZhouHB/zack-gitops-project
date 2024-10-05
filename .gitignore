@@ -1,4 +1,5 @@
 *.pem
 *.pub
-ec2-bastion/aws_ec2.yaml
-ec2-deploy/aws_ec2.yaml
+jenkins/terrform-ec2/.terraform
+jenkins/terrform-ecs-cluster/.terraform
+jenkins/module-ecs-cluster/.terraform

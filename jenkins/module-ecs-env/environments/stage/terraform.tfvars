@@ -1,0 +1,20 @@
+aws_region       = "ap-southeast-2"
+ecs_cluster_name = "module-stage-ecs-cluster"
+subnets          = ["subnet-080880543de1ce69a", "subnet-073a3529e120d46db"]
+vpc_id           = "vpc-0de6953a6686478e8"
+desired_count    = 2
+s3_bucket        = "zz-asb-k8s-velero-backup-bucket"
+s3_key           = "stage/terraform/module/stage/ecs.tfstate"
+task_family      = "stage-task-family"
+container_image  = "zackz001/jenkins:latest"
+cpu              = 256 # Changed to number
+memory           = 512 # Changed to number
+
+alb_name          = "stage-alb"
+alb_internal      = false
+target_group_name = "stage-target-group"
+target_group_port = 80
+listener_port     = 80
+service_name      = "stage-service"
+container_name    = "stage-app"
+container_port    = 80

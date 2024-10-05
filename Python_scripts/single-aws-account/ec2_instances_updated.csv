@@ -1,4 +1,0 @@
-InstanceId,DefaultName,BizOwner,Env,Name,Project,Python_Test,Technology,zz1,zz2
-i-076226daa5aaf7cf2,zack-blog,Zack,Prod,zack-blog,zack-web,,Jekyll,aa1,aa2
-i-052bc4dd2d5202a0c,test_python_tagging_01,Zack,Staging,test_python_tagging_01,python-tag,ec2_01,None,,
-i-0562b6999d6486a98,test_python_tagging_02,Zack,DEV,test_python_tagging_02,python-tag,ec2_02,None,,
