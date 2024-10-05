@@ -2,11 +2,11 @@ aws_region       = "ap-southeast-2"
 ecs_cluster_name = "module-prod-ecs-cluster"
 subnets          = ["subnet-080880543de1ce69a", "subnet-073a3529e120d46db"]
 vpc_id           = "vpc-0de6953a6686478e8"
-desired_count    = 2
+desired_count    = 1
 s3_bucket        = "prod-ecs-tfstate-bucket"
 s3_key           = "prod/terraform/module/prod/ecs.tfstate"
 task_family      = "prod-task-family"
-container_image  = "zackz001/joesite:latest"
+container_image  = "zackz001/jenkins:latest"
 cpu              = 256 # Changed to number
 memory           = 512 # Changed to number
 
