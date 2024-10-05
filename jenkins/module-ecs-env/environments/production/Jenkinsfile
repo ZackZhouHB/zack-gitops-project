@@ -215,27 +215,27 @@ pipeline {
                 }
             }
         }  
-        stage('Terraform destroy') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    sh '''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        cd jenkins/module-ecs-env/environments/production
-
-                        # Check if Terraform has been initialized
-                        if [ ! -d ".terraform" ]; then
-                            echo "Terraform not initialized. Running 'terraform init'..."
-                            terraform init
-                        else
-                            echo "Terraform already initialized. Skipping 'terraform init'."
-                        fi
-
-                        terraform destroy -auto-approve -var "aws_region=${REGION}"
-                    '''
-                }
-            }
-        }              
+//        stage('Terraform destroy') {
+//            steps {
+//                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
+//                    sh '''
+//                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+//                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+//                        cd jenkins/module-ecs-env/environments/production
+//
+//                        # Check if Terraform has been initialized
+//                        if [ ! -d ".terraform" ]; then
+//                            echo "Terraform not initialized. Running 'terraform init'..."
+//                            terraform init
+//                        else
+//                            echo "Terraform already initialized. Skipping 'terraform init'."
+//                        fi
+//
+//                        terraform destroy -auto-approve -var "aws_region=${REGION}"
+//                    '''
+//                }
+//            }
+//        }              
     }
     post {
         success {
