@@ -160,12 +160,12 @@ pipeline {
                 }
             }
         }
-        // Stage to extract EC2 public IP
+        // Stage to extract cluster name
         stage('Extract eks cluster name') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
                     script {
-                        def albdnsname = sh(script: '''
+                        def eksclustername = sh(script: '''
                             cd jenkins/terraform-eks
                             terraform output -raw cluster_name
                         ''', returnStdout: true).trim()
