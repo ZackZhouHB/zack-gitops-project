@@ -154,16 +154,28 @@ pipeline {
 
                             # Directly retrieve the cluster name after apply
                             echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" 
+                            echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}" 
                         '''
-                        
-                        // Load the cluster name into the environment variable for later stages
-                        env.EKS_CLUSTER_NAME = sh(script: 'terraform output -raw cluster_name', returnStdout: true).trim()
-                        echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}"  
                     }
                 }
             }
         }
-
+        // Stage to extract EC2 public IP
+        stage('Extract eks cluster name') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
+                    script {
+                        def albdnsname = sh(script: '''
+                            cd jenkins/terraform-eks
+                            terraform output -raw cluster_name
+                        ''', returnStdout: true).trim()
+                        echo "EKS Cluster Name: ${eksclustername}"
+                        // Set the environment variable for the next stages explicitly
+                        env.EKS_CLUSTER_NAME = eksclustername
+                    }
+                }
+            }
+        }
 
 
         // Stage to update kubeconfig for Jenkins to manage EKS cluster
