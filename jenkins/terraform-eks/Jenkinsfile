@@ -139,31 +139,26 @@ pipeline {
         stage('Terraform Init and Apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    sh '''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        cd jenkins/terraform-eks
+                    script {
+                        // Initialize and apply Terraform
+                        sh '''
+                            export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                            export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                            cd jenkins/terraform-eks
 
-                    #    # Check if Terraform has been initialized
-                    #    if [ ! -d ".terraform" ]; then
-                    #        echo "Terraform not initialized. Running 'terraform init'..."
-                    #        terraform init
-                    #    else
-                    #        echo "Terraform already initialized. Skipping 'terraform init'."
-                    #    fi
-                        terraform init
-                        terraform validate
-                        terraform apply -auto-approve -var "aws_region=${REGION}"
-                        # Extract the cluster name from Terraform output
-                        echo "Extracting EKS Cluster Name..."
-                        echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" > cluster_env_vars
+                            terraform init
+                            terraform validate
+                            terraform apply -auto-approve -var "aws_region=${REGION}"
+                            # Extract the cluster name from Terraform output
+                            echo "Extracting EKS Cluster Name..."
+                            echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" > cluster_env_vars
                         '''
                         
                         // Load the cluster name into the environment variable for later stages
                         def props = readProperties(file: 'cluster_env_vars')
                         env.EKS_CLUSTER_NAME = props['EKS_CLUSTER_NAME']
-                        echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}"
-                    
+                        echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}"  
+                    }
                 }
             }
         }
