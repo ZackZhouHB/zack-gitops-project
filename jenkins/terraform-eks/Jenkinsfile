@@ -199,6 +199,9 @@ pipeline {
                             echo "Application is not accessible! HTTP response code: $response"
                             exit 1  # This will fail the Jenkins stage
                         fi
+
+                        # delete loadbalancer
+
                     '''
                 }
             }

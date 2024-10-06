@@ -1,5 +1,4 @@
 *.pem
 *.pub
-jenkins/terrform-ec2/.terraform
-jenkins/terrform-ecs-cluster/.terraform
-jenkins/module-ecs-cluster/.terraform
+.terraform
+terraform.tfvars
