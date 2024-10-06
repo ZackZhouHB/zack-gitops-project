@@ -150,18 +150,18 @@ pipeline {
                             terraform validate
                             terraform apply -auto-approve -var "aws_region=${REGION}"
 
-                            # Extract the cluster name from Terraform output
-                            echo "Extracting EKS Cluster Name..."
-                            echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" > cluster_env_vars
+                            # Extract the cluster name from Terraform output and set it to an environment variable
+                            echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" 
                         '''
                         
                         // Load the cluster name into the environment variable for later stages
-                        env.EKS_CLUSTER_NAME = sh(script: 'echo $(cat cluster_env_vars)', returnStdout: true).trim()
+                        env.EKS_CLUSTER_NAME = sh(script: 'terraform output -raw cluster_name', returnStdout: true).trim()
                         echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}"  
                     }
                 }
             }
         }
+
 
         // Stage to update kubeconfig for Jenkins to manage EKS cluster
         stage('Update Kubeconfig') {
