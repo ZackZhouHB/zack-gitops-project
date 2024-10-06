@@ -156,11 +156,10 @@ pipeline {
             }
         }
 
-        // Stage to update kubeconfig for Jenkins to manage EKS cluster
         stage('Deploy and Verify Application') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    sh '''
+                    sh '''#!/bin/bash
                         export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
                         export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 
@@ -174,8 +173,8 @@ pipeline {
                         kubectl apply -f jenkins/terraform-eks/deployment.yaml
 
                         # Wait for the deployment to be ready
-                        maxRetries=10
-                        waitTime=30  # seconds
+                        maxRetries=150
+                        waitTime=2  # seconds
                         for ((i=0; i<maxRetries; i++)); do
                             # Check the deployment status
                             status=$(kubectl get deployment my-app -o jsonpath="{.status.availableReplicas}")
@@ -204,6 +203,7 @@ pipeline {
                 }
             }
         }
+
 
     }
     //    stage('Terraform destroy') {
