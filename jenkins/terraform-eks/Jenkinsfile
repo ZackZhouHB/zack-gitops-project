@@ -157,7 +157,7 @@ pipeline {
         }
 
         // Stage to update kubeconfig for Jenkins to manage EKS cluster
-        stage('Update Kubeconfig') {
+        stage('Deploy and Verify Application') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
                     sh '''
@@ -169,67 +169,42 @@ pipeline {
 
                         # Verify that the cluster is ready
                         kubectl get nodes
+
                         # Apply the Kubernetes deployment
                         kubectl apply -f jenkins/terraform-eks/deployment.yaml
+
+                        # Wait for the deployment to be ready
+                        maxRetries=10
+                        waitTime=30  # seconds
+                        for ((i=0; i<maxRetries; i++)); do
+                            # Check the deployment status
+                            status=$(kubectl get deployment my-app -o jsonpath="{.status.availableReplicas}")
+                            if [ "$status" == "2" ]; then  # Change this based on your desired replicas
+                                echo "Deployment is ready."
+                                break
+                            else
+                                echo "Deployment is not ready yet. Waiting for $waitTime seconds..."
+                                sleep $waitTime
+                            fi
+                        done
+
+                        # Retrieve and output the LoadBalancer DNS name
+                        loadBalancerDns=$(kubectl get service my-app-service -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+                        echo "LoadBalancer DNS Name: $loadBalancerDns"
+
+                        # Test the accessibility of the web application
+                        response=$(curl -s -o /dev/null -w '%{http_code}' http://$loadBalancerDns)
+                        if [ "$response" == "200" ]; then
+                            echo "Application is accessible!"
+                        else
+                            echo "Application is not accessible! HTTP response code: $response"
+                            exit 1  # This will fail the Jenkins stage
+                        fi
                     '''
                 }
             }
         }
 
-        // Stage to wait for the deployment to be ready
-        stage('Wait for Deployment') {
-            steps {
-                script {
-                    def maxRetries = 10
-                    def waitTime = 30 // seconds
-
-                    // Check the deployment status
-                    for (int i = 0; i < maxRetries; i++) {
-                        // Check the deployment status
-                        def status = sh(script: 'kubectl get deployment my-app -o jsonpath="{.status.availableReplicas}"', returnStdout: true).trim()
-
-                        if (status == "2") {  // Change this based on your desired replicas
-                            echo "Deployment is ready."
-                            break
-                        } else {
-                            echo "Deployment is not ready yet. Waiting for ${waitTime} seconds..."
-                            sleep waitTime
-                        }
-                    }
-                }
-            }
-        }
-
-        // Stage to output the LoadBalancer DNS name of the deployed service
-        stage('Output LoadBalancer DNS Name') {
-            steps {
-                script {
-                    // Retrieve the LoadBalancer DNS name
-                    def loadBalancerDns = sh(script: 'kubectl get service my-app-service -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"', returnStdout: true).trim()
-                    echo "LoadBalancer DNS Name: ${loadBalancerDns}"
-                }
-            }
-        }
-
-        // Stage to test the accessibility of the web application
-        stage('Test Application Accessibility') {
-            steps {
-                script {
-                    // Check if the LoadBalancer is ready
-                    def loadBalancerDns = sh(script: 'kubectl get service my-app-service -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"', returnStdout: true).trim()
-                    echo "LoadBalancer DNS: ${loadBalancerDns}"
-
-                    // Test the accessibility of the web application
-                    def response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://${loadBalancerDns}", returnStdout: true).trim()
-
-                    if (response == "200") {
-                        echo "Application is accessible!"
-                    } else {
-                        error "Application is not accessible! HTTP response code: ${response}"
-                    }
-                }
-            }
-        }
     }
     //    stage('Terraform destroy') {
     //       steps {
