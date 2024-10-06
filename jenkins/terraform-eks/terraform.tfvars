@@ -1,0 +1,13 @@
+aws_region    = "ap-southeast-2"                  # Your desired AWS region
+cluster_name  = "dev-eks-cluster"                 # Name of your EKS cluster
+desired_size  = 2                                 # Desired number of nodes
+max_size      = 3                                 # Maximum number of nodes
+min_size      = 1                                 # Minimum number of nodes
+instance_type = "t3a.small"                       # Node type
+disk_size     = 15                                # Disk size in GB
+s3_bucket     = "zz-asb-k8s-velero-backup-bucket" # S3 bucket for Terraform state
+s3_key        = "eks/dev/terraform/module/stage/eks.tfstate"
+environment   = "dev" # Environment name (e.g., dev, prod)
+role_prefix   = "dev" # Prefix for roles (e.g., dev, prod)
+subnet_ids    = ["subnet-080880543de1ce69a", "subnet-073a3529e120d46db"]
+vpc_id        = "vpc-0de6953a6686478e8"
