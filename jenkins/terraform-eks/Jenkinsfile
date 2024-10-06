@@ -149,8 +149,10 @@ pipeline {
                             terraform init
                             terraform validate
                             terraform apply -auto-approve -var "aws_region=${REGION}"
+                            terraform refresh
+                            terraform output
 
-                            # Extract the cluster name from Terraform output and set it to an environment variable
+                            # Directly retrieve the cluster name after apply
                             echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" 
                         '''
                         
@@ -161,6 +163,7 @@ pipeline {
                 }
             }
         }
+
 
 
         // Stage to update kubeconfig for Jenkins to manage EKS cluster
