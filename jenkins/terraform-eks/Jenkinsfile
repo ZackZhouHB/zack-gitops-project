@@ -9,6 +9,7 @@ pipeline {
         GIT_BRANCH = 'jenkins-cd'  // Git branch
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
         REGION = 'ap-southeast-2'  // AWS region
+        EKS_CLUSTER_NAME = "dev-eks-cluster"
     }
     stages {
 //        stage('Clean Workspace') {
@@ -149,35 +150,11 @@ pipeline {
                             terraform init
                             terraform validate
                             terraform apply -auto-approve -var "aws_region=${REGION}"
-                            terraform refresh
-                            terraform output
-
-                            # Directly retrieve the cluster name after apply
-                            echo "EKS_CLUSTER_NAME=$(terraform output -raw cluster_name)" 
-                            echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}" 
                         '''
                     }
                 }
             }
         }
-// Stage to extract the EKS cluster name
-        // Stage to extract EKS cluster name
-        stage('Extract eks cluster name') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    script {
-                        // Navigate to the directory containing your Terraform configuration
-                        env.EKS_CLUSTER_NAME = sh(script: '''
-                            cd jenkins/terraform-eks
-                            terraform output -raw cluster_name
-                        ''', returnStdout: true).trim()
-
-                        echo "Extracted EKS Cluster Name: ${env.EKS_CLUSTER_NAME}"
-                    }
-                }
-            }
-        }
-
 
         // Stage to update kubeconfig for Jenkins to manage EKS cluster
         stage('Update Kubeconfig') {
