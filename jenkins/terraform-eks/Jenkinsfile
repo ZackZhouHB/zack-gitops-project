@@ -169,18 +169,10 @@ pipeline {
 
                         # Verify that the cluster is ready
                         kubectl get nodes
+                        # Apply the Kubernetes deployment
+                        kubectl apply -f jenkins/terraform-eks/deployment.yaml
                     '''
                 }
-            }
-        }
-
-        // Stage to deploy the application
-        stage('Deploy Application') {
-            steps {
-                sh '''
-                    # Apply the Kubernetes deployment
-                    kubectl apply -f jenkins/terraform-eks/deployment.yaml
-                '''
             }
         }
 
