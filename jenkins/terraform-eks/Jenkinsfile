@@ -165,7 +165,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
                     script {
-                        def eksclustername = sh(script: '''
+                        def EKS_CLUSTER_NAME = sh(script: '''
                             cd jenkins/terraform-eks
                             terraform output -raw cluster_name
                         ''', returnStdout: true).trim()
