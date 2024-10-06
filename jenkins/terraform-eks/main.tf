@@ -16,6 +16,8 @@ data "aws_subnets" "default" {
 resource "aws_eks_cluster" "example" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster_role.arn  # Updated to reference the role from IAM
+    # Specify the desired Kubernetes version
+  version = "1.31"
 
   vpc_config {
     subnet_ids = data.aws_subnets.default.ids
