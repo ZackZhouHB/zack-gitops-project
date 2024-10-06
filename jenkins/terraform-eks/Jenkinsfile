@@ -160,18 +160,20 @@ pipeline {
                 }
             }
         }
-        // Stage to extract cluster name
+// Stage to extract the EKS cluster name
         stage('Extract eks cluster name') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
                     script {
-                        def EKS_CLUSTER_NAME = sh(script: '''
+                        // Navigate to the directory containing your Terraform configuration
+                        def eksClusterName = sh(script: '''
                             cd jenkins/terraform-eks
                             terraform output -raw cluster_name
                         ''', returnStdout: true).trim()
-                        echo "EKS Cluster Name: ${eksclustername}"
+
+                        echo "EKS Cluster Name: ${eksClusterName}"
                         // Set the environment variable for the next stages explicitly
-                        env.EKS_CLUSTER_NAME = eksclustername
+                        env.EKS_CLUSTER_NAME = eksClusterName
                     }
                 }
             }
