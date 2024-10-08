@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Jenkins - Multi-Destnation Continuse Deployment with Terraform"
+title:  "Jenkins - Multi-Destination Continuous Deployment with Terraform"
 date:   2024-08-15 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -12,11 +12,11 @@ In last post, I was able to create a Jenkins Universal CI Pipeline to create blo
 
 [Jenkins - Universal CI Pipeline with Ansible & Terraform](https://zackz.site/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html)
 
-Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.
+Now it is time to design the continuous deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.
 
-- Continuse Deployment Consideration
+- Continuous Deployment Consideration
 
-Continuse deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:
+Continuous deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:
 
 1. Jenkins CD pipeline with muti-stage
 2. Terraform to provision AWS EC2

@@ -3,9 +3,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Jenkins - Multi-Destnation Continuse Deployment with Terraform | Zack’s Blog</title>
+<title>Jenkins - Multi-Destination Continuous Deployment with Terraform | Zack’s Blog</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="Jenkins - Multi-Destnation Continuse Deployment with Terraform" />
+<meta property="og:title" content="Jenkins - Multi-Destination Continuous Deployment with Terraform" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Jenkins CD Pipeline Design" />
 <meta property="og:description" content="Jenkins CD Pipeline Design" />
@@ -15,9 +15,9 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-08-15T10:15:29+10:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Jenkins - Multi-Destnation Continuse Deployment with Terraform" />
+<meta property="twitter:title" content="Jenkins - Multi-Destination Continuous Deployment with Terraform" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-08-15T10:15:29+10:00","datePublished":"2024-08-15T10:15:29+10:00","description":"Jenkins CD Pipeline Design","headline":"Jenkins - Multi-Destnation Continuse Deployment with Terraform","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"},"url":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-08-15T10:15:29+10:00","datePublished":"2024-08-15T10:15:29+10:00","description":"Jenkins CD Pipeline Design","headline":"Jenkins - Multi-Destination Continuous Deployment with Terraform","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"},"url":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -40,7 +40,7 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Jenkins - Multi-Destnation Continuse Deployment with Terraform</h1>
+    <h1 class="post-title p-name" itemprop="name headline">Jenkins - Multi-Destination Continuous Deployment with Terraform</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2024-08-15T10:15:29+10:00" itemprop="datePublished">Aug 15, 2024
       </time></p>
@@ -53,13 +53,13 @@
 
 <p><a href="https://zackz.site/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html">Jenkins - Universal CI Pipeline with Ansible &amp; Terraform</a></p>
 
-<p>Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
+<p>Now it is time to design the continuous deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
 
 <ul>
-  <li>Continuse Deployment Consideration</li>
+  <li>Continuous Deployment Consideration</li>
 </ul>
 
-<p>Continuse deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:</p>
+<p>Continuous deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:</p>
 
 <ol>
   <li>Jenkins CD pipeline with muti-stage</li>
