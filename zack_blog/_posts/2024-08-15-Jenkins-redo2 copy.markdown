@@ -7,7 +7,12 @@ categories: jekyll Cat2
 
 <b>Jenkins CD Pipeline Design</b>
 
-After the previous post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub. Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.
+
+In last post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub:
+
+[Jenkins - Universal CI Pipeline with Ansible & Terraform](https://zackz.site/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html)
+
+Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.
 
 - Continuse Deployment Consideration
 

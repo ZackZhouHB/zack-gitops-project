@@ -1,4 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T00:45:40+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T00:56:10+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
+
+<p>In last post, I was able to deploy EKS cluster via Jenkins and Terraform:</p>
+
+<ul>
+  <li><a href="https://zackz.site/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html">Jenkins - Multi-Destnation Continuse Deployment with Terraform</a></li>
+</ul>
 
 <p>This post walks through the process of setting up an Autoscaler and Horizontal Pod Autoscaler (HPA) in an Amazon EKS cluster. We will explore how to dynamically scale the number of nodes in EKS cluster and how to autoscale K8S pods based on CPU utilization using HPA.</p>
 
@@ -266,7 +272,11 @@ It simulated moving the existing pods to other nodes. Once it determined that th
 
 <p>By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS]]></summary></entry><entry><title type="html">Jenkins - Multi-Destnation Continuse Deployment with Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" rel="alternate" type="text/html" title="Jenkins - Multi-Destnation Continuse Deployment with Terraform" /><published>2024-08-15T10:15:29+10:00</published><updated>2024-08-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
 
-<p>After the previous post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub. Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
+<p>In last post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub:</p>
+
+<p><a href="https://zackz.site/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html">Jenkins - Universal CI Pipeline with Ansible &amp; Terraform</a></p>
+
+<p>Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
 
 <ul>
   <li>Continuse Deployment Consideration</li>

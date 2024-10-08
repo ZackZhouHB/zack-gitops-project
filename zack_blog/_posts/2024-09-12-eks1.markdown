@@ -7,6 +7,10 @@ categories: jekyll Cat2
 
 <b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b>
 
+In last post, I was able to deploy EKS cluster via Jenkins and Terraform:
+
+- [Jenkins - Multi-Destnation Continuse Deployment with Terraform](https://zackz.site/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html)
+
 This post walks through the process of setting up an Autoscaler and Horizontal Pod Autoscaler (HPA) in an Amazon EKS cluster. We will explore how to dynamically scale the number of nodes in EKS cluster and how to autoscale K8S pods based on CPU utilization using HPA.
 
 Prerequisites:
