@@ -25,10 +25,10 @@ I developed this CloudFormation template sets up an automated process for patchi
 
 Bellow resources will be created by this cnf template. 
 
-- `SSM Parameter Store`: A Parameter (/ami/latest) is created to store the ID of the latest patched AMI. The initial AMI ID is set to ami-0375ab65ee943a2a6.
+- `SSM Parameter Store`: A Parameter (/ami/latest) is created to store the ID of the latest patched AMI. The initial AMI ID is set to Ubuntu 20.04 TLS (ami-03xxxxxxxxxa6).
 SNS Topic:
 
-- `An SNS Topic` is created for sending notifications about the AMI patching process. It is configured to send notifications via email (hongbo.zhou@nesa.nsw.edu.au).
+- `An SNS Topic` is created for sending notifications about the AMI patching process. It is configured to send notifications via email (zhbsoftboy1@gmail).
 EC2 Instance Role and Profile:
 
 - `An IAM role` (EC2InstanceRole) is created with permissions for various EC2 and SSM actions, including updating instance information, sending commands, and listing associations.
