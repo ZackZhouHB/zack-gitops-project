@@ -11,10 +11,10 @@ output "cluster_name" {
 
 output "cluster_role_arn" {
   description = "The ARN of the EKS cluster IAM role."
-  value       = aws_iam_role.eks_cluster_role.arn  # This line is not needed
+  value       = aws_iam_role.eks_cluster_role.arn # This line is not needed
 }
 
 output "node_role_arn" {
   description = "The ARN of the node IAM role."
-  value       = aws_iam_role.eks_node_role.arn  # This line is not needed
+  value       = aws_iam_role.eks_node_role.arn # This line is not needed
 }

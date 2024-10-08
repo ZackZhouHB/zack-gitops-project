@@ -1,32 +1,61 @@
+# install autoscaler
+# kubectl.exe apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/refs/heads/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-one-asg.yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: nginx
 spec:
-  replicas: 2
+  replicas: 1  # Start with 1 replica
   selector:
     matchLabels:
-      app: my-app
+      app: nginx
   template:
     metadata:
       labels:
-        app: my-app
+        app: nginx
     spec:
       containers:
-      - name: my-app-container
-        image: zackz001/gitops-jekyll:latest  # Replace with your Docker image
-        ports:
-        - containerPort: 80
+      - name: nginx
+        image: nginx
+        resources:
+          requests:
+            cpu: "500m"  # 0.5 vCPU
+            memory: "512Mi"  # 0.5 GiB
+          limits:
+            cpu: "1"  # 1 vCPU
+            memory: "1Gi"  # 1 GiB
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-app-service
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 80
-  selector:
-    app: my-app
+# kubectl -n kube-system edit deployment.apps/cluster-autoscaler
+
+# add scale up setting 
+
+#    spec:
+#      containers:
+#      - command:
+#        - ./cluster-autoscaler
+#        - --cluster-name=module-eks-cluster
+#        - --v=4
+#        - --stderrthreshold=info
+#        - --cloud-provider=aws
+#        - --skip-nodes-with-local-storage=false
+#        - --balance-similar-node-groups
+#        - --skip-nodes-with-system-pods=false
+#        - --nodes=1:3:eks-module-eks-cluster-node-group-c6c9333a-ebfa-1038-453d-4d950e19971d
+
+# add scale down Cooldown Period for Node Termination
+# - --scale-down-unneeded-time=1m
+# - --scale-down-delay-after-add=1m
+
+# add workload to trigger autoscaler
+
+# kubectl scale deployment nginx --replicas=2
+
+# kubectl scale deployment nginx --replicas=3
+
+# scale down
+# kubectl scale deployment nginx --replicas=1
+
+# autoscaler log
+
+# kubectl -n kube-system logs -f deployment/cluster-autoscaler

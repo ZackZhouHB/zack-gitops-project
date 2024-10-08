@@ -51,3 +51,30 @@ resource "aws_iam_role_policy_attachment" "eks_EC2_Policy" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
+
+resource "aws_iam_policy" "eks_autoscaler_policy" {
+  name        = "${var.role_prefix}-${var.cluster_name}-autoscaler-policy"
+  description = "Policy to allow EKS autoscaler to scale EC2 instances"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
+          "ec2:DescribeLaunchTemplateVersions"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_autoscaler_role_policy" {
+  role       = aws_iam_role.eks_node_role.name
+  policy_arn = aws_iam_policy.eks_autoscaler_policy.arn
+}

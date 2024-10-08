@@ -40,7 +40,7 @@ variable "vpc_id" {
 
 variable "subnet_ids" {
   description = "List of subnet IDs."
-  type        = list(string)  # Change from string to list(string)
+  type        = list(string) # Change from string to list(string)
 }
 
 variable "role_prefix" {

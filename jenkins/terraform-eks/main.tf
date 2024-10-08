@@ -15,8 +15,8 @@ data "aws_subnets" "default" {
 
 resource "aws_eks_cluster" "example" {
   name     = var.cluster_name
-  role_arn = aws_iam_role.eks_cluster_role.arn  # Updated to reference the role from IAM
-    # Specify the desired Kubernetes version
+  role_arn = aws_iam_role.eks_cluster_role.arn # Updated to reference the role from IAM
+  # Specify the desired Kubernetes version
   version = "1.31"
 
   vpc_config {
@@ -27,7 +27,7 @@ resource "aws_eks_cluster" "example" {
 resource "aws_eks_node_group" "example" {
   cluster_name    = aws_eks_cluster.example.name
   node_group_name = "${var.cluster_name}-node-group"
-  node_role_arn   = aws_iam_role.eks_node_role.arn  # Updated to reference the role from IAM
+  node_role_arn   = aws_iam_role.eks_node_role.arn # Updated to reference the role from IAM
   subnet_ids      = data.aws_subnets.default.ids
 
   scaling_config {
@@ -38,7 +38,7 @@ resource "aws_eks_node_group" "example" {
 
   instance_types = [var.instance_type]
 
-  disk_size     = var.disk_size
+  disk_size = var.disk_size
 
   ami_type = "AL2_x86_64"
 
