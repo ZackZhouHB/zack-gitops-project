@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>PostgreSQL: Replication &amp; Failover | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="PostgreSQL: Replication &amp; Failover" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The Replication" />
+<meta property="og:description" content="The Replication" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/01/08/PS2.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/01/08/PS2.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-01-08T11:15:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="PostgreSQL: Replication &amp; Failover" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-01-08T11:15:29+11:00","datePublished":"2024-01-08T11:15:29+11:00","description":"The Replication","headline":"PostgreSQL: Replication &amp; Failover","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/01/08/PS2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/01/08/PS2.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline"> PostgreSQL: Replication &amp; Failover </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-01-08T11:15:29+11:00" itemprop="datePublished">Jan 8, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b> The Replication</b></p>
+
+<p>Last post I started hands-on session with PostgreSQL installation on both docker and docker-compose, explored important PostgreSQL configuration and was able to mount persistent volumes and config files to customize PostgreSQL.</p>
+
+<p>In this post I will setup a second PostgreSQL instance to setup a primaty and standby replication for PostgreSQL HA, by using some pg tools, last we will test failover by shut down primary and promot standby instance.</p>
+
+<p><img src="/assets/ps2-1.png" alt="image tooltip here" /></p>
+
+<p>To achieve this, steps can be followed by:  </p>
+
+<ul>
+  <li>Setup docker network and Create Replication User in Primary instance</li>
+</ul>
+
+<p>To establish PostgreSQL replication, it is necessary to set unique data volumes for data between instances and unique config files for each instance.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create both primary and standby folders</span>
+root@ubt-server:~# <span class="nb">mkdir </span>postgres-1
+root@ubt-server:~# <span class="nb">mkdir </span>postgres-2
+
+<span class="c"># move previous post config file to postgres-1 and postgres-2 </span>
+root@ubt-server:~# <span class="nb">cp</span> <span class="nt">-r</span> config/<span class="k">*</span> postgres-1/config/
+root@ubt-server:~# <span class="nb">mv </span>config/<span class="k">*</span> postgres-2/config/
+
+<span class="c"># create docker network so PostgreSQL containers on the same network</span>
+root@ubt-server:~/postgres-1/config# docker network create postgres
+9891c6d9cd3bdbeea2fdfc2b287c868a0f67a3cec7f2939e1299cfb0ae293021
+
+<span class="c"># run primary </span>
+root@ubt-server:~/postgres-1# docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--name</span> postgres-1 <span class="se">\</span>
+<span class="nt">--net</span> postgres <span class="se">\</span>
+<span class="nt">-e</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span>postgresadmin <span class="se">\</span>
+<span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>admin123 <span class="se">\</span>
+<span class="nt">-e</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span>postgresdb <span class="se">\</span>
+<span class="nt">-e</span> <span class="nv">PGDATA</span><span class="o">=</span><span class="s2">"/data"</span> <span class="se">\</span>
+<span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-1/pgdata:/data <span class="se">\</span>
+<span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-1/config:/config <span class="se">\</span>
+<span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-1/archive:/mnt/server/archive <span class="se">\</span>
+<span class="nt">-p</span> 5000:5432 postgres:15.0 <span class="se">\</span>
+<span class="nt">-c</span> <span class="s1">'config_file=/config/postgresql.conf'</span>
+
+2024-01-11 13:15:07.762 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-01-11 13:15:07.763 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-01-11 13:15:07.763 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-01-11 13:15:07.764 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-01-11 13:15:07.766 UTC <span class="o">[</span>63] LOG:  database system was shut down at 2024-01-11 13:15:07 UTC
+2024-01-11 13:15:07.768 UTC <span class="o">[</span>1] LOG:  database system is ready to accept connections
+
+<span class="c"># create Replication User, chown postgres to access archive folder</span>
+root@ubt-server:~# docker <span class="nb">exec</span> <span class="nt">-it</span> postgres-1 bash
+root@2bf6be3e4fa8:/# createuser <span class="nt">-U</span> postgresadmin <span class="nt">-P</span> <span class="nt">-c</span> 5 <span class="nt">--replication</span> replicationUser
+Enter password <span class="k">for </span>new role: 
+Enter it again: 
+root@2bf6be3e4fa8:/# <span class="nb">chown </span>postgres:postgres /mnt/server/archive
+
+<span class="c"># add replication into configration file</span>
+root@ubt-server:~/postgres-1/config# vim pg_hba.conf
+<span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+<span class="c"># add replication user</span>
+host     replication     replicationUser         0.0.0.0/0        md5</code></pre></figure>
+
+<ul>
+  <li>Enable Write-Ahead Log, archive and Replication</li>
+</ul>
+
+<p>Write-Ahead Log (WAL) is a PostgreSQL data integrity mechanism of writing transaction logs to file and does not accept the transaction until it has been written to the transaction log and flushed to disk. This ensures that if there is a crash in the system, that the database can be recovered from the transaction log.</p>
+
+<p>So we need to add bellow lines into postgresql.conf to enable Write-Ahead Log and replica and archive</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/postgres-1/config# vim postgresql.conf
+
+<span class="c">#replication</span>
+wal_level <span class="o">=</span> replica
+archive_mode <span class="o">=</span> on
+archive_command <span class="o">=</span> <span class="s1">'test ! -f /mnt/server/archive/%f &amp;&amp; cp %p /mnt/server/archive/%f'</span>
+max_wal_senders <span class="o">=</span> 3</code></pre></figure>
+
+<ul>
+  <li>set up standby instance and validate replication
+here we need to use tool “pgbase_backup” to create standby instance by taking a primary instance base backup, type “replicationUser” passwd, then postgres-1 database will be back up into postgres-2 pgdata folder</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--net</span> postgres <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-2/pgdata:/data <span class="nt">--entrypoint</span> /bin/bash postgres:15.0
+
+root@56e38636a87b:/# pg_basebackup <span class="nt">-h</span> postgres-1 <span class="nt">-p</span> 5432 <span class="nt">-U</span> replicationUser <span class="nt">-D</span> /data/ <span class="nt">-Fp</span> <span class="nt">-Xs</span> <span class="nt">-R</span>
+Password: </code></pre></figure>
+
+<p>Now, we start the standby instance. See the log below. Postgres-2 is entering standby mode, ready to accept read-only connections, and starting streaming WAL from the primary.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--name</span> postgres-2 <span class="nt">--net</span> postgres <span class="nt">-e</span> <span class="nv">POSTGRES_USER</span><span class="o">=</span>postgresadmin <span class="nt">-e</span> <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>admin123 <span class="nt">-e</span> <span class="nv">POSTGRES_DB</span><span class="o">=</span>postgresdb <span class="nt">-e</span> <span class="nv">PGDATA</span><span class="o">=</span><span class="s2">"/data"</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-2/pgdata:/data <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-2/config:/config <span class="nt">-v</span> <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/postgres-2/archive:/mnt/server/archive <span class="nt">-p</span> 5001:5432 postgres:15.0 <span class="nt">-c</span> <span class="s1">'config_file=/config/postgresql.conf'</span>
+
+PostgreSQL Database directory appears to contain a database<span class="p">;</span> Skipping initialization
+
+2024-01-11 14:25:21.008 UTC <span class="o">[</span>1] LOG:  starting PostgreSQL 15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">)</span> on x86_64-pc-linux-gnu, compiled by gcc <span class="o">(</span>Debian 10.2.1-6<span class="o">)</span> 10.2.1 20210110, 64-bit
+2024-01-11 14:25:21.008 UTC <span class="o">[</span>1] LOG:  listening on IPv4 address <span class="s2">"0.0.0.0"</span>, port 5432
+2024-01-11 14:25:21.008 UTC <span class="o">[</span>1] LOG:  listening on IPv6 address <span class="s2">"::"</span>, port 5432
+2024-01-11 14:25:21.010 UTC <span class="o">[</span>1] LOG:  listening on Unix socket <span class="s2">"/var/run/postgresql/.s.PGSQL.5432"</span>
+2024-01-11 14:25:21.012 UTC <span class="o">[</span>29] LOG:  database system was interrupted<span class="p">;</span> last known up at 2024-01-11 14:21:16 UTC
+2024-01-11 14:25:21.017 UTC <span class="o">[</span>29] LOG:  entering standby mode
+2024-01-11 14:25:21.026 UTC <span class="o">[</span>29] LOG:  redo starts at 0/5000028
+2024-01-11 14:25:21.026 UTC <span class="o">[</span>29] LOG:  consistent recovery state reached at 0/5000100
+2024-01-11 14:25:21.026 UTC <span class="o">[</span>1] LOG:  database system is ready to accept read-only connections
+2024-01-11 14:25:21.034 UTC <span class="o">[</span>30] LOG:  started streaming WAL from primary at 0/6000000 on timeline 1</code></pre></figure>
+
+<ul>
+  <li>Test replication and failover</li>
+</ul>
+
+<p>First, let us test the replication, by login to postgres-1, create a zack_customers table, then validating from postgres-2</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># bash into postgres-1, create zack_customers table</span>
+root@ubt-server:~# docker <span class="nb">exec</span> <span class="nt">-it</span> postgres-1 bash
+root@06dd98085df7:/# psql <span class="nt">--username</span><span class="o">=</span>postgresadmin postgresdb
+psql <span class="o">(</span>15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">))</span>
+Type <span class="s2">"help"</span> <span class="k">for </span>help.
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># CREATE TABLE zack_customers (zackname text, z_customer_id serial, date_created timestamp);</span>
+CREATE TABLE
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># \dt</span>
+                List of relations
+ Schema |      Name      | Type  |     Owner     
+<span class="nt">--------</span>+----------------+-------+---------------
+ public | zack_customers | table | postgresadmin
+<span class="o">(</span>1 row<span class="o">)</span>
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># \q</span>
+root@06dd98085df7:/# <span class="nb">exit
+exit</span>
+
+<span class="c"># bash into postgres-2, validate zack_customers table</span>
+root@ubt-server:~/postgres-2/pgdata# docker <span class="nb">exec</span> <span class="nt">-it</span> postgres-2 bash
+root@b333ff290624:/# psql <span class="nt">--username</span><span class="o">=</span>postgresadmin postgresdb
+psql <span class="o">(</span>15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">))</span>
+Type <span class="s2">"help"</span> <span class="k">for </span>help.
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># \dt</span>
+                List of relations
+ Schema |      Name      | Type  |     Owner     
+<span class="nt">--------</span>+----------------+-------+---------------
+ public | zack_customers | table | postgresadmin
+<span class="o">(</span>1 row<span class="o">)</span>
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># \q</span>
+root@b333ff290624:/# <span class="nb">exit
+exit</span></code></pre></figure>
+
+<p>now we simulate failover by using loadbalancer tool “pgctl”, to shut down the primary instance, then promote the standby read-only instance into a read-write instance</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># shut down the primary instance</span>
+root@ubt-server:~# docker <span class="nb">rm</span> <span class="nt">-f</span> postgres-1
+postgres-1
+<span class="c"># exec standby try to create a table zack_customers_2, get error as it's read-only</span>
+root@ubt-server:~# docker <span class="nb">exec</span> <span class="nt">-it</span> postgres-2 bash
+root@b333ff290624:/# psql <span class="nt">--username</span><span class="o">=</span>postgresadmin postgresdb
+psql <span class="o">(</span>15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">))</span>
+Type <span class="s2">"help"</span> <span class="k">for </span>help.
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># CREATE TABLE zack_customers_2 (zackname text, z_customer_id serial, date_created timestamp);</span>
+ERROR:  cannot execute CREATE TABLE <span class="k">in </span>a read-only transaction
+
+postgresdb-# <span class="se">\q</span>
+
+<span class="c"># promote postgres-2 from standby to primary</span>
+root@b333ff290624:/# runuser <span class="nt">-u</span> postgres <span class="nt">--</span> pg_ctl promote
+waiting <span class="k">for </span>server to promote.... <span class="k">done
+</span>server promoted
+
+<span class="c"># exec to create table zack_customers_2, this time works</span>
+root@b333ff290624:/# psql <span class="nt">--username</span><span class="o">=</span>postgresadmin postgresdb
+psql <span class="o">(</span>15.0 <span class="o">(</span>Debian 15.0-1.pgdg110+1<span class="o">))</span>
+Type <span class="s2">"help"</span> <span class="k">for </span>help.
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># CREATE TABLE zack_customers_2 (zackname text, z_customer_id serial, date_created timestamp);</span>
+CREATE TABLE
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># \dt</span>
+                 List of relations
+ Schema |       Name       | Type  |     Owner     
+<span class="nt">--------</span>+------------------+-------+---------------
+ public | zack_customers   | table | postgresadmin
+ public | zack_customers_2 | table | postgresadmin
+<span class="o">(</span>2 rows<span class="o">)</span>
+
+<span class="nv">postgresdb</span><span class="o">=</span><span class="c"># \q</span>
+root@b333ff290624:/# <span class="nb">exit
+exit
+</span>root@ubt-server:~# </code></pre></figure>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we are able to run a PostgreSQL primary and standby instances to test replication and failover, in the next blog I will discover how to depoly a single PostgreSQL on kubernetes.</p>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/01/08/PS2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

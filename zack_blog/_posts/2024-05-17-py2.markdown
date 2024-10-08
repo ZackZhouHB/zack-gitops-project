@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python: File Handling for EC2 tagging"
+title:  "Python: File Handling for AWS tagging"
 date:   2024-05-17 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -253,46 +253,142 @@ i-012fb886802435ff2,joe-account-py-test,Joe,Prod,SYD,joe-account-py-test,joesite
 i-052b0511339457efc,joe-site,Joe,Testing,,joe-site,Python-test,None,20240301
 {% endhighlight %}
 
-- now create python script "update_tags_2.p" to apply new tags for 2 aws accounts by given profile
+- now create python script "update_tags_2.py" to apply new tags for 2 aws accounts by given profile
 {% highlight shell %}
 
-root@ubt-server:~/pythonwork/mutiple-aws# vim update_tags_2.py
-# Import libiaries
 import boto3
 import csv
-from botocore.exceptions import ProfileNotFound
+import re
 
 # Define the mandatory tags
-MANDATORY_TAGS = ["Env", "BizOwner", "Technology", "Project"]
+MANDATORY_TAGS = ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5"]
 
-# List of AWS account profiles
-AWS_PROFILES = ["aws_account_zackblog", "aws_account_joesite"]  # Add more profiles as needed
+# Initialize boto3 session for a given profile
+def get_boto3_session(profile_name):
+    return boto3.Session(profile_name=profile_name)
 
-def update_tags_from_csv(profile_name):
-    filename = f"ec2_instances_updated_{profile_name}.csv"
-    session = boto3.Session(profile_name=profile_name)
+# Fetch account ID using sts client
+def get_account_id(session):
+    sts_client = session.client('sts')
+    return sts_client.get_caller_identity()['Account']
+
+# Modified function to fetch and compare tags without applying changes
+def check_tags_from_csv(session, filename, account_id, region):
     ec2 = session.client('ec2')
+    rds = session.client('rds')
+    s3 = session.client('s3')
+    lambda_client = session.client('lambda')
+    elbv2 = session.client('elbv2')
+    efs = session.client('efs')
+    ecs = session.client('ecs')
+
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            instance_id = row['InstanceId']
-            tags = [{'Key': tag, 'Value': row[tag]} for tag in MANDATORY_TAGS if row[tag]]
-            if tags:
-                ec2.create_tags(Resources=[instance_id], Tags=tags)
+            identifier = row.get('Identifier', '').strip()
+            service = row.get('Service', '').strip()
 
-def process_all_profiles():
-    for profile in AWS_PROFILES:
-        try:
-            print(f"Processing profile: {profile}")
-            update_tags_from_csv(profile)
-            print(f"Tags updated successfully from 'ec2_instances_updated_{profile}.csv' for profile {profile}.")
-        except ProfileNotFound:
-            print(f"Profile {profile} not found. Skipping.")
-        except FileNotFoundError:
-            print(f"Updated CSV file for profile {profile} not found. Skipping.")
+            if not identifier or not service:
+                print(f"Skipping row due to missing 'Identifier' or 'Service': {row}")
+                continue
+
+            # Fetch current tags and identify missing mandatory tags
+            current_tags = fetch_existing_tags(service, identifier, session, account_id, region)
+            missing_tags = [tag for tag in MANDATORY_TAGS if tag not in [t['Key'] for t in current_tags]]
+
+            # Output resources missing mandatory tags
+            if missing_tags:
+                print(f"Resource: {identifier}, Service: {service}")
+                print(f"Current Tags: {current_tags}")
+                print(f"Missing Mandatory Tags: {missing_tags}\n")
+
+# Function to fetch existing tags for a given resource
+def fetch_existing_tags(service, identifier, session, account_id, region):
+    try:
+        if service == 'EC2':
+            ec2 = session.client('ec2')
+            response = ec2.describe_tags(Filters=[{'Name': 'resource-id', 'Values': [identifier]}])
+            return [{'Key': tag['Key'], 'Value': tag['Value']} for tag in response['Tags']]
+        elif service == 'RDS':
+            rds = session.client('rds')
+            arn = f'arn:aws:rds:{region}:{account_id}:db:{identifier}'
+            response = rds.list_tags_for_resource(ResourceName=arn)
+            return response.get('TagList', [])
+        elif service == 'RDScluster':
+            rds = session.client('rds')
+            arn = f'arn:aws:rds:{region}:{account_id}:cluster:{identifier}'
+            response = rds.list_tags_for_resource(ResourceName=arn)
+            return response.get('TagList', [])
+        elif service == 'S3':
+            s3 = session.client('s3')
+            response = s3.get_bucket_tagging(Bucket=identifier)
+            return response.get('TagSet', [])
+        elif service == 'Lambda':
+            lambda_client = session.client('lambda')
+            arn = f'arn:aws:lambda:{region}:{account_id}:function:{identifier}'
+            response = lambda_client.list_tags(Resource=arn)
+            return [{'Key': k, 'Value': v} for k, v in response.get('Tags', {}).items()]
+        elif service == 'ElasticLoadBalancingV2':
+            elbv2 = session.client('elbv2')
+            arn = get_elbv2_arn_by_arn(elbv2, identifier)
+            response = elbv2.describe_tags(ResourceArns=[arn])
+            return response['TagDescriptions'][0]['Tags'] if response['TagDescriptions'] else []
+        elif service == 'EFS':
+            efs = session.client('efs')
+            response = efs.describe_tags(FileSystemId=identifier)
+            return response.get('Tags', [])
+        elif service == 'ECS':
+            ecs = session.client('ecs')
+            arn = f'arn:aws:ecs:{region}:{account_id}:service/{identifier}'
+            response = ecs.list_tags_for_resource(resourceArn=arn)
+            return response.get('tags', [])
+        else:
+            print(f"Unsupported service type {service}, cannot fetch tags.")
+            return []
+    except Exception as e:
+        print(f"Error fetching tags for {service} {identifier}: {e}")
+        return []
+
+def get_elbv2_arn_by_arn(elbv2_client, load_balancer_partial_name):
+    """Retrieve the ARN for a given ALB by partial name."""
+    try:
+        response = elbv2_client.describe_load_balancers()
+        for lb in response['LoadBalancers']:
+            if load_balancer_partial_name in lb['LoadBalancerArn'] or load_balancer_partial_name in lb['LoadBalancerName']:
+                return lb['LoadBalancerArn']
+        print(f"No matching ALB found for {load_balancer_partial_name}")
+        return None
+    except Exception as e:
+        print(f"Error retrieving ARN for ALB {load_balancer_partial_name}: {e}")
+        return None
 
 if __name__ == '__main__':
-    process_all_profiles()
+    # Define the CSV files and AWS profiles
+    csv_files = {
+        'account1': 'account1.csv',   # AWS profile and CSV for account 1 resources
+        'account2': 'account2.csv',   # AWS profile and CSV for account 2 resources
+        #'mst': 'mst.csv',                 # AWS profile and CSV for mst account resources
+        #'itbs': 'itbs.csv',               # AWS profile and CSV for itbs account resources
+    }
+
+    # Process each profile and its corresponding CSV
+    for profile, csv_file in csv_files.items():
+        print(f"Processing tags for AWS profile: {profile}")
+
+        # Get the session for the current profile
+        session = get_boto3_session(profile)
+
+        # Fetch the account ID and region for the session
+        account_id = get_account_id(session)
+        region = session.region_name or 'us-east-1'  # Set default region if not found
+
+        print(f"Using account ID: {account_id}, Region: {region}")
+
+        # Check tags from the CSV without applying changes
+        check_tags_from_csv(session, csv_file, account_id, region)
+
+    print("Tag comparison operation completed for all profiles.")
+
 
 # run to apply tags
 root@ubt-server:~/pythonwork/mutiple-aws# python3 update_tags_2.py 
@@ -316,121 +412,3 @@ In the next post I will see how to use Python Flask to redesign Zack's blog for 
 
 ====================
 ====================
-
-
-<b> Just got another task to create more users in all account with python boto3</b>
-
-- a csv file with list of users will be created, aws profile configured for all aws accounts
-
-{% highlight shell %}
-root@ubt-server:~/pythonwork/user_creation# cat all_users.csv 
-Username
-ZackZ
-BobJ
-MattS
-{% endhighlight %}
-
-- a python script with bellow IAM user creation
-{% highlight shell %}
-root@ubt-server:~/pythonwork/user_creation# vim more_user_from_csv.py
-
-import boto3
-import csv
-from botocore.exceptions import ProfileNotFound, ClientError
-
-# List of AWS account profiles
-AWS_PROFILES = ["aws_account_zackblog", "aws_account_joesite"]  # Add more profiles as needed
-
-# IAM User details
-PASSWORD = "xxxxxxxx"
-POLICY_ARN = "arn:aws:iam::aws:policy/AdministratorAccess"
-CSV_FILE = "all_users.csv"
-
-def read_users_from_csv(filename):
-    users = []
-    with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            users.append(row['Username'])
-    return users
-
-def create_iam_user(profile_name, user_name):
-    session = boto3.Session(profile_name=profile_name)
-    iam = session.client('iam')
-    
-    try:
-        # Create IAM user
-        iam.create_user(UserName=user_name)
-        print(f"User {user_name} created in profile {profile_name}.")
-
-        # Create login profile for console access
-        iam.create_login_profile(
-            UserName=user_name,
-            Password=PASSWORD,
-            PasswordResetRequired=False
-        )
-        print(f"Login profile created for user {user_name} in profile {profile_name}.")
-
-        # Attach AdministratorAccess policy
-        iam.attach_user_policy(
-            UserName=user_name,
-            PolicyArn=POLICY_ARN
-        )
-        print(f"AdministratorAccess policy attached to user {user_name} in profile {profile_name}.")
-
-    except ClientError as e:
-        if e.response['Error']['Code'] == 'EntityAlreadyExists':
-            print(f"User {user_name} already exists in profile {profile_name}.")
-        else:
-            print(f"Error creating user {user_name} in profile {profile_name}: {e}")
-
-def process_all_profiles(users):
-    for profile in AWS_PROFILES:
-        try:
-            print(f"Processing profile: {profile}")
-            for user in users:
-                create_iam_user(profile, user)
-        except ProfileNotFound:
-            print(f"Profile {profile} not found. Skipping.")
-
-if __name__ == '__main__':
-    users = read_users_from_csv(CSV_FILE)
-    process_all_profiles(users)
-{% endhighlight %}
-
-- Go to create all users
-
-{% highlight shell %}
-
-root@ubt-server:~/pythonwork/user_creation# python3 more_user_from_csv.py 
-
-Processing profile: aws_account_zackblog
-
-User ZackZ created in profile aws_account_zackblog.
-Login profile created for user ZackZ in profile aws_account_zackblog.
-AdministratorAccess policy attached to user ZackZ in profile aws_account_zackblog.
-
-User BobJ created in profile aws_account_zackblog.
-Login profile created for user BobJ in profile aws_account_zackblog.
-AdministratorAccess policy attached to user BobJ in profile aws_account_zackblog.
-
-User MattS created in profile aws_account_zackblog.
-Login profile created for user MattS in profile aws_account_zackblog.
-AdministratorAccess policy attached to user MattS in profile aws_account_zackblog.
-
-Processing profile: aws_account_joesite
-
-User ZackZ created in profile aws_account_joesite.
-Login profile created for user ZackZ in profile aws_account_joesite.
-AdministratorAccess policy attached to user ZackZ in profile aws_account_joesite.
-
-User BobJ created in profile aws_account_joesite.
-Login profile created for user BobJ in profile aws_account_joesite.
-AdministratorAccess policy attached to user BobJ in profile aws_account_joesite.
-
-User MattS created in profile aws_account_joesite.
-Login profile created for user MattS in profile aws_account_joesite.
-AdministratorAccess policy attached to user MattS in profile aws_account_joesite.
-{% endhighlight %}
-
-![image tooltip here](/assets/py2-5.png)

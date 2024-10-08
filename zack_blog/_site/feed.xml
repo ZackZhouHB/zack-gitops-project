@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-07-24T20:51:59+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-08T19:57:56+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
 
 <p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
 
@@ -940,210 +940,7 @@ KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
   <li>
     <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry><entry><title type="html">Istio: Distributed Tracing with Jaeger</title><link href="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html" rel="alternate" type="text/html" title="Istio: Distributed Tracing with Jaeger" /><published>2024-05-24T10:15:29+10:00</published><updated>2024-05-24T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/24/istio2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/24/istio2.html"><![CDATA[<p><b>About Jaeger</b></p>
-
-<p>Last post we are able to depoly <a href="https://zackz.online/jekyll/cat2/2024/05/22/istio.html">Istio</a> and manage traffic for a book review microservice application. This session we will dive deeper into Istia for it add-on Jaeger for Microservice tracing.</p>
-
-<p>Jaeger is an open-source end-to-end distributed tracing tool to monitor and troubleshoot the performance of microservices-based distributed systems by providing insights into the latency and other performance metrics.</p>
-
-<ul>
-  <li>Trace</li>
-</ul>
-
-<p>A trace represents the entire journey of a request or transaction as it propagates through various services and components of a distributed system. It captures the path the request takes, including all the microservices it interacts with, from start to finish. A trace is composed of multiple spans.</p>
-
-<ul>
-  <li>Span</li>
-</ul>
-
-<p>A span is a single unit of work within a trace. It represents an individual operation within a microservice, such as a function call, database query, or external API request. Each span contains metadata such as:</p>
-
-<p><b>Prepration for Hands on</b></p>
-
-<p>Here we will use <a href="https://github.com/DickChesterwood/k8s-fleetman">Fleetman GPS sumilater microservice application</a> as example to explore Jaeger and it capabilities.</p>
-
-<ul>
-  <li>Enable Istio sidecar injection for existing deployment</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># lable the namaspace to allow istio sidecar container injection</span>
-<span class="o">[</span>root@freeipa-server ~]# kubectl label namespace default istio-injection<span class="o">=</span>enabled <span class="nt">--overwrite</span>
-
-<span class="c"># Redeploy fleetman application</span>
-<span class="o">[</span>root@freeipa-server ~]# kubectl rollout restart deployment <span class="nt">-n</span> default</code></pre></figure>
-
-<ul>
-  <li>validate pod for istio sidecar injection, also check service status in Kiali</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# kubectl get po
-NAME                                                        READY   STATUS    RESTARTS       AGE
-api-gateway-58f978dfc6-phdgp                                2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
-position-simulator-6f5df9b447-57d75                         2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
-position-tracker-6698577777-fz52v                           2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
-staff-service-59987757dc-mfm2t                              2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
-vehicle-telemetry-56c7f8d859-jvtpj                          2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
-webapp-59bc7757fb-trnnv                                     2/2     Running   6 <span class="o">(</span>30m ago<span class="o">)</span>    17h</code></pre></figure>
-
-<p><img src="/assets/istio2-2.png" alt="image tooltip here" /></p>
-
-<p><b>How Jaeger Works</b></p>
-
-<p>When a request enters a microservice (e.g., a user making a request to a frontend service), the tracing library creates a span and assigns it a trace ID. As the request propagates through other services, additional spans are created and linked to the same trace ID. Each span is recorded with its respective start and end timestamps, operation name, and other metadata.</p>
-
-<p>The Jaeger UI provides a way to visualize traces. Users can search for traces based on various criteria (e.g., service name, operation name, duration) and view the detailed structure of individual traces, like durations of time spent between microservices.</p>
-
-<p>As the request flows through different services, each service creates additional or child spans. (e.g., The frontend service might call an authentication service. then authentication service call a user service, thus Jaeger will create 2 child spans)</p>
-
-<p><img src="/assets/istio2-1.png" alt="image tooltip here" /></p>
-
-<p><b>Latency and Performance Analysis</b></p>
-
-<p>By examining the durations of each span, If a particular span has a long duration, that service might be a bottleneck.
-If spans have significant gaps between them, network latency or queuing delays might be an issue. so we can identify which part of the request is taking the most time and investigate further to optimize performance.</p>
-
-<p><img src="/assets/istio2-4.png" alt="image tooltip here" /></p>
-
-<p><b>Manage routing in each service from Kiali </b></p>
-
-<p>Managing routing in Istio can be done either through the Kiali console or by defining VirtualServices and DestinationRules using Kubernetes YAML manifests. here from Kiali console, we have the visualization of each service traffic flow, metrics, and dependencies between services in real-time.</p>
-
-<p>By create weighted routing or suspend traffic, Kiali will create it own VirtualServices and DestinationRules to manage the traffic</p>
-
-<p><img src="/assets/istio2-3.png" alt="image tooltip here" /></p>
-
-<p><b>Add timeout in istio virtual service YAML</b></p>
-
-<p>To add a timeout into istio virtual service YAML and ensure it works with Jaeger for better visibility and efficiency in the microservice architecture.</p>
-
-<p>By adding this timeout to 3s for bellow “api-gateway” virtual service, Jaeger trace will aviod long response time when a request call api-gateway, any response longer than 3s will reture http timeout, which add visibility to Jaeger UI to determine if the request successful or not.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: api-gateway
-spec:
-  hosts:
-  - api-gateway
-  http:
-  - route:
-    - destination:
-        host: api-gateway
-        port:
-          number: 80
-    <span class="nb">timeout</span>: 3s <span class="c"># 3 seconds timeout add</span></code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>In this session we deep dive into Istio add-on Jaeger for distributed tracing, which Jaeger facilitates, involves tracking requests as they flow through various services and components of an application. This helps identify bottlenecks, understand service dependencies, and improve overall performance.</p>
-
-<p>In the next post I will see how to use Istio and Kiali to run some Canary Releases, Blue-Green deployment Rolling Updates and A/B Testing.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Jaeger]]></summary></entry><entry><title type="html">Istio: Traffic Routing</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html" rel="alternate" type="text/html" title="Istio: Traffic Routing" /><published>2024-05-22T10:15:29+10:00</published><updated>2024-05-22T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/istio</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/istio.html"><![CDATA[<p><b>Helm install istio </b></p>
-
-<p>Here we use helm to install istio (istio-base, istiod, istia gateway), then deploy a sample online book store microservice “bookinfo”, practise istio tasks include Traffic Management, Observability, Security.</p>
-
-<p>Bookinfo Topology:</p>
-
-<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Helm install istio (istiod, istio-ingress)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create namespace istio-system
-helm pull istio/base
-helm <span class="nb">install </span>istio-base <span class="nb">.</span> <span class="nt">-n</span> istio-system <span class="nt">--set</span> <span class="nv">defaultRevision</span><span class="o">=</span>default
-
-helm pull istio/istiod
-helm <span class="nb">install </span>istiod <span class="nb">.</span> <span class="nt">-n</span> istio-system 
-
-kubectl create namespace istio-ingress
-helm pull istio/gateway
-helm <span class="nb">install </span>istio-ingress <span class="nb">.</span> <span class="nt">-n</span> istio-ingress
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-system
-NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART        	APP VERSION
-istio-base	istio-system	1       	2023-12-17 08:14:06.943276388 +0800 CST	deployed	base-1.20.1  	1.20.1     
-istiod    	istio-system	1       	2023-12-17 08:15:40.370551503 +0800 CST	deployed	istiod-1.20.1	1.20.1 
-
-helm <span class="nb">ls</span> <span class="nt">-n</span> istio-ingress
-NAME         	NAMESPACE    	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
-istio-ingress	istio-ingress	1       	2023-12-17 08:25:07.111999373 +0800 CST	deployed	gateway-1.20.1	1.20.1</code></pre></figure>
-
-<ul>
-  <li>Deploy bookinfo microservice and istio ingressgateway and virtualservice</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label namespace istio-system istio-injection<span class="o">=</span>enabled
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo.yaml
-kubectl apply <span class="nt">-f</span> bookinfo.yaml
-
-kubectl get po
-NAME                                                     READY   STATUS    RESTARTS       AGE
-details-v1-698d88b-wmfcb                                 2/2     Running   0              21m
-ratings-v1-6484c4d9bb-cb6gx                              2/2     Running   0              21m
-reviews-v1-5b5d6494f4-jrsvc                              2/2     Running   0              21m
-reviews-v2-5b667bcbf8-jgfzj                              2/2     Running   0              21m
-reviews-v3-5b9bd44f4-tmmfz                               2/2     Running   0              21m
-
-kubectl apply <span class="nt">-f</span> https://github.com/istio/istio/blob/master/samples/bookinfo/networking/bookinfo-gateway.yaml <span class="nt">-oyaml</span> <span class="o">&gt;</span> bookinfo-gateway.yaml
-kubectl apply <span class="nt">-f</span> bookinfo-gateway.yaml</code></pre></figure>
-
-<ul>
-  <li>Deploy Kiali, jaeger, grafana, prometheus</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
-wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
-kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
-
-<ul>
-  <li>
-    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
-<img src="/assets/kiali.png" alt="image tooltip here" /></p>
-  </li>
-  <li>
-    <p>define destination rules and virtual service for reviews</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
-wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/virtual-service-reviews-90-10.yaml
-
-kubectl create <span class="nt">-f</span> destination-rule-all.yaml <span class="nt">-f</span> virtual-service-reviews-90-10.yaml   <span class="c"># route v1 10% and v3 90%</span>
-kubectl scale deployment reviews-v2 <span class="nt">-n</span> istio-system <span class="nt">--replicas</span><span class="o">=</span>0 <span class="c"># scale down v2 to 0</span>
-
-kubectl get dr <span class="nt">-A</span>
-NAMESPACE      NAME          HOST          AGE
-istio-system   details       details       6m56s
-istio-system   productpage   productpage   6m56s
-istio-system   ratings       ratings       6m56s
-istio-system   reviews       reviews       6m56s
-kubectl get vs <span class="nt">-A</span>
-NAMESPACE      NAME       GATEWAYS               HOSTS            AGE
-istio-system   bookinfo   <span class="o">[</span><span class="s2">"bookinfo-gateway"</span><span class="o">]</span>   <span class="o">[</span><span class="s2">"book.istio"</span><span class="o">]</span>   19h
-istio-system   reviews                           <span class="o">[</span><span class="s2">"reviews"</span><span class="o">]</span>      5m26s
-
-Spec:
-  Hosts:
-    reviews
-  Http:
-    Route:
-      Destination:
-        Host:    reviews
-        Subset:  v1
-      Weight:    10
-      Destination:
-        Host:    reviews
-        Subset:  v3
-      Weight:    90</code></pre></figure>
-
-<p>refresh bookinfo webpage, test Traffic route weight as bellow</p>
-
-<p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
-
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Helm install istio]]></summary></entry><entry><title type="html">Python Flask Microservice: K8S deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html" rel="alternate" type="text/html" title="Python Flask Microservice: K8S deployment" /><published>2024-05-22T00:17:29+10:00</published><updated>2024-05-22T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html"><![CDATA[<p><b> About K8S deployment</b></p>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry><entry><title type="html">Python Microservice: K8S deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html" rel="alternate" type="text/html" title="Python Microservice: K8S deployment" /><published>2024-05-22T00:17:29+10:00</published><updated>2024-05-22T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html"><![CDATA[<p><b> About K8S deployment</b></p>
 
 <p>Now It is time to change from docker-compose to deploy into Kubernetes.  </p>
 
@@ -1327,7 +1124,7 @@ replicaset.apps/user-service-5d8766d9cb    1         1         1    
 
 <p>Now we complete all Python Flask sessions.</p>
 
-<p>I have done this End-to-End Python Flask microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  </p>
+<p>I have done this End-to-End Python Microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  </p>
 
 <ul>
   <li>
@@ -1351,7 +1148,7 @@ replicaset.apps/user-service-5d8766d9cb    1         1         1    
   <li>
     <p>K8S deployment</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry><entry><title type="html">Python Flask Microservice: Monitoring with Prometheus and Grafana</title><link href="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html" rel="alternate" type="text/html" title="Python Flask Microservice: Monitoring with Prometheus and Grafana" /><published>2024-05-21T00:17:29+10:00</published><updated>2024-05-21T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"><![CDATA[<p><b> About Monitoring with Prometheus and Grafana</b></p>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry><entry><title type="html">Python Microservice: Monitoring with Prometheus and Grafana</title><link href="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html" rel="alternate" type="text/html" title="Python Microservice: Monitoring with Prometheus and Grafana" /><published>2024-05-21T00:17:29+10:00</published><updated>2024-05-21T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"><![CDATA[<p><b> About Monitoring with Prometheus and Grafana</b></p>
 
 <p>Both Prometheus and Grafana are compatible with microservice applications, integrating Prometheus with Flask is straightforward to provide performance and monitoring metrics.</p>
 
@@ -1517,7 +1314,7 @@ Creating 06-with-monitoringstack_api-gateway_1   ... <span class="k">done
 
 <p>Now we can enable monitoring with Prometheus and Grafana.</p>
 
-<p>In the next post, I will see how to depoly our Python Flask microservice into Kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Monitoring with Prometheus and Grafana]]></summary></entry><entry><title type="html">Python Flask Microservice: Logging with ELK</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html" rel="alternate" type="text/html" title="Python Flask Microservice: Logging with ELK" /><published>2024-05-20T00:16:29+10:00</published><updated>2024-05-20T00:16:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
+<p>In the next post, I will see how to depoly our Python Flask microservice into Kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Monitoring with Prometheus and Grafana]]></summary></entry><entry><title type="html">Python Microservice: Logging with ELK</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html" rel="alternate" type="text/html" title="Python Microservice: Logging with ELK" /><published>2024-05-20T00:16:29+10:00</published><updated>2024-05-20T00:16:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
 
 <p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs.</p>
 
@@ -1808,7 +1605,7 @@ kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<s
 
 <p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
 
-<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Flask Microservice: API Gateway &amp;amp; Consul</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html" rel="alternate" type="text/html" title="Python Flask Microservice: API Gateway &amp;amp; Consul" /><published>2024-05-19T10:15:29+10:00</published><updated>2024-05-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html"><![CDATA[<p><b> About API Gateway</b></p>
+<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Microservice: API Gateway &amp;amp; Consul</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html" rel="alternate" type="text/html" title="Python Microservice: API Gateway &amp;amp; Consul" /><published>2024-05-19T10:15:29+10:00</published><updated>2024-05-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html"><![CDATA[<p><b> About API Gateway</b></p>
 
 <p>API Gateway acts as a single entry point for all clients and handles the request routing, composition, and protocol translation in a microservices architecture, here I will create a API Gateway using Python Flask and requests library, to route both “user” and “order” services.</p>
 
@@ -2042,4 +1839,629 @@ consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] a
 
 <p>Now we can use API gateway and Consul to manage route and service discovery.</p>
 
-<p>In the next post, I will see how to enable logging with ELK stack and monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About API Gateway]]></summary></entry></feed>
+<p>In the next post, I will see how to enable logging with ELK stack and monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About API Gateway]]></summary></entry><entry><title type="html">Python Microservice: Containerization</title><link href="http://localhost:4000/jekyll/cat2/2024/05/18/py-flask1.html" rel="alternate" type="text/html" title="Python Microservice: Containerization" /><published>2024-05-18T10:15:29+10:00</published><updated>2024-05-18T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/18/py-flask1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/18/py-flask1.html"><![CDATA[<p><b> About Python Flask</b></p>
+
+<p>Flask stands out as one of Python’s most popular web frameworks. Designed for versatility and ease of use, Flask offers a robust starting point for crafting web apps.</p>
+
+<p>By the following posts, I will use Flask to</p>
+
+<ul>
+  <li>
+    <p>create a series of Python web applications from simple app (Hello Zack)</p>
+  </li>
+  <li>
+    <p>develop microservices applications (order and user), deploy using Docker compose</p>
+  </li>
+  <li>
+    <p>Create Python API gateway application to</p>
+  </li>
+  <li>
+    <p>Integrate with Consul for service discovery and register</p>
+  </li>
+  <li>
+    <p>Enable logging with ELK, monitoring with Prometheus &amp; Grafana</p>
+  </li>
+  <li>
+    <p>Last I will create Kubernetes manifast for K8S deployment.</p>
+  </li>
+  <li>
+    <p>I will skip ArgoCD and Github Action as I had done similar posts before.  </p>
+  </li>
+</ul>
+
+<p><b> Get started with Flask env and simple app</b></p>
+
+<p>I will skip the installation for Docker and python3 as those can be found via the official Docker and Python website.</p>
+
+<p>In the application Python code, I will import the <code class="language-plaintext highlighter-rouge">Flask</code> class from the <code class="language-plaintext highlighter-rouge">flask</code> module. Flask is a micro web framework written in Python. The Flask class is used to create a Flask application instance, which will be used to handle incoming web requests and route them to the appropriate functions in our code.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># local create a new virtualenv </span>
+virtualenv flask
+<span class="c"># pip3 install virtualenv </span>
+<span class="nb">cd </span>flask
+<span class="c"># activate the virtualenv</span>
+<span class="nb">source </span>bin/activate
+
+<span class="c"># install flask</span>
+pip <span class="nb">install </span>flask
+
+<span class="c"># create a simple Flask app</span>
+vim app.py
+
+from flask import Flask
+
+<span class="c"># create an instance of the Flask class and store it in the app variable, The __name__ variable is passed as an argument to the Flask constructor. This helps Flask determine the root path for the application, which is useful for locating resources, templates, and static files</span>
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+
+<span class="c"># This is a decorator that Flask provides. A decorator is a way to modify the behavior of a function or method. In this case, @app.route('/') tells Flask to execute the following function (in this case, hello_zack) when the root URL ('/') of the web application is accessed</span>
+@app.route<span class="o">(</span><span class="s1">'/'</span><span class="o">)</span>
+
+<span class="c"># This line defines a function named hello_zack. This function will be called when a request to the root URL ('/') is made.</span>
+def hello_zack<span class="o">()</span>:
+
+<span class="c"># This line returns the string 'Hello, Zack!' as the response to the web request. When someone accesses the root URL, they will see this message in their web browser.</span>
+ <span class="k">return</span> <span class="s1">'Hello, Zack!'</span>
+
+
+<span class="c"># This is a common Python idiom that checks whether the script is being run directly or being imported as a module in another script</span>
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+
+<span class="c"># This line starts the Flask development server. The host='0.0.0.0' argument makes the server accessible from any network interface, with the default port for Flask is 5000</span>
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5000<span class="o">)</span>
+
+<span class="c"># run it</span>
+<span class="o">(</span>flask<span class="o">)</span> root@ubt-server:~/zack-gitops-project/Python-flask/01-single-app# python3 app.py 
+
+ <span class="k">*</span> Serving Flask app <span class="s1">'app'</span>
+ <span class="k">*</span> Debug mode: off
+WARNING: This is a development server. Do not use it <span class="k">in </span>a production deployment. Use a production WSGI server instead.
+ <span class="k">*</span> Running on all addresses <span class="o">(</span>0.0.0.0<span class="o">)</span>
+ <span class="k">*</span> Running on http://127.0.0.1:5000
+ <span class="k">*</span> Running on http://11.0.1.199:5000
+Press CTRL+C to quit
+11.0.1.1 - - <span class="o">[</span>18/Jul/2024 13:50:41] <span class="s2">"GET / HTTP/1.1"</span> 200 -</code></pre></figure>
+
+<p><img src="/assets/flask1.png" alt="image tooltip here" /></p>
+
+<p><b> Create “user” and “order” flask microservice apps</b></p>
+
+<p>Now I will move to create 2 microservice applications with Flask.</p>
+
+<p>In design I will import the <code class="language-plaintext highlighter-rouge">Flask</code> class and <code class="language-plaintext highlighter-rouge">jsonify</code> function to create a Flask application instance, define a route (/orders) and a corresponding function (get_orders) to handle requests to that route, then return a JSON response with order details. Same design for user.py as well.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># order_service.py</span>
+from flask import Flask, jsonify
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
+def get_orders<span class="o">()</span>:
+ orders <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
+ <span class="o">]</span>
+ <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
+
+
+<span class="c"># user_service.py</span>
+from flask import Flask, jsonify
+
+app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
+
+@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
+def get_users<span class="o">()</span>:
+ <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
+ <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
+ <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
+ <span class="o">]</span>
+ <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+ app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span></code></pre></figure>
+
+<p>Create Dockerfile for containirztion</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Dockerfile-order</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY order_service.py /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> flask
+
+<span class="c"># Make port 5002 available to the world outside this container</span>
+EXPOSE 5002
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
+
+<span class="c"># Run order_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
+
+
+<span class="c"># Dockerfile-order</span>
+
+<span class="c"># Use an official Python runtime as a parent image</span>
+FROM python:3.9-slim
+
+<span class="c"># Set the working directory in the container</span>
+WORKDIR /app
+
+<span class="c"># Copy the current directory contents into the container at /app</span>
+COPY user_service.py /app
+
+<span class="c"># Install any needed packages specified in requirements.txt</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> flask
+
+<span class="c"># Make port 5001 available to the world outside this container</span>
+EXPOSE 5001
+
+<span class="c"># Define environment variable</span>
+ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
+
+<span class="c"># Run order_service.py when the container launches</span>
+CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span></code></pre></figure>
+
+<p>Build, tag and run it using docker-compose</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># docker-compose.yml</span>
+version: <span class="s1">'3'</span>
+services:
+ user-service:
+ build:
+ context: <span class="nb">.</span>
+ dockerfile: Dockerfile_user
+ ports:
+ - <span class="s2">"5001:5001"</span>
+ order-service:
+ build:
+ context: <span class="nb">.</span>
+ dockerfile: Dockerfile_order
+ ports:
+ - <span class="s2">"5002:5002"</span>
+
+docker-compose up <span class="nt">--build</span>
+
+Creating 02-microservice-docker-compose_user-service_1  ... <span class="k">done
+</span>Creating 02-microservice-docker-compose_order-service_1 ... <span class="k">done
+</span>Attaching to 02-microservice-docker-compose_order-service_1, 02-microservice-docker-compose_user-service_1
+order-service_1  |  <span class="k">*</span> Serving Flask app <span class="s1">'order_service.py'</span>
+order-service_1  |  <span class="k">*</span> Debug mode: off
+order-service_1  | WARNING: This is a development server. Do not use it <span class="k">in </span>a production deployment. Use a production WSGI server instead.
+order-service_1  |  <span class="k">*</span> Running on all addresses <span class="o">(</span>0.0.0.0<span class="o">)</span>
+order-service_1  |  <span class="k">*</span> Running on http://127.0.0.1:5002
+order-service_1  |  <span class="k">*</span> Running on http://192.168.16.3:5002
+order-service_1  | Press CTRL+C to quit
+user-service_1   |  <span class="k">*</span> Serving Flask app <span class="s1">'user_service.py'</span>
+user-service_1   |  <span class="k">*</span> Debug mode: off
+user-service_1   | WARNING: This is a development server. Do not use it <span class="k">in </span>a production deployment. Use a production WSGI server instead.
+user-service_1   |  <span class="k">*</span> Running on all addresses <span class="o">(</span>0.0.0.0<span class="o">)</span>
+user-service_1   |  <span class="k">*</span> Running on http://127.0.0.1:5001
+user-service_1   |  <span class="k">*</span> Running on http://192.168.16.2:5001
+user-service_1   | Press CTRL+C to quit</code></pre></figure>
+
+<p><img src="/assets/flask2.png" alt="image tooltip here" />
+<img src="/assets/flask3.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we can use Python flask to create a simple web application and containerized it using Dockerfile</p>
+
+<p>In the next post, I will see how to use API Gateway and Consul for more features to this Python applications.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Python Flask]]></summary></entry><entry><title type="html">Python: File Handling for AWS tagging</title><link href="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html" rel="alternate" type="text/html" title="Python: File Handling for AWS tagging" /><published>2024-05-17T10:15:29+10:00</published><updated>2024-05-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/17/py2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"><![CDATA[<p><b> About Python File Handling</b></p>
+
+<p>In the previous post I developed shell script + awscli to apply <a href="https://zackz.online/jekyll/cat2/2024/05/01/AWS-tagging.html">aws EC2 tages</a>, since the last post we discovered <a href="https://zackz.online/jekyll/cat2/2024/05/16/py1.html">Python Boto3</a> scripts for AWS resource automation and management, I think it is time to improve the EC2 tagging task with Python and boto3, together with file handling to achieve:</p>
+
+<ol>
+  <li>
+    <p>List and export ec2 information to a CSV file (instanceID, default instance name, Existing tags)</p>
+  </li>
+  <li>
+    <p>define 4 mandatory tags in CSV header (Env, BizOwner, Technology, Project)</p>
+  </li>
+  <li>
+    <p>validate exported tags against the 4 mandatory new tags, if any of the new mandatory tags exists, then keep the tage and value, if any of the new mandatory tags do not exist, add the key and leave the value blank</p>
+  </li>
+  <li>
+    <p>Get csv file fill with mandatory tags input from Biz team (manual work)</p>
+  </li>
+  <li>
+    <p>open the updated CSV file, apply the mandatory tags based on the input value</p>
+  </li>
+  <li>
+    <p>create and trigger lambda function with aws config rules to enforce 4 mandatory tags whenever a new instance launch  </p>
+  </li>
+</ol>
+
+<p><b> List and export ec2 information to a CSV</b></p>
+
+<ul>
+  <li>Here we need Python libraries for “boto3” and “csv”, to call boto3 sessions to retrieve EC2 information, then use Python “with open” and “for” loops to write each ec2 info to a csv file, also add mandatory tags write in the header fields “Env”, “BizOwner”, “Technology”, “Project”:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/new# vim export1.py
+<span class="c"># Import libiaries</span>
+import boto3
+import csv
+<span class="c"># Define the mandatory tags</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
+<span class="c"># Initialize boto3 clients</span>
+ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+
+def list_ec2_instances<span class="o">()</span>:
+    instances <span class="o">=</span> <span class="o">[]</span>
+    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
+            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
+            instance_info <span class="o">=</span> <span class="o">{</span>
+                <span class="s1">'InstanceId'</span>: instance_id,
+                <span class="s1">'DefaultName'</span>: default_name,
+                <span class="k">**</span>tags
+            <span class="o">}</span>
+            <span class="c"># Ensure mandatory tags are included with empty values if not present</span>
+            <span class="k">for </span>mandatory_tag <span class="k">in </span>MANDATORY_TAGS:
+                <span class="k">if </span>mandatory_tag not <span class="k">in </span>instance_info:
+                    instance_info[mandatory_tag] <span class="o">=</span> <span class="s1">''</span>
+            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
+    <span class="k">return </span>instances
+
+<span class="c"># Define export to csv</span>
+def export_to_csv<span class="o">(</span>instances, <span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances.csv'</span><span class="o">)</span>:
+    <span class="c"># Collect all possible tag keys</span>
+    all_tags <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
+    <span class="k">for </span>instance <span class="k">in </span>instances:
+        all_tags.update<span class="o">(</span>instance.keys<span class="o">())</span>
+    
+    <span class="c"># Ensure mandatory tags are included in the header</span>
+    all_tags.update<span class="o">(</span>MANDATORY_TAGS<span class="o">)</span>
+    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + sorted<span class="o">(</span>all_tags - <span class="o">{</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">})</span>
+    
+    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
+        writer.writeheader<span class="o">()</span>
+        <span class="k">for </span>instance <span class="k">in </span>instances:
+            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
+
+def main<span class="o">()</span>:
+    instances <span class="o">=</span> list_ec2_instances<span class="o">()</span>
+    export_to_csv<span class="o">(</span>instances<span class="o">)</span>
+    print<span class="o">(</span><span class="s2">"CSV export complete. Please update the mandatory tags in 'ec2_instances.csv'."</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    main<span class="o">()</span>
+
+root@ubt-server:~/pythonwork/new# python3 export1.py 
+CSV <span class="nb">export </span>complete. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances.csv'</span>.</code></pre></figure>
+
+<p><img src="/assets/py2-1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>next download and update ‘ec2_instances.csv’ with all required tags, then remane and upload as ‘ec2_instances_updated.csv’, create second script “update1.py” to apply new tags</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/new# vim update1.py
+
+import boto3
+import csv
+
+<span class="c"># Define the mandatory tags</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
+
+def update_tags_from_csv<span class="o">(</span><span class="nv">filename</span><span class="o">=</span><span class="s1">'ec2_instances_updated.csv'</span><span class="o">)</span>:
+    ec2 <span class="o">=</span> boto3.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
+        <span class="k">for </span>row <span class="k">in </span>reader:
+            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
+            <span class="k">if </span>tags:
+                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
+
+def main<span class="o">()</span>:
+    update_tags_from_csv<span class="o">()</span>
+    print<span class="o">(</span><span class="s2">"Tags updated successfully from 'ec2_instances_updated.csv'."</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    main<span class="o">()</span>
+
+root@ubt-server:~/pythonwork/new# python3 update1.py 
+Tags updated successfully from <span class="s1">'ec2_instances_updated.csv'</span>.</code></pre></figure>
+
+<p>Now the new tags had been applied.</p>
+
+<p><img src="/assets/py2-2.png" alt="image tooltip here" /></p>
+
+<p><b> How about managing tags for multiple AWS accounts </b></p>
+
+<p>Considering we have 20+ AWS accounts across the company and with more than 200 EC2 instances that need to apply tagging strategy, here I will</p>
+
+<ul>
+  <li>use AWScli profile to configure each AWS account creds, here I will use my own 2 AWS accounts (ZackBlog and JoeSite) to create AWScli profiles to validate the Python scripts</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Add account creds into ~/.aws/credentials</span>
+vim ~/.aws/credentials
+
+<span class="o">[</span>aws_account_zackblog]
+aws_access_key_id <span class="o">=</span> xxxx
+aws_secret_access_key <span class="o">=</span> yyyy
+
+<span class="o">[</span>aws_account_joesite]
+aws_access_key_id <span class="o">=</span> zzzz
+aws_secret_access_key <span class="o">=</span> yyyy</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># add profiles into ~/.aws/config</span>
+vim ~/.aws/config
+
+<span class="o">[</span>profile aws_account_zackblog]
+region <span class="o">=</span> ap-southeast-2
+
+<span class="o">[</span>profile aws_account_joesite]
+region <span class="o">=</span> ap-southeast-2</code></pre></figure>
+
+<ul>
+  <li>now update Python scripts to call each account profile to apply all 20+ AWS accounts in sequence.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork# <span class="nb">mkdir </span>mutiple-aws
+root@ubt-server:~/pythonwork# <span class="nb">cd </span>mutiple-aws/
+root@ubt-server:~/pythonwork/mutiple-aws# vim export2.py
+
+import boto3
+import csv
+from botocore.exceptions import ProfileNotFound
+
+<span class="c"># Define the mandatory tags</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
+
+<span class="c"># List of AWS account profiles</span>
+AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
+
+def list_ec2_instances<span class="o">(</span>profile_name<span class="o">)</span>:
+    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
+    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    instances <span class="o">=</span> <span class="o">[]</span>
+    response <span class="o">=</span> ec2.describe_instances<span class="o">()</span>
+    <span class="k">for </span>reservation <span class="k">in </span>response[<span class="s1">'Reservations'</span><span class="o">]</span>:
+        <span class="k">for </span>instance <span class="k">in </span>reservation[<span class="s1">'Instances'</span><span class="o">]</span>:
+            instance_id <span class="o">=</span> instance[<span class="s1">'InstanceId'</span><span class="o">]</span>
+            default_name <span class="o">=</span> next<span class="o">((</span>tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span> <span class="k">if </span>tag[<span class="s1">'Key'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Name'</span><span class="o">)</span>, <span class="s1">'No Name'</span><span class="o">)</span>
+            tags <span class="o">=</span> <span class="o">{</span>tag[<span class="s1">'Key'</span><span class="o">]</span>: tag[<span class="s1">'Value'</span><span class="o">]</span> <span class="k">for </span>tag <span class="k">in </span>instance.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])}</span>
+            instance_info <span class="o">=</span> <span class="o">{</span>
+                <span class="s1">'InstanceId'</span>: instance_id,
+                <span class="s1">'DefaultName'</span>: default_name,
+                <span class="k">**</span>tags
+            <span class="o">}</span>
+            <span class="c"># Ensure mandatory tags are included with empty values if not present</span>
+            <span class="k">for </span>mandatory_tag <span class="k">in </span>MANDATORY_TAGS:
+                <span class="k">if </span>mandatory_tag not <span class="k">in </span>instance_info:
+                    instance_info[mandatory_tag] <span class="o">=</span> <span class="s1">''</span>
+            instances.append<span class="o">(</span>instance_info<span class="o">)</span>
+    <span class="k">return </span>instances
+
+def export_to_csv<span class="o">(</span>instances, profile_name<span class="o">)</span>:
+    filename <span class="o">=</span> f<span class="s2">"ec2_instances_{profile_name}.csv"</span>
+    <span class="c"># Collect all possible tag keys</span>
+    all_tags <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
+    <span class="k">for </span>instance <span class="k">in </span>instances:
+        all_tags.update<span class="o">(</span>instance.keys<span class="o">())</span>
+    
+    <span class="c"># Ensure mandatory tags are included in the header</span>
+    all_tags.update<span class="o">(</span>MANDATORY_TAGS<span class="o">)</span>
+    fieldnames <span class="o">=</span> <span class="o">[</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">]</span> + sorted<span class="o">(</span>all_tags - <span class="o">{</span><span class="s1">'InstanceId'</span>, <span class="s1">'DefaultName'</span><span class="o">})</span>
+    
+    with open<span class="o">(</span>filename, <span class="s1">'w'</span>, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        writer <span class="o">=</span> csv.DictWriter<span class="o">(</span>csvfile, <span class="nv">fieldnames</span><span class="o">=</span>fieldnames<span class="o">)</span>
+        writer.writeheader<span class="o">()</span>
+        <span class="k">for </span>instance <span class="k">in </span>instances:
+            writer.writerow<span class="o">(</span>instance<span class="o">)</span>
+
+def process_all_profiles<span class="o">()</span>:
+    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
+        try:
+            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
+            instances <span class="o">=</span> list_ec2_instances<span class="o">(</span>profile<span class="o">)</span>
+            export_to_csv<span class="o">(</span>instances, profile<span class="o">)</span>
+            print<span class="o">(</span>f<span class="s2">"CSV export complete for profile {profile}. Please update the mandatory tags in 'ec2_instances_{profile}.csv'."</span><span class="o">)</span>
+        except ProfileNotFound:
+            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    process_all_profiles<span class="o">()</span></code></pre></figure>
+
+<ul>
+  <li>export 2 csv files for each aws account based on given profile, update mandatory tags in the 2 csv files, then upload and rename as <em>updated</em></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># export 2 csv files</span>
+root@ubt-server:~/pythonwork/mutiple-aws# python3 export2.py 
+Processing profile: aws_account_zackblog
+CSV <span class="nb">export complete </span><span class="k">for </span>profile aws_account_zackblog. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances_aws_account_zackblog.csv'</span><span class="nb">.</span>
+Processing profile: aws_account_joesite
+CSV <span class="nb">export complete </span><span class="k">for </span>profile aws_account_joesite. Please update the mandatory tags <span class="k">in</span> <span class="s1">'ec2_instances_aws_account_joesite.csv'</span><span class="nb">.</span>
+
+<span class="c"># update all mandatory tags in the files</span>
+root@ubt-server:~/pythonwork/mutiple-aws# <span class="nb">cat </span>ec2_instances_updated_aws_account_zackblog.csv 
+
+InstanceId,DefaultName,BizOwner,Env,Name,Project,Technology,Tuned,zz1,zz2
+i-076226daa5aaf7cf2,zack-blog,Zack,Prod,zack-blog,zack-web,Jekyll,,aa1,aa2
+i-0b5c0fec84073a6d9,Py_test_zackweb,Zack,Testing,Py_test_zackweb,python-test,None,Yes,,
+
+root@ubt-server:~/pythonwork/mutiple-aws# <span class="nb">cat </span>ec2_instances_updated_aws_account_joesite.csv 
+
+InstanceId,DefaultName,BizOwner,Env,Location,Name,Project,Technology,TimeLaunched
+i-012fb886802435ff2,joe-account-py-test,Joe,Prod,SYD,joe-account-py-test,joesite,Ruby-Jekyll,
+i-052b0511339457efc,joe-site,Joe,Testing,,joe-site,Python-test,None,20240301</code></pre></figure>
+
+<ul>
+  <li>now create python script “update_tags_2.py” to apply new tags for 2 aws accounts by given profile</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
+import csv
+import re
+
+<span class="c"># Define the mandatory tags</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Tag1"</span>, <span class="s2">"Tag2"</span>, <span class="s2">"Tag3"</span>, <span class="s2">"Tag4"</span>, <span class="s2">"Tag5"</span><span class="o">]</span>
+
+<span class="c"># Initialize boto3 session for a given profile</span>
+def get_boto3_session<span class="o">(</span>profile_name<span class="o">)</span>:
+    <span class="k">return </span>boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
+
+<span class="c"># Fetch account ID using sts client</span>
+def get_account_id<span class="o">(</span>session<span class="o">)</span>:
+    sts_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'sts'</span><span class="o">)</span>
+    <span class="k">return </span>sts_client.get_caller_identity<span class="o">()[</span><span class="s1">'Account'</span><span class="o">]</span>
+
+<span class="c"># Modified function to fetch and compare tags without applying changes</span>
+def check_tags_from_csv<span class="o">(</span>session, filename, account_id, region<span class="o">)</span>:
+    ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    rds <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'rds'</span><span class="o">)</span>
+    s3 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'s3'</span><span class="o">)</span>
+    lambda_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'lambda'</span><span class="o">)</span>
+    elbv2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'elbv2'</span><span class="o">)</span>
+    efs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'efs'</span><span class="o">)</span>
+    ecs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ecs'</span><span class="o">)</span>
+
+    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
+        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
+        <span class="k">for </span>row <span class="k">in </span>reader:
+            identifier <span class="o">=</span> row.get<span class="o">(</span><span class="s1">'Identifier'</span>, <span class="s1">''</span><span class="o">)</span>.strip<span class="o">()</span>
+            service <span class="o">=</span> row.get<span class="o">(</span><span class="s1">'Service'</span>, <span class="s1">''</span><span class="o">)</span>.strip<span class="o">()</span>
+
+            <span class="k">if </span>not identifier or not service:
+                print<span class="o">(</span>f<span class="s2">"Skipping row due to missing 'Identifier' or 'Service': {row}"</span><span class="o">)</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Fetch current tags and identify missing mandatory tags</span>
+            current_tags <span class="o">=</span> fetch_existing_tags<span class="o">(</span>service, identifier, session, account_id, region<span class="o">)</span>
+            missing_tags <span class="o">=</span> <span class="o">[</span>tag <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>tag not <span class="k">in</span> <span class="o">[</span>t[<span class="s1">'Key'</span><span class="o">]</span> <span class="k">for </span>t <span class="k">in </span>current_tags]]
+
+            <span class="c"># Output resources missing mandatory tags</span>
+            <span class="k">if </span>missing_tags:
+                print<span class="o">(</span>f<span class="s2">"Resource: {identifier}, Service: {service}"</span><span class="o">)</span>
+                print<span class="o">(</span>f<span class="s2">"Current Tags: {current_tags}"</span><span class="o">)</span>
+                print<span class="o">(</span>f<span class="s2">"Missing Mandatory Tags: {missing_tags}</span><span class="se">\n</span><span class="s2">"</span><span class="o">)</span>
+
+<span class="c"># Function to fetch existing tags for a given resource</span>
+def fetch_existing_tags<span class="o">(</span>service, identifier, session, account_id, region<span class="o">)</span>:
+    try:
+        <span class="k">if </span>service <span class="o">==</span> <span class="s1">'EC2'</span>:
+            ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+            response <span class="o">=</span> ec2.describe_tags<span class="o">(</span><span class="nv">Filters</span><span class="o">=[{</span><span class="s1">'Name'</span>: <span class="s1">'resource-id'</span>, <span class="s1">'Values'</span>: <span class="o">[</span>identifier]<span class="o">}])</span>
+            <span class="k">return</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag[<span class="s1">'Key'</span><span class="o">]</span>, <span class="s1">'Value'</span>: tag[<span class="s1">'Value'</span><span class="o">]}</span> <span class="k">for </span>tag <span class="k">in </span>response[<span class="s1">'Tags'</span><span class="o">]]</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'RDS'</span>:
+            rds <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'rds'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:rds:{region}:{account_id}:db:{identifier}'</span>
+            response <span class="o">=</span> rds.list_tags_for_resource<span class="o">(</span><span class="nv">ResourceName</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'TagList'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'RDScluster'</span>:
+            rds <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'rds'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:rds:{region}:{account_id}:cluster:{identifier}'</span>
+            response <span class="o">=</span> rds.list_tags_for_resource<span class="o">(</span><span class="nv">ResourceName</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'TagList'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'S3'</span>:
+            s3 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'s3'</span><span class="o">)</span>
+            response <span class="o">=</span> s3.get_bucket_tagging<span class="o">(</span><span class="nv">Bucket</span><span class="o">=</span>identifier<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'TagSet'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'Lambda'</span>:
+            lambda_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'lambda'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:lambda:{region}:{account_id}:function:{identifier}'</span>
+            response <span class="o">=</span> lambda_client.list_tags<span class="o">(</span><span class="nv">Resource</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return</span> <span class="o">[{</span><span class="s1">'Key'</span>: k, <span class="s1">'Value'</span>: v<span class="o">}</span> <span class="k">for </span>k, v <span class="k">in </span>response.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">{})</span>.items<span class="o">()]</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'ElasticLoadBalancingV2'</span>:
+            elbv2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'elbv2'</span><span class="o">)</span>
+            arn <span class="o">=</span> get_elbv2_arn_by_arn<span class="o">(</span>elbv2, identifier<span class="o">)</span>
+            response <span class="o">=</span> elbv2.describe_tags<span class="o">(</span><span class="nv">ResourceArns</span><span class="o">=[</span>arn]<span class="o">)</span>
+            <span class="k">return </span>response[<span class="s1">'TagDescriptions'</span><span class="o">][</span>0][<span class="s1">'Tags'</span><span class="o">]</span> <span class="k">if </span>response[<span class="s1">'TagDescriptions'</span><span class="o">]</span> <span class="k">else</span> <span class="o">[]</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'EFS'</span>:
+            efs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'efs'</span><span class="o">)</span>
+            response <span class="o">=</span> efs.describe_tags<span class="o">(</span><span class="nv">FileSystemId</span><span class="o">=</span>identifier<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'ECS'</span>:
+            ecs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ecs'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:ecs:{region}:{account_id}:service/{identifier}'</span>
+            response <span class="o">=</span> ecs.list_tags_for_resource<span class="o">(</span><span class="nv">resourceArn</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'tags'</span>, <span class="o">[])</span>
+        <span class="k">else</span>:
+            print<span class="o">(</span>f<span class="s2">"Unsupported service type {service}, cannot fetch tags."</span><span class="o">)</span>
+            <span class="k">return</span> <span class="o">[]</span>
+    except Exception as e:
+        print<span class="o">(</span>f<span class="s2">"Error fetching tags for {service} {identifier}: {e}"</span><span class="o">)</span>
+        <span class="k">return</span> <span class="o">[]</span>
+
+def get_elbv2_arn_by_arn<span class="o">(</span>elbv2_client, load_balancer_partial_name<span class="o">)</span>:
+    <span class="s2">"""Retrieve the ARN for a given ALB by partial name."""</span>
+    try:
+        response <span class="o">=</span> elbv2_client.describe_load_balancers<span class="o">()</span>
+        <span class="k">for </span>lb <span class="k">in </span>response[<span class="s1">'LoadBalancers'</span><span class="o">]</span>:
+            <span class="k">if </span>load_balancer_partial_name <span class="k">in </span>lb[<span class="s1">'LoadBalancerArn'</span><span class="o">]</span> or load_balancer_partial_name <span class="k">in </span>lb[<span class="s1">'LoadBalancerName'</span><span class="o">]</span>:
+                <span class="k">return </span>lb[<span class="s1">'LoadBalancerArn'</span><span class="o">]</span>
+        print<span class="o">(</span>f<span class="s2">"No matching ALB found for {load_balancer_partial_name}"</span><span class="o">)</span>
+        <span class="k">return </span>None
+    except Exception as e:
+        print<span class="o">(</span>f<span class="s2">"Error retrieving ARN for ALB {load_balancer_partial_name}: {e}"</span><span class="o">)</span>
+        <span class="k">return </span>None
+
+<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
+    <span class="c"># Define the CSV files and AWS profiles</span>
+    csv_files <span class="o">=</span> <span class="o">{</span>
+        <span class="s1">'account1'</span>: <span class="s1">'account1.csv'</span>,   <span class="c"># AWS profile and CSV for account 1 resources</span>
+        <span class="s1">'account2'</span>: <span class="s1">'account2.csv'</span>,   <span class="c"># AWS profile and CSV for account 2 resources</span>
+        <span class="c">#'mst': 'mst.csv',                 # AWS profile and CSV for mst account resources</span>
+        <span class="c">#'itbs': 'itbs.csv',               # AWS profile and CSV for itbs account resources</span>
+    <span class="o">}</span>
+
+    <span class="c"># Process each profile and its corresponding CSV</span>
+    <span class="k">for </span>profile, csv_file <span class="k">in </span>csv_files.items<span class="o">()</span>:
+        print<span class="o">(</span>f<span class="s2">"Processing tags for AWS profile: {profile}"</span><span class="o">)</span>
+
+        <span class="c"># Get the session for the current profile</span>
+        session <span class="o">=</span> get_boto3_session<span class="o">(</span>profile<span class="o">)</span>
+
+        <span class="c"># Fetch the account ID and region for the session</span>
+        account_id <span class="o">=</span> get_account_id<span class="o">(</span>session<span class="o">)</span>
+        region <span class="o">=</span> session.region_name or <span class="s1">'us-east-1'</span>  <span class="c"># Set default region if not found</span>
+
+        print<span class="o">(</span>f<span class="s2">"Using account ID: {account_id}, Region: {region}"</span><span class="o">)</span>
+
+        <span class="c"># Check tags from the CSV without applying changes</span>
+        check_tags_from_csv<span class="o">(</span>session, csv_file, account_id, region<span class="o">)</span>
+
+    print<span class="o">(</span><span class="s2">"Tag comparison operation completed for all profiles."</span><span class="o">)</span>
+
+
+<span class="c"># run to apply tags</span>
+root@ubt-server:~/pythonwork/mutiple-aws# python3 update_tags_2.py 
+Processing profile: aws_account_zackblog
+Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_account_zackblog.csv'</span> <span class="k">for </span>profile aws_account_zackblog.
+
+Processing profile: aws_account_joesite
+Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_account_joesite.csv'</span> <span class="k">for </span>profile aws_account_joesite.</code></pre></figure>
+
+<ul>
+  <li>now double check the tags for both accounts</li>
+</ul>
+
+<p><img src="/assets/py2-3.png" alt="image tooltip here" />
+<img src="/assets/py2-4.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we can use Python Boto3 and file handling to achieve mutiple-aws account EC2 tagging. With Python “csv” library, functions like “csv.DictReader”, “with open” and “csv.DictWriter” to open, update and export CSV file, Python also supports handling data in JSON format with dictionary.</p>
+
+<p>In the next post I will see how to use Python Flask to redesign Zack’s blog for Web application development.</p>
+
+<h1>====================</h1>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Python File Handling]]></summary></entry></feed>

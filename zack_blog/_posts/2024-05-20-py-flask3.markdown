@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python Flask Microservice: Logging with ELK"
+title:  "Python Microservice: Logging with ELK"
 date:   2024-05-20 1:16:29 +1100
 categories: jekyll Cat2
 ---

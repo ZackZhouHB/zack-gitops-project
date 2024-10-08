@@ -1,0 +1,257 @@
+---
+layout: post
+title:  " PostgreSQL: Deploy into K8S"
+date:   2024-01-10 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b> Single PostgreSQL deployment in K8S</b>
+
+PostgreSQL by default doesnot build for kubernetes, and a database with statefulset workload in k8s can be brutal to manage. In my lab k8s cluster, here we create namespace, secret, configuremap, PVC and statefulset to run a single PostgreSQL  
+
+{% highlight shell %}
+# create namespace "postgresql"
+[root@freeipa-server ~]# kubectl create ns postgresql
+namespace/postgresql created
+
+# create secret to store database creds
+[root@freeipa-server ~]# kubectl -n postgresql create secret generic postgresql --from-literal POSTGRES_USER="postgresadmin" --from-literal POSTGRES_PASSWORD='admin123' --from-literal POSTGRES_DB="postgresdb" --from-literal REPLICATION_USER="replicationuser" --from-literal REPLICATION_PASSWORD='replicationPassword'
+secret/postgresql created
+
+# create configmap, pvc, statefulset with init container to run postgresql
+[root@freeipa-server ~]# vim stateful.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres
+data: 
+  pg_hba.conf: |+
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    host     replication     replicationuser         0.0.0.0/0        md5
+    # "local" is for Unix domain socket connections only
+    local   all             all                                     trust
+    # IPv4 local connections:
+    host    all             all             127.0.0.1/32            trust
+    # IPv6 local connections:
+    host    all             all             ::1/128                 trust
+    # Allow replication connections from localhost, by a user with the
+    # replication privilege.
+    local   replication     all                                     trust
+    host    replication     all             127.0.0.1/32            trust
+    host    replication     all             ::1/128                 trust
+
+    host all all all scram-sha-256
+  postgresql.conf: |+
+    data_directory = '/data/pgdata'
+    hba_file = '/config/pg_hba.conf'
+    ident_file = '/config/pg_ident.conf'
+
+    port = 5432
+    listen_addresses = '*'
+    max_connections = 100
+    shared_buffers = 128MB
+    dynamic_shared_memory_type = posix
+    max_wal_size = 1GB
+    min_wal_size = 80MB
+    log_timezone = 'Etc/UTC'
+    datestyle = 'iso, mdy'
+    timezone = 'Etc/UTC'
+
+    #locale settings
+    lc_messages = 'en_US.utf8'			# locale for system error message
+    lc_monetary = 'en_US.utf8'			# locale for monetary formatting
+    lc_numeric = 'en_US.utf8'			# locale for number formatting
+    lc_time = 'en_US.utf8'				# locale for time formatting
+
+    default_text_search_config = 'pg_catalog.english'
+
+    #replication
+    wal_level = replica
+    archive_mode = on
+    archive_command = 'test ! -f /data/archive/%f && cp %p /data/archive/%f'
+    max_wal_senders = 3
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: "postgres"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init
+        image: postgres:15.0
+        command: [ "bash", "-c" ]
+        args:
+        - |
+          #create archive directory
+          mkdir -p /data/archive && chown -R 999:999 /data/archive
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: false
+      containers:
+      - name: postgres
+        image: postgres:15.0
+        args: ["-c", "config_file=/config/postgresql.conf"]
+        ports:
+        - containerPort: 5432
+          name: database
+        env:
+        - name: PGDATA
+          value: "/data/pgdata"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_USER
+              optional: false
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_PASSWORD
+              optional: false
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgresql
+              key: POSTGRES_DB
+              optional: false
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: false
+        - name: data
+          mountPath: /data
+          readOnly: false
+      volumes:
+      - name: config
+        configMap:
+          name: postgres
+          defaultMode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  clusterIP: None
+  selector:
+    app: postgres
+
+[root@freeipa-server ~]# kubectl create -f stateful.yaml -n postgresql 
+configmap/postgres created
+statefulset.apps/postgres created
+service/postgres created
+
+# validate for pvc, pods
+[root@freeipa-server ~]# kubectl get pvc -n postgresql 
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+data-postgres-0   Bound    pvc-dd89fc0a-915f-40eb-b61f-917234074a61   100Mi      RWO            longhorn       19m
+
+[root@freeipa-server ~]# kubectl get all -n postgresql 
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          6m29s
+
+NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
+service/postgres   ClusterIP   None         <none>        5432/TCP   6m29s
+
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     6m29s
+
+# check container logs for database connection status
+[root@freeipa-server ~]# kubectl logs -n postgresql postgres-0 
+Defaulted container "postgres" out of: postgres, init (init)
+The files belonging to this database system will be owned by user "postgres".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "en_US.utf8".
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /data/pgdata ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+initdb: warning: enabling "trust" authentication for local connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+syncing data to disk ... ok
+
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /data/pgdata -l logfile start
+
+waiting for server to start....2024-01-12 00:52:56.718 UTC [49] LOG:  starting PostgreSQL 15.0 (Debian 15.0-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+2024-01-12 00:52:56.719 UTC [49] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2024-01-12 00:52:56.730 UTC [49] LOG:  could not open usermap file "/config/pg_ident.conf": No such file or directory
+2024-01-12 00:52:56.733 UTC [52] LOG:  database system was shut down at 2024-01-12 00:52:55 UTC
+2024-01-12 00:52:56.744 UTC [49] LOG:  database system is ready to accept connections
+ done
+server started
+CREATE DATABASE
+
+
+/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+
+2024-01-12 00:52:56.957 UTC [49] LOG:  received fast shutdown request
+waiting for server to shut down....2024-01-12 00:52:56.961 UTC [49] LOG:  aborting any active transactions
+2024-01-12 00:52:56.962 UTC [49] LOG:  background worker "logical replication launcher" (PID 56) exited with exit code 1
+2024-01-12 00:52:56.963 UTC [50] LOG:  shutting down
+2024-01-12 00:52:57.042 UTC [50] LOG:  checkpoint starting: shutdown immediate
+..2024-01-12 00:52:59.314 UTC [50] LOG:  checkpoint complete: wrote 918 buffers (5.6%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.434 s, sync=0.014 s, total=2.279 s; sync files=250, longest=0.007 s, average=0.001 s; distance=11271 kB, estimate=11271 kB
+2024-01-12 00:52:59.318 UTC [49] LOG:  database system is shut down
+ done
+server stopped
+
+PostgreSQL init process complete; ready for start up.
+
+2024-01-12 00:52:59.385 UTC [1] LOG:  starting PostgreSQL 15.0 (Debian 15.0-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+2024-01-12 00:52:59.385 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2024-01-12 00:52:59.385 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2024-01-12 00:52:59.389 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2024-01-12 00:52:59.398 UTC [1] LOG:  could not open usermap file "/config/pg_ident.conf": No such file or directory
+2024-01-12 00:52:59.404 UTC [67] LOG:  database system was shut down at 2024-01-12 00:52:59 UTC
+2024-01-12 00:52:59.415 UTC [1] LOG:  database system is ready to accept connections
+
+{% endhighlight %}
+
+<b> Conclusion</b>
+
+Now we are able to deploy a PostgreSQL in local k8s cluster, with defined environment variables in kubernetes secret and configmap, together with init container to create data archive volume in presistent storage class, the next blog I will discover how to run PostgreSQL HA with presistent volume on kubernetes with both Helm and operater, then validate scale up and down, backup using cronjob and etc.
+
+
+

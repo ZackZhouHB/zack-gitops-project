@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python Flask Microservice: K8S deployment"
+title:  "Python Microservice: K8S deployment"
 date:   2024-05-22 1:17:29 +1100
 categories: jekyll Cat2
 ---
@@ -198,7 +198,7 @@ Access API gateway via http://NodeIP:NodePort/users and http://NodeIP:NodePort/o
 
 Now we complete all Python Flask sessions. 
 
-I have done this End-to-End Python Flask microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  
+I have done this End-to-End Python Microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  
 
 - simple Python Flask app
 

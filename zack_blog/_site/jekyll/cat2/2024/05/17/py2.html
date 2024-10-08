@@ -3,9 +3,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Python: File Handling for EC2 tagging | Zack’s Blog</title>
+<title>Python: File Handling for AWS tagging | Zack’s Blog</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="Python: File Handling for EC2 tagging" />
+<meta property="og:title" content="Python: File Handling for AWS tagging" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="About Python File Handling" />
 <meta property="og:description" content="About Python File Handling" />
@@ -15,9 +15,9 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-05-17T10:15:29+10:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Python: File Handling for EC2 tagging" />
+<meta property="twitter:title" content="Python: File Handling for AWS tagging" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-17T10:15:29+10:00","datePublished":"2024-05-17T10:15:29+10:00","description":"About Python File Handling","headline":"Python: File Handling for EC2 tagging","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-05-17T10:15:29+10:00","datePublished":"2024-05-17T10:15:29+10:00","description":"About Python File Handling","headline":"Python: File Handling for AWS tagging","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/05/17/py2.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -40,7 +40,7 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Python: File Handling for EC2 tagging</h1>
+    <h1 class="post-title p-name" itemprop="name headline">Python: File Handling for AWS tagging</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2024-05-17T10:15:29+10:00" itemprop="datePublished">May 17, 2024
       </time></p>
@@ -296,46 +296,142 @@ i-012fb886802435ff2,joe-account-py-test,Joe,Prod,SYD,joe-account-py-test,joesite
 i-052b0511339457efc,joe-site,Joe,Testing,,joe-site,Python-test,None,20240301</code></pre></figure>
 
 <ul>
-  <li>now create python script “update_tags_2.p” to apply new tags for 2 aws accounts by given profile</li>
+  <li>now create python script “update_tags_2.py” to apply new tags for 2 aws accounts by given profile</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/mutiple-aws# vim update_tags_2.py
-<span class="c"># Import libiaries</span>
-import boto3
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import boto3
 import csv
-from botocore.exceptions import ProfileNotFound
+import re
 
 <span class="c"># Define the mandatory tags</span>
-MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Env"</span>, <span class="s2">"BizOwner"</span>, <span class="s2">"Technology"</span>, <span class="s2">"Project"</span><span class="o">]</span>
+MANDATORY_TAGS <span class="o">=</span> <span class="o">[</span><span class="s2">"Tag1"</span>, <span class="s2">"Tag2"</span>, <span class="s2">"Tag3"</span>, <span class="s2">"Tag4"</span>, <span class="s2">"Tag5"</span><span class="o">]</span>
 
-<span class="c"># List of AWS account profiles</span>
-AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
+<span class="c"># Initialize boto3 session for a given profile</span>
+def get_boto3_session<span class="o">(</span>profile_name<span class="o">)</span>:
+    <span class="k">return </span>boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
 
-def update_tags_from_csv<span class="o">(</span>profile_name<span class="o">)</span>:
-    filename <span class="o">=</span> f<span class="s2">"ec2_instances_updated_{profile_name}.csv"</span>
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
+<span class="c"># Fetch account ID using sts client</span>
+def get_account_id<span class="o">(</span>session<span class="o">)</span>:
+    sts_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'sts'</span><span class="o">)</span>
+    <span class="k">return </span>sts_client.get_caller_identity<span class="o">()[</span><span class="s1">'Account'</span><span class="o">]</span>
+
+<span class="c"># Modified function to fetch and compare tags without applying changes</span>
+def check_tags_from_csv<span class="o">(</span>session, filename, account_id, region<span class="o">)</span>:
     ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+    rds <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'rds'</span><span class="o">)</span>
+    s3 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'s3'</span><span class="o">)</span>
+    lambda_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'lambda'</span><span class="o">)</span>
+    elbv2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'elbv2'</span><span class="o">)</span>
+    efs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'efs'</span><span class="o">)</span>
+    ecs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ecs'</span><span class="o">)</span>
+
     with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
         reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
         <span class="k">for </span>row <span class="k">in </span>reader:
-            instance_id <span class="o">=</span> row[<span class="s1">'InstanceId'</span><span class="o">]</span>
-            tags <span class="o">=</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag, <span class="s1">'Value'</span>: row[tag]<span class="o">}</span> <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>row[tag]]
-            <span class="k">if </span>tags:
-                ec2.create_tags<span class="o">(</span><span class="nv">Resources</span><span class="o">=[</span>instance_id], <span class="nv">Tags</span><span class="o">=</span>tags<span class="o">)</span>
+            identifier <span class="o">=</span> row.get<span class="o">(</span><span class="s1">'Identifier'</span>, <span class="s1">''</span><span class="o">)</span>.strip<span class="o">()</span>
+            service <span class="o">=</span> row.get<span class="o">(</span><span class="s1">'Service'</span>, <span class="s1">''</span><span class="o">)</span>.strip<span class="o">()</span>
 
-def process_all_profiles<span class="o">()</span>:
-    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
-        try:
-            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
-            update_tags_from_csv<span class="o">(</span>profile<span class="o">)</span>
-            print<span class="o">(</span>f<span class="s2">"Tags updated successfully from 'ec2_instances_updated_{profile}.csv' for profile {profile}."</span><span class="o">)</span>
-        except ProfileNotFound:
-            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
-        except FileNotFoundError:
-            print<span class="o">(</span>f<span class="s2">"Updated CSV file for profile {profile} not found. Skipping."</span><span class="o">)</span>
+            <span class="k">if </span>not identifier or not service:
+                print<span class="o">(</span>f<span class="s2">"Skipping row due to missing 'Identifier' or 'Service': {row}"</span><span class="o">)</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Fetch current tags and identify missing mandatory tags</span>
+            current_tags <span class="o">=</span> fetch_existing_tags<span class="o">(</span>service, identifier, session, account_id, region<span class="o">)</span>
+            missing_tags <span class="o">=</span> <span class="o">[</span>tag <span class="k">for </span>tag <span class="k">in </span>MANDATORY_TAGS <span class="k">if </span>tag not <span class="k">in</span> <span class="o">[</span>t[<span class="s1">'Key'</span><span class="o">]</span> <span class="k">for </span>t <span class="k">in </span>current_tags]]
+
+            <span class="c"># Output resources missing mandatory tags</span>
+            <span class="k">if </span>missing_tags:
+                print<span class="o">(</span>f<span class="s2">"Resource: {identifier}, Service: {service}"</span><span class="o">)</span>
+                print<span class="o">(</span>f<span class="s2">"Current Tags: {current_tags}"</span><span class="o">)</span>
+                print<span class="o">(</span>f<span class="s2">"Missing Mandatory Tags: {missing_tags}</span><span class="se">\n</span><span class="s2">"</span><span class="o">)</span>
+
+<span class="c"># Function to fetch existing tags for a given resource</span>
+def fetch_existing_tags<span class="o">(</span>service, identifier, session, account_id, region<span class="o">)</span>:
+    try:
+        <span class="k">if </span>service <span class="o">==</span> <span class="s1">'EC2'</span>:
+            ec2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ec2'</span><span class="o">)</span>
+            response <span class="o">=</span> ec2.describe_tags<span class="o">(</span><span class="nv">Filters</span><span class="o">=[{</span><span class="s1">'Name'</span>: <span class="s1">'resource-id'</span>, <span class="s1">'Values'</span>: <span class="o">[</span>identifier]<span class="o">}])</span>
+            <span class="k">return</span> <span class="o">[{</span><span class="s1">'Key'</span>: tag[<span class="s1">'Key'</span><span class="o">]</span>, <span class="s1">'Value'</span>: tag[<span class="s1">'Value'</span><span class="o">]}</span> <span class="k">for </span>tag <span class="k">in </span>response[<span class="s1">'Tags'</span><span class="o">]]</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'RDS'</span>:
+            rds <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'rds'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:rds:{region}:{account_id}:db:{identifier}'</span>
+            response <span class="o">=</span> rds.list_tags_for_resource<span class="o">(</span><span class="nv">ResourceName</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'TagList'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'RDScluster'</span>:
+            rds <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'rds'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:rds:{region}:{account_id}:cluster:{identifier}'</span>
+            response <span class="o">=</span> rds.list_tags_for_resource<span class="o">(</span><span class="nv">ResourceName</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'TagList'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'S3'</span>:
+            s3 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'s3'</span><span class="o">)</span>
+            response <span class="o">=</span> s3.get_bucket_tagging<span class="o">(</span><span class="nv">Bucket</span><span class="o">=</span>identifier<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'TagSet'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'Lambda'</span>:
+            lambda_client <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'lambda'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:lambda:{region}:{account_id}:function:{identifier}'</span>
+            response <span class="o">=</span> lambda_client.list_tags<span class="o">(</span><span class="nv">Resource</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return</span> <span class="o">[{</span><span class="s1">'Key'</span>: k, <span class="s1">'Value'</span>: v<span class="o">}</span> <span class="k">for </span>k, v <span class="k">in </span>response.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">{})</span>.items<span class="o">()]</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'ElasticLoadBalancingV2'</span>:
+            elbv2 <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'elbv2'</span><span class="o">)</span>
+            arn <span class="o">=</span> get_elbv2_arn_by_arn<span class="o">(</span>elbv2, identifier<span class="o">)</span>
+            response <span class="o">=</span> elbv2.describe_tags<span class="o">(</span><span class="nv">ResourceArns</span><span class="o">=[</span>arn]<span class="o">)</span>
+            <span class="k">return </span>response[<span class="s1">'TagDescriptions'</span><span class="o">][</span>0][<span class="s1">'Tags'</span><span class="o">]</span> <span class="k">if </span>response[<span class="s1">'TagDescriptions'</span><span class="o">]</span> <span class="k">else</span> <span class="o">[]</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'EFS'</span>:
+            efs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'efs'</span><span class="o">)</span>
+            response <span class="o">=</span> efs.describe_tags<span class="o">(</span><span class="nv">FileSystemId</span><span class="o">=</span>identifier<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'Tags'</span>, <span class="o">[])</span>
+        <span class="k">elif </span>service <span class="o">==</span> <span class="s1">'ECS'</span>:
+            ecs <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'ecs'</span><span class="o">)</span>
+            arn <span class="o">=</span> f<span class="s1">'arn:aws:ecs:{region}:{account_id}:service/{identifier}'</span>
+            response <span class="o">=</span> ecs.list_tags_for_resource<span class="o">(</span><span class="nv">resourceArn</span><span class="o">=</span>arn<span class="o">)</span>
+            <span class="k">return </span>response.get<span class="o">(</span><span class="s1">'tags'</span>, <span class="o">[])</span>
+        <span class="k">else</span>:
+            print<span class="o">(</span>f<span class="s2">"Unsupported service type {service}, cannot fetch tags."</span><span class="o">)</span>
+            <span class="k">return</span> <span class="o">[]</span>
+    except Exception as e:
+        print<span class="o">(</span>f<span class="s2">"Error fetching tags for {service} {identifier}: {e}"</span><span class="o">)</span>
+        <span class="k">return</span> <span class="o">[]</span>
+
+def get_elbv2_arn_by_arn<span class="o">(</span>elbv2_client, load_balancer_partial_name<span class="o">)</span>:
+    <span class="s2">"""Retrieve the ARN for a given ALB by partial name."""</span>
+    try:
+        response <span class="o">=</span> elbv2_client.describe_load_balancers<span class="o">()</span>
+        <span class="k">for </span>lb <span class="k">in </span>response[<span class="s1">'LoadBalancers'</span><span class="o">]</span>:
+            <span class="k">if </span>load_balancer_partial_name <span class="k">in </span>lb[<span class="s1">'LoadBalancerArn'</span><span class="o">]</span> or load_balancer_partial_name <span class="k">in </span>lb[<span class="s1">'LoadBalancerName'</span><span class="o">]</span>:
+                <span class="k">return </span>lb[<span class="s1">'LoadBalancerArn'</span><span class="o">]</span>
+        print<span class="o">(</span>f<span class="s2">"No matching ALB found for {load_balancer_partial_name}"</span><span class="o">)</span>
+        <span class="k">return </span>None
+    except Exception as e:
+        print<span class="o">(</span>f<span class="s2">"Error retrieving ARN for ALB {load_balancer_partial_name}: {e}"</span><span class="o">)</span>
+        <span class="k">return </span>None
 
 <span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    process_all_profiles<span class="o">()</span>
+    <span class="c"># Define the CSV files and AWS profiles</span>
+    csv_files <span class="o">=</span> <span class="o">{</span>
+        <span class="s1">'account1'</span>: <span class="s1">'account1.csv'</span>,   <span class="c"># AWS profile and CSV for account 1 resources</span>
+        <span class="s1">'account2'</span>: <span class="s1">'account2.csv'</span>,   <span class="c"># AWS profile and CSV for account 2 resources</span>
+        <span class="c">#'mst': 'mst.csv',                 # AWS profile and CSV for mst account resources</span>
+        <span class="c">#'itbs': 'itbs.csv',               # AWS profile and CSV for itbs account resources</span>
+    <span class="o">}</span>
+
+    <span class="c"># Process each profile and its corresponding CSV</span>
+    <span class="k">for </span>profile, csv_file <span class="k">in </span>csv_files.items<span class="o">()</span>:
+        print<span class="o">(</span>f<span class="s2">"Processing tags for AWS profile: {profile}"</span><span class="o">)</span>
+
+        <span class="c"># Get the session for the current profile</span>
+        session <span class="o">=</span> get_boto3_session<span class="o">(</span>profile<span class="o">)</span>
+
+        <span class="c"># Fetch the account ID and region for the session</span>
+        account_id <span class="o">=</span> get_account_id<span class="o">(</span>session<span class="o">)</span>
+        region <span class="o">=</span> session.region_name or <span class="s1">'us-east-1'</span>  <span class="c"># Set default region if not found</span>
+
+        print<span class="o">(</span>f<span class="s2">"Using account ID: {account_id}, Region: {region}"</span><span class="o">)</span>
+
+        <span class="c"># Check tags from the CSV without applying changes</span>
+        check_tags_from_csv<span class="o">(</span>session, csv_file, account_id, region<span class="o">)</span>
+
+    print<span class="o">(</span><span class="s2">"Tag comparison operation completed for all profiles."</span><span class="o">)</span>
+
 
 <span class="c"># run to apply tags</span>
 root@ubt-server:~/pythonwork/mutiple-aws# python3 update_tags_2.py 
@@ -359,123 +455,6 @@ Tags updated successfully from <span class="s1">'ec2_instances_updated_aws_accou
 <p>In the next post I will see how to use Python Flask to redesign Zack’s blog for Web application development.</p>
 
 <h1>====================</h1>
-
-<p><b> Just got another task to create more users in all account with python boto3</b></p>
-
-<ul>
-  <li>a csv file with list of users will be created, aws profile configured for all aws accounts</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# <span class="nb">cat </span>all_users.csv 
-Username
-ZackZ
-BobJ
-MattS</code></pre></figure>
-
-<ul>
-  <li>a python script with bellow IAM user creation</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# vim more_user_from_csv.py
-
-import boto3
-import csv
-from botocore.exceptions import ProfileNotFound, ClientError
-
-<span class="c"># List of AWS account profiles</span>
-AWS_PROFILES <span class="o">=</span> <span class="o">[</span><span class="s2">"aws_account_zackblog"</span>, <span class="s2">"aws_account_joesite"</span><span class="o">]</span>  <span class="c"># Add more profiles as needed</span>
-
-<span class="c"># IAM User details</span>
-PASSWORD <span class="o">=</span> <span class="s2">"xxxxxxxx"</span>
-POLICY_ARN <span class="o">=</span> <span class="s2">"arn:aws:iam::aws:policy/AdministratorAccess"</span>
-CSV_FILE <span class="o">=</span> <span class="s2">"all_users.csv"</span>
-
-def read_users_from_csv<span class="o">(</span>filename<span class="o">)</span>:
-    <span class="nb">users</span> <span class="o">=</span> <span class="o">[]</span>
-    with open<span class="o">(</span>filename, <span class="nv">newline</span><span class="o">=</span><span class="s1">''</span><span class="o">)</span> as csvfile:
-        reader <span class="o">=</span> csv.DictReader<span class="o">(</span>csvfile<span class="o">)</span>
-        <span class="k">for </span>row <span class="k">in </span>reader:
-            users.append<span class="o">(</span>row[<span class="s1">'Username'</span><span class="o">])</span>
-    <span class="k">return </span><span class="nb">users
-
-</span>def create_iam_user<span class="o">(</span>profile_name, user_name<span class="o">)</span>:
-    session <span class="o">=</span> boto3.Session<span class="o">(</span><span class="nv">profile_name</span><span class="o">=</span>profile_name<span class="o">)</span>
-    iam <span class="o">=</span> session.client<span class="o">(</span><span class="s1">'iam'</span><span class="o">)</span>
-    
-    try:
-        <span class="c"># Create IAM user</span>
-        iam.create_user<span class="o">(</span><span class="nv">UserName</span><span class="o">=</span>user_name<span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"User {user_name} created in profile {profile_name}."</span><span class="o">)</span>
-
-        <span class="c"># Create login profile for console access</span>
-        iam.create_login_profile<span class="o">(</span>
-            <span class="nv">UserName</span><span class="o">=</span>user_name,
-            <span class="nv">Password</span><span class="o">=</span>PASSWORD,
-            <span class="nv">PasswordResetRequired</span><span class="o">=</span>False
-        <span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"Login profile created for user {user_name} in profile {profile_name}."</span><span class="o">)</span>
-
-        <span class="c"># Attach AdministratorAccess policy</span>
-        iam.attach_user_policy<span class="o">(</span>
-            <span class="nv">UserName</span><span class="o">=</span>user_name,
-            <span class="nv">PolicyArn</span><span class="o">=</span>POLICY_ARN
-        <span class="o">)</span>
-        print<span class="o">(</span>f<span class="s2">"AdministratorAccess policy attached to user {user_name} in profile {profile_name}."</span><span class="o">)</span>
-
-    except ClientError as e:
-        <span class="k">if </span>e.response[<span class="s1">'Error'</span><span class="o">][</span><span class="s1">'Code'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'EntityAlreadyExists'</span>:
-            print<span class="o">(</span>f<span class="s2">"User {user_name} already exists in profile {profile_name}."</span><span class="o">)</span>
-        <span class="k">else</span>:
-            print<span class="o">(</span>f<span class="s2">"Error creating user {user_name} in profile {profile_name}: {e}"</span><span class="o">)</span>
-
-def process_all_profiles<span class="o">(</span><span class="nb">users</span><span class="o">)</span>:
-    <span class="k">for </span>profile <span class="k">in </span>AWS_PROFILES:
-        try:
-            print<span class="o">(</span>f<span class="s2">"Processing profile: {profile}"</span><span class="o">)</span>
-            <span class="k">for </span>user <span class="k">in </span><span class="nb">users</span>:
-                create_iam_user<span class="o">(</span>profile, user<span class="o">)</span>
-        except ProfileNotFound:
-            print<span class="o">(</span>f<span class="s2">"Profile {profile} not found. Skipping."</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    <span class="nb">users</span> <span class="o">=</span> read_users_from_csv<span class="o">(</span>CSV_FILE<span class="o">)</span>
-    process_all_profiles<span class="o">(</span><span class="nb">users</span><span class="o">)</span></code></pre></figure>
-
-<ul>
-  <li>Go to create all users</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~/pythonwork/user_creation# python3 more_user_from_csv.py 
-
-Processing profile: aws_account_zackblog
-
-User ZackZ created <span class="k">in </span>profile aws_account_zackblog.
-Login profile created <span class="k">for </span>user ZackZ <span class="k">in </span>profile aws_account_zackblog.
-AdministratorAccess policy attached to user ZackZ <span class="k">in </span>profile aws_account_zackblog.
-
-User BobJ created <span class="k">in </span>profile aws_account_zackblog.
-Login profile created <span class="k">for </span>user BobJ <span class="k">in </span>profile aws_account_zackblog.
-AdministratorAccess policy attached to user BobJ <span class="k">in </span>profile aws_account_zackblog.
-
-User MattS created <span class="k">in </span>profile aws_account_zackblog.
-Login profile created <span class="k">for </span>user MattS <span class="k">in </span>profile aws_account_zackblog.
-AdministratorAccess policy attached to user MattS <span class="k">in </span>profile aws_account_zackblog.
-
-Processing profile: aws_account_joesite
-
-User ZackZ created <span class="k">in </span>profile aws_account_joesite.
-Login profile created <span class="k">for </span>user ZackZ <span class="k">in </span>profile aws_account_joesite.
-AdministratorAccess policy attached to user ZackZ <span class="k">in </span>profile aws_account_joesite.
-
-User BobJ created <span class="k">in </span>profile aws_account_joesite.
-Login profile created <span class="k">for </span>user BobJ <span class="k">in </span>profile aws_account_joesite.
-AdministratorAccess policy attached to user BobJ <span class="k">in </span>profile aws_account_joesite.
-
-User MattS created <span class="k">in </span>profile aws_account_joesite.
-Login profile created <span class="k">for </span>user MattS <span class="k">in </span>profile aws_account_joesite.
-AdministratorAccess policy attached to user MattS <span class="k">in </span>profile aws_account_joesite.</code></pre></figure>
-
-<p><img src="/assets/py2-5.png" alt="image tooltip here" /></p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/05/17/py2.html" hidden></a>
 </article>

@@ -1,0 +1,81 @@
+---
+layout: post
+title:  "Redis cluster with Helm"
+date:   2022-12-09 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+
+<b>Helm install Redis cluster</b>
+
+Here we use helm to install Redis cluster, then validate statefuleset storage and cluster avalibility
+
+Typical Redis cluster (3 master + 3 slave for slots) Topology: 
+
+![image tooltip here](/assets/redis-slot.png)
+
+- Helm install bitnami/redis-cluster
+
+{% highlight shell %}
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm pull bitnami/redis-cluster
+kubectl create ns redis
+helm install zz-redis bitnami/redis-cluster -n redis
+{% endhighlight %}
+
+- redis-cluster status
+
+{% highlight shell %}
+kubectl get po | grep zz-redis
+zz-redis-redis-cluster-0                                 1/1     Running   3 (33m ago)     36m
+zz-redis-redis-cluster-1                                 1/1     Running   1 (32m ago)     36m
+zz-redis-redis-cluster-2                                 1/1     Running   1 (33m ago)     36m
+zz-redis-redis-cluster-3                                 1/1     Running   1 (33m ago)     36m
+zz-redis-redis-cluster-4                                 1/1     Running   1 (33m ago)     36m
+zz-redis-redis-cluster-5                                 1/1     Running   1 (33m ago)     36m
+
+kubectl get svc
+zz-redis-redis-cluster                    ClusterIP   10.96.68.34     <none>        6379/TCP                        37m
+zz-redis-redis-cluster-headless           ClusterIP   None            <none>        6379/TCP,16379/TCP              37m
+
+kubectl get pvc
+NAME                                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+redis-data-zz-redis-redis-cluster-0   Bound    pvc-81f69c15-2f59-4704-9fec-c3ab217ebca5   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-1   Bound    pvc-871dbb68-a78b-48a8-8feb-8726eb8a795e   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-2   Bound    pvc-afd8c82e-c314-426a-a3cd-3c8d10b42bb1   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-3   Bound    pvc-e8fd5d47-dd60-4358-8cf5-a17d6574bbe2   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-4   Bound    pvc-04d4f148-b7c1-407e-b9a8-b2fa911405f0   1Gi        RWO            rook-ceph-block   37m
+redis-data-zz-redis-redis-cluster-5   Bound    pvc-99e8b2cc-c5d5-4636-a19b-042922eca3cc   1Gi        RWO            rook-ceph-block   37m
+{% endhighlight %}
+
+- Validate cluster by set key
+
+{% highlight shell %}
+kubectl exec -it zz-redis-redis-cluster-0 -- sh
+redis-cli
+info replication
+cluster info
+cluster nodes
+054ff137e9530c0e4d8afd1d00162d01952580de 172.16.122.179:6379@16379 slave 2ebcfdf7e74aa8755250384f7efa466f4d18e9d4 0 1702703474000 3 connected
+7cfeb1d88dc3838e600a32c1e233b1c5f05006f1 172.16.58.197:6379@16379 master - 0 1702703473000 2 connected 5461-10922
+1e56bad62197062fad465bbcc6b625bea8364db2 172.16.58.224:6379@16379 slave 7cfeb1d88dc3838e600a32c1e233b1c5f05006f1 0 1702703474954 2 connected
+7e539b2209581c8375f7fb0aa9eedf5b98754b05 172.16.85.252:6379@16379 slave 889515187dbbb525fd73dc840d5bcad78305645d 0 1702703473947 1 connected
+889515187dbbb525fd73dc840d5bcad78305645d 172.16.195.10:6379@16379 myself,master - 0 1702703469000 1 connected 0-5460
+2ebcfdf7e74aa8755250384f7efa466f4d18e9d4 172.16.85.229:6379@16379 master - 0 1702703473000 3 connected 10923-16383
+
+
+127.0.0.1:6379> set dad zack
+OK
+127.0.0.1:6379> get dad
+"zack"
+
+kubectl exec -it zz-redis-redis-cluster-4 -- sh
+redis-cli
+127.0.0.1:6379> KEYS *
+1) "dad"
+
+{% endhighlight %}
+
+
+
+
