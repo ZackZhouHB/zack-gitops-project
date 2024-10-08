@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Jenkins CD Pipeline Design" />
+<meta property="og:description" content="Jenkins CD Pipeline Design" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-08-02T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-08-02T10:15:29+10:00","datePublished":"2024-08-02T10:15:29+10:00","description":"Jenkins CD Pipeline Design","headline":"Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-08-02T10:15:29+10:00" itemprop="datePublished">Aug 2, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Jenkins CD Pipeline Design</b></p>
+
+<p>After the previous post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub. Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
+
+<ul>
+  <li>Continuse Deployment Consideration</li>
+</ul>
+
+<p>Continuse deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:</p>
+
+<ol>
+  <li>Jenkins CD pipeline with muti-stage</li>
+  <li>Terraform to provision AWS EC2</li>
+  <li>Ansible to configure docker and deploy blog</li>
+  <li>Validate Web Blog Access:</li>
+  <li>Delete Terraform Resources</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Tree</span>
+terraform-ec2# tree
+<span class="nb">.</span>
+├── Jenkinsfile  <span class="c"># the CD pipeline file </span>
+├── deploy-docker-playbook.yml <span class="c"># the Ansible playbook for ec2 webblog deployment </span>
+├── hosts <span class="c"># the Ansible inventory file</span>
+├── main.tf <span class="c"># the terraform file to provison AWS EC2 </span>
+├── test-playbook.yaml <span class="c"># the playbook for Ansible testing and validation </span>
+└── variables.tf the terraform var file to provison AWS EC2 </code></pre></figure>
+
+<ul>
+  <li>The CD pipeline design</li>
+</ul>
+
+<p>This Jenkins CD (Continuous Deployment) pipeline covers the following task:</p>
+
+<ol>
+  <li>Jenkins Cred and Environment Setup</li>
+  <li>Check Installed Package Versions (AWSCli, Ansible, Terraform)</li>
+  <li>Validate Ansible and AWS credential</li>
+  <li>Run Terraform Initialization and Apply</li>
+  <li>Validate EC2 Readiness and then Deploy Docker Using Ansible</li>
+  <li>Validate Web Blog Access by extract EC2 public IP</li>
+  <li>Delete Terraform Resources</li>
+</ol>
+
+<p>Jenkinsfile</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#  Jenkinsfile</span>
+pipeline <span class="o">{</span>
+    agent any
+    environment <span class="o">{</span>
+        IMAGE_NAME <span class="o">=</span> <span class="s2">"zackz001/jenkins"</span>
+        IMAGE_TAG <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">env</span><span class="p">.BUILD_NUMBER</span><span class="k">}</span><span class="s2">"</span>
+        LATEST_TAG <span class="o">=</span> <span class="s2">"latest"</span>
+        EMAIL_RECIPIENT <span class="o">=</span> <span class="s2">"zhbsoftboy1@gmail.com"</span>
+        GIT_REPO_URL <span class="o">=</span> <span class="s1">'https://github.com/ZackZhouHB/zack-gitops-project.git'</span>  // Git repository URL
+        GIT_BRANCH <span class="o">=</span> <span class="s1">'jenkins-cd'</span>  // Git branch
+        DOCKERHUB_CREDENTIALS_ID <span class="o">=</span> <span class="s1">'dockerhub'</span> // Docker Hub credentials
+        REGION <span class="o">=</span> <span class="s1">'ap-southeast-2'</span>  // AWS region
+    <span class="o">}</span>
+    stages <span class="o">{</span>
+        stage<span class="o">(</span><span class="s1">'Clean Workspace'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                cleanWs<span class="o">()</span>
+            <span class="o">}</span>
+       <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Checkout Code'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                git branch: <span class="s2">"</span><span class="k">${</span><span class="nv">GIT_BRANCH</span><span class="k">}</span><span class="s2">"</span>,
+                    credentialsId: <span class="s1">'gittoken'</span>,
+                    url: <span class="s2">"</span><span class="k">${</span><span class="nv">GIT_REPO_URL</span><span class="k">}</span><span class="s2">"</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Check Installed Package Versions'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    try <span class="o">{</span>
+                        // Check Docker version
+                        sh <span class="s1">'''
+                            if command -v docker &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Docker Version: $(docker --version)"
+                            else
+                                echo "Docker is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Docker not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Terraform version
+                        sh <span class="s1">'''
+                            if command -v terraform &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Terraform Version: $(terraform -version)"
+                            else
+                                echo "Terraform is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Terraform not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Kubectl version
+                        sh <span class="s1">'''
+                            if command -v kubectl &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Kubectl Version: $(kubectl version --client)"
+                            else
+                                echo "Kubectl is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Kubectl not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Trivy version
+                        sh <span class="s1">'''
+                            if command -v trivy &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Trivy Version: $(trivy --version)"
+                            else
+                                echo "Trivy is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Trivy not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Ansible version
+                        sh <span class="s1">'''
+                            if command -v ansible &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Ansible Version: $(ansible --version)"
+                            else
+                                echo "Ansible is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Ansible not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check AWS CLI version
+                        sh <span class="s1">'''
+                            if command -v aws &gt;/dev/null 2&gt;&amp;1; then
+                                echo "AWS CLI Version: $(aws --version)"
+                            else
+                                echo "AWS CLI is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: AWS CLI not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Run a testing Ansible Playbook'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Run the Ansible playbook using the hosts file from the repo
+                    sh <span class="s1">'''
+                        echo "Running Ansible playbook:"
+                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform-ec2/hosts" "${WORKSPACE}/jenkins/terraform-ec2/test-playbook.yaml"
+                    '''</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Verify AWS credential'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withAWS<span class="o">(</span>credentials: <span class="s1">'aws'</span>, region: <span class="s1">'ap-southeast-2'</span><span class="o">)</span> <span class="o">{</span> // Replace with correct AWS credentials ID
+                    script <span class="o">{</span>
+                        // List all existing S3 buckets and output the result to the Jenkins console
+                        sh <span class="s1">'''
+                            echo "Listing all S3 buckets:"
+                            aws s3 ls
+                        '''</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Terraform Init and Apply'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
+                    sh <span class="s1">'''
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        cd jenkins/terraform-ec2
+
+                        # Check if Terraform has been initialized
+                        if [ ! -d ".terraform" ]; then
+                            echo "Terraform not initialized. Running '</span>terraform init<span class="s1">'..."
+                            terraform init
+                        else
+                            echo "Terraform already initialized. Skipping '</span>terraform init<span class="s1">'."
+                        fi
+
+                        terraform apply -auto-approve -var "aws_region=${REGION}"
+                    '''</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        // Stage to extract EC2 public IP
+        stage<span class="o">(</span><span class="s1">'Extract EC2 Public IP'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
+                    script <span class="o">{</span>
+                        def ec2Ip <span class="o">=</span> sh<span class="o">(</span>script: <span class="s1">'''
+                            cd jenkins/terraform-ec2
+                            terraform output -raw ec2_public_ip
+                        '''</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
+                        <span class="nb">echo</span> <span class="s2">"EC2 Public IP: </span><span class="k">${</span><span class="nv">ec2Ip</span><span class="k">}</span><span class="s2">"</span>
+                        // Set the environment variable <span class="k">for </span>the next stages explicitly
+                        env.EC2_PUBLIC_IP <span class="o">=</span> ec2Ip
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        // <span class="k">**</span>Fix: Adding a small <span class="nb">sleep </span>to ensure <span class="nb">env </span>is populated<span class="k">**</span>
+        stage<span class="o">(</span><span class="s1">'Validate EC2 Public IP'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    <span class="nb">sleep </span>2 // Ensure enough <span class="nb">time </span><span class="k">for </span>variable propagation
+                    <span class="k">if</span> <span class="o">(</span>env.EC2_PUBLIC_IP <span class="o">==</span> null <span class="o">||</span> env.EC2_PUBLIC_IP <span class="o">==</span> <span class="s2">""</span><span class="o">)</span> <span class="o">{</span>
+                        error <span class="s2">"EC2 Public IP is not available or failed to fetch."</span>
+                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"EC2 Public IP is successfully fetched: </span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        // Wait <span class="k">for </span>EC2 Readiness <span class="o">(</span>SSH Validation<span class="o">)</span>
+        stage<span class="o">(</span><span class="s1">'Wait for EC2 Readiness'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                retry<span class="o">(</span>20<span class="o">)</span> <span class="o">{</span> // Retry up to 4 <span class="nb">times </span><span class="k">in case</span> EC2 is not immediately ready
+                    <span class="nb">sleep </span>2  // Wait <span class="k">for </span>a bit before checking readiness
+                    withCredentials<span class="o">([</span>sshUserPrivateKey<span class="o">(</span>credentialsId: <span class="s1">'sshkey'</span>, keyFileVariable: <span class="s1">'SSH_KEY'</span><span class="p">)</span><span class="o">])</span> <span class="o">{</span>
+                        script <span class="o">{</span>
+                            sh <span class="s2">"ssh -o StrictHostKeyChecking=no -i </span><span class="k">${</span><span class="nv">SSH_KEY</span><span class="k">}</span><span class="s2"> ubuntu@</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2"> 'echo EC2 is ready for deployment'"</span>
+                        <span class="o">}</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        // Deploy Docker using Ansible
+        stage<span class="o">(</span><span class="s1">'Deploy Docker with Ansible'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([</span>sshUserPrivateKey<span class="o">(</span>credentialsId: <span class="s1">'sshkey'</span>, keyFileVariable: <span class="s1">'SSH_KEY'</span><span class="o">)])</span> <span class="o">{</span>
+                    script <span class="o">{</span>
+                        sh <span class="s1">'''
+                            echo "Running Ansible Playbook for Docker Deployment..."
+                            ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform-ec2/deploy-docker-playbook.yml" \
+                            --user ubuntu \
+                            --private-key ${SSH_KEY} \
+                            --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
+                        '''</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        // New stage: Validate web blog accessibility
+        stage<span class="o">(</span><span class="s1">'Validate Web Blog Access'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    <span class="nb">echo</span> <span class="s2">"Validating web blog access via http://</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">..."</span>
+
+                    // Use curl to validate HTTP response from the web blog
+                    def response <span class="o">=</span> sh<span class="o">(</span>script: <span class="s2">"curl -o /dev/null -s -w '%{http_code}' http://</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">"</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
+
+                    <span class="k">if</span> <span class="o">(</span>response <span class="o">==</span> <span class="s1">'200'</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Web blog is accessible and returned HTTP status code 200."</span>
+                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                        error <span class="s2">"Web blog is not accessible. HTTP status code: </span><span class="k">${</span><span class="nv">response</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span> 
+        stage<span class="o">(</span><span class="s1">'delete terraform resource'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
+                    sh <span class="s1">'''
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        cd jenkins/terraform-ec2
+
+                        # Check if Terraform has been initialized
+                        if [ ! -d ".terraform" ]; then
+                            echo "Terraform not initialized. Running '</span>terraform init<span class="s1">'..."
+                            terraform init
+                        else
+                            echo "Terraform already initialized. Skipping '</span>terraform init<span class="s1">'."
+                        fi
+
+                        terraform destroy -auto-approve -var "aws_region=${REGION}"
+                    '''</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>                   
+    <span class="o">}</span>
+    post <span class="o">{</span>
+        success <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s2">"Pipeline completed successfully."</span>
+        <span class="o">}</span>
+        failure <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s2">"Pipeline failed."</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Terraform main.tf</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Terraform main.tf</span>
+
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+  region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+terraform <span class="o">{</span>
+  backend <span class="s2">"s3"</span> <span class="o">{</span>
+    bucket         <span class="o">=</span> <span class="s2">"zz-lambda-tag"</span>
+    key            <span class="o">=</span> <span class="s2">"terraform/state/terraform.tfstate"</span>
+    region         <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+    encrypt        <span class="o">=</span> <span class="nb">true</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Security Group Data</span>
+data <span class="s2">"aws_security_group"</span> <span class="s2">"existing_sg"</span> <span class="o">{</span>
+  filter <span class="o">{</span>
+    name   <span class="o">=</span> <span class="s2">"group-name"</span>
+    values <span class="o">=</span> <span class="o">[</span><span class="s2">"launch-wizard-1"</span><span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Key Pair Data</span>
+data <span class="s2">"aws_key_pair"</span> <span class="s2">"existing_key"</span> <span class="o">{</span>
+  key_name <span class="o">=</span> <span class="s2">"zzzzzzzzzzzz"</span>
+<span class="o">}</span>
+
+<span class="c"># EC2 Instance Definition</span>
+resource <span class="s2">"aws_instance"</span> <span class="s2">"web"</span> <span class="o">{</span>
+  ami           <span class="o">=</span> <span class="s2">"ami-040e71e7b8391cae4"</span> <span class="c"># Choose AMI</span>
+  instance_type <span class="o">=</span> <span class="s2">"t2.micro"</span>
+  key_name      <span class="o">=</span> data.aws_key_pair.existing_key.key_name
+  security_groups <span class="o">=</span> <span class="o">[</span>
+    data.aws_security_group.existing_sg.name
+  <span class="o">]</span>
+
+  tags <span class="o">=</span> <span class="o">{</span>
+    Name <span class="o">=</span> <span class="s2">"Jenkins-EC2"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Output EC2 Public IP</span>
+output <span class="s2">"ec2_public_ip"</span> <span class="o">{</span>
+  value <span class="o">=</span> aws_instance.web.public_ip
+<span class="o">}</span></code></pre></figure>
+
+<p>Ansible Playbook deploy-docker-playbook.yml</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Ansible Playbook for EC2 web blog deployment</span>
+<span class="nt">---</span>
+- hosts: all
+  become: <span class="nb">yes
+  </span>tasks:
+  
+    - name: Check <span class="k">if </span>Docker is already installed
+      <span class="nb">command</span>: docker <span class="nt">--version</span>
+      register: docker_installed
+      ignore_errors: <span class="nb">yes
+      </span>changed_when: <span class="nb">false</span>
+
+    - name: Install required packages <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+        update_cache: <span class="nb">yes
+      </span>when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Add Docker<span class="s1">'s official GPG key (if Docker is not installed)
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: docker_installed.rc != 0
+
+    - name: Add Docker'</span>s official APT repository <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt_repository:
+        repo: deb <span class="o">[</span><span class="nb">arch</span><span class="o">=</span>amd64] https://download.docker.com/linux/ubuntu  stable
+        state: present
+      when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Update APT cache <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt:
+        update_cache: <span class="nb">yes
+      </span>when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Install Docker CE <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: <span class="nb">yes
+      </span>when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Start and <span class="nb">enable </span>Docker service
+      systemd:
+        name: docker
+        enabled: <span class="nb">yes
+        </span>state: started
+
+    - name: Stop all running containers
+      shell: docker stop <span class="si">$(</span>docker ps <span class="nt">-q</span><span class="si">)</span>
+      ignore_errors: <span class="nb">true
+      </span>register: stopped_containers
+
+    - name: Remove all stopped containers
+      shell: docker <span class="nb">rm</span> <span class="si">$(</span>docker ps <span class="nt">-a</span> <span class="nt">-q</span><span class="si">)</span>
+      when: stopped_containers.rc <span class="o">==</span> 0
+      ignore_errors: <span class="nb">true</span>
+
+    - name: Pull Docker image
+      docker_image:
+        name: zackz001/gitops-jekyll
+        tag: latest
+        <span class="nb">source</span>: pull
+
+    - name: Run Docker container
+      docker_container:
+        name: zackblog
+        image: zackz001/gitops-jekyll:latest
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - <span class="s2">"80:80"</span></code></pre></figure>
+
+<ul>
+  <li>Pipeline debug and testing</li>
+</ul>
+
+<p>After thorough testing and validation, the CD pipeline also works like a charm.</p>
+
+<p><img src="/assets/jenkins2.png" alt="image tooltip here" /></p>
+
+<p><b>Terraform Modularization for Multi-Destination Deployment</b></p>
+
+<p>The folder structure bellow is designed to organize Infrastructure as Code (IaC) using Terraform, breaking down the configuration into reusable modules for ECS, EKS, and EC2 deployments, along with different environments (production, stage, etc.). So The Jenkins reusable CD pipeline can manage multi-destination deployments based on this structure.</p>
+
+<ol>
+  <li>Single EC2 deployment</li>
+  <li>Single ECS deployment</li>
+  <li>Terraform ECS Module with multi-environment deployment (production and stage)</li>
+  <li>Terraform single EKS deployment</li>
+  <li>Terraform EKS Module with multi-environment deployment (production and stage)</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~/zack-gitops-project/jenkins# tree
+
+├── terraform-ec2
+│   ├── Jenkinsfile
+│   ├── deploy-docker-playbook.yml
+│   ├── hosts
+│   ├── main.tf
+│   ├── test-playbook.yaml
+│   └── variables.tf
+
+├── module-ecs-cluster
+│   ├── Jenkinsfile
+│   ├── main.tf
+│   ├── modules
+│   │   ├── alb
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── ecs_cluster
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── ecs_service
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── iam
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── security_groups
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   └── task_definition
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       └── variables.tf
+│   ├── outputs.tf
+│   ├── terraform.tfstate
+│   ├── terraform.tfstate.backup
+│   ├── terraform.tfvars
+│   └── variables.tf
+
+├── module-ecs-env
+│   ├── environments
+│   │   ├── production
+│   │   │   ├── Jenkinsfile
+│   │   │   ├── backend.tf
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tfvars
+│   │   │   └── variables.tf
+│   │   └── stage
+│   │       ├── Jenkinsfile
+│   │       ├── backend.tf
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       ├── terraform.tfvars
+│   │       └── variables.tf
+│   └── modules
+│       ├── alb
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── ecs_cluster
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── ecs_service
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── iam
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── security_groups
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       └── task_definition
+│           ├── main.tf
+│           ├── outputs.tf
+│           └── variables.tf
+
+└── terraform-eks
+    ├── Jenkinsfile
+    ├── argo-setup.sh
+    ├── backend.tf
+    ├── deployment.yaml
+    ├── iam.tf
+    ├── main.tf
+    ├── output.tf
+    ├── terraform.tfvars
+    └── variables.tf
+
+├── module-eks-env
+│   ├── environments
+│   │   ├── prod
+│   │   │   ├── backend.tf
+│   │   │   ├── main.tf
+│   │   │   ├── output.tf
+│   │   │   ├── provider.tf
+│   │   │   └── variables.tf
+│   │   └── stage
+│   │       ├── backend.tf
+│   │       ├── main.tf
+│   │       ├── output.tf
+│   │       ├── provider.tf
+│   │       └── variables.tf
+│   └── modules
+│       └── eks
+│           ├── main.tf
+│           ├── output.tf
+│           └── variables.tf</code></pre></figure>
+
+<p><img src="/assets/jenkins3.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Using Terraform and Jenkins practices enables efficient management of complex, multi-environment, and multi-service deployments, which are crucial for cloud-native CI/CD processes to achieve:</p>
+
+<ol>
+  <li>
+    <p>Version Control: Allows tracking and managing infrastructure changes across different environments.</p>
+  </li>
+  <li>
+    <p>Multi-Destination Deployment with Jenkins: Enables dynamic deployments to different environments (e.g., production, stage) by passing environment-specific parameters in the pipeline.</p>
+  </li>
+  <li>
+    <p>Environment Separation: Each environment (production, stage) has its own Terraform configuration, ensuring proper isolation and customization.</p>
+  </li>
+  <li>
+    <p>Terraform Modules Reusability: Reusable modules for infrastructure components (ECS, EKS, etc.) reduce code duplication and simplify updates.</p>
+  </li>
+  <li>
+    <p>Multi-Environment and Multi-Component Deployment: Jenkins pipelines can deploy multiple services and environments concurrently by leveraging modular infrastructure and dynamic inputs.</p>
+  </li>
+</ol>
+
+<p><b>Jenkins Recap Summary</b></p>
+
+<p>Over this recap for Jenkins, I believe I had achieved :</p>
+
+<ul>
+  <li>
+    <p><b>Multi-Stage, Multi-Environment Pipelines: </b>
+These handle conditional execution using when blocks, try-catch for error handling, and post sections for notifications and cleanup.</p>
+  </li>
+  <li>
+    <p><b>Integration with IaC Tools: </b>
+Seamlessly provisions AWS resources using Terraform or CloudFormation within the pipeline.</p>
+  </li>
+  <li>
+    <p><b>Security and Compliance: </b>
+Integrates tools like Snyk, Trivy, and SonarQube to perform vulnerability scanning and code quality checks during the build.</p>
+  </li>
+  <li>
+    <p><b>Secret Management: </b>
+Securely manages sensitive data using AWS Secrets Manager, HashiCorp Vault, or Jenkins credentials plugin.</p>
+  </li>
+  <li>
+    <p><b>Real-World Automation: </b>
+Solves complex problems and improves efficiency, reducing build times and increasing deployment reliability.</p>
+  </li>
+</ul>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/08/02/Jenkins-redo2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
