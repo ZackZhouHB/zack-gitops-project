@@ -76,16 +76,13 @@
 
 <ul>
   <li>
-    <p><code class="language-plaintext highlighter-rouge">SSM Parameter Store</code>: A Parameter (/ami/latest) is created to store the ID of the latest patched AMI. The initial AMI ID is set to Ubuntu 20.04 TLS (ami-03xxxxxxxxxa6).
-SNS Topic:</p>
+    <p><code class="language-plaintext highlighter-rouge">SSM Parameter Store</code>: A Parameter (/ami/latest) is created to store the ID of the latest patched AMI. The initial AMI ID is set to Ubuntu 20.04 TLS (ami-03xxxxxxxxxa6).</p>
   </li>
   <li>
-    <p><code class="language-plaintext highlighter-rouge">An SNS Topic</code> is created for sending notifications about the AMI patching process. It is configured to send notifications via email (zhbsoftboy1@gmail).
-EC2 Instance Role and Profile:</p>
+    <p><code class="language-plaintext highlighter-rouge">SNS Topic</code>: A SNS Topic is created for sending notifications about the AMI patching process. It is configured to send notifications via email (zhbsoftboy1@gmail).</p>
   </li>
   <li>
-    <p><code class="language-plaintext highlighter-rouge">An IAM role</code> (EC2InstanceRole) is created with permissions for various EC2 and SSM actions, including updating instance information, sending commands, and listing associations.
-An instance profile (EC2InstanceProfile-for-AMI-Patching) is associated with this role, which allows EC2 instances to assume the role for patching purposes.</p>
+    <p><code class="language-plaintext highlighter-rouge">EC2 Instance Role and Profile</code>: An IAM role (EC2InstanceRole) is created with permissions for various EC2 and SSM actions, including updating instance information, sending commands, and listing associations. An instance profile (EC2InstanceProfile-for-AMI-Patching) is associated with this role, which allows EC2 instances to assume the role for patching purposes.</p>
   </li>
   <li>
     <p><code class="language-plaintext highlighter-rouge">Lambda Execution Role</code>: A Lambda execution role (LambdaExecutionRole) is created with permissions to manage EC2 instances (create, run, terminate), interact with SSM and SNS, and log activities to CloudWatch Logs. It also allows the Lambda function to pass the necessary roles (iam:PassRole).</p>

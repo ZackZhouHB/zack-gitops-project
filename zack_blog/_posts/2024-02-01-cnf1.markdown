@@ -26,13 +26,10 @@ I developed this CloudFormation template sets up an automated process for patchi
 Bellow resources will be created by this cnf template. 
 
 - `SSM Parameter Store`: A Parameter (/ami/latest) is created to store the ID of the latest patched AMI. The initial AMI ID is set to Ubuntu 20.04 TLS (ami-03xxxxxxxxxa6).
-SNS Topic:
 
-- `An SNS Topic` is created for sending notifications about the AMI patching process. It is configured to send notifications via email (zhbsoftboy1@gmail).
-EC2 Instance Role and Profile:
+- `SNS Topic`: A SNS Topic is created for sending notifications about the AMI patching process. It is configured to send notifications via email (zhbsoftboy1@gmail).
 
-- `An IAM role` (EC2InstanceRole) is created with permissions for various EC2 and SSM actions, including updating instance information, sending commands, and listing associations.
-An instance profile (EC2InstanceProfile-for-AMI-Patching) is associated with this role, which allows EC2 instances to assume the role for patching purposes.
+- `EC2 Instance Role and Profile`: An IAM role (EC2InstanceRole) is created with permissions for various EC2 and SSM actions, including updating instance information, sending commands, and listing associations. An instance profile (EC2InstanceProfile-for-AMI-Patching) is associated with this role, which allows EC2 instances to assume the role for patching purposes.
 
 - `Lambda Execution Role`: A Lambda execution role (LambdaExecutionRole) is created with permissions to manage EC2 instances (create, run, terminate), interact with SSM and SNS, and log activities to CloudWatch Logs. It also allows the Lambda function to pass the necessary roles (iam:PassRole).
 
