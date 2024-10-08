@@ -1,626 +1,277 @@
 ---
 layout: post
-title:  "Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment"
+title:  "EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)"
 date:   2024-09-12 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b>Jenkins CD Pipeline Design</b>
+<b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b>
 
-After the previous post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub. Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.
+This post walks through the process of setting up an Autoscaler and Horizontal Pod Autoscaler (HPA) in an Amazon EKS cluster. We will explore how to dynamically scale the number of nodes in EKS cluster and how to autoscale K8S pods based on CPU utilization using HPA.
 
-- Continuse Deployment Consideration
+Prerequisites:
 
-Continuse deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:
-
-1. Jenkins CD pipeline with muti-stage
-2. Terraform to provision AWS EC2
-3. Ansible to configure docker and deploy blog
-4. Validate Web Blog Access:
-5. Delete Terraform Resources
+- Use the `AWS CLI` to update kubeconfig so that kubectl can communicate with the EKS cluster
 
 {% highlight shell %}
+$ aws eks --region ap-southeast-2 update-kubeconfig --name module-eks-cluster
+Updated context arn:aws:eks:ap-southeast-2:851725491342:cluster/module-eks-cluster in C:\Users\zack\.kube\config
 
-# Tree
-terraform-ec2# tree
-.
-├── Jenkinsfile  # the CD pipeline file 
-├── deploy-docker-playbook.yml # the Ansible playbook for ec2 webblog deployment 
-├── hosts # the Ansible inventory file
-├── main.tf # the terraform file to provison AWS EC2 
-├── test-playbook.yaml # the playbook for Ansible testing and validation 
-└── variables.tf the terraform var file to provison AWS EC2 
+Verify that the nodes are ready:
+$ kubectl.exe get node
+NAME                                              STATUS   ROLES    AGE     VERSION
+ip-172-31-37-57.ap-southeast-2.compute.internal   Ready    <none>   2m40s   v1.31.0-eks-a737599
 {% endhighlight %}
 
-- The CD pipeline design
 
-This Jenkins CD (Continuous Deployment) pipeline covers the following task:
-
-1. Jenkins Cred and Environment Setup
-2. Check Installed Package Versions (AWSCli, Ansible, Terraform)
-3. Validate Ansible and AWS credential
-4. Run Terraform Initialization and Apply
-5. Validate EC2 Readiness and then Deploy Docker Using Ansible
-6. Validate Web Blog Access by extract EC2 public IP
-7. Delete Terraform Resources
-
-Jenkinsfile
+- Deploy the `Cluster Autoscaler` from the official Kubernetes Autoscaler GitHub repository, The Cluster Autoscaler automatically adjusts the number of nodes in eks cluster based on the resource requirements of the workloads.
 
 {% highlight shell %}
-#  Jenkinsfile
-pipeline {
-    agent any
-    environment {
-        IMAGE_NAME = "zackz001/jenkins"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        LATEST_TAG = "latest"
-        EMAIL_RECIPIENT = "zhbsoftboy1@gmail.com"
-        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
-        GIT_BRANCH = 'jenkins-cd'  // Git branch
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
-        REGION = 'ap-southeast-2'  // AWS region
-    }
-    stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-       }
-        stage('Checkout Code') {
-            steps {
-                git branch: "${GIT_BRANCH}",
-                    credentialsId: 'gittoken',
-                    url: "${GIT_REPO_URL}"
-            }
-        }
-        stage('Check Installed Package Versions') {
-            steps {
-                script {
-                    try {
-                        // Check Docker version
-                        sh '''
-                            if command -v docker >/dev/null 2>&1; then
-                                echo "Docker Version: $(docker --version)"
-                            else
-                                echo "Docker is not installed"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: Docker not found. ${e.message}"
-                    }
-
-                    try {
-                        // Check Terraform version
-                        sh '''
-                            if command -v terraform >/dev/null 2>&1; then
-                                echo "Terraform Version: $(terraform -version)"
-                            else
-                                echo "Terraform is not installed"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: Terraform not found. ${e.message}"
-                    }
-
-                    try {
-                        // Check Kubectl version
-                        sh '''
-                            if command -v kubectl >/dev/null 2>&1; then
-                                echo "Kubectl Version: $(kubectl version --client)"
-                            else
-                                echo "Kubectl is not installed"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: Kubectl not found. ${e.message}"
-                    }
-
-                    try {
-                        // Check Trivy version
-                        sh '''
-                            if command -v trivy >/dev/null 2>&1; then
-                                echo "Trivy Version: $(trivy --version)"
-                            else
-                                echo "Trivy is not installed"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: Trivy not found. ${e.message}"
-                    }
-
-                    try {
-                        // Check Ansible version
-                        sh '''
-                            if command -v ansible >/dev/null 2>&1; then
-                                echo "Ansible Version: $(ansible --version)"
-                            else
-                                echo "Ansible is not installed"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: Ansible not found. ${e.message}"
-                    }
-
-                    try {
-                        // Check AWS CLI version
-                        sh '''
-                            if command -v aws >/dev/null 2>&1; then
-                                echo "AWS CLI Version: $(aws --version)"
-                            else
-                                echo "AWS CLI is not installed"
-                                exit 1
-                            fi
-                        '''
-                    } catch (Exception e) {
-                        echo "Error: AWS CLI not found. ${e.message}"
-                    }
-                }
-            }
-        }
-        stage('Run a testing Ansible Playbook') {
-            steps {
-                script {
-                    // Run the Ansible playbook using the hosts file from the repo
-                    sh '''
-                        echo "Running Ansible playbook:"
-                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform-ec2/hosts" "${WORKSPACE}/jenkins/terraform-ec2/test-playbook.yaml"
-                    '''
-                }
-            }
-        }
-        stage('Verify AWS credential') {
-            steps {
-                withAWS(credentials: 'aws', region: 'ap-southeast-2') { // Replace with correct AWS credentials ID
-                    script {
-                        // List all existing S3 buckets and output the result to the Jenkins console
-                        sh '''
-                            echo "Listing all S3 buckets:"
-                            aws s3 ls
-                        '''
-                    }
-                }
-            }
-        }
-        stage('Terraform Init and Apply') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    sh '''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        cd jenkins/terraform-ec2
-
-                        # Check if Terraform has been initialized
-                        if [ ! -d ".terraform" ]; then
-                            echo "Terraform not initialized. Running 'terraform init'..."
-                            terraform init
-                        else
-                            echo "Terraform already initialized. Skipping 'terraform init'."
-                        fi
-
-                        terraform apply -auto-approve -var "aws_region=${REGION}"
-                    '''
-                }
-            }
-        }
-        // Stage to extract EC2 public IP
-        stage('Extract EC2 Public IP') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    script {
-                        def ec2Ip = sh(script: '''
-                            cd jenkins/terraform-ec2
-                            terraform output -raw ec2_public_ip
-                        ''', returnStdout: true).trim()
-                        echo "EC2 Public IP: ${ec2Ip}"
-                        // Set the environment variable for the next stages explicitly
-                        env.EC2_PUBLIC_IP = ec2Ip
-                    }
-                }
-            }
-        }
-
-        // **Fix: Adding a small sleep to ensure env is populated**
-        stage('Validate EC2 Public IP') {
-            steps {
-                script {
-                    sleep 2 // Ensure enough time for variable propagation
-                    if (env.EC2_PUBLIC_IP == null || env.EC2_PUBLIC_IP == "") {
-                        error "EC2 Public IP is not available or failed to fetch."
-                    } else {
-                        echo "EC2 Public IP is successfully fetched: ${env.EC2_PUBLIC_IP}"
-                    }
-                }
-            }
-        }
-
-        // Wait for EC2 Readiness (SSH Validation)
-        stage('Wait for EC2 Readiness') {
-            steps {
-                retry(20) { // Retry up to 4 times in case EC2 is not immediately ready
-                    sleep 2  // Wait for a bit before checking readiness
-                    withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
-                        script {
-                            sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${env.EC2_PUBLIC_IP} 'echo EC2 is ready for deployment'"
-                        }
-                    }
-                }
-            }
-        }
-
-        // Deploy Docker using Ansible
-        stage('Deploy Docker with Ansible') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'sshkey', keyFileVariable: 'SSH_KEY')]) {
-                    script {
-                        sh '''
-                            echo "Running Ansible Playbook for Docker Deployment..."
-                            ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform-ec2/deploy-docker-playbook.yml" \
-                            --user ubuntu \
-                            --private-key ${SSH_KEY} \
-                            --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
-                        '''
-                    }
-                }
-            }
-        }
-        // New stage: Validate web blog accessibility
-        stage('Validate Web Blog Access') {
-            steps {
-                script {
-                    echo "Validating web blog access via http://${env.EC2_PUBLIC_IP}..."
-
-                    // Use curl to validate HTTP response from the web blog
-                    def response = sh(script: "curl -o /dev/null -s -w '%{http_code}' http://${env.EC2_PUBLIC_IP}", returnStdout: true).trim()
-
-                    if (response == '200') {
-                        echo "Web blog is accessible and returned HTTP status code 200."
-                    } else {
-                        error "Web blog is not accessible. HTTP status code: ${response}"
-                    }
-                }
-            }
-        } 
-        stage('delete terraform resource') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']]) {
-                    sh '''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        cd jenkins/terraform-ec2
-
-                        # Check if Terraform has been initialized
-                        if [ ! -d ".terraform" ]; then
-                            echo "Terraform not initialized. Running 'terraform init'..."
-                            terraform init
-                        else
-                            echo "Terraform already initialized. Skipping 'terraform init'."
-                        fi
-
-                        terraform destroy -auto-approve -var "aws_region=${REGION}"
-                    '''
-                }
-            }
-        }                   
-    }
-    post {
-        success {
-            echo "Pipeline completed successfully."
-        }
-        failure {
-            echo "Pipeline failed."
-        }
-    }
-}
-
+$ kubectl.exe apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/refs/heads/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-one-asg.yaml
+serviceaccount/cluster-autoscaler created
+clusterrole.rbac.authorization.k8s.io/cluster-autoscaler created
+role.rbac.authorization.k8s.io/cluster-autoscaler created
+clusterrolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
+rolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
+deployment.apps/cluster-autoscaler created
 {% endhighlight %}
 
-Terraform main.tf
+- Modify the Autoscaler Parameters to tuning Scale-Up and Down Behavior. 
+
+Customized Autoscaler parameters to add arguments to control the scaling behavior, such as the `minimum and maximum node counts`, the `time between scale-down events`, `stabilization window` and `cooldown period`.
 
 {% highlight shell %}
-# Terraform main.tf
+$ kubectl -n kube-system edit deployment.apps/cluster-autoscaler
+deployment.apps/cluster-autoscaler edited
 
-provider "aws" {
-  region = "ap-southeast-2"
-}
-
-terraform {
-  backend "s3" {
-    bucket         = "zz-lambda-tag"
-    key            = "terraform/state/terraform.tfstate"
-    region         = "ap-southeast-2"
-    encrypt        = true
-  }
-}
-
-# Security Group Data
-data "aws_security_group" "existing_sg" {
-  filter {
-    name   = "group-name"
-    values = ["launch-wizard-1"]
-  }
-}
-
-# Key Pair Data
-data "aws_key_pair" "existing_key" {
-  key_name = "zzzzzzzzzzzz"
-}
-
-# EC2 Instance Definition
-resource "aws_instance" "web" {
-  ami           = "ami-040e71e7b8391cae4" # Choose AMI
-  instance_type = "t2.micro"
-  key_name      = data.aws_key_pair.existing_key.key_name
-  security_groups = [
-    data.aws_security_group.existing_sg.name
-  ]
-
-  tags = {
-    Name = "Jenkins-EC2"
-  }
-}
-
-# Output EC2 Public IP
-output "ec2_public_ip" {
-  value = aws_instance.web.public_ip
-}
+      labels:
+        app: cluster-autoscaler
+    spec:
+      containers:
+      - command:
+        - ./cluster-autoscaler
+        - --cluster-name=module-eks-cluster
+        - --v=4
+        - --stderrthreshold=info
+        - --cloud-provider=aws
+        - --skip-nodes-with-local-storage=false
+        - --balance-similar-node-groups
+        - --skip-nodes-with-system-pods=false
+        - --scale-down-unneeded-time=1m
+        - --scale-down-delay-after-add=1m
+        - --nodes=1:3:eks-module-eks-cluster-node-group-5ec93604-4bdc-a740-1fcc-707afc8431b
 {% endhighlight %}
 
-Ansible Playbook deploy-docker-playbook.yml
+<b>HPA testing based on Pod CPU utilization metric </b>
+
+- Now, let's deploy zackweb and set up an `Horizontal Pod Autoscaler (HPA)` to scale the number of pods based on CPU utilization.
 
 {% highlight shell %}
-# Ansible Playbook for EC2 web blog deployment
----
-- hosts: all
-  become: yes
-  tasks:
-  
-    - name: Check if Docker is already installed
-      command: docker --version
-      register: docker_installed
-      ignore_errors: yes
-      changed_when: false
+$ cat deployment.yaml
 
-    - name: Install required packages (if Docker is not installed)
-      apt:
-        name: 
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-        state: present
-        update_cache: yes
-      when: docker_installed.rc != 0
-
-    - name: Add Docker's official GPG key (if Docker is not installed)
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-      when: docker_installed.rc != 0
-
-    - name: Add Docker's official APT repository (if Docker is not installed)
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-        state: present
-      when: docker_installed.rc != 0
-
-    - name: Update APT cache (if Docker is not installed)
-      apt:
-        update_cache: yes
-      when: docker_installed.rc != 0
-
-    - name: Install Docker CE (if Docker is not installed)
-      apt:
-        name: docker-ce
-        state: present
-        update_cache: yes
-      when: docker_installed.rc != 0
-
-    - name: Start and enable Docker service
-      systemd:
-        name: docker
-        enabled: yes
-        state: started
-
-    - name: Stop all running containers
-      shell: docker stop $(docker ps -q)
-      ignore_errors: true
-      register: stopped_containers
-
-    - name: Remove all stopped containers
-      shell: docker rm $(docker ps -a -q)
-      when: stopped_containers.rc == 0
-      ignore_errors: true
-
-    - name: Pull Docker image
-      docker_image:
-        name: zackz001/gitops-jekyll
-        tag: latest
-        source: pull
-
-    - name: Run Docker container
-      docker_container:
-        name: zackblog
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zackblog
+spec:
+  replicas: 1  # Start with 1 replica
+  selector:
+    matchLabels:
+      app: zackblog
+  template:
+    metadata:
+      labels:
+        app: zackblog
+    spec:
+      containers:
+      - name: zackblog
         image: zackz001/gitops-jekyll:latest
-        state: started
-        restart_policy: unless-stopped
-        published_ports:
-          - "80:80"
+        resources:
+          requests:
+            cpu: "500m"  # 0.5 vCPU
+            memory: "512Mi"  # 0.5 GiB
+          limits:
+            cpu: "1"  # 1 vCPU
+            memory: "1Gi"  # 1 GiB
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zackblog
+spec:
+  selector:
+    app: zackblog  # This must match the labels in the Deployment
+  ports:
+    - protocol: TCP
+      port: 80        # Port that the service will expose
+      targetPort: 80 # Port that the container listens on
+  type: LoadBalancer
 
+kubectl.exe apply -f deployment.yaml
+deployment.apps/zackblog created
+service/zackblog created
 {% endhighlight %}
 
-- Pipeline debug and testing
-
-After thorough testing and validation, the CD pipeline also works like a charm.
-
-![image tooltip here](/assets/jenkins2.png)
-
-<b>Terraform Modularization for Multi-Destination Deployment</b>
-
-The folder structure bellow is designed to organize Infrastructure as Code (IaC) using Terraform, breaking down the configuration into reusable modules for ECS, EKS, and EC2 deployments, along with different environments (production, stage, etc.). So The Jenkins reusable CD pipeline can manage multi-destination deployments based on this structure. 
-
-1. Single EC2 deployment
-2. Single ECS deployment
-3. Terraform ECS Module with multi-environment deployment (production and stage)
-4. Terraform single EKS deployment
-5. Terraform EKS Module with multi-environment deployment (production and stage)
+- Set Resource Requests and Limits, and Configure Horizontal Pod Autoscaler (HPA) to automatically scale the deployment based on CPU usage
 
 {% highlight shell %}
-root@zackz:~/zack-gitops-project/jenkins# tree
+$ kubectl set resources deployment zackblog --limits=cpu=200m,memory=200Mi --requests=cpu=100m,memory=100Mi
+deployment.apps/zackblog resource requirements updated
 
-├── terraform-ec2
-│   ├── Jenkinsfile
-│   ├── deploy-docker-playbook.yml
-│   ├── hosts
-│   ├── main.tf
-│   ├── test-playbook.yaml
-│   └── variables.tf
+kubectl autoscale deployment zackblog --cpu-percent=50 --min=1 --max=3
 
-├── module-ecs-cluster
-│   ├── Jenkinsfile
-│   ├── main.tf
-│   ├── modules
-│   │   ├── alb
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── ecs_cluster
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── ecs_service
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── iam
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── security_groups
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   └── task_definition
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       └── variables.tf
-│   ├── outputs.tf
-│   ├── terraform.tfstate
-│   ├── terraform.tfstate.backup
-│   ├── terraform.tfvars
-│   └── variables.tf
-
-├── module-ecs-env
-│   ├── environments
-│   │   ├── production
-│   │   │   ├── Jenkinsfile
-│   │   │   ├── backend.tf
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   ├── terraform.tfvars
-│   │   │   └── variables.tf
-│   │   └── stage
-│   │       ├── Jenkinsfile
-│   │       ├── backend.tf
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       ├── terraform.tfvars
-│   │       └── variables.tf
-│   └── modules
-│       ├── alb
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── ecs_cluster
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── ecs_service
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── iam
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── security_groups
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       └── task_definition
-│           ├── main.tf
-│           ├── outputs.tf
-│           └── variables.tf
-
-└── terraform-eks
-    ├── Jenkinsfile
-    ├── argo-setup.sh
-    ├── backend.tf
-    ├── deployment.yaml
-    ├── iam.tf
-    ├── main.tf
-    ├── output.tf
-    ├── terraform.tfvars
-    └── variables.tf
-
-├── module-eks-env
-│   ├── environments
-│   │   ├── prod
-│   │   │   ├── backend.tf
-│   │   │   ├── main.tf
-│   │   │   ├── output.tf
-│   │   │   ├── provider.tf
-│   │   │   └── variables.tf
-│   │   └── stage
-│   │       ├── backend.tf
-│   │       ├── main.tf
-│   │       ├── output.tf
-│   │       ├── provider.tf
-│   │       └── variables.tf
-│   └── modules
-│       └── eks
-│           ├── main.tf
-│           ├── output.tf
-│           └── variables.tf
+$ kubectl get hpa zackblog
+NAME       REFERENCE             TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+zackblog   Deployment/zackblog   cpu: <unknown>/50%   1         3         1          18s
 {% endhighlight %}
 
+- Generate CPU Load to Test the HPA
 
-![image tooltip here](/assets/jenkins3.png)
+To test the HPA, we need to generate CPU load by runing a busybox container to repeatedly request the zackblog service.
 
-<b>Conclusion</b> 
+{% highlight shell %}
+kubectl run -i --tty load-generator --image=busybox /bin/sh
+# Inside the busybox shell, run this:
+while true; do wget -q -O- http://zackblog > /dev/null; sleep 0.5; done
+{% endhighlight %}
 
-Using Terraform and Jenkins practices enables efficient management of complex, multi-environment, and multi-service deployments, which are crucial for cloud-native CI/CD processes to achieve:
+- Monitor the HPA and Scaling Events, As CPU utilization increases, the HPA will automatically scale the number of pods:
 
-1. Version Control: Allows tracking and managing infrastructure changes across different environments.
+{% highlight shell %}
+$ kubectl.exe get po
+NAME                       READY   STATUS             RESTARTS      AGE
+load-generator             1/1     Running            0             2m6s
+zackblog-95f746486-wlmgx   1/1     Running            0             6m20s
 
-2. Multi-Destination Deployment with Jenkins: Enables dynamic deployments to different environments (e.g., production, stage) by passing environment-specific parameters in the pipeline.
+kubectl get hpa zackblog -w
+NAME       REFERENCE             TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+zackblog   Deployment/zackblog   cpu: 0%/50%   1         10        1          12m
+zackblog   Deployment/zackblog   cpu: 92%/50%  1         10        2          5m
+zackblog   Deployment/zackblog   cpu: 52%/50%  1         10        3          2m
 
-3. Environment Separation: Each environment (production, stage) has its own Terraform configuration, ensuring proper isolation and customization.
+kubectl get hpa zackblog -w
+zackblog   Deployment/zackblog   cpu: 37%/50%   1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 38%/50%   1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 6%/50%    1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 0%/50%    1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 0%/50%    1         10        1          28m
+{% endhighlight %}
 
-4. Terraform Modules Reusability: Reusable modules for infrastructure components (ECS, EKS, etc.) reduce code duplication and simplify updates.
+It can be seen that pods got  scaled up to 3 when CPU utilization reached 92% and scaled down to 1 when CPU utilization dropped below 50%.
 
-5. Multi-Environment and Multi-Component Deployment: Jenkins pipelines can deploy multiple services and environments concurrently by leveraging modular infrastructure and dynamic inputs.
 
-<b>Jenkins Recap Summary</b>
+<b>Testing EKS Cluster Autoscaler by changing deployment replicas: </b>
 
-Over this recap for Jenkins, I believe I had achieved : 
+`EKS Cluster Autoscaler` comes with scale-in and scale-out policies, which define when nodes should be added or removed. The Cluster Autoscaler adds nodes when there aren't enough resources to schedule pending pods and removes nodes when they are underutilized.
 
-- <b>Multi-Stage, Multi-Environment Pipelines: </b>
-These handle conditional execution using when blocks, try-catch for error handling, and post sections for notifications and cleanup.
+- Change the resource limitation for zackblog deployment for EKS node autoscaler testing, Set zackweb deployment with requests cpu 500m. As the EKS node group with a t3.small instance type (2c2g), which means one node can only handle one pod, so to make the Autoscaler testing easier to achieve.
 
-- <b>Integration with IaC Tools: </b>
-Seamlessly provisions AWS resources using Terraform or CloudFormation within the pipeline.
+{% highlight shell %}
+$ vim deployment.yaml
 
-- <b>Security and Compliance: </b>
-Integrates tools like Snyk, Trivy, and SonarQube to perform vulnerability scanning and code quality checks during the build.
+        resources:
+          requests:
+            cpu: "500m"  # 0.5 vCPU
+            memory: "512Mi"  # 0.5 GiB
+          limits:
+            cpu: "1"  # 1 vCPU
+            memory: "1Gi"  # 1 GiB
+{% endhighlight %}
 
-- <b>Secret Management: </b>
-Securely manages sensitive data using AWS Secrets Manager, HashiCorp Vault, or Jenkins credentials plugin.
+- Gracefully increase the number of deployment replicas to 2, to test EKS node scale up
 
-- <b>Real-World Automation: </b>
-Solves complex problems and improves efficiency, reducing build times and increasing deployment reliability.
+{% highlight shell %}
+$ kubectl scale deployment zackblog --replicas=2
+deployment.apps/zackblog scaled
 
+$ kubectl.exe get po
+NAME                        READY   STATUS             RESTARTS      AGE
+load-generator              1/1     Running            0             7m39s
+zackblog-7f67584fbd-47jvt   1/1     Running            0             31s
+zackblog-7f67584fbd-9gtfn   0/1     Pending            0             6s
+
+$ kubectl.exe describe po zackblog-7f67584fbd-9gtfn
+
+Events:
+  Type     Reason            Age   From                Message
+  ----     ------            ----  ----                -------
+  Warning  FailedScheduling  18s   default-scheduler   0/1 nodes are available: 1 Insufficient memory. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.
+  Normal   TriggeredScaleUp  9s    cluster-autoscaler  pod triggered scale-up: [{eks-module-eks-cluster-node-group-5ec93604-4bdc-a740-1fcc-707afc8431b3 1->2 (max: 3)}]
+
+$ kubectl.exe get node
+NAME                                               STATUS   ROLES    AGE   VERSION
+ip-172-31-15-152.ap-southeast-2.compute.internal   Ready    <none>   31s   v1.31.0-eks-a737599
+ip-172-31-37-57.ap-southeast-2.compute.internal    Ready    <none>   37m   v1.31.0-eks-a737599
+
+$ kubectl.exe get po
+NAME                        READY   STATUS             RESTARTS        AGE
+load-generator              1/1     Running            0               9m14s
+zackblog-7f67584fbd-47jvt   1/1     Running            0               2m6s
+zackblog-7f67584fbd-9gtfn   1/1     Running            0               101s
+{% endhighlight %}
+
+It can be seen that pod `zackblog-7f67584fbd-9gtfn` was in pending state due to waiting for node to be scale-up, once we have 2 nodes in EKS cluster, that pod can be scheduled and run.
+
+- Increase the number of deployment replicas to 3, to trigger EKS node scale up again
+
+{% highlight shell %}
+$ kubectl scale deployment zackblog --replicas=3
+deployment.apps/zackblog scaled
+
+$ kubectl.exe get po
+NAME                        READY   STATUS             RESTARTS        AGE
+load-generator              1/1     Running            0               9m44s
+zackblog-7f67584fbd-47jvt   1/1     Running            0               2m36s
+zackblog-7f67584fbd-9gtfn   1/1     Running            0               2m11s
+zackblog-7f67584fbd-f5s9d   1/1     Running            0               3s
+
+
+$ kubectl.exe get po -o wide
+NAME                        READY   STATUS    RESTARTS   AGE     IP              NODE                                               NOMINATED NODE   READINESS GATES
+zackblog-7f67584fbd-47jvt   1/1     Running   0          5m58s   172.31.37.227   ip-172-31-37-57.ap-southeast-2.compute.internal    <none>           <none>
+zackblog-7f67584fbd-9gtfn   1/1     Running   0          5m33s   172.31.5.139    ip-172-31-15-152.ap-southeast-2.compute.internal   <none>           <none>
+zackblog-7f67584fbd-vzcx4   1/1     Running   0          2m3s    172.31.18.111   ip-172-31-20-24.ap-southeast-2.compute.internal    <none>           <none>
+
+{% endhighlight %}
+
+Now EKS scale up to 3 nodes to handle the replica increase again. 
+
+- Change the number of deployment replicas down to 1, to trigger EKS node scale down, and monitor by autoscaler log file to see the scale down behavior:
+
+{% highlight shell %}
+$ kubectl scale deployment zackblog --replicas=1
+
+$ kubectl -n kube-system logs -f deployment/cluster-autoscaler
+
+I1008 12:53:22.686377       1 static_autoscaler.go:598] Starting scale down
+I1008 12:53:22.686430       1 nodes.go:123] ip-172-31-15-152.ap-southeast-2.compute.internal was unneeded for 40.253885622s
+I1008 12:53:22.686452       1 nodes.go:123] ip-172-31-37-57.ap-southeast-2.compute.internal was unneeded for 1m0.362059191s
+I1008 12:53:22.686502       1 cluster.go:153] ip-172-31-37-57.ap-southeast-2.compute.internal for removal
+I1008 12:53:22.686644       1 hinting_simulator.go:77] Pod kube-system/cluster-autoscaler-5767f77d77-xgfjq can be moved to ip-172-31-20-24.ap-southeast-2.compute.internal
+I1008 12:53:22.686717       1 hinting_simulator.go:77] Pod kube-system/coredns-7575495454-9n6kd can be moved to ip-172-31-15-152.ap-southeast-2.compute.internal
+I1008 12:53:22.686832       1 hinting_simulator.go:77] Pod kube-system/coredns-7575495454-dxzdc can be moved to ip-172-31-15-152.ap-southeast-2.compute.internal
+I1008 12:53:22.686875       1 cluster.go:176] node ip-172-31-37-57.ap-southeast-2.compute.internal may be removed
+I1008 12:53:22.705270       1 delete.go:103] Successfully added ToBeDeletedTaint on node ip-172-31-37-57.ap-southeast-2.compute.internal
+I1008 12:53:22.705367       1 actuator.go:212] Scale-down: removing node ip-172-31-37-57.ap-southeast-2.compute.internal, utilization: {0.23316062176165803 0.49755477462428627 0 memory 0.49755477462428627}, pods to reschedule: cluster-autoscaler-5767f77d77-xgfjq,coredns-7575495454-9n6kd,coredns-7575495454-dxzdc
+
+$ kubectl.exe get node
+NAME                                               STATUS                        ROLES    AGE     VERSION
+ip-172-31-15-152.ap-southeast-2.compute.internal   NotReady,SchedulingDisabled   <none>   9m10s   v1.31.0-eks-a737599
+ip-172-31-20-24.ap-southeast-2.compute.internal    Ready                         <none>   6m59s   v1.31.0-eks-a737599
+ip-172-31-37-57.ap-southeast-2.compute.internal    Ready,SchedulingDisabled      <none>   45m     v1.31.0-eks-a737599
+
+$ kubectl.exe get node
+NAME                                              STATUS   ROLES    AGE     VERSION
+ip-172-31-20-24.ap-southeast-2.compute.internal   Ready    <none>   7m58s   v1.31.0-eks-a737599
+{% endhighlight %}
+
+It can be seen that Cluster Autoscaler identified nodes that were underutilized or idle and marked them as "unneeded."
+It simulated moving the existing pods to other nodes. Once it determined that the pods could be rescheduled, it marked the node for deletion (using a ToBeDeletedTaint), preventing new workloads from being scheduled. Finally, the node was removed from the cluster, and the pods were successfully rescheduled on other nodes.
+
+This behavior ensures that the cluster's resources are used efficiently, scaling down when there is no workload, thereby reducing costs.
+
+![image tooltip here](/assets/eks1.png)
+
+<b> Conclusion: </b>
+
+By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.
