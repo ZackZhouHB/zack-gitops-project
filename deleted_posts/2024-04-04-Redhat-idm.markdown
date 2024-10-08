@@ -1,372 +1,347 @@
 ---
 layout: post
-title:  " RedHat Identity management (IdM) "
+title:  " Lambda for AMI patching with Cloudformation "
 date:   2024-04-04 11:15:29 +1100
 categories: jekyll Cat2
 ---
 
-<b> About Linux Identity management </b>
+<b> Rancher Golden AMI patching challange </b>
 
-In Linux, user and permission management is crucial for maintaining system security and controlling access to files, directories, and resources.
+The team running rancher cluster in AWS EC2 facing compliance challange for the  golden AMI patching. The team want to automate the process of patching the golden AMI so they can  ensure the compliance of the rancher cluster. The team want to use Cloudformation to automate the process, to have the latest AMI ready every month. 
 
-Redhat provides such enterprise-level solution called redhat Identity management (IdM), also with its opensource free version called freeIPA, to offer centralized authentication, authorization, and identity management services such as Single Sign-On (SSO), Role-Based Access Control (RBAC), Identity Federation, Integration with Microsoft AD and AAD, also can cross-cloud access with AWS SSO as external identity provider. 
+<b> Overview of workflow with Lambda and Cloudformation </b>
 
-when a company facing challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve: 
+This CloudFormation template sets up an automated process for patching Amazon Machine Images (AMIs) on a monthly schedule using AWS services such as Lambda, EventBridge, SNS, and Parameter Store. Here's a workflow by design: 
 
-- With Local AD and Azure AD (AAD) Integration
+- The Lambda function is triggered on the 1st of every month to automate the creation of a patched AMI for Rancher. It interacts with EC2 to create the AMI, update the SSM Parameter Store with the new AMI ID, and terminate any temporary EC2 instances used for the patching process
 
-- With AWS SSO Integration as externel identity provider
+- The AMI ID of the latest patched image is stored in the AWS Systems Manager (SSM) Parameter Store (/ami/latest), ensuring that the latest AMI can be referenced easily in other systems.
 
-- LDAP – an LDAP directory (389 Directory Server) is embedded
+- An SNS Topic is used to send email notifications, informing stakeholders about the status of the AMI patching process.
 
-- Kerberos – KDC (MIT Kerberos) for Kerberos key management and single signon
+- The template sets up IAM roles and policies with least privilage for EC2 instances and the Lambda function, ensuring that the required actions can be performed securely within AWS.
 
-- DNS – BIND (bind-dyndb-ldap) for domain name services
+<b> The Cloudformation Template</b>
 
-- PKI – Red Hat Certificate System (Dogtag certificate system) provides public key infrastructure for certificate management
+Bellow resources will be created by this cnf template. 
 
-- NTP – Network Time Protocol service for time sync
+- SSM Parameter Store:
 
-- A web-based management front-end running on Apache
+- A Parameter (/ami/latest) is created to store the ID of the latest patched AMI. The initial AMI ID is set to ami-0375ab65ee943a2a6.
+SNS Topic:
 
-To set a Idm server on AWS, configure the security groups to allow ports required by IdM. IdM desires bellow to be opene:
+- An SNS Topic is created for sending notifications about the AMI patching process. It is configured to send notifications via email (hongbo.zhou@nesa.nsw.edu.au).
+EC2 Instance Role and Profile:
 
-HTTP/HTTPS — 80, 443 — TCP
+- An IAM role (EC2InstanceRole) is created with permissions for various EC2 and SSM actions, including updating instance information, sending commands, and listing associations.
+An instance profile (EC2InstanceProfile-for-AMI-Patching) is associated with this role, which allows EC2 instances to assume the role for patching purposes.
+Lambda Execution Role:
 
-LDAP/LDAPS — 389, 636 — TCP
+- A Lambda execution role (LambdaExecutionRole) is created with permissions to manage EC2 instances (create, run, terminate), interact with SSM and SNS, and log activities to CloudWatch Logs. It also allows the Lambda function to pass the necessary roles (iam:PassRole).
+Lambda Function:
 
-Kerberos — 88, 464 — Both TCP and UDP
+- A Lambda function (Rancher-AMI-Patching-Function) is defined to handle the actual AMI patching process. The function code is stored in an S3 bucket (lab-lambda-rancher-golden-ami) as a zip file (lambda_function.zip).
+The Lambda function uses Python 3.9, has a 15-minute timeout (max allowed), and is allocated 256 MB of memory. It reads the SNS topic ARN and AMI parameter name from environment variables.
+EventBridge Rule:
 
-DNS — 53 — Both TCP and UDP
+- An EventBridge rule is created to trigger the Lambda function on the 1st of every month at midnight (UTC) using a cron expression (cron(0 0 1 * ? *)).
+Lambda Invoke Permission:
 
-NTP — 123 — UDP
-
-<b> A Typical AD User Authentication Flow End-to-End: </b>
-
-
-User Creation and Management:
-
-- Azure AD / Local AD: Users are created in the Azure Active Directory or local Active Directory.
-
-- Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the two-way trust established between AD and IdM.
-
-Access Request:
-
-- AWS SSO Integration: AWS Single Sign-On (SSO) is integrated with Azure AD. Users log in to the AWS Management Console or AWS CLI via AWS SSO using their Azure AD credentials.
-
-User Authentication:
-
-- Azure AD Authentication: When users attempt to log in via AWS SSO, they are redirected to Azure AD for authentication.
-
-- MFA Enforcement: Azure AD can enforce multi-factor authentication (MFA) as per the organization's security policies.
-
-Role Assignment and Access Control:
-
-- Role-Based Access Control (RBAC): AWS SSO uses SAML assertions to map authenticated users to AWS roles and permissions based on their group memberships in Azure AD.
-
-- AWS IAM Roles: These roles define the permissions for accessing various AWS services, including EC2 instances.
-
-Accessing EC2 Instances via SSH:
-
-- User Sync to RedHat IdM: Users synchronized to RedHat IdM are assigned roles and permissions, including SSH access to specific EC2 instances.
-
-- SSH Key Management: SSH keys for users can be managed within RedHat IdM and propagated to the EC2 instances as needed.
-
-Host-Based Access Control (HBAC):
-
-- HBAC Rules: RedHat IdM enforces HBAC rules to control which users can access specific EC2 instances.
-
-- SSH Access Control: When a user attempts to SSH into an EC2 instance, RedHat IdM verifies the user's identity and permissions, allowing or denying access based on the defined HBAC rules.
-
-
-<b> FreeIPA: the opensource version of RedHat IdM </b>
-
-Here I am going to install and configure a local lab IdM portal using the opensource version of RedHat IdM called "freeIPA", with 3 linux boxes to validate the user permission and client hosts (both CentOS and Ubuntu) enrollment, requirement and design as bellow:
-
-- freeIPA Server: freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)
-
-- freeIPA Client1: freeipa-client1.zackz.oonline 11.0.1.151 (CentOS 7.9)
-
-- freeIPA Client2: freeipa-client2.zackz.oonline 11.0.1.72 (Ubuntu 22.04)
-
-<b> Local testlab FreeIPA server installation </b>
-
-On freeIPA Server freeipa-server.zackz.oonline 11.0.1.150 (CentOS 7.9)
+- A Lambda permission is added to allow the EventBridge rule to invoke the Lambda function.
 
 {% highlight shell %}
-# set hostname with domain
-hostnamectl set-hostname freeipa-server.zackz.oonline
+# cnf-ami-lab.yaml
 
-# add 3 hosts to /etc/hosts
-echo 11.0.1.150 freeipa-server.zackz.oonline  ipa >> /etc/hosts
-echo 11.0.1.151 freeipa-client1.zackz.oonline ipa >> /etc/hosts
-echo 11.0.1.72  freeipa-client2.zackz.oonline ipa >> /etc/hosts
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  This template deploys a Lambda function for automating AMI patching,
+  along with a Parameter Store to track the AMI IDs, and a monthly
+  EventBridge rule to trigger the Lambda.
 
-# install ipa-server
-yum install ipa-server bind-dyndb-ldap ipa-server-dns
+Resources:
 
-# Configure ipa-server and DNS, here set ipa console and domain admin passwd
-ipa-server-install --setup-dns
+  # Parameter Store to store AMI ID
+  AMIIDParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /ami/latest
+      Description: 'Stores the ID of the latest patched AMI'
+      Type: String
+      Value: ami-xxxxxxxxxxxxx  # initial AMI ID
+  
+  # SNS Topic for notifications
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Rancher AMI Patching Notifications
+      Subscription:
+        - Protocol: email
+          Endpoint: zhbsoftboy1@gmail  # test email address
+#        - Protocol: email
+#          Endpoint: xxxxxx  # test email address2         
 
-# configure firewall rules and services
-firewall-cmd --permanent --add-service={http,https,ldap,ldaps,kerberos,dns,kpasswd,ntp}
-firewall-cmd --permanent --add-service freeipa-ldap
-firewall-cmd --permanent --add-service freeipa-ldaps
-firewall-cmd --reload
+  # IAM Role for EC2 Instance
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SSMPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:UpdateInstanceInformation
+                  - ssm:ListAssociations
+                  - ssm:ListInstanceAssociations
+                  - ssm:ListCommandInvocations
+                  - ssm:SendCommand
+                  - ssm:GetCommandInvocation
+                Resource: "*"
 
-# check ipastatus
-[root@freeipa ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-ntpd Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl command was successful
-
-
-# Obtain a Kerberos ticket for the Kerberos admin user and Verify the ticket
-kinit admin
-klist
-
-Ticket cache: KEYRING:persistent:0:0
-Default principal: admin@ZACKZ.OONLINE
-
-Valid starting     Expires            Service principal
-04/04/24 22:17:29  05/04/24 22:02:43  HTTP/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-
-# check content of /etc/resolv.conf
-cat /etc/resolv.conf
-search zackz.oonline
-nameserver 127.0.0.1
-
-# Configure FreeIPA for User Authentication
-
-yum install -y vsftpd
-systemctl enable vsftpd && systemctl start vsftpd
-firewall-cmd --permanent --add-service=ftp
-firewall-cmd --reload
-
-
-# copy CA certificate of the IPA server to the FTP site
-cp /root/cacert.p12 /var/ftp/pub
-
-# Configure default login shell to Bash and Create Users
-ipa config-mod --defaultshell=/bin/bash
-ipa user-add alice --first=alice --last=abernathy --password
-ipa user-add vince --first=vincent --last=valentine --password
-
-# add client hosts 
-ipa host-add --ip-address 11.0.1.151 freeipa-client1.zackz.oonline
-ipa host-add --ip-address 11.0.1.72 freeipa-client2.zackz.oonline
-
-# create NFS service entry in the IdM domain
-ipa service-add nfs/freeipa-client1.zackz.oonline
-ipa service-add nfs/freeipa-client2.zackz.oonline
-
-# add entry to the keytab file /etc/krb5.keytab
-kadmin.local
-Authenticating as principal admin/admin@RHCE.LOCAL with password.
-kadmin.local:  ktadd nfs/freeipa-client1.zackz.oonline
-kadmin.local:  ktadd nfs/freeipa-client2.zackz.oonline
-kadmin.local:  quit
-
-# verify keytab file
-[root@freeipa-server pub]# klist -k
-Keytab name: FILE:/etc/krb5.keytab
-KVNO Principal
----- --------------------------------------------------------------------------
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   2 host/freeipa-server.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client2.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
-   1 nfs/freeipa-client1.zackz.oonline@ZACKZ.OONLINE
+  # Instance Profile for the EC2 Role
+# Instance Profile for the EC2 Role
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2InstanceRole
+      InstanceProfileName: EC2InstanceProfile-for-AMI-Patching  # Set a specific name for clarity
 
 
-# Generate keys to copy over to NFS systems, chmod to Make the keytab file accessible to FTP clients
-ipa-getkeytab -s freeipa-server.zackz.oonline -p nfs/freeipa-client2.zackz.oonline -k /var/ftp/pub/freeipa-client2.keytab
-ipa-getkeytab -s freeipa-server.zackz.oonline -p nfs/freeipa-client1.zackz.oonline -k /var/ftp/pub/freeipa-client1.keytab
-chmod 644 /var/ftp/pub/*.keytab
+  # Lambda Execution Role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaAMIUpdatePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:CreateImage
+                  - ec2:RunInstances
+                  - ec2:TerminateInstances
+                  - ec2:DescribeInstances
+                  - ec2:DescribeInstanceStatus
+                  - ssm:SendCommand
+                  - ssm:GetCommandInvocation
+                  - ssm:PutParameter
+                  - ssm:GetParameter
+                  - sns:Publish
+                  - logs:CreateLogGroup          
+                  - logs:CreateLogStream         
+                  - logs:PutLogEvents           
+                  - iam:PassRole  # Add this line
+                Resource: "*"
 
-# Configure DNS
-ipa dnszone-mod --allow-transfer=11.0.1.0/24 zackz.oonline
-ipa dnsrecord-add zackz.oonline vhost1 --ttl=3600 --a-ip-address=11.0.1.151
-ipa dnsrecord-add zackz.oonline dynamic1 --ttl=3600 --a-ip-address=11.0.1.151
-ipa dnsrecord-add zackz.oonline @ --mx-rec="0 freeipa-server.zackz.oonline."
+
+  # Lambda Function
+  AMIPatchingLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: 'Lambda Function to patch Rancher golden AMI'
+      FunctionName: Rancher-AMI-Patching-Function
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: lab-lambda-rancher-golden-ami
+        S3Key: lambda_function.zip  # Lambda zip file in S3
+      Runtime: python3.9
+      Timeout: 900  # 15 minutes (max for Lambda)
+      MemorySize: 256
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref SNSTopic
+          AMI_PARAMETER_NAME: "/ami/latest"
+
+  # EventBridge Rule to trigger Lambda every month
+  AMIPatchingEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: 'event role to triger lambda function to patch rancher golden AMI monthly'
+      ScheduleExpression: 'cron(0 0 1 * ? *)'  # Runs on the 1st of every month
+      Targets:
+        - Arn: !GetAtt AMIPatchingLambda.Arn
+          Id: "AMIPatchingLambda"
+
+  # EventBridge permissions for Lambda
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt AMIPatchingLambda.Arn
+      Principal: events.amazonaws.com
+{% endhighlight %}
+
+<b> The lambda function: </b>
+
+This AWS Lambda function automates the process of patching an Amazon Machine Image (AMI) used for a Rancher cluster or similar workloads. It is designed to run on a schedule (e.g., triggered monthly by an EventBridge rule) and performs the following key tasks:
+
+- Retrieve the Latest AMI ID:
+
+The Lambda function starts by fetching the latest AMI ID from the AWS Systems Manager (SSM) Parameter Store. This ID is used to launch an EC2 instance for patching.
+
+- Launch an EC2 Instance:
+
+An EC2 instance is launched using the retrieved AMI. The instance type is set to t2.medium, and it is associated with an IAM instance profile that grants necessary permissions for patching and AMI creation.
+
+- Wait for Instance Readiness:
+
+The function waits for the EC2 instance to be fully initialized and ready to receive commands using SSM (AWS Systems Manager).
+
+- Apply Patches via SSM:
+
+The function sends a command to the EC2 instance via SSM to run system updates and apply patches. Specifically, it runs sudo apt-get update and sudo apt-get upgrade -y on the instance.
+
+- Create a New Patched AMI:
+
+After the patching process is complete, the function creates a new AMI from the patched instance. The new AMI is given a name that includes the current date and time for identification.
+
+- Update the AMI ID in Parameter Store:
+
+Once the new AMI is created, its ID is stored back into the SSM Parameter Store, replacing the previous AMI ID. This ensures that the latest AMI can be tracked and used for future patching or deployments.
+
+- Send Notifications:
+
+A notification is sent via SNS (Simple Notification Service) to inform the relevant team members about the successful creation of the new AMI. The notification includes the new AMI ID and a message advising the team to test the AMI before rolling it out to production.
+
+- Terminate the EC2 Instance:
+
+After the AMI is created, the EC2 instance used for patching is terminated to avoid unnecessary costs.
+
+- Error Handling:
+
+If any error occurs during the process, it is logged, and the EC2 instance is terminated regardless of success or failure, ensuring proper cleanup.
+
+{% highlight shell %}
+import boto3
+import time
+import os
+import logging
+from datetime import datetime
+
+# Set up logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+ec2 = boto3.client('ec2')
+ssm = boto3.client('ssm')
+sns = boto3.client('sns')
+parameter_store = boto3.client('ssm')
+
+def lambda_handler(event, context):
+    logger.info("Lambda function started")
+    
+    # Retrieve last AMI ID from Parameter Store
+    parameter_name = os.environ['AMI_PARAMETER_NAME']
+    response = parameter_store.get_parameter(Name=parameter_name)
+    old_ami_id = response['Parameter']['Value']
+    
+    logger.info(f"Using AMI ID: {old_ami_id} to launch the instance")
+    
+    instance = ec2.run_instances(
+        ImageId=old_ami_id,
+        InstanceType='t2.medium',
+        MinCount=1,
+        MaxCount=1,
+        IamInstanceProfile={'Name': 'EC2InstanceProfile-for-AMI-Patching'}
+    )
+
+    instance_id = instance['Instances'][0]['InstanceId']
+    logger.info(f"Launched EC2 instance: {instance_id}")
+    
+    try:
+        # Wait for the instance to be in a valid state for SSM commands
+        ec2.get_waiter('instance_status_ok').wait(InstanceIds=[instance_id])
+        logger.info(f"Instance {instance_id} is now ready for SSM commands")
+
+        # Run SSM Command to apply patches
+        command = ssm.send_command(
+            InstanceIds=[instance_id],
+            DocumentName="AWS-RunShellScript",
+            Parameters={'commands': ['sudo apt-get update', 'sudo apt-get upgrade -y']}
+        )
+
+        command_id = command['Command']['CommandId']
+        logger.info(f"SSM command {command_id} sent for patching")
+        
+        # Wait for the command to finish
+        time.sleep(120)  # You can improve this by checking status
+        
+        # Create a new AMI from the instance with a unique name
+        current_time = datetime.now().strftime('%Y%m%d-%H%M%S')
+        new_ami_name = f"Patched-AMI-{current_time}"
+        
+        new_ami = ec2.create_image(
+            InstanceId=instance_id,
+            Name=new_ami_name,
+            NoReboot=True
+        )
+        new_ami_id = new_ami['ImageId']
+        logger.info(f"New AMI created: {new_ami_id}")
+        
+        # Update the new AMI ID in Parameter Store
+        parameter_store.put_parameter(
+            Name=parameter_name,
+            Value=new_ami_id,
+            Type='String',
+            Overwrite=True
+        )
+        logger.info(f"Updated Parameter Store with new AMI ID: {new_ami_id}")
+
+        # Send SNS notification with the new AMI ID
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_month = datetime.now().strftime('%B')
+        
+        sns_topic_arn = os.environ['SNS_TOPIC_ARN']
+        sns.publish(
+            TopicArn=sns_topic_arn,
+            Message=f"Dear team, This is a notification for the newly patched AMI on {current_date}. Please use this AMI: {new_ami_id} to test. If the AMI works well, proceed to rollout to production. Contact us if there are any issues.",
+            Subject=f"New AMI Created After Monthly Patching on {current_month}"
+        )
+        logger.info(f"Sent SNS notification for new AMI: {new_ami_id}")
+    
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+    
+    finally:
+        # Terminate the EC2 instance regardless of success or failure
+        ec2.terminate_instances(InstanceIds=[instance_id])
+        logger.info(f"Terminated EC2 instance: {instance_id}")
+
+    return {
+        'statusCode': 200,
+        'body': f"New AMI created: {new_ami_id}"
+    }
 
 {% endhighlight %}
 
+![image tooltip here](/assets/cnf1.png)
 
-<b> Console login </b>
+<b> Conclusion</b>:
 
-login freeIPA console with serverIP or DNS name
+This setup ensures that the team's AMIs are always up to date with the latest patches, improving security and reliability for the applications or environments that use them.
 
-![image tooltip here](/assets/linuxidm1.png)
+- Automated AMI Patching: The function automates the entire process of launching an EC2 instance, applying patches, creating a new AMI, and updating the parameter store.
 
-list the 2 users "alice" and "vincent" previously created
+- Cost Optimization: By terminating the EC2 instance after the patching process, it ensures resources are only used when necessary.
 
-![image tooltip here](/assets/linuxidm2.png)
+- Ease of Management: The function updates the SSM Parameter Store with the latest AMI ID, which simplifies the tracking of the most recent patched AMI.
 
-
-<b> Add and enroll client hosts into IdM </b>
-
-To add client hosts into freeIPA can be done via command or console, but to enroll the host can only be done via each client host by install "freeipa-client" and condigure domain. 
-
-- For CentOS client (11.0.1.151 freeipa-client1.zackz.oonline) enrollment: 
-
-{% highlight shell %}
-
-# set client hostname with domain
-hostnamectl set-hostname freeipa-client1.zackz.oonline
-
-# add 3 hosts to /etc/hosts
-echo 11.0.1.150 freeipa-server.zackz.oonline  ipa >> /etc/hosts
-echo 11.0.1.151 freeipa-client1.zackz.oonline ipa >> /etc/hosts
-echo 11.0.1.72  freeipa-client2.zackz.oonline ipa >> /etc/hosts
-
-
-# install freeipa-client and manually configure domain
-[root@freeipa-client1 ~]# ipa-client-install --mkhomedir
-WARNING: ntpd time&date synchronization service will not be configured as
-conflicting service (chronyd) is enabled
-Use --force-ntpd option to disable it and force configuration of ntpd
-
-DNS discovery failed to determine your DNS domain
-Provide the domain name of your IPA server (ex: example.com): zackz.oonline
-Provide your IPA server name (ex: ipa.example.com): freeipa-server.zackz.oonline
-The failure to use DNS to find your IPA server indicates that your resolv.conf file is not properly configured.
-Autodiscovery of servers for failover cannot work with this configuration.
-If you proceed with the installation, services will be configured to always access the discovered server for all operations and will not fail over to other servers in case of failure.
-Proceed with fixed values and no DNS discovery? [no]: yes
-Client hostname: freeipa-client1.zackz.oonline
-Realm: ZACKZ.OONLINE
-DNS Domain: zackz.oonline
-IPA Server: freeipa-server.zackz.oonline
-BaseDN: dc=zackz,dc=oonline
-
-Continue to configure the system with these values? [no]: yes
-Skipping synchronizing time with NTP server.
-User authorized to enroll computers: admin
-Password for admin@ZACKZ.OONLINE: 
-Successfully retrieved CA cert
-    Subject:     CN=Certificate Authority,O=ZACKZ.OONLINE
-    Issuer:      CN=Certificate Authority,O=ZACKZ.OONLINE
-    Valid From:  2024-04-04 10:45:20
-    Valid Until: 2044-04-04 11:45:20
-
-Enrolled in IPA realm ZACKZ.OONLINE
-Created /etc/ipa/default.conf
-New SSSD config will be created
-Configured sudoers in /etc/nsswitch.conf
-Configured /etc/sssd/sssd.conf
-trying https://freeipa-server.zackz.oonline/ipa/json
-[try 1]: Forwarding 'schema' to json server 'https://freeipa-server.zackz.oonline/ipa/json'
-trying https://freeipa-server.zackz.oonline/ipa/session/json
-[try 1]: Forwarding 'ping' to json server 'https://freeipa-server.zackz.oonline/ipa/session/json'
-[try 1]: Forwarding 'ca_is_enabled' to json server 'https://freeipa-server.zackz.oonline/ipa/session/json'
-Systemwide CA database updated.
-Hostname (freeipa-client1.zackz.oonline) does not have A/AAAA record.
-Failed to update DNS records.
-Missing reverse record(s) for address(es): 11.0.1.151.
-Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
-Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
-[try 1]: Forwarding 'host_mod' to json server 'https://freeipa-server.zackz.oonline/ipa/session/json'
-Could not update DNS SSHFP records.
-SSSD enabled
-Configured /etc/openldap/ldap.conf
-Unable to find 'admin' user with 'getent passwd admin@zackz.oonline'!
-Unable to reliably detect configuration. Check NSS setup manually.
-Configured /etc/ssh/ssh_config
-Configured /etc/ssh/sshd_config
-Configuring zackz.oonline as NIS domain.
-Configured /etc/krb5.conf for IPA realm ZACKZ.OONLINE
-Client configuration complete.
-The ipa-client-install command was successful
-
-
-{% endhighlight %}
-
-- for Ubuntu client host (11.0.1.72 freeipa-client2.zackz.oonline) enrollment:
-
-First back to freeIPA server, add DNS record for Ubuntu
-{% highlight shell %}
-
-# add DNS record for Ubuntu client on freeIPA server
-ipa dnsrecord-add hwdomain.io ubuntu-node.hwdomain.io --a-rec 192.168.10.50
-
-{% endhighlight %}
-
-Then login Ubuntu host to install freeipa-client and enroll:
-
-{% highlight shell %}
-
-# set hostname 
-hostnamectl set-hostname freeipa-client2.zackz.oonline
-
-# add 3 hosts to /etc/hosts
-echo 11.0.1.150 freeipa-server.zackz.oonline  ipa >> /etc/hosts
-echo 11.0.1.151 freeipa-client1.zackz.oonline ipa >> /etc/hosts
-echo 11.0.1.72  freeipa-client2.zackz.oonline ipa >> /etc/hosts
-
-# install ipa client
-apt update && apt install freeipa-client oddjob-mkhomedir
-
-# add ubuntu client to freeIPA server
-ipa-client-install --hostname=`hostname -f` --mkhomedir /
---server=freeipa-server.zackz.oonline /
---domain zackz.online /
---realm ZACKZ.OONLINE
-
-# change PAM profile to enable "Create a home directory on login" 
-pam-auth-update
-{% endhighlight %}
-
-now back to console, the 2 client hosts had been added and enrolled into freeIPA server
-![image tooltip here](/assets/linuxidm3.png)
-
-
-- verify to use user "alice" and its passwd to ssh login to ubuntu client from SSH client
-
-{% highlight shell %}
-zack@zackz MINGW64 /d/zhbso/Desktop
-$ ssh alice@11.0.1.151
-The authenticity of host '11.0.1.81 (11.0.1.151)' can't be established.
-ED25519 key fingerprint is SHA256:YMa3Hya5N4ICtQUmI9CedCS2jVZbI3lByrXGlWx5efA.
-This key is not known by any other names.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '11.0.1.151' (ED25519) to the list of known hosts.
-(alice@11.0.1.151) Password:
-Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-107-generic x86_64)
-
-Last login: Wed Jun 26 06:20:22 2024 from 11.0.1.80
-alice@freeipa-client1:~$
-
-alice@freeipa-client2:~$ id
-uid=171200003(alice) gid=171200003(alice) groups=171200003(alice)
-
-{% endhighlight %}
-
-<b> Conclusion</b>
-
-Now we install Redhat IdM server and be able to enroll client hosts, looking at the user details, IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.
-
-![image tooltip here](/assets/linuxidm5.png)
-
-More info can be found via [Freeipa workshop](https://freeipa.readthedocs.io/en/latest/workshop.html), [Red Hat product documentation](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index), [Redhat Idm on AWS with DNS forwarder](https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/), [idmfreeipa DNS forwarder configurations on AWS](https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/), and [Automating Red Hat Identity Management installation with Ansible](https://redhat.com/en/blog/automating-red-hat-identity-management-installation).
-
+- Team Notification: Through SNS, it keeps the team informed about the newly patched AMI, streamlining communication for testing and production rollouts.
