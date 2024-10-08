@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment"
-date:   2024-08-02 11:15:29 +1100
+title:  "Jenkins - Multi-Destnation Continuse Deployment with Terraform"
+date:   2024-08-15 11:15:29 +1100
 categories: jekyll Cat2
 ---
 

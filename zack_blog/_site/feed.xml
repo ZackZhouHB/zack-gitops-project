@@ -1,501 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-08T23:08:50+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Jenkins with Ansible and Terraform - Universal CI Pipeline</title><link href="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html" rel="alternate" type="text/html" title="Jenkins with Ansible and Terraform - Universal CI Pipeline" /><published>2024-08-02T10:15:29+10:00</published><updated>2024-08-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html"><![CDATA[<p><b>Jenkins recap</b></p>
-
-<p>It has been some time since I adapted CI/CD pipelines from Jenkins to AWS CodePipeline and GitHub Actions workflows. Now, it’s time to recap and improve some of my previous Jenkins practices.</p>
-
-<ul>
-  <li>Universal Jenkins Docker image design</li>
-</ul>
-
-<p>This time, instead of installing Jenkins on a server, I prefer to containerize a universal Jenkins Docker image with the necessary packages installed, so it provides consistency and reproducibility, portability, and easy updates and rollbacks.</p>
-
-<ol>
-  <li>Docker CLI</li>
-  <li>Terraform</li>
-  <li>Kubectl</li>
-  <li>Trivy</li>
-  <li>AWS CLI</li>
-  <li>Ansible </li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Dockerfile</span>
-
-FROM jenkins/jenkins:lts
-
-USER root
-
-<span class="c"># Install necessary packages, Docker CLI, Terraform, Kubectl, Trivy, AWS CLI, and Ansible</span>
-RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="se">\</span>
-        curl <span class="se">\</span>
-        wget <span class="se">\</span>
-        unzip <span class="se">\</span>
-        gnupg2 <span class="se">\</span>
-        apt-transport-https <span class="se">\</span>
-        lsb-release <span class="se">\</span>
-        ca-certificates <span class="se">\</span>
-        software-properties-common <span class="se">\</span>
-        python3 <span class="se">\</span>
-        python3-venv <span class="se">\</span>
-        python3-pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Docker CLI</span>
-    curl <span class="nt">-fsSL</span> https://download.docker.com/linux/debian/gpg | apt-key add - <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">echo</span> <span class="s2">"deb [arch=amd64] https://download.docker.com/linux/debian </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> stable"</span> <span class="o">&gt;</span> /etc/apt/sources.list.d/docker.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get <span class="nb">install</span> <span class="nt">-y</span> docker-ce-cli <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Terraform</span>
-    wget <span class="nt">-O-</span> https://apt.releases.hashicorp.com/gpg | gpg <span class="nt">--dearmor</span> <span class="o">&gt;</span> /usr/share/keyrings/hashicorp-archive-keyring.gpg <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">echo</span> <span class="s2">"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> main"</span> <span class="o">&gt;</span> /etc/apt/sources.list.d/hashicorp.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get <span class="nb">install</span> <span class="nt">-y</span> terraform <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Kubectl</span>
-    curl <span class="nt">-LO</span> <span class="s2">"https://dl.k8s.io/release/</span><span class="si">$(</span>curl <span class="nt">-L</span> <span class="nt">-s</span> https://dl.k8s.io/release/stable.txt<span class="si">)</span><span class="s2">/bin/linux/amd64/kubectl"</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">chmod</span> +x kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">mv </span>kubectl /usr/local/bin/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Trivy</span>
-    wget https://github.com/aquasecurity/trivy/releases/download/v0.56.0/trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    dpkg <span class="nt">-i</span> trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">rm </span>trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install AWS CLI</span>
-    curl <span class="s2">"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"</span> <span class="nt">-o</span> <span class="s2">"awscliv2.zip"</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    unzip awscliv2.zip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    ./aws/install <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">rm</span> <span class="nt">-rf</span> awscliv2.zip aws/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Create a virtual environment for Python and Ansible</span>
-    python3 <span class="nt">-m</span> venv /opt/ansible_venv <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    /opt/ansible_venv/bin/pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    /opt/ansible_venv/bin/pip <span class="nb">install </span>ansible <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Create symlinks to make Ansible easily accessible</span>
-    <span class="nb">ln</span> <span class="nt">-s</span> /opt/ansible_venv/bin/ansible /usr/local/bin/ansible <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">ln</span> <span class="nt">-s</span> /opt/ansible_venv/bin/ansible-playbook /usr/local/bin/ansible-playbook <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Clean up</span>
-    apt-get clean <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">rm</span> <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
-
-USER jenkins</code></pre></figure>
-
-<p>Build and run this universal Jenkins image to mount Jenkins home directory and Docker socket from the host to the container, also add Docker group to the container so Jenkins can run Docker commands inside the container without needing root privileges.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker build <span class="nt">-t</span> jenkins-all <span class="nb">.</span>
-
-docker run <span class="nt">-d</span> <span class="nt">--name</span> jenkins <span class="nt">-p</span> 8080:8080 <span class="nt">-p</span> 50000:50000 <span class="se">\</span>
-<span class="nt">-v</span> /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
-<span class="nt">-v</span> /var/jenkins_home:/var/jenkins_home <span class="se">\</span>
-<span class="nt">--group-add</span> <span class="si">$(</span>getent group docker | <span class="nb">cut</span> <span class="nt">-d</span>: <span class="nt">-f3</span><span class="si">)</span> <span class="se">\ </span>
-jenkins-all</code></pre></figure>
-
-<ul>
-  <li>Universal Jenkins CI pipeline design</li>
-</ul>
-
-<p>After installing a list of plugins and configuring all credentials and the GitHub webhook, the CI pipeline is designed bellow and can be triggered by a Git push event and will run automatically:</p>
-
-<ol>
-  <li>Enable multi-language artifact build support.</li>
-  <li>Integrate testing of Java versions.</li>
-  <li>Enable security checks for static code analysis and Docker image scanning.</li>
-  <li>Implement advanced Jenkins pipeline structuring using <b>try-catch</b>, <b>if-else</b>, <b>timeouts</b>,<b>environment variables</b>,<b>post actions</b> and <b>error handling</b>.</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#  Jenkinsfile</span>
-
-// Define the detectJavaVersion <span class="k">function </span>outside of the pipeline block
-def detectJavaVersion<span class="o">()</span> <span class="o">{</span>
-    def javaVersionOutput <span class="o">=</span> sh<span class="o">(</span>script: <span class="s1">'java -version 2&gt;&amp;1'</span>, returnStatus: <span class="nb">false</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
-    def javaVersionMatch <span class="o">=</span> javaVersionOutput <span class="o">=</span>~ /openjdk version <span class="s2">"(</span><span class="se">\d</span><span class="s2">+</span><span class="se">\.\d</span><span class="s2">+)/
-
-    if (javaVersionMatch) {
-        def javaVersion = javaVersionMatch[0][1]
-
-        if (javaVersion.startsWith("</span>1.8<span class="s2">")) {
-            return '8'
-        } else if (javaVersion.startsWith("</span>11<span class="s2">")) {
-            return '11'
-        } else if (javaVersion.startsWith("</span>17<span class="s2">")) {
-            return '17'
-        } else {
-            error("</span>Unsupported Java version detected: <span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span><span class="s2">")
-        }
-    } else {
-        error("</span>Java version information not found <span class="k">in </span>output.<span class="s2">")
-    }
-}
-
-pipeline {
-    agent any
-    environment {
-        REGISTRY_URL = 'https://index.docker.io/v1/'
-        IMAGE_NAME = "</span>zackz001/jenkins<span class="s2">"
-        IMAGE_TAG = "</span><span class="k">${</span><span class="nv">env</span><span class="p">.BUILD_NUMBER</span><span class="k">}</span><span class="s2">"
-        LATEST_TAG = "</span>latest<span class="s2">"
-        TRIVY_OUTPUT = "</span>trivy-report.txt<span class="s2">"
-        EMAIL_RECIPIENT = "</span>zhbsoftboy1@gmail.com<span class="s2">"
-        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
-        GIT_BRANCH = 'jenkins'  // Git branch
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
-        SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
-        SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
-        SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
-    }
-    stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }   
-        stage('Checkout Code') {
-            steps {
-                git branch: "</span><span class="k">${</span><span class="nv">GIT_BRANCH</span><span class="k">}</span><span class="s2">",
-                    credentialsId: 'gittoken',
-                    url: "</span><span class="k">${</span><span class="nv">GIT_REPO_URL</span><span class="k">}</span><span class="s2">"
-            }   
-        }
-        stage('Detect and Set Java') {
-            steps {
-                script {
-                    try {
-                        def javaVersion = detectJavaVersion()  // Detect the Java version, e.g., "</span>17<span class="s2">"
-                        def javaToolName = "</span>Java_<span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span><span class="s2">"  // Expected tool name
-
-                        // Try to set the Java version; fallback if the specific version isn't found
-                        try {
-                            tool name: javaToolName, type: 'jdk'
-                            echo "</span>Using Java version <span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span>.<span class="s2">"
-                        } catch (Exception toolError) {
-                            echo "</span>No JDK named <span class="k">${</span><span class="nv">javaToolName</span><span class="k">}</span> found. Using default JDK.<span class="s2">"
-                        }
-
-                        // Verify Java version, regardless of whether the specific version was found
-                        sh 'java --version'
-
-                    } catch (Exception e) {
-                        echo "</span>Error during Java version detection: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"
-                        // Continue pipeline even if Java detection fails
-                    }
-                }
-            }
-        }
-        // for Code Security Analysis and Fixes
-        stage('snyk_analysis') {
-            steps {
-                script {
-                    echo 'Running Snyk security analysis...'
-                    timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
-                        try {
-                            snykSecurity(
-                                snykInstallation: SNYK_INSTALLATION,
-                                snykTokenId: SNYK_TOKEN,
-                                failOnIssues: false,
-                                monitorProjectOnBuild: true,
-                                additionalArguments: '--severity-threshold=low'
-                            )
-                       } catch (Exception e) {
-                            currentBuild.result = 'FAILURE'
-                            error("</span>Error during snyk_analysis: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Language-specific build and test stages
-        stage('Frontend Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('package.json')) {
-                            sh 'npm install --force'
-                            sh 'npm test'
-                        } else {
-                            echo 'No package.json found, skipping Frontend build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Frontend build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Java Spring Boot Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('pom.xml')) {
-                            sh 'mvn clean package'
-                            sh 'mvn test'
-                        } else {
-                            echo 'No pom.xml found, skipping Java Spring Boot build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Java Spring Boot build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('.NET Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('YourSolution.sln')) {
-                            sh 'dotnet build'
-                            sh 'dotnet test'
-                        } else {
-                            echo 'No YourSolution.sln found, skipping .NET build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during .NET build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('PHP Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('composer.json')) {
-                            sh 'composer install'
-                            sh 'phpunit'
-                        } else {
-                            echo 'No composer.json found, skipping PHP build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during PHP build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('iOS Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('YourProject.xcodeproj')) {
-                            xcodebuild(buildDir: 'build', scheme: 'YourScheme')
-                        } else {
-                            echo 'No YourProject.xcodeproj found, skipping iOS build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during iOS build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Android Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('build.gradle')) {
-                            sh './gradlew build'
-                            sh './gradlew test'
-                        } else {
-                            echo 'No build.gradle found, skipping Android build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Android build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Ruby on Rails Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('Gemfile.lock')) {
-                            sh 'bundle install'
-                            sh 'bundle exec rake db:migrate'
-                            sh 'bundle exec rails test'
-                        } else {
-                            echo 'No Gemfile.lock found, skipping Ruby on Rails build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Ruby on Rails build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Flask Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('app.py')) {
-                            sh 'pip install -r requirements.txt'
-                            sh 'python -m unittest discover'
-                        } else {
-                            echo 'No app.py found, skipping Flask build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Flask build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Django Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('manage.py')) {
-                            sh 'pip install -r requirements.txt'
-                            sh 'python manage.py migrate'
-                            sh 'python manage.py test'
-                        } else {
-                            echo 'No manage.py found, skipping Django build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Django build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Rust Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('Cargo.toml')) {
-                            env.RUST_BACKTRACE = 'full'
-                            sh 'cargo build'
-                            sh 'cargo test'
-                        } else {
-                            echo "</span>No Cargo.toml file found. Skipping Rust build and test.<span class="s2">"
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Rust build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Ruby Sinatra Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('app.rb')) {
-                            sh 'gem install bundler'
-                            sh 'bundle install'
-                            sh 'bundle exec rake test'
-                        } else {
-                            echo "</span>No app.rb file found. Skipping Ruby Sinatra build and test.<span class="s2">"
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Ruby Sinatra build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-        // Build ZackBlog docker image 
-        stage('Check and Build Docker Image') {
-            steps {
-                script {
-                    try {
-                        // Check if Docker is available
-                        sh 'docker --version'
-                        echo "</span>Docker is installed. Proceeding to build the Docker image...<span class="s2">"
-                        
-                        // Build the Docker image from the 'zack_blog' folder
-                        dockerImage = docker.build("</span><span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">", "</span>zack_blog/<span class="s2">")
-                    } catch (Exception e) {
-                        // Handle the error if Docker is not available
-                        error("</span>Docker is not installed or accessible. Cannot proceed with the build.<span class="s2">")
-                    }
-                }
-            }
-        }
-        // Scan docker image with Trivy
-        stage('Docker Image Scan') {
-            steps {
-                // Use Trivy to scan the built Docker image
-                sh "</span>trivy image <span class="nt">--severity</span> HIGH,CRITICAL <span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span> <span class="o">&gt;</span> <span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">"
-            }
-        }
-        //Push to Dockerhub
-        stage('Push Docker Image to DockerHub') {
-            steps {
-                script {
-                    docker.withRegistry("</span><span class="k">${</span><span class="nv">REGISTRY_URL</span><span class="k">}</span><span class="s2">", "</span><span class="k">${</span><span class="nv">DOCKERHUB_CREDENTIALS_ID</span><span class="k">}</span><span class="s2">") {
-                        dockerImage.push("</span><span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">")
-                        dockerImage.push("</span><span class="k">${</span><span class="nv">LATEST_TAG</span><span class="k">}</span><span class="s2">") // Push 'latest' tag
-                    }
-                }
-            }
-        }
-        //Output image scan result
-        stage('Display Trivy Scan Results') {
-            steps {
-                script {
-                    // Display the contents of the Trivy report
-                    def scanReport = readFile("</span><span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">")
-                    echo "</span>Trivy Scan Report:<span class="se">\n</span><span class="k">${</span><span class="nv">scanReport</span><span class="k">}</span><span class="s2">"
-                }
-            }
-        }
-        // Additional stages like Docker build, image scan, etc.
-    }
-    // Post Build Emailing 
-    post {
-        success {
-            script {
-                def scanReport = readFile("</span><span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">")
-                emailext(
-                    to: "</span><span class="k">${</span><span class="nv">EMAIL_RECIPIENT</span><span class="k">}</span><span class="s2">",
-                    subject: "</span>CI Pipeline Success: Build <span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">",
-                    body: """</span>
-                    The pipeline has successfully completed.
-
-                    Docker image <span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span> has been built and pushed to DockerHub.
-
-                    Trivy Scan Report:
-                    <span class="k">${</span><span class="nv">scanReport</span><span class="k">}</span>
-                    <span class="s2">"""
-                )
-            }
-        }
-        failure {
-            emailext(
-                to: "</span><span class="k">${</span><span class="nv">EMAIL_RECIPIENT</span><span class="k">}</span><span class="s2">",
-                subject: "</span>CI Pipeline Failed: Build <span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">",
-                body: """</span>
-                The pipeline has failed at some stage.
-
-                Please check the Jenkins console logs <span class="k">for </span>more details.
-                <span class="s2">"""
-            )
-        }
-    }
-}</span></code></pre></figure>
-
-<ul>
-  <li>Pipeline test and debug</li>
-</ul>
-
-<p>After thorough testing and validation, the CI pipeline finally works like a charm.</p>
-
-<p><img src="/assets/jenkins1.png" alt="image tooltip here" /></p>
-
-<p>Next, I will create a CD pipeline to integrate with Ansible, AWS, and Terraform to deploy the blog onto AWS EC2, ECS, and EKS.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins recap]]></summary></entry><entry><title type="html">Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2.html" rel="alternate" type="text/html" title="Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment" /><published>2024-08-02T10:15:29+10:00</published><updated>2024-08-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo2.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-08T23:11:44+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="Jenkins with Ansible and Terraform - Multi-Destnation Continuse Deployment" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
 
 <p>After the previous post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub. Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
 
@@ -1126,7 +629,1135 @@ Securely manages sensitive data using AWS Secrets Manager, HashiCorp Vault, or J
     <p><b>Real-World Automation: </b>
 Solves complex problems and improves efficiency, reducing build times and increasing deployment reliability.</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins CD Pipeline Design]]></summary></entry><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins CD Pipeline Design]]></summary></entry><entry><title type="html">Jenkins - Multi-Destnation Continuse Deployment with Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" rel="alternate" type="text/html" title="Jenkins - Multi-Destnation Continuse Deployment with Terraform" /><published>2024-08-15T10:15:29+10:00</published><updated>2024-08-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
+
+<p>After the previous post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub. Now it is time to design the continuse deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
+
+<ul>
+  <li>Continuse Deployment Consideration</li>
+</ul>
+
+<p>Continuse deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:</p>
+
+<ol>
+  <li>Jenkins CD pipeline with muti-stage</li>
+  <li>Terraform to provision AWS EC2</li>
+  <li>Ansible to configure docker and deploy blog</li>
+  <li>Validate Web Blog Access:</li>
+  <li>Delete Terraform Resources</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Tree</span>
+terraform-ec2# tree
+<span class="nb">.</span>
+├── Jenkinsfile  <span class="c"># the CD pipeline file </span>
+├── deploy-docker-playbook.yml <span class="c"># the Ansible playbook for ec2 webblog deployment </span>
+├── hosts <span class="c"># the Ansible inventory file</span>
+├── main.tf <span class="c"># the terraform file to provison AWS EC2 </span>
+├── test-playbook.yaml <span class="c"># the playbook for Ansible testing and validation </span>
+└── variables.tf the terraform var file to provison AWS EC2 </code></pre></figure>
+
+<ul>
+  <li>The CD pipeline design</li>
+</ul>
+
+<p>This Jenkins CD (Continuous Deployment) pipeline covers the following task:</p>
+
+<ol>
+  <li>Jenkins Cred and Environment Setup</li>
+  <li>Check Installed Package Versions (AWSCli, Ansible, Terraform)</li>
+  <li>Validate Ansible and AWS credential</li>
+  <li>Run Terraform Initialization and Apply</li>
+  <li>Validate EC2 Readiness and then Deploy Docker Using Ansible</li>
+  <li>Validate Web Blog Access by extract EC2 public IP</li>
+  <li>Delete Terraform Resources</li>
+</ol>
+
+<p>Jenkinsfile</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#  Jenkinsfile</span>
+pipeline <span class="o">{</span>
+    agent any
+    environment <span class="o">{</span>
+        IMAGE_NAME <span class="o">=</span> <span class="s2">"zackz001/jenkins"</span>
+        IMAGE_TAG <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">env</span><span class="p">.BUILD_NUMBER</span><span class="k">}</span><span class="s2">"</span>
+        LATEST_TAG <span class="o">=</span> <span class="s2">"latest"</span>
+        EMAIL_RECIPIENT <span class="o">=</span> <span class="s2">"zhbsoftboy1@gmail.com"</span>
+        GIT_REPO_URL <span class="o">=</span> <span class="s1">'https://github.com/ZackZhouHB/zack-gitops-project.git'</span>  // Git repository URL
+        GIT_BRANCH <span class="o">=</span> <span class="s1">'jenkins-cd'</span>  // Git branch
+        DOCKERHUB_CREDENTIALS_ID <span class="o">=</span> <span class="s1">'dockerhub'</span> // Docker Hub credentials
+        REGION <span class="o">=</span> <span class="s1">'ap-southeast-2'</span>  // AWS region
+    <span class="o">}</span>
+    stages <span class="o">{</span>
+        stage<span class="o">(</span><span class="s1">'Clean Workspace'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                cleanWs<span class="o">()</span>
+            <span class="o">}</span>
+       <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Checkout Code'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                git branch: <span class="s2">"</span><span class="k">${</span><span class="nv">GIT_BRANCH</span><span class="k">}</span><span class="s2">"</span>,
+                    credentialsId: <span class="s1">'gittoken'</span>,
+                    url: <span class="s2">"</span><span class="k">${</span><span class="nv">GIT_REPO_URL</span><span class="k">}</span><span class="s2">"</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Check Installed Package Versions'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    try <span class="o">{</span>
+                        // Check Docker version
+                        sh <span class="s1">'''
+                            if command -v docker &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Docker Version: $(docker --version)"
+                            else
+                                echo "Docker is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Docker not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Terraform version
+                        sh <span class="s1">'''
+                            if command -v terraform &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Terraform Version: $(terraform -version)"
+                            else
+                                echo "Terraform is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Terraform not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Kubectl version
+                        sh <span class="s1">'''
+                            if command -v kubectl &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Kubectl Version: $(kubectl version --client)"
+                            else
+                                echo "Kubectl is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Kubectl not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Trivy version
+                        sh <span class="s1">'''
+                            if command -v trivy &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Trivy Version: $(trivy --version)"
+                            else
+                                echo "Trivy is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Trivy not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check Ansible version
+                        sh <span class="s1">'''
+                            if command -v ansible &gt;/dev/null 2&gt;&amp;1; then
+                                echo "Ansible Version: $(ansible --version)"
+                            else
+                                echo "Ansible is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: Ansible not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+
+                    try <span class="o">{</span>
+                        // Check AWS CLI version
+                        sh <span class="s1">'''
+                            if command -v aws &gt;/dev/null 2&gt;&amp;1; then
+                                echo "AWS CLI Version: $(aws --version)"
+                            else
+                                echo "AWS CLI is not installed"
+                                exit 1
+                            fi
+                        '''</span>
+                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Error: AWS CLI not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Run a testing Ansible Playbook'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Run the Ansible playbook using the hosts file from the repo
+                    sh <span class="s1">'''
+                        echo "Running Ansible playbook:"
+                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform-ec2/hosts" "${WORKSPACE}/jenkins/terraform-ec2/test-playbook.yaml"
+                    '''</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Verify AWS credential'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withAWS<span class="o">(</span>credentials: <span class="s1">'aws'</span>, region: <span class="s1">'ap-southeast-2'</span><span class="o">)</span> <span class="o">{</span> // Replace with correct AWS credentials ID
+                    script <span class="o">{</span>
+                        // List all existing S3 buckets and output the result to the Jenkins console
+                        sh <span class="s1">'''
+                            echo "Listing all S3 buckets:"
+                            aws s3 ls
+                        '''</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        stage<span class="o">(</span><span class="s1">'Terraform Init and Apply'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
+                    sh <span class="s1">'''
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        cd jenkins/terraform-ec2
+
+                        # Check if Terraform has been initialized
+                        if [ ! -d ".terraform" ]; then
+                            echo "Terraform not initialized. Running '</span>terraform init<span class="s1">'..."
+                            terraform init
+                        else
+                            echo "Terraform already initialized. Skipping '</span>terraform init<span class="s1">'."
+                        fi
+
+                        terraform apply -auto-approve -var "aws_region=${REGION}"
+                    '''</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        // Stage to extract EC2 public IP
+        stage<span class="o">(</span><span class="s1">'Extract EC2 Public IP'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
+                    script <span class="o">{</span>
+                        def ec2Ip <span class="o">=</span> sh<span class="o">(</span>script: <span class="s1">'''
+                            cd jenkins/terraform-ec2
+                            terraform output -raw ec2_public_ip
+                        '''</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
+                        <span class="nb">echo</span> <span class="s2">"EC2 Public IP: </span><span class="k">${</span><span class="nv">ec2Ip</span><span class="k">}</span><span class="s2">"</span>
+                        // Set the environment variable <span class="k">for </span>the next stages explicitly
+                        env.EC2_PUBLIC_IP <span class="o">=</span> ec2Ip
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        // <span class="k">**</span>Fix: Adding a small <span class="nb">sleep </span>to ensure <span class="nb">env </span>is populated<span class="k">**</span>
+        stage<span class="o">(</span><span class="s1">'Validate EC2 Public IP'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    <span class="nb">sleep </span>2 // Ensure enough <span class="nb">time </span><span class="k">for </span>variable propagation
+                    <span class="k">if</span> <span class="o">(</span>env.EC2_PUBLIC_IP <span class="o">==</span> null <span class="o">||</span> env.EC2_PUBLIC_IP <span class="o">==</span> <span class="s2">""</span><span class="o">)</span> <span class="o">{</span>
+                        error <span class="s2">"EC2 Public IP is not available or failed to fetch."</span>
+                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"EC2 Public IP is successfully fetched: </span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        // Wait <span class="k">for </span>EC2 Readiness <span class="o">(</span>SSH Validation<span class="o">)</span>
+        stage<span class="o">(</span><span class="s1">'Wait for EC2 Readiness'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                retry<span class="o">(</span>20<span class="o">)</span> <span class="o">{</span> // Retry up to 4 <span class="nb">times </span><span class="k">in case</span> EC2 is not immediately ready
+                    <span class="nb">sleep </span>2  // Wait <span class="k">for </span>a bit before checking readiness
+                    withCredentials<span class="o">([</span>sshUserPrivateKey<span class="o">(</span>credentialsId: <span class="s1">'sshkey'</span>, keyFileVariable: <span class="s1">'SSH_KEY'</span><span class="p">)</span><span class="o">])</span> <span class="o">{</span>
+                        script <span class="o">{</span>
+                            sh <span class="s2">"ssh -o StrictHostKeyChecking=no -i </span><span class="k">${</span><span class="nv">SSH_KEY</span><span class="k">}</span><span class="s2"> ubuntu@</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2"> 'echo EC2 is ready for deployment'"</span>
+                        <span class="o">}</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        // Deploy Docker using Ansible
+        stage<span class="o">(</span><span class="s1">'Deploy Docker with Ansible'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([</span>sshUserPrivateKey<span class="o">(</span>credentialsId: <span class="s1">'sshkey'</span>, keyFileVariable: <span class="s1">'SSH_KEY'</span><span class="o">)])</span> <span class="o">{</span>
+                    script <span class="o">{</span>
+                        sh <span class="s1">'''
+                            echo "Running Ansible Playbook for Docker Deployment..."
+                            ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform-ec2/deploy-docker-playbook.yml" \
+                            --user ubuntu \
+                            --private-key ${SSH_KEY} \
+                            --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
+                        '''</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        // New stage: Validate web blog accessibility
+        stage<span class="o">(</span><span class="s1">'Validate Web Blog Access'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    <span class="nb">echo</span> <span class="s2">"Validating web blog access via http://</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">..."</span>
+
+                    // Use curl to validate HTTP response from the web blog
+                    def response <span class="o">=</span> sh<span class="o">(</span>script: <span class="s2">"curl -o /dev/null -s -w '%{http_code}' http://</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">"</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
+
+                    <span class="k">if</span> <span class="o">(</span>response <span class="o">==</span> <span class="s1">'200'</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="nb">echo</span> <span class="s2">"Web blog is accessible and returned HTTP status code 200."</span>
+                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                        error <span class="s2">"Web blog is not accessible. HTTP status code: </span><span class="k">${</span><span class="nv">response</span><span class="k">}</span><span class="s2">"</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span> 
+        stage<span class="o">(</span><span class="s1">'delete terraform resource'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
+                    sh <span class="s1">'''
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        cd jenkins/terraform-ec2
+
+                        # Check if Terraform has been initialized
+                        if [ ! -d ".terraform" ]; then
+                            echo "Terraform not initialized. Running '</span>terraform init<span class="s1">'..."
+                            terraform init
+                        else
+                            echo "Terraform already initialized. Skipping '</span>terraform init<span class="s1">'."
+                        fi
+
+                        terraform destroy -auto-approve -var "aws_region=${REGION}"
+                    '''</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>                   
+    <span class="o">}</span>
+    post <span class="o">{</span>
+        success <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s2">"Pipeline completed successfully."</span>
+        <span class="o">}</span>
+        failure <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s2">"Pipeline failed."</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Terraform main.tf</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Terraform main.tf</span>
+
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+  region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+terraform <span class="o">{</span>
+  backend <span class="s2">"s3"</span> <span class="o">{</span>
+    bucket         <span class="o">=</span> <span class="s2">"zz-lambda-tag"</span>
+    key            <span class="o">=</span> <span class="s2">"terraform/state/terraform.tfstate"</span>
+    region         <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+    encrypt        <span class="o">=</span> <span class="nb">true</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Security Group Data</span>
+data <span class="s2">"aws_security_group"</span> <span class="s2">"existing_sg"</span> <span class="o">{</span>
+  filter <span class="o">{</span>
+    name   <span class="o">=</span> <span class="s2">"group-name"</span>
+    values <span class="o">=</span> <span class="o">[</span><span class="s2">"launch-wizard-1"</span><span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Key Pair Data</span>
+data <span class="s2">"aws_key_pair"</span> <span class="s2">"existing_key"</span> <span class="o">{</span>
+  key_name <span class="o">=</span> <span class="s2">"zzzzzzzzzzzz"</span>
+<span class="o">}</span>
+
+<span class="c"># EC2 Instance Definition</span>
+resource <span class="s2">"aws_instance"</span> <span class="s2">"web"</span> <span class="o">{</span>
+  ami           <span class="o">=</span> <span class="s2">"ami-040e71e7b8391cae4"</span> <span class="c"># Choose AMI</span>
+  instance_type <span class="o">=</span> <span class="s2">"t2.micro"</span>
+  key_name      <span class="o">=</span> data.aws_key_pair.existing_key.key_name
+  security_groups <span class="o">=</span> <span class="o">[</span>
+    data.aws_security_group.existing_sg.name
+  <span class="o">]</span>
+
+  tags <span class="o">=</span> <span class="o">{</span>
+    Name <span class="o">=</span> <span class="s2">"Jenkins-EC2"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Output EC2 Public IP</span>
+output <span class="s2">"ec2_public_ip"</span> <span class="o">{</span>
+  value <span class="o">=</span> aws_instance.web.public_ip
+<span class="o">}</span></code></pre></figure>
+
+<p>Ansible Playbook deploy-docker-playbook.yml</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Ansible Playbook for EC2 web blog deployment</span>
+<span class="nt">---</span>
+- hosts: all
+  become: <span class="nb">yes
+  </span>tasks:
+  
+    - name: Check <span class="k">if </span>Docker is already installed
+      <span class="nb">command</span>: docker <span class="nt">--version</span>
+      register: docker_installed
+      ignore_errors: <span class="nb">yes
+      </span>changed_when: <span class="nb">false</span>
+
+    - name: Install required packages <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+        update_cache: <span class="nb">yes
+      </span>when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Add Docker<span class="s1">'s official GPG key (if Docker is not installed)
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: docker_installed.rc != 0
+
+    - name: Add Docker'</span>s official APT repository <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt_repository:
+        repo: deb <span class="o">[</span><span class="nb">arch</span><span class="o">=</span>amd64] https://download.docker.com/linux/ubuntu  stable
+        state: present
+      when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Update APT cache <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt:
+        update_cache: <span class="nb">yes
+      </span>when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Install Docker CE <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: <span class="nb">yes
+      </span>when: docker_installed.rc <span class="o">!=</span> 0
+
+    - name: Start and <span class="nb">enable </span>Docker service
+      systemd:
+        name: docker
+        enabled: <span class="nb">yes
+        </span>state: started
+
+    - name: Stop all running containers
+      shell: docker stop <span class="si">$(</span>docker ps <span class="nt">-q</span><span class="si">)</span>
+      ignore_errors: <span class="nb">true
+      </span>register: stopped_containers
+
+    - name: Remove all stopped containers
+      shell: docker <span class="nb">rm</span> <span class="si">$(</span>docker ps <span class="nt">-a</span> <span class="nt">-q</span><span class="si">)</span>
+      when: stopped_containers.rc <span class="o">==</span> 0
+      ignore_errors: <span class="nb">true</span>
+
+    - name: Pull Docker image
+      docker_image:
+        name: zackz001/gitops-jekyll
+        tag: latest
+        <span class="nb">source</span>: pull
+
+    - name: Run Docker container
+      docker_container:
+        name: zackblog
+        image: zackz001/gitops-jekyll:latest
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - <span class="s2">"80:80"</span></code></pre></figure>
+
+<ul>
+  <li>Pipeline debug and testing</li>
+</ul>
+
+<p>After thorough testing and validation, the CD pipeline also works like a charm.</p>
+
+<p><img src="/assets/jenkins2.png" alt="image tooltip here" /></p>
+
+<p><b>Terraform Modularization for Multi-Destination Deployment</b></p>
+
+<p>The folder structure bellow is designed to organize Infrastructure as Code (IaC) using Terraform, breaking down the configuration into reusable modules for ECS, EKS, and EC2 deployments, along with different environments (production, stage, etc.). So The Jenkins reusable CD pipeline can manage multi-destination deployments based on this structure.</p>
+
+<ol>
+  <li>Single EC2 deployment</li>
+  <li>Single ECS deployment</li>
+  <li>Terraform ECS Module with multi-environment deployment (production and stage)</li>
+  <li>Terraform single EKS deployment</li>
+  <li>Terraform EKS Module with multi-environment deployment (production and stage)</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~/zack-gitops-project/jenkins# tree
+
+├── terraform-ec2
+│   ├── Jenkinsfile
+│   ├── deploy-docker-playbook.yml
+│   ├── hosts
+│   ├── main.tf
+│   ├── test-playbook.yaml
+│   └── variables.tf
+
+├── module-ecs-cluster
+│   ├── Jenkinsfile
+│   ├── main.tf
+│   ├── modules
+│   │   ├── alb
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── ecs_cluster
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── ecs_service
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── iam
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   ├── security_groups
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   └── task_definition
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       └── variables.tf
+│   ├── outputs.tf
+│   ├── terraform.tfstate
+│   ├── terraform.tfstate.backup
+│   ├── terraform.tfvars
+│   └── variables.tf
+
+├── module-ecs-env
+│   ├── environments
+│   │   ├── production
+│   │   │   ├── Jenkinsfile
+│   │   │   ├── backend.tf
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tfvars
+│   │   │   └── variables.tf
+│   │   └── stage
+│   │       ├── Jenkinsfile
+│   │       ├── backend.tf
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       ├── terraform.tfvars
+│   │       └── variables.tf
+│   └── modules
+│       ├── alb
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── ecs_cluster
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── ecs_service
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── iam
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       ├── security_groups
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
+│       └── task_definition
+│           ├── main.tf
+│           ├── outputs.tf
+│           └── variables.tf
+
+└── terraform-eks
+    ├── Jenkinsfile
+    ├── argo-setup.sh
+    ├── backend.tf
+    ├── deployment.yaml
+    ├── iam.tf
+    ├── main.tf
+    ├── output.tf
+    ├── terraform.tfvars
+    └── variables.tf
+
+├── module-eks-env
+│   ├── environments
+│   │   ├── prod
+│   │   │   ├── backend.tf
+│   │   │   ├── main.tf
+│   │   │   ├── output.tf
+│   │   │   ├── provider.tf
+│   │   │   └── variables.tf
+│   │   └── stage
+│   │       ├── backend.tf
+│   │       ├── main.tf
+│   │       ├── output.tf
+│   │       ├── provider.tf
+│   │       └── variables.tf
+│   └── modules
+│       └── eks
+│           ├── main.tf
+│           ├── output.tf
+│           └── variables.tf</code></pre></figure>
+
+<p><img src="/assets/jenkins3.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Using Terraform and Jenkins practices enables efficient management of complex, multi-environment, and multi-service deployments, which are crucial for cloud-native CI/CD processes to achieve:</p>
+
+<ol>
+  <li>
+    <p>Version Control: Allows tracking and managing infrastructure changes across different environments.</p>
+  </li>
+  <li>
+    <p>Multi-Destination Deployment with Jenkins: Enables dynamic deployments to different environments (e.g., production, stage) by passing environment-specific parameters in the pipeline.</p>
+  </li>
+  <li>
+    <p>Environment Separation: Each environment (production, stage) has its own Terraform configuration, ensuring proper isolation and customization.</p>
+  </li>
+  <li>
+    <p>Terraform Modules Reusability: Reusable modules for infrastructure components (ECS, EKS, etc.) reduce code duplication and simplify updates.</p>
+  </li>
+  <li>
+    <p>Multi-Environment and Multi-Component Deployment: Jenkins pipelines can deploy multiple services and environments concurrently by leveraging modular infrastructure and dynamic inputs.</p>
+  </li>
+</ol>
+
+<p><b>Jenkins Recap Summary</b></p>
+
+<p>Over this recap for Jenkins, I believe I had achieved :</p>
+
+<ul>
+  <li>
+    <p><b>Multi-Stage, Multi-Environment Pipelines: </b>
+These handle conditional execution using when blocks, try-catch for error handling, and post sections for notifications and cleanup.</p>
+  </li>
+  <li>
+    <p><b>Integration with IaC Tools: </b>
+Seamlessly provisions AWS resources using Terraform or CloudFormation within the pipeline.</p>
+  </li>
+  <li>
+    <p><b>Security and Compliance: </b>
+Integrates tools like Snyk, Trivy, and SonarQube to perform vulnerability scanning and code quality checks during the build.</p>
+  </li>
+  <li>
+    <p><b>Secret Management: </b>
+Securely manages sensitive data using AWS Secrets Manager, HashiCorp Vault, or Jenkins credentials plugin.</p>
+  </li>
+  <li>
+    <p><b>Real-World Automation: </b>
+Solves complex problems and improves efficiency, reducing build times and increasing deployment reliability.</p>
+  </li>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins CD Pipeline Design]]></summary></entry><entry><title type="html">Jenkins - Universal CI Pipeline with Ansible &amp;amp; Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html" rel="alternate" type="text/html" title="Jenkins - Universal CI Pipeline with Ansible &amp;amp; Terraform" /><published>2024-08-02T10:15:29+10:00</published><updated>2024-08-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html"><![CDATA[<p><b>Jenkins recap</b></p>
+
+<p>It has been some time since I adapted CI/CD pipelines from Jenkins to AWS CodePipeline and GitHub Actions workflows. Now, it’s time to recap and improve some of my previous Jenkins practices.</p>
+
+<ul>
+  <li>Universal Jenkins Docker image design</li>
+</ul>
+
+<p>This time, instead of installing Jenkins on a server, I prefer to containerize a universal Jenkins Docker image with the necessary packages installed, so it provides consistency and reproducibility, portability, and easy updates and rollbacks.</p>
+
+<ol>
+  <li>Docker CLI</li>
+  <li>Terraform</li>
+  <li>Kubectl</li>
+  <li>Trivy</li>
+  <li>AWS CLI</li>
+  <li>Ansible </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Dockerfile</span>
+
+FROM jenkins/jenkins:lts
+
+USER root
+
+<span class="c"># Install necessary packages, Docker CLI, Terraform, Kubectl, Trivy, AWS CLI, and Ansible</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="se">\</span>
+        curl <span class="se">\</span>
+        wget <span class="se">\</span>
+        unzip <span class="se">\</span>
+        gnupg2 <span class="se">\</span>
+        apt-transport-https <span class="se">\</span>
+        lsb-release <span class="se">\</span>
+        ca-certificates <span class="se">\</span>
+        software-properties-common <span class="se">\</span>
+        python3 <span class="se">\</span>
+        python3-venv <span class="se">\</span>
+        python3-pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Install Docker CLI</span>
+    curl <span class="nt">-fsSL</span> https://download.docker.com/linux/debian/gpg | apt-key add - <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">echo</span> <span class="s2">"deb [arch=amd64] https://download.docker.com/linux/debian </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> stable"</span> <span class="o">&gt;</span> /etc/apt/sources.list.d/docker.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get <span class="nb">install</span> <span class="nt">-y</span> docker-ce-cli <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Install Terraform</span>
+    wget <span class="nt">-O-</span> https://apt.releases.hashicorp.com/gpg | gpg <span class="nt">--dearmor</span> <span class="o">&gt;</span> /usr/share/keyrings/hashicorp-archive-keyring.gpg <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">echo</span> <span class="s2">"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> main"</span> <span class="o">&gt;</span> /etc/apt/sources.list.d/hashicorp.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get <span class="nb">install</span> <span class="nt">-y</span> terraform <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Install Kubectl</span>
+    curl <span class="nt">-LO</span> <span class="s2">"https://dl.k8s.io/release/</span><span class="si">$(</span>curl <span class="nt">-L</span> <span class="nt">-s</span> https://dl.k8s.io/release/stable.txt<span class="si">)</span><span class="s2">/bin/linux/amd64/kubectl"</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">chmod</span> +x kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">mv </span>kubectl /usr/local/bin/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Install Trivy</span>
+    wget https://github.com/aquasecurity/trivy/releases/download/v0.56.0/trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    dpkg <span class="nt">-i</span> trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">rm </span>trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Install AWS CLI</span>
+    curl <span class="s2">"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"</span> <span class="nt">-o</span> <span class="s2">"awscliv2.zip"</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    unzip awscliv2.zip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    ./aws/install <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">rm</span> <span class="nt">-rf</span> awscliv2.zip aws/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Create a virtual environment for Python and Ansible</span>
+    python3 <span class="nt">-m</span> venv /opt/ansible_venv <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    /opt/ansible_venv/bin/pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    /opt/ansible_venv/bin/pip <span class="nb">install </span>ansible <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Create symlinks to make Ansible easily accessible</span>
+    <span class="nb">ln</span> <span class="nt">-s</span> /opt/ansible_venv/bin/ansible /usr/local/bin/ansible <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">ln</span> <span class="nt">-s</span> /opt/ansible_venv/bin/ansible-playbook /usr/local/bin/ansible-playbook <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+    <span class="c"># Clean up</span>
+    apt-get clean <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">rm</span> <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
+
+USER jenkins</code></pre></figure>
+
+<p>Build and run this universal Jenkins image to mount Jenkins home directory and Docker socket from the host to the container, also add Docker group to the container so Jenkins can run Docker commands inside the container without needing root privileges.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker build <span class="nt">-t</span> jenkins-all <span class="nb">.</span>
+
+docker run <span class="nt">-d</span> <span class="nt">--name</span> jenkins <span class="nt">-p</span> 8080:8080 <span class="nt">-p</span> 50000:50000 <span class="se">\</span>
+<span class="nt">-v</span> /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+<span class="nt">-v</span> /var/jenkins_home:/var/jenkins_home <span class="se">\</span>
+<span class="nt">--group-add</span> <span class="si">$(</span>getent group docker | <span class="nb">cut</span> <span class="nt">-d</span>: <span class="nt">-f3</span><span class="si">)</span> <span class="se">\ </span>
+jenkins-all</code></pre></figure>
+
+<ul>
+  <li>Universal Jenkins CI pipeline design</li>
+</ul>
+
+<p>After installing a list of plugins and configuring all credentials and the GitHub webhook, the CI pipeline is designed bellow and can be triggered by a Git push event and will run automatically:</p>
+
+<ol>
+  <li>Enable multi-language artifact build support.</li>
+  <li>Integrate testing of Java versions.</li>
+  <li>Enable security checks for static code analysis and Docker image scanning.</li>
+  <li>Implement advanced Jenkins pipeline structuring using <b>try-catch</b>, <b>if-else</b>, <b>timeouts</b>,<b>environment variables</b>,<b>post actions</b> and <b>error handling</b>.</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#  Jenkinsfile</span>
+
+// Define the detectJavaVersion <span class="k">function </span>outside of the pipeline block
+def detectJavaVersion<span class="o">()</span> <span class="o">{</span>
+    def javaVersionOutput <span class="o">=</span> sh<span class="o">(</span>script: <span class="s1">'java -version 2&gt;&amp;1'</span>, returnStatus: <span class="nb">false</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
+    def javaVersionMatch <span class="o">=</span> javaVersionOutput <span class="o">=</span>~ /openjdk version <span class="s2">"(</span><span class="se">\d</span><span class="s2">+</span><span class="se">\.\d</span><span class="s2">+)/
+
+    if (javaVersionMatch) {
+        def javaVersion = javaVersionMatch[0][1]
+
+        if (javaVersion.startsWith("</span>1.8<span class="s2">")) {
+            return '8'
+        } else if (javaVersion.startsWith("</span>11<span class="s2">")) {
+            return '11'
+        } else if (javaVersion.startsWith("</span>17<span class="s2">")) {
+            return '17'
+        } else {
+            error("</span>Unsupported Java version detected: <span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span><span class="s2">")
+        }
+    } else {
+        error("</span>Java version information not found <span class="k">in </span>output.<span class="s2">")
+    }
+}
+
+pipeline {
+    agent any
+    environment {
+        REGISTRY_URL = 'https://index.docker.io/v1/'
+        IMAGE_NAME = "</span>zackz001/jenkins<span class="s2">"
+        IMAGE_TAG = "</span><span class="k">${</span><span class="nv">env</span><span class="p">.BUILD_NUMBER</span><span class="k">}</span><span class="s2">"
+        LATEST_TAG = "</span>latest<span class="s2">"
+        TRIVY_OUTPUT = "</span>trivy-report.txt<span class="s2">"
+        EMAIL_RECIPIENT = "</span>zhbsoftboy1@gmail.com<span class="s2">"
+        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
+        GIT_BRANCH = 'jenkins'  // Git branch
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
+        SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
+        SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
+        SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }   
+        stage('Checkout Code') {
+            steps {
+                git branch: "</span><span class="k">${</span><span class="nv">GIT_BRANCH</span><span class="k">}</span><span class="s2">",
+                    credentialsId: 'gittoken',
+                    url: "</span><span class="k">${</span><span class="nv">GIT_REPO_URL</span><span class="k">}</span><span class="s2">"
+            }   
+        }
+        stage('Detect and Set Java') {
+            steps {
+                script {
+                    try {
+                        def javaVersion = detectJavaVersion()  // Detect the Java version, e.g., "</span>17<span class="s2">"
+                        def javaToolName = "</span>Java_<span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span><span class="s2">"  // Expected tool name
+
+                        // Try to set the Java version; fallback if the specific version isn't found
+                        try {
+                            tool name: javaToolName, type: 'jdk'
+                            echo "</span>Using Java version <span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span>.<span class="s2">"
+                        } catch (Exception toolError) {
+                            echo "</span>No JDK named <span class="k">${</span><span class="nv">javaToolName</span><span class="k">}</span> found. Using default JDK.<span class="s2">"
+                        }
+
+                        // Verify Java version, regardless of whether the specific version was found
+                        sh 'java --version'
+
+                    } catch (Exception e) {
+                        echo "</span>Error during Java version detection: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"
+                        // Continue pipeline even if Java detection fails
+                    }
+                }
+            }
+        }
+        // for Code Security Analysis and Fixes
+        stage('snyk_analysis') {
+            steps {
+                script {
+                    echo 'Running Snyk security analysis...'
+                    timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
+                        try {
+                            snykSecurity(
+                                snykInstallation: SNYK_INSTALLATION,
+                                snykTokenId: SNYK_TOKEN,
+                                failOnIssues: false,
+                                monitorProjectOnBuild: true,
+                                additionalArguments: '--severity-threshold=low'
+                            )
+                       } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error("</span>Error during snyk_analysis: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Language-specific build and test stages
+        stage('Frontend Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('package.json')) {
+                            sh 'npm install --force'
+                            sh 'npm test'
+                        } else {
+                            echo 'No package.json found, skipping Frontend build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Frontend build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Java Spring Boot Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('pom.xml')) {
+                            sh 'mvn clean package'
+                            sh 'mvn test'
+                        } else {
+                            echo 'No pom.xml found, skipping Java Spring Boot build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Java Spring Boot build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('.NET Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('YourSolution.sln')) {
+                            sh 'dotnet build'
+                            sh 'dotnet test'
+                        } else {
+                            echo 'No YourSolution.sln found, skipping .NET build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during .NET build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('PHP Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('composer.json')) {
+                            sh 'composer install'
+                            sh 'phpunit'
+                        } else {
+                            echo 'No composer.json found, skipping PHP build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during PHP build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('iOS Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('YourProject.xcodeproj')) {
+                            xcodebuild(buildDir: 'build', scheme: 'YourScheme')
+                        } else {
+                            echo 'No YourProject.xcodeproj found, skipping iOS build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during iOS build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Android Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('build.gradle')) {
+                            sh './gradlew build'
+                            sh './gradlew test'
+                        } else {
+                            echo 'No build.gradle found, skipping Android build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Android build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Ruby on Rails Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('Gemfile.lock')) {
+                            sh 'bundle install'
+                            sh 'bundle exec rake db:migrate'
+                            sh 'bundle exec rails test'
+                        } else {
+                            echo 'No Gemfile.lock found, skipping Ruby on Rails build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Ruby on Rails build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Flask Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('app.py')) {
+                            sh 'pip install -r requirements.txt'
+                            sh 'python -m unittest discover'
+                        } else {
+                            echo 'No app.py found, skipping Flask build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Flask build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Django Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('manage.py')) {
+                            sh 'pip install -r requirements.txt'
+                            sh 'python manage.py migrate'
+                            sh 'python manage.py test'
+                        } else {
+                            echo 'No manage.py found, skipping Django build and test.'
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Django build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Rust Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('Cargo.toml')) {
+                            env.RUST_BACKTRACE = 'full'
+                            sh 'cargo build'
+                            sh 'cargo test'
+                        } else {
+                            echo "</span>No Cargo.toml file found. Skipping Rust build and test.<span class="s2">"
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Rust build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+
+        stage('Ruby Sinatra Build and Test') {
+            steps {
+                script {
+                    try {
+                        if (fileExists('app.rb')) {
+                            sh 'gem install bundler'
+                            sh 'bundle install'
+                            sh 'bundle exec rake test'
+                        } else {
+                            echo "</span>No app.rb file found. Skipping Ruby Sinatra build and test.<span class="s2">"
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("</span>Error during Ruby Sinatra build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
+                    }
+                }
+            }
+        }
+        // Build ZackBlog docker image 
+        stage('Check and Build Docker Image') {
+            steps {
+                script {
+                    try {
+                        // Check if Docker is available
+                        sh 'docker --version'
+                        echo "</span>Docker is installed. Proceeding to build the Docker image...<span class="s2">"
+                        
+                        // Build the Docker image from the 'zack_blog' folder
+                        dockerImage = docker.build("</span><span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">", "</span>zack_blog/<span class="s2">")
+                    } catch (Exception e) {
+                        // Handle the error if Docker is not available
+                        error("</span>Docker is not installed or accessible. Cannot proceed with the build.<span class="s2">")
+                    }
+                }
+            }
+        }
+        // Scan docker image with Trivy
+        stage('Docker Image Scan') {
+            steps {
+                // Use Trivy to scan the built Docker image
+                sh "</span>trivy image <span class="nt">--severity</span> HIGH,CRITICAL <span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span> <span class="o">&gt;</span> <span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">"
+            }
+        }
+        //Push to Dockerhub
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry("</span><span class="k">${</span><span class="nv">REGISTRY_URL</span><span class="k">}</span><span class="s2">", "</span><span class="k">${</span><span class="nv">DOCKERHUB_CREDENTIALS_ID</span><span class="k">}</span><span class="s2">") {
+                        dockerImage.push("</span><span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">")
+                        dockerImage.push("</span><span class="k">${</span><span class="nv">LATEST_TAG</span><span class="k">}</span><span class="s2">") // Push 'latest' tag
+                    }
+                }
+            }
+        }
+        //Output image scan result
+        stage('Display Trivy Scan Results') {
+            steps {
+                script {
+                    // Display the contents of the Trivy report
+                    def scanReport = readFile("</span><span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">")
+                    echo "</span>Trivy Scan Report:<span class="se">\n</span><span class="k">${</span><span class="nv">scanReport</span><span class="k">}</span><span class="s2">"
+                }
+            }
+        }
+        // Additional stages like Docker build, image scan, etc.
+    }
+    // Post Build Emailing 
+    post {
+        success {
+            script {
+                def scanReport = readFile("</span><span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">")
+                emailext(
+                    to: "</span><span class="k">${</span><span class="nv">EMAIL_RECIPIENT</span><span class="k">}</span><span class="s2">",
+                    subject: "</span>CI Pipeline Success: Build <span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">",
+                    body: """</span>
+                    The pipeline has successfully completed.
+
+                    Docker image <span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span> has been built and pushed to DockerHub.
+
+                    Trivy Scan Report:
+                    <span class="k">${</span><span class="nv">scanReport</span><span class="k">}</span>
+                    <span class="s2">"""
+                )
+            }
+        }
+        failure {
+            emailext(
+                to: "</span><span class="k">${</span><span class="nv">EMAIL_RECIPIENT</span><span class="k">}</span><span class="s2">",
+                subject: "</span>CI Pipeline Failed: Build <span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">",
+                body: """</span>
+                The pipeline has failed at some stage.
+
+                Please check the Jenkins console logs <span class="k">for </span>more details.
+                <span class="s2">"""
+            )
+        }
+    }
+}</span></code></pre></figure>
+
+<ul>
+  <li>Pipeline test and debug</li>
+</ul>
+
+<p>After thorough testing and validation, the CI pipeline finally works like a charm.</p>
+
+<p><img src="/assets/jenkins1.png" alt="image tooltip here" /></p>
+
+<p>Next, I will create a CD pipeline to integrate with Ansible, AWS, and Terraform to deploy the blog onto AWS EC2, ECS, and EKS.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins recap]]></summary></entry><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
 
 <p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
 
@@ -2733,238 +3364,4 @@ kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<s
 
 <p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
 
-<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry><entry><title type="html">Python Microservice: API Gateway &amp;amp; Consul</title><link href="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html" rel="alternate" type="text/html" title="Python Microservice: API Gateway &amp;amp; Consul" /><published>2024-05-19T10:15:29+10:00</published><updated>2024-05-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/19/py-flask2.html"><![CDATA[<p><b> About API Gateway</b></p>
-
-<p>API Gateway acts as a single entry point for all clients and handles the request routing, composition, and protocol translation in a microservices architecture, here I will create a API Gateway using Python Flask and requests library, to route both “user” and “order” services.</p>
-
-<p>Here I will create an API Gateway to handle the 2 services (user and order). By importing the <code class="language-plaintext highlighter-rouge">requests</code> module, which allows us to send HTTP requests in Python. It’s used for making API calls to other services.</p>
-
-<p>Then with <code class="language-plaintext highlighter-rouge">route</code> decorator to specify that the <code class="language-plaintext highlighter-rouge">get_users</code> function should handle requests to the <code class="language-plaintext highlighter-rouge">/users</code> URL endpoint.</p>
-
-<p>Then define <code class="language-plaintext highlighter-rouge">response</code> to send GET request to the user-service and order-service running on port 5001/5002 at each endpoint.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder Structure</span>
-03-with-api-gatway/
-├── user_service/
-│   ├── Dockerfile
-│   └── user_service.py
-├── order_service/
-│   ├── Dockerfile
-│   └── order_service.py
-├── api_gateway/
-│   ├── Dockerfile
-│   └── api_gateway.py
-├── docker-compose.yml
-
-<span class="c"># api_gateway.py</span>
-from flask import Flask, jsonify
-import requests
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
- response <span class="o">=</span> requests.get<span class="o">(</span><span class="s1">'http://user-service:5001/users'</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span>response.json<span class="o">())</span>
-
-@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
-def get_orders<span class="o">()</span>:
- response <span class="o">=</span> requests.get<span class="o">(</span><span class="s1">'http://order-service:5002/orders'</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span>response.json<span class="o">())</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5000<span class="o">)</span>
-
-<span class="c"># Dockerfile_apigateway</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install flask requests</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> flask requests
-
-<span class="c"># Make port 5000 available to the world outside this container</span>
-EXPOSE 5000
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>api_gateway.py
-
-<span class="c"># Run api_gateway.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5000"</span><span class="o">]</span>
-
-<span class="c"># update docker-compose.yaml</span>
-
-.....
-
- api-gateway:
- build:
- context: <span class="nb">.</span>
- dockerfile: Dockerfile_apigateway
- ports:
- - <span class="s2">"5000:5000"</span>
-
-<span class="c"># run docker-compose up --build</span>
-
-docker-compose up <span class="nt">--build</span></code></pre></figure>
-
-<p>Verify the 2 services can be accessed via API Gateway address and port plus /users and /orders by defining request functions.</p>
-
-<p><img src="/assets/flask4.png" alt="image tooltip here" />
-<img src="/assets/flask5.png" alt="image tooltip here" /></p>
-
-<p><b> About Consul</b></p>
-
-<p>Consul is a popular open-source tool for service discovery and service registration, here I will update the py files to register both services with Consul</p>
-
-<p>In both user_service.py and order_service.py, add service registration logic.</p>
-
-<p>To import <code class="language-plaintext highlighter-rouge">time</code> module, also define function named <code class="language-plaintext highlighter-rouge">register_service</code> that will handle the service registration logic with Consul, use dictionary defines the <code class="language-plaintext highlighter-rouge">payload</code> for the service registration. It includes the service ID, name, address, and port.</p>
-
-<p>I will use <code class="language-plaintext highlighter-rouge">while True</code> to start an infinite loop, which will keep trying to register the service with Consul until it succeeds, add <code class="language-plaintext highlighter-rouge">try</code>, <code class="language-plaintext highlighter-rouge">else</code>and <code class="language-plaintext highlighter-rouge">if</code> to handle exceptions during the registration process.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim order_service.py</span>
-import requests
-from flask import Flask, jsonify
-import <span class="nb">time
-
-</span>app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
-def get_orders<span class="o">()</span>:
- orders <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
- <span class="o">]</span>
- <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Port"</span>: 5002
- <span class="o">}</span>
- <span class="k">while </span>True:
- try:
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- print<span class="o">(</span><span class="s2">"Successfully registered order-service with Consul"</span><span class="o">)</span>
- <span class="nb">break
- </span><span class="k">else</span>:
- print<span class="o">(</span>f<span class="s2">"Failed to register order-service with Consul, status code: {response.status_code}"</span><span class="o">)</span>
- except requests.exceptions.RequestException as e:
- print<span class="o">(</span>f<span class="s2">"Error registering order-service with Consul: {e}"</span><span class="o">)</span>
- time.sleep<span class="o">(</span>5<span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- print<span class="o">(</span><span class="s2">"Registering order-service with Consul"</span><span class="o">)</span>
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
-
-
-<span class="c"># vim user_service.py</span>
-import requests
-from flask import Flask, jsonify
-import <span class="nb">time
-
-</span>app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
- <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
- <span class="o">]</span>
- <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Port"</span>: 5001
- <span class="o">}</span>
- <span class="k">while </span>True:
- try:
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- print<span class="o">(</span><span class="s2">"Successfully registered user-service with Consul"</span><span class="o">)</span>
- <span class="nb">break
- </span><span class="k">else</span>:
- print<span class="o">(</span>f<span class="s2">"Failed to register user-service with Consul, status code: {response.status_code}"</span><span class="o">)</span>
- except requests.exceptions.RequestException as e:
- print<span class="o">(</span>f<span class="s2">"Error registering user-service with Consul: {e}"</span><span class="o">)</span>
- time.sleep<span class="o">(</span>5<span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- print<span class="o">(</span><span class="s2">"Registering user-service with Consul"</span><span class="o">)</span>
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
-
-<span class="c"># update docker-compose.yaml</span>
-
-version: <span class="s1">'3'</span>
-services:
- consul:
- image: consul:1.15.4
- ports:
- - <span class="s2">"8500:8500"</span>
-
- user-service:
- build:
- context: ./user_service
- depends_on:
- - consul
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5001:5001"</span>
-
- order-service:
- build:
- context: ./order_service
- depends_on:
- - consul
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5002:5002"</span>
-
- api-gateway:
- build:
- context: ./api_gateway
- depends_on:
- - consul
- - user-service
- - order-service
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5000:5000"</span></code></pre></figure>
-
-<p>Now run the docker-compose and verify in Consul via localhost:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
-
-Creating 04-with-consul_consul_1 ... <span class="k">done
-</span>Creating 04-with-consul_user-service_1  ... <span class="k">done
-</span>Creating 04-with-consul_order-service_1 ... <span class="k">done
-</span>Creating 04-with-consul_api-gateway_1   ... <span class="k">done
-
-</span>consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
-</span>consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] agent: Service <span class="k">in </span><span class="nb">sync</span>: <span class="nv">service</span><span class="o">=</span>order-service
-consul_1         | 2024-05-18T14:28:45.465Z <span class="o">[</span>DEBUG] agent: Service <span class="k">in </span><span class="nb">sync</span>: <span class="nv">service</span><span class="o">=</span>user-service</code></pre></figure>
-
-<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we can use API gateway and Consul to manage route and service discovery.</p>
-
-<p>In the next post, I will see how to enable logging with ELK stack and monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About API Gateway]]></summary></entry></feed>
+<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry></feed>

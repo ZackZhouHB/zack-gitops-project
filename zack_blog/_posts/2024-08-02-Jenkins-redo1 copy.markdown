@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Jenkins with Ansible and Terraform - Universal CI Pipeline"
+title:  "Jenkins - Universal CI Pipeline with Ansible & Terraform"
 date:   2024-08-02 11:15:29 +1100
 categories: jekyll Cat2
 ---
