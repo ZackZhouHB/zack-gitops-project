@@ -29,23 +29,41 @@ Github action workflows:
 
 <b>Tools</b>:  Git, Github Action workflow CI, Docker, ArgoCD, Terroform, AWS EKS, Route53 DNS, Godaddy
 
-<b>Git repo URL</b>: [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project)  [Branch : editing]
+<b>Git repo URL</b>: [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project/tree/editing/zack_blog) 
 
 ==================================================================
 
-<b>[K8S-Project]:</b>
+<b>[MLOps-Project]:</b>
 
-Self K8S project to deploy 3 demo applications onto both local lab k8s cluster and AWS EKS
+Self MLOps practice on both local and AWS to gain complete ML pipeline using MLOps tools, with hands-on experience for larger ML workflows. 
 
-- <b>Vprofile JAVA stack</b> (nginx, rabbitmq, memcached, mysql, JAVA tomcat)
+- <b>Lab setup</b> (CODA, Pytorch, PiP, Jupyter Notebook)
 
-- <b>Fleetman position tracker</b> (microservice application : api gateway, JAVA tomcat, mongoDB, rabbitmq)
+- <b>ML project</b> (DVC, MLflow, Docker, Apache Airflow, Jenkins)
+
+- <b>AWS ML practice</b> (Amazon SageMaker, AWS S3, AWS CodePipeline, AWS Step Functions) 
+
+<b>Tools</b>:  ML tools, AWS
+
+<b>Git repo URL</b>: [mlops-project](https://github.com/ZackZhouHB/zack-gitops-project/tree/editing/mlops-project)
+
+==================================================================
+
+
+<b>[Jenkins-Project]:</b>
+
+Jenkins project to deploy CICD pipeline to  build and deploy a zack blog app with Universal CI Pipeline with Ansible & Terraform and Multi-Destination Continuous Deployment with Terraform onto AWS EC2, ECS and EKS.
+
+
+- <b>Universal CI Pipeline</b> (multi-language artifact build, Security Integration, advanced Jenkins pipeline structuring)
+
+- <b>Multi-Destination CD Pipeline</b> (Multi-Destination on AWS, Advanced Terraform with Modularization, Integration with Trivy Ansible )
 
 - <b>Amazon retail store sample app</b> (microservice application : rabbitmq, mysql, redis, dynamodb) 
 
-<b>Tools</b>:  k8s deployment, statefulset, AWS EBS, AWS EKS (Kops), rook-ceph
+<b>Tools</b>:  Jenkins, Terraform, AWS ec2 ECS EKS, Ansible, Docker, Kubenetes
 
-<b>Git repo URL</b>: [zz-k8s](https://github.com/ZackZhouHB/zz-k8s)
+<b>Git repo URL</b>: [Jenkins-CI](https://github.com/ZackZhouHB/zack-gitops-project/tree/jenkins/) and [Jenkins-CD](https://github.com/ZackZhouHB/zack-gitops-project/tree/jenkins-cd)
 
 ==================================================================
 
