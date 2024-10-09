@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOPS - Local Machine Learning Lab Setup"
+title:  "MLOPS - Lab Setup"
 date:   2024-10-01 11:15:29 +1100
 categories: jekyll Cat2
 ---
