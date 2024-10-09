@@ -1,0 +1,352 @@
+---
+layout: post
+title:  "MLOPS - First Machine Learning Project"
+date:   2024-10-01 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b>MLOPS Project </b>
+
+In the last post [MLOPS - Lab Setup](https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html), I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC. 
+
+Although `Jupyter Notebooks` can be user-friendly tools for ML practice, offering easy interaction and immediate feedback, which simplifies testing and debugging. However, it has limitations such as reproducibility issues, challenges in collaboration and version control, scalability concerns for larger projects, and a lack of automation for tasks like retraining.
+
+In this post, I will try an ML project with tools like `DVC`, `MLflow`, `Docker`, `Apache Airflow`, and `CI/CD` frameworks to strengthen machine learning workflows. This way can ensure reproducibility by tracking data and code versions, while MLflow logs metrics for effective experiment tracking. Although their initial setup can be complex and resource-intensive, these tools automate processes, streamline workflows, and enhance collaboration and scalability, which could be excessive for smaller ML projects.
+
+<b>ML Tools explained </b>
+
+- Data Versioning (`DVC`):
+
+DVC allows teams to manage and version datasets just like code. This ensures that data changes are tracked, making it easier to revert to previous versions if necessary.
+
+- Experiment Tracking (`MLflow`):
+
+MLflow tracks experiments, capturing metrics, parameters, and model versions in one centralized location. This makes it easier to compare different runs and select the best-performing model.
+
+- Containerization (`Docker`):
+
+Docker creates isolated environments, ensuring that code runs consistently across different platforms without dependency issues. This helps avoid the "it works on my machine" problem.
+
+- Workflow Orchestration (`Apache Airflow`):
+
+Airflow schedules and manages complex workflows, allowing for the automation of tasks such as data retrieval, preprocessing, model training, and evaluation.
+
+- CI/CD (`Jenkins`):
+
+I have a local Jenkins image to facilitate automatic testing and deployment of models and code changes. This ensures that new features or updates are quickly integrated without disrupting the existing workflow.
+
+Combining these tools, to achieve a holistic pipeline enables reproducibility, scalability, and consistency in machine learning workflows.
+
+<b>Project Sturcture </b>
+
+- Create a new project directory with the following structure:
+
+{% highlight shell %}
+(jupyter_env) root@zackz:/mnt/mlops-project# tree
+mlops-project/
+├── data/                  # Data directory (for DVC)
+├── models/                # Trained models
+├── src/                   # Source code for the ML model
+├── notebooks/             # Jupyter notebooks for experimentation
+├── Dockerfile             # Docker config for packaging
+├── dvc.yaml               # DVC pipeline config
+├── airflow_dags/          # Airflow DAG for automation
+└── mlflow/                # MLflow tracking directory
+{% endhighlight %}
+
+<b>Project Implementation </b>
+
+- Step 1: Data Versioning with DVC
+
+Initialize Git & DVC
+
+{% highlight shell %}
+pip install dvc
+git init
+dvc init -f
+{% endhighlight %}
+
+Add the Iris Dataset:
+
+{% highlight shell %}
+mkdir data
+curl -o data/iris.csv https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
+dvc add data/iris.csv
+{% endhighlight %}
+
+- Step 2:Train the Model (Using MLflow)
+
+Install MLflow
+
+{% highlight shell %}
+pip install mlflow
+{% endhighlight %}
+
+Create a Training Script (src/train.py)
+
+{% highlight shell %}
+vim  src/train.py
+
+import mlflow
+import mlflow.sklearn
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# Load the dataset
+data = pd.read_csv('../data/iris.csv', header=None)
+X = data.iloc[:, :-1]
+y = data.iloc[:, -1]
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Track experiment with MLflow
+with mlflow.start_run():
+ # Train model
+ model = RandomForestClassifier(n_estimators=100)
+ model.fit(X_train, y_train)
+
+ # Make predictions
+ predictions = model.predict(X_test)
+ accuracy = accuracy_score(y_test, predictions)
+
+ # Log model and metrics to MLflow
+ mlflow.log_metric("accuracy", accuracy)
+ mlflow.sklearn.log_model(model, "model")
+ print(f"Model accuracy: {accuracy}")
+{% endhighlight %}
+
+Run the Training Script
+
+{% highlight shell %}
+python src/train.py
+
+(jupyter_env) root@zackz:/mnt/f/1/mlops-project# python src/train.py
+2024/10/05 13:33:39 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Model accuracy: 1.0
+{% endhighlight %}
+
+Launch the MLflow UI
+
+{% highlight shell %}
+mlflow ui
+{% endhighlight %}
+
+Navigate to http://127.0.0.1:5000 to view the experiment
+
+![image tooltip here](/assets/mlops21.png)
+
+- Step 3: Dockerize the Model for Deployment
+
+Create Dockerfile:
+{% highlight shell %}
+vim Dockerfile
+
+FROM python:3.8-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the source code
+COPY . .
+
+# Run the model training script
+CMD ["python", "src/train.py"]
+{% endhighlight %}
+
+Create a requirements.txt file and build the `mlops-local-model` Docker image:
+
+
+{% highlight shell %}
+vim requirements.txt
+
+mlflow
+scikit-learn
+pandas
+dvc
+
+docker build -t mlops-local-model .
+docker run mlops-local-model
+
+(jupyter_env) root@zackz:~# docker run mlops-local-model
+2024/10/05 02:50:58 WARNING mlflow.utils.git_utils: Failed to import Git (the Git executable is probably not on your PATH), so Git SHA is not available. Error: Failed to initialize: Bad git executable.
+The git executable must be specified in one of the following ways:
+ - be included in your $PATH
+ - be set via $GIT_PYTHON_GIT_EXECUTABLE
+ - explicitly set via git.refresh(<full-path-to-git-executable>)
+
+All git commands will error until this is rectified.
+
+This initial message can be silenced or aggravated in the future by setting the
+$GIT_PYTHON_REFRESH environment variable. Use one of the following values:
+ - quiet|q|silence|s|silent|none|n|0: for no message or exception
+ - warn|w|warning|log|l|1: for a warning message (logging level CRITICAL, displayed by default)
+ - error|e|exception|raise|r|2: for a raised exception
+
+Example:
+ export GIT_PYTHON_REFRESH=quiet
+
+2024/10/05 02:51:00 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Model accuracy: 1.0
+{% endhighlight %}
+
+- Step 4: Automate with Apache Airflow
+
+Install Apache Airflow:
+
+{% highlight shell %}
+pip install apache-airflow
+{% endhighlight %}
+
+Create an Airflow DAG (airflow_dags/ml_pipeline.py)
+
+{% highlight shell %}
+vim  airflow_dags/ml_pipeline.py
+
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+import os
+
+# Define the DAG
+default_args = {
+ 'owner': 'airflow',
+ 'start_date': datetime(2023, 1, 1),
+ 'retries': 1,
+}
+
+dag = DAG('mlops_pipeline', default_args=default_args, schedule_interval='@daily')
+
+# Define the task to retrain the model
+def retrain_model():
+ os.system('python src/train.py')
+
+retrain_task = PythonOperator(
+ task_id='retrain_model',
+ python_callable=retrain_model,
+ dag=dag
+)
+
+retrain_task
+{% endhighlight %}
+
+Run Airflow
+
+{% highlight shell %}
+airflow db init
+airflow webserver --port 8080
+airflow scheduler
+{% endhighlight %}
+
+Create airflow web ui Admin user 
+
+{% highlight shell %}
+airflow users create \
+ --username admin \
+ --firstname Admin \
+ --lastname User \
+ --role Admin \
+ --email admin@xxx.com \
+ --password the_password
+{% endhighlight %}
+
+Navigate to http://127.0.0.1:8080/to view the Airflow
+![image tooltip here](/assets/mlops22.png)
+
+- Step 5: CICD with Jenkins
+
+Create Jenkins pipeline for continuous model training with bellow stages:
+
+1. Fetch Data: Executes the `fetch_data.py` script to fetch and process new data.
+
+2. Build Docker Image: Build the Docker image using the Dockerfile in the current directory.
+
+3. Run Model Training: Run the Docker container to train the model.
+
+4. Validate Model: Runs the validation script `validate_model.py` to validate the trained model.
+
+5. Deploy Model: Pushes the Docker image to a specified Docker registry and executes the deployment script  `deploy-model-script.sh`.
+
+{% highlight shell %}
+# vim Jenkinsfile
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Fetch Data') {
+            steps {
+                script {
+                    // Fetch and process new data
+                    sh 'python scripts/fetch_data.py'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh 'docker build -t mlops-local-model .'
+                }
+            }
+        }
+
+        stage('Run Model Training') {
+            steps {
+                script {
+                    // Run the Docker container for training
+                    sh 'docker run mlops-local-model'
+                }
+            }
+        }
+
+        stage('Validate Model') {
+            steps {
+                script {
+                    // Validate the trained model
+                    sh 'python scripts/validate_model.py'
+                }
+            }
+        }
+
+        stage('Deploy Model') {
+            steps {
+                script {
+                    // Push the Docker image to the registry
+                    sh 'docker push my-repo/mlops-local-model:latest'
+                    
+                    // Deploy script to update the production environment
+                    sh 'deploy-model-script.sh'
+                }
+            }
+        }
+    }
+
+    // Optional: Post Actions
+    post {
+        always {
+            echo 'Pipeline finished.'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs!'
+        }
+    }
+}
+{% endhighlight %}
+
+<b>Conclusion</b>
+
+By integrating DVC, MLflow, Docker, Airflow, and CI/CD into a cohesive ML project environment, we can achieve enhanced efficiency, greater automation, and improved collaboration. This synergy not only streamlines the development process but also ensures that machine learning models are robust, reproducible, and ready for production deployment.
+
+In summary, a production-level ML workflow integrates new data, automates model training and deployment, and continuously monitors model performance. By utilizing CI/CD pipelines, Docker for containerization, and tools for versioning and tracking, we can create a robust and efficient machine learning system that can adapt to changing data and business requirements.
+
+In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud. 

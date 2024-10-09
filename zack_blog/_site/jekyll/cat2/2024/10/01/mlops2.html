@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MLOPS - First Machine Learning Project | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MLOPS - First Machine Learning Project" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="MLOPS Project" />
+<meta property="og:description" content="MLOPS Project" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-10-01T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MLOPS - First Machine Learning Project" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-10-01T10:15:29+10:00","datePublished":"2024-10-01T10:15:29+10:00","description":"MLOPS Project","headline":"MLOPS - First Machine Learning Project","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MLOPS - First Machine Learning Project</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-10-01T10:15:29+10:00" itemprop="datePublished">Oct 1, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>MLOPS Project </b></p>
+
+<p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
+
+<p>Although <code class="language-plaintext highlighter-rouge">Jupyter Notebooks</code> can be user-friendly tools for ML practice, offering easy interaction and immediate feedback, which simplifies testing and debugging. However, it has limitations such as reproducibility issues, challenges in collaboration and version control, scalability concerns for larger projects, and a lack of automation for tasks like retraining.</p>
+
+<p>In this post, I will try an ML project with tools like <code class="language-plaintext highlighter-rouge">DVC</code>, <code class="language-plaintext highlighter-rouge">MLflow</code>, <code class="language-plaintext highlighter-rouge">Docker</code>, <code class="language-plaintext highlighter-rouge">Apache Airflow</code>, and <code class="language-plaintext highlighter-rouge">CI/CD</code> frameworks to strengthen machine learning workflows. This way can ensure reproducibility by tracking data and code versions, while MLflow logs metrics for effective experiment tracking. Although their initial setup can be complex and resource-intensive, these tools automate processes, streamline workflows, and enhance collaboration and scalability, which could be excessive for smaller ML projects.</p>
+
+<p><b>ML Tools explained </b></p>
+
+<ul>
+  <li>Data Versioning (<code class="language-plaintext highlighter-rouge">DVC</code>):</li>
+</ul>
+
+<p>DVC allows teams to manage and version datasets just like code. This ensures that data changes are tracked, making it easier to revert to previous versions if necessary.</p>
+
+<ul>
+  <li>Experiment Tracking (<code class="language-plaintext highlighter-rouge">MLflow</code>):</li>
+</ul>
+
+<p>MLflow tracks experiments, capturing metrics, parameters, and model versions in one centralized location. This makes it easier to compare different runs and select the best-performing model.</p>
+
+<ul>
+  <li>Containerization (<code class="language-plaintext highlighter-rouge">Docker</code>):</li>
+</ul>
+
+<p>Docker creates isolated environments, ensuring that code runs consistently across different platforms without dependency issues. This helps avoid the “it works on my machine” problem.</p>
+
+<ul>
+  <li>Workflow Orchestration (<code class="language-plaintext highlighter-rouge">Apache Airflow</code>):</li>
+</ul>
+
+<p>Airflow schedules and manages complex workflows, allowing for the automation of tasks such as data retrieval, preprocessing, model training, and evaluation.</p>
+
+<ul>
+  <li>CI/CD (<code class="language-plaintext highlighter-rouge">Jenkins</code>):</li>
+</ul>
+
+<p>I have a local Jenkins image to facilitate automatic testing and deployment of models and code changes. This ensures that new features or updates are quickly integrated without disrupting the existing workflow.</p>
+
+<p>Combining these tools, to achieve a holistic pipeline enables reproducibility, scalability, and consistency in machine learning workflows.</p>
+
+<p><b>Project Sturcture </b></p>
+
+<ul>
+  <li>Create a new project directory with the following structure:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:/mnt/mlops-project# tree
+mlops-project/
+├── data/                  # Data directory <span class="o">(</span><span class="k">for </span>DVC<span class="o">)</span>
+├── models/                # Trained models
+├── src/                   <span class="c"># Source code for the ML model</span>
+├── notebooks/             <span class="c"># Jupyter notebooks for experimentation</span>
+├── Dockerfile             <span class="c"># Docker config for packaging</span>
+├── dvc.yaml               <span class="c"># DVC pipeline config</span>
+├── airflow_dags/          # Airflow DAG <span class="k">for </span>automation
+└── mlflow/                # MLflow tracking directory</code></pre></figure>
+
+<p><b>Project Implementation </b></p>
+
+<ul>
+  <li>Step 1: Data Versioning with DVC</li>
+</ul>
+
+<p>Initialize Git &amp; DVC</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">pip <span class="nb">install </span>dvc
+git init
+dvc init <span class="nt">-f</span></code></pre></figure>
+
+<p>Add the Iris Dataset:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">mkdir </span>data
+curl <span class="nt">-o</span> data/iris.csv https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
+dvc add data/iris.csv</code></pre></figure>
+
+<ul>
+  <li>Step 2:Train the Model (Using MLflow)</li>
+</ul>
+
+<p>Install MLflow</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">pip <span class="nb">install </span>mlflow</code></pre></figure>
+
+<p>Create a Training Script (src/train.py)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim  src/train.py
+
+import mlflow
+import mlflow.sklearn
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+<span class="c"># Load the dataset</span>
+data <span class="o">=</span> pd.read_csv<span class="o">(</span><span class="s1">'../data/iris.csv'</span>, <span class="nv">header</span><span class="o">=</span>None<span class="o">)</span>
+X <span class="o">=</span> data.iloc[:, :-1]
+y <span class="o">=</span> data.iloc[:, <span class="nt">-1</span><span class="o">]</span>
+
+<span class="c"># Split data</span>
+X_train, X_test, y_train, y_test <span class="o">=</span> train_test_split<span class="o">(</span>X, y, <span class="nv">test_size</span><span class="o">=</span>0.2, <span class="nv">random_state</span><span class="o">=</span>42<span class="o">)</span>
+
+<span class="c"># Track experiment with MLflow</span>
+with mlflow.start_run<span class="o">()</span>:
+ <span class="c"># Train model</span>
+ model <span class="o">=</span> RandomForestClassifier<span class="o">(</span><span class="nv">n_estimators</span><span class="o">=</span>100<span class="o">)</span>
+ model.fit<span class="o">(</span>X_train, y_train<span class="o">)</span>
+
+ <span class="c"># Make predictions</span>
+ predictions <span class="o">=</span> model.predict<span class="o">(</span>X_test<span class="o">)</span>
+ accuracy <span class="o">=</span> accuracy_score<span class="o">(</span>y_test, predictions<span class="o">)</span>
+
+ <span class="c"># Log model and metrics to MLflow</span>
+ mlflow.log_metric<span class="o">(</span><span class="s2">"accuracy"</span>, accuracy<span class="o">)</span>
+ mlflow.sklearn.log_model<span class="o">(</span>model, <span class="s2">"model"</span><span class="o">)</span>
+ print<span class="o">(</span>f<span class="s2">"Model accuracy: {accuracy}"</span><span class="o">)</span></code></pre></figure>
+
+<p>Run the Training Script</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">python src/train.py
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:/mnt/f/1/mlops-project# python src/train.py
+2024/10/05 13:33:39 WARNING mlflow.models.model: Model logged without a signature and input example. Please <span class="nb">set</span> <span class="sb">`</span>input_example<span class="sb">`</span> parameter when logging the model to auto infer the model signature.
+Model accuracy: 1.0</code></pre></figure>
+
+<p>Launch the MLflow UI</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mlflow ui</code></pre></figure>
+
+<p>Navigate to http://127.0.0.1:5000 to view the experiment</p>
+
+<p><img src="/assets/mlops21.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 3: Dockerize the Model for Deployment</li>
+</ul>
+
+<p>Create Dockerfile:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim Dockerfile
+
+FROM python:3.8-slim
+
+WORKDIR /app
+
+<span class="c"># Install dependencies</span>
+COPY requirements.txt <span class="nb">.</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Copy the source code</span>
+COPY <span class="nb">.</span> <span class="nb">.</span>
+
+<span class="c"># Run the model training script</span>
+CMD <span class="o">[</span><span class="s2">"python"</span>, <span class="s2">"src/train.py"</span><span class="o">]</span></code></pre></figure>
+
+<p>Create a requirements.txt file and build the <code class="language-plaintext highlighter-rouge">mlops-local-model</code> Docker image:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim requirements.txt
+
+mlflow
+scikit-learn
+pandas
+dvc
+
+docker build <span class="nt">-t</span> mlops-local-model <span class="nb">.</span>
+docker run mlops-local-model
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:~# docker run mlops-local-model
+2024/10/05 02:50:58 WARNING mlflow.utils.git_utils: Failed to import Git <span class="o">(</span>the Git executable is probably not on your PATH<span class="o">)</span>, so Git SHA is not available. Error: Failed to initialize: Bad git executable.
+The git executable must be specified <span class="k">in </span>one of the following ways:
+ - be included <span class="k">in </span>your <span class="nv">$PATH</span>
+ - be <span class="nb">set </span>via <span class="nv">$GIT_PYTHON_GIT_EXECUTABLE</span>
+ - explicitly <span class="nb">set </span>via git.refresh<span class="o">(</span>&lt;full-path-to-git-executable&gt;<span class="o">)</span>
+
+All git commands will error <span class="k">until </span>this is rectified.
+
+This initial message can be silenced or aggravated <span class="k">in </span>the future by setting the
+<span class="nv">$GIT_PYTHON_REFRESH</span> environment variable. Use one of the following values:
+ - quiet|q|silence|s|silent|none|n|0: <span class="k">for </span>no message or exception
+ - warn|w|warning|log|l|1: <span class="k">for </span>a warning message <span class="o">(</span>logging level CRITICAL, displayed by default<span class="o">)</span>
+ - error|e|exception|raise|r|2: <span class="k">for </span>a raised exception
+
+Example:
+ <span class="nb">export </span><span class="nv">GIT_PYTHON_REFRESH</span><span class="o">=</span>quiet
+
+2024/10/05 02:51:00 WARNING mlflow.models.model: Model logged without a signature and input example. Please <span class="nb">set</span> <span class="sb">`</span>input_example<span class="sb">`</span> parameter when logging the model to auto infer the model signature.
+Model accuracy: 1.0</code></pre></figure>
+
+<ul>
+  <li>Step 4: Automate with Apache Airflow</li>
+</ul>
+
+<p>Install Apache Airflow:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">pip <span class="nb">install </span>apache-airflow</code></pre></figure>
+
+<p>Create an Airflow DAG (airflow_dags/ml_pipeline.py)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim  airflow_dags/ml_pipeline.py
+
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+import os
+
+<span class="c"># Define the DAG</span>
+default_args <span class="o">=</span> <span class="o">{</span>
+ <span class="s1">'owner'</span>: <span class="s1">'airflow'</span>,
+ <span class="s1">'start_date'</span>: datetime<span class="o">(</span>2023, 1, 1<span class="o">)</span>,
+ <span class="s1">'retries'</span>: 1,
+<span class="o">}</span>
+
+dag <span class="o">=</span> DAG<span class="o">(</span><span class="s1">'mlops_pipeline'</span>, <span class="nv">default_args</span><span class="o">=</span>default_args, <span class="nv">schedule_interval</span><span class="o">=</span><span class="s1">'@daily'</span><span class="o">)</span>
+
+<span class="c"># Define the task to retrain the model</span>
+def retrain_model<span class="o">()</span>:
+ os.system<span class="o">(</span><span class="s1">'python src/train.py'</span><span class="o">)</span>
+
+retrain_task <span class="o">=</span> PythonOperator<span class="o">(</span>
+ <span class="nv">task_id</span><span class="o">=</span><span class="s1">'retrain_model'</span>,
+ <span class="nv">python_callable</span><span class="o">=</span>retrain_model,
+ <span class="nv">dag</span><span class="o">=</span>dag
+<span class="o">)</span>
+
+retrain_task</code></pre></figure>
+
+<p>Run Airflow</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">airflow db init
+airflow webserver <span class="nt">--port</span> 8080
+airflow scheduler</code></pre></figure>
+
+<p>Create airflow web ui Admin user</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">airflow <span class="nb">users </span>create <span class="se">\</span>
+ <span class="nt">--username</span> admin <span class="se">\</span>
+ <span class="nt">--firstname</span> Admin <span class="se">\</span>
+ <span class="nt">--lastname</span> User <span class="se">\</span>
+ <span class="nt">--role</span> Admin <span class="se">\</span>
+ <span class="nt">--email</span> admin@xxx.com <span class="se">\</span>
+ <span class="nt">--password</span> the_password</code></pre></figure>
+
+<p>Navigate to http://127.0.0.1:8080/to view the Airflow
+<img src="/assets/mlops22.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 5: CICD with Jenkins</li>
+</ul>
+
+<p>Create Jenkins pipeline for continuous model training with bellow stages:</p>
+
+<ol>
+  <li>
+    <p>Fetch Data: Executes the <code class="language-plaintext highlighter-rouge">fetch_data.py</code> script to fetch and process new data.</p>
+  </li>
+  <li>
+    <p>Build Docker Image: Build the Docker image using the Dockerfile in the current directory.</p>
+  </li>
+  <li>
+    <p>Run Model Training: Run the Docker container to train the model.</p>
+  </li>
+  <li>
+    <p>Validate Model: Runs the validation script <code class="language-plaintext highlighter-rouge">validate_model.py</code> to validate the trained model.</p>
+  </li>
+  <li>
+    <p>Deploy Model: Pushes the Docker image to a specified Docker registry and executes the deployment script  <code class="language-plaintext highlighter-rouge">deploy-model-script.sh</code>.</p>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim Jenkinsfile</span>
+
+pipeline <span class="o">{</span>
+    agent any
+
+    stages <span class="o">{</span>
+        stage<span class="o">(</span><span class="s1">'Fetch Data'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Fetch and process new data
+                    sh <span class="s1">'python scripts/fetch_data.py'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Build Docker Image'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Build the Docker image
+                    sh <span class="s1">'docker build -t mlops-local-model .'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Run Model Training'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Run the Docker container <span class="k">for </span>training
+                    sh <span class="s1">'docker run mlops-local-model'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Validate Model'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Validate the trained model
+                    sh <span class="s1">'python scripts/validate_model.py'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Deploy Model'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Push the Docker image to the registry
+                    sh <span class="s1">'docker push my-repo/mlops-local-model:latest'</span>
+                    
+                    // Deploy script to update the production environment
+                    sh <span class="s1">'deploy-model-script.sh'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    // Optional: Post Actions
+    post <span class="o">{</span>
+        always <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s1">'Pipeline finished.'</span>
+        <span class="o">}</span>
+        success <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s1">'Pipeline completed successfully!'</span>
+        <span class="o">}</span>
+        failure <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s1">'Pipeline failed. Check the logs!'</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><b>Conclusion</b></p>
+
+<p>By integrating DVC, MLflow, Docker, Airflow, and CI/CD into a cohesive ML project environment, we can achieve enhanced efficiency, greater automation, and improved collaboration. This synergy not only streamlines the development process but also ensures that machine learning models are robust, reproducible, and ready for production deployment.</p>
+
+<p>In summary, a production-level ML workflow integrates new data, automates model training and deployment, and continuously monitors model performance. By utilizing CI/CD pipelines, Docker for containerization, and tools for versioning and tracking, we can create a robust and efficient machine learning system that can adapt to changing data and business requirements.</p>
+
+<p>In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/10/01/mlops2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

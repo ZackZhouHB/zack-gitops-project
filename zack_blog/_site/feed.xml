@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T13:14:21+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOPS - Lab Setup</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOPS - Lab Setup" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T15:08:04+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOPS - Lab Setup</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOPS - Lab Setup" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
 
 <p>Transitioning from DevOps to MLOps can be achieved by leveraging existing DevOps expertise by adding new layers specific to machine learning.</p>
 
@@ -295,7 +295,353 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">MLOPS - First Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html" rel="alternate" type="text/html" title="MLOPS - First Machine Learning Project" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+
+<p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
+
+<p>Although <code class="language-plaintext highlighter-rouge">Jupyter Notebooks</code> can be user-friendly tools for ML practice, offering easy interaction and immediate feedback, which simplifies testing and debugging. However, it has limitations such as reproducibility issues, challenges in collaboration and version control, scalability concerns for larger projects, and a lack of automation for tasks like retraining.</p>
+
+<p>In this post, I will try an ML project with tools like <code class="language-plaintext highlighter-rouge">DVC</code>, <code class="language-plaintext highlighter-rouge">MLflow</code>, <code class="language-plaintext highlighter-rouge">Docker</code>, <code class="language-plaintext highlighter-rouge">Apache Airflow</code>, and <code class="language-plaintext highlighter-rouge">CI/CD</code> frameworks to strengthen machine learning workflows. This way can ensure reproducibility by tracking data and code versions, while MLflow logs metrics for effective experiment tracking. Although their initial setup can be complex and resource-intensive, these tools automate processes, streamline workflows, and enhance collaboration and scalability, which could be excessive for smaller ML projects.</p>
+
+<p><b>ML Tools explained </b></p>
+
+<ul>
+  <li>Data Versioning (<code class="language-plaintext highlighter-rouge">DVC</code>):</li>
+</ul>
+
+<p>DVC allows teams to manage and version datasets just like code. This ensures that data changes are tracked, making it easier to revert to previous versions if necessary.</p>
+
+<ul>
+  <li>Experiment Tracking (<code class="language-plaintext highlighter-rouge">MLflow</code>):</li>
+</ul>
+
+<p>MLflow tracks experiments, capturing metrics, parameters, and model versions in one centralized location. This makes it easier to compare different runs and select the best-performing model.</p>
+
+<ul>
+  <li>Containerization (<code class="language-plaintext highlighter-rouge">Docker</code>):</li>
+</ul>
+
+<p>Docker creates isolated environments, ensuring that code runs consistently across different platforms without dependency issues. This helps avoid the “it works on my machine” problem.</p>
+
+<ul>
+  <li>Workflow Orchestration (<code class="language-plaintext highlighter-rouge">Apache Airflow</code>):</li>
+</ul>
+
+<p>Airflow schedules and manages complex workflows, allowing for the automation of tasks such as data retrieval, preprocessing, model training, and evaluation.</p>
+
+<ul>
+  <li>CI/CD (<code class="language-plaintext highlighter-rouge">Jenkins</code>):</li>
+</ul>
+
+<p>I have a local Jenkins image to facilitate automatic testing and deployment of models and code changes. This ensures that new features or updates are quickly integrated without disrupting the existing workflow.</p>
+
+<p>Combining these tools, to achieve a holistic pipeline enables reproducibility, scalability, and consistency in machine learning workflows.</p>
+
+<p><b>Project Sturcture </b></p>
+
+<ul>
+  <li>Create a new project directory with the following structure:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:/mnt/mlops-project# tree
+mlops-project/
+├── data/                  # Data directory <span class="o">(</span><span class="k">for </span>DVC<span class="o">)</span>
+├── models/                # Trained models
+├── src/                   <span class="c"># Source code for the ML model</span>
+├── notebooks/             <span class="c"># Jupyter notebooks for experimentation</span>
+├── Dockerfile             <span class="c"># Docker config for packaging</span>
+├── dvc.yaml               <span class="c"># DVC pipeline config</span>
+├── airflow_dags/          # Airflow DAG <span class="k">for </span>automation
+└── mlflow/                # MLflow tracking directory</code></pre></figure>
+
+<p><b>Project Implementation </b></p>
+
+<ul>
+  <li>Step 1: Data Versioning with DVC</li>
+</ul>
+
+<p>Initialize Git &amp; DVC</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">pip <span class="nb">install </span>dvc
+git init
+dvc init <span class="nt">-f</span></code></pre></figure>
+
+<p>Add the Iris Dataset:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">mkdir </span>data
+curl <span class="nt">-o</span> data/iris.csv https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
+dvc add data/iris.csv</code></pre></figure>
+
+<ul>
+  <li>Step 2:Train the Model (Using MLflow)</li>
+</ul>
+
+<p>Install MLflow</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">pip <span class="nb">install </span>mlflow</code></pre></figure>
+
+<p>Create a Training Script (src/train.py)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim  src/train.py
+
+import mlflow
+import mlflow.sklearn
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+<span class="c"># Load the dataset</span>
+data <span class="o">=</span> pd.read_csv<span class="o">(</span><span class="s1">'../data/iris.csv'</span>, <span class="nv">header</span><span class="o">=</span>None<span class="o">)</span>
+X <span class="o">=</span> data.iloc[:, :-1]
+y <span class="o">=</span> data.iloc[:, <span class="nt">-1</span><span class="o">]</span>
+
+<span class="c"># Split data</span>
+X_train, X_test, y_train, y_test <span class="o">=</span> train_test_split<span class="o">(</span>X, y, <span class="nv">test_size</span><span class="o">=</span>0.2, <span class="nv">random_state</span><span class="o">=</span>42<span class="o">)</span>
+
+<span class="c"># Track experiment with MLflow</span>
+with mlflow.start_run<span class="o">()</span>:
+ <span class="c"># Train model</span>
+ model <span class="o">=</span> RandomForestClassifier<span class="o">(</span><span class="nv">n_estimators</span><span class="o">=</span>100<span class="o">)</span>
+ model.fit<span class="o">(</span>X_train, y_train<span class="o">)</span>
+
+ <span class="c"># Make predictions</span>
+ predictions <span class="o">=</span> model.predict<span class="o">(</span>X_test<span class="o">)</span>
+ accuracy <span class="o">=</span> accuracy_score<span class="o">(</span>y_test, predictions<span class="o">)</span>
+
+ <span class="c"># Log model and metrics to MLflow</span>
+ mlflow.log_metric<span class="o">(</span><span class="s2">"accuracy"</span>, accuracy<span class="o">)</span>
+ mlflow.sklearn.log_model<span class="o">(</span>model, <span class="s2">"model"</span><span class="o">)</span>
+ print<span class="o">(</span>f<span class="s2">"Model accuracy: {accuracy}"</span><span class="o">)</span></code></pre></figure>
+
+<p>Run the Training Script</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">python src/train.py
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:/mnt/f/1/mlops-project# python src/train.py
+2024/10/05 13:33:39 WARNING mlflow.models.model: Model logged without a signature and input example. Please <span class="nb">set</span> <span class="sb">`</span>input_example<span class="sb">`</span> parameter when logging the model to auto infer the model signature.
+Model accuracy: 1.0</code></pre></figure>
+
+<p>Launch the MLflow UI</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mlflow ui</code></pre></figure>
+
+<p>Navigate to http://127.0.0.1:5000 to view the experiment</p>
+
+<p><img src="/assets/mlops21.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 3: Dockerize the Model for Deployment</li>
+</ul>
+
+<p>Create Dockerfile:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim Dockerfile
+
+FROM python:3.8-slim
+
+WORKDIR /app
+
+<span class="c"># Install dependencies</span>
+COPY requirements.txt <span class="nb">.</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Copy the source code</span>
+COPY <span class="nb">.</span> <span class="nb">.</span>
+
+<span class="c"># Run the model training script</span>
+CMD <span class="o">[</span><span class="s2">"python"</span>, <span class="s2">"src/train.py"</span><span class="o">]</span></code></pre></figure>
+
+<p>Create a requirements.txt file and build the <code class="language-plaintext highlighter-rouge">mlops-local-model</code> Docker image:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim requirements.txt
+
+mlflow
+scikit-learn
+pandas
+dvc
+
+docker build <span class="nt">-t</span> mlops-local-model <span class="nb">.</span>
+docker run mlops-local-model
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:~# docker run mlops-local-model
+2024/10/05 02:50:58 WARNING mlflow.utils.git_utils: Failed to import Git <span class="o">(</span>the Git executable is probably not on your PATH<span class="o">)</span>, so Git SHA is not available. Error: Failed to initialize: Bad git executable.
+The git executable must be specified <span class="k">in </span>one of the following ways:
+ - be included <span class="k">in </span>your <span class="nv">$PATH</span>
+ - be <span class="nb">set </span>via <span class="nv">$GIT_PYTHON_GIT_EXECUTABLE</span>
+ - explicitly <span class="nb">set </span>via git.refresh<span class="o">(</span>&lt;full-path-to-git-executable&gt;<span class="o">)</span>
+
+All git commands will error <span class="k">until </span>this is rectified.
+
+This initial message can be silenced or aggravated <span class="k">in </span>the future by setting the
+<span class="nv">$GIT_PYTHON_REFRESH</span> environment variable. Use one of the following values:
+ - quiet|q|silence|s|silent|none|n|0: <span class="k">for </span>no message or exception
+ - warn|w|warning|log|l|1: <span class="k">for </span>a warning message <span class="o">(</span>logging level CRITICAL, displayed by default<span class="o">)</span>
+ - error|e|exception|raise|r|2: <span class="k">for </span>a raised exception
+
+Example:
+ <span class="nb">export </span><span class="nv">GIT_PYTHON_REFRESH</span><span class="o">=</span>quiet
+
+2024/10/05 02:51:00 WARNING mlflow.models.model: Model logged without a signature and input example. Please <span class="nb">set</span> <span class="sb">`</span>input_example<span class="sb">`</span> parameter when logging the model to auto infer the model signature.
+Model accuracy: 1.0</code></pre></figure>
+
+<ul>
+  <li>Step 4: Automate with Apache Airflow</li>
+</ul>
+
+<p>Install Apache Airflow:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">pip <span class="nb">install </span>apache-airflow</code></pre></figure>
+
+<p>Create an Airflow DAG (airflow_dags/ml_pipeline.py)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim  airflow_dags/ml_pipeline.py
+
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+import os
+
+<span class="c"># Define the DAG</span>
+default_args <span class="o">=</span> <span class="o">{</span>
+ <span class="s1">'owner'</span>: <span class="s1">'airflow'</span>,
+ <span class="s1">'start_date'</span>: datetime<span class="o">(</span>2023, 1, 1<span class="o">)</span>,
+ <span class="s1">'retries'</span>: 1,
+<span class="o">}</span>
+
+dag <span class="o">=</span> DAG<span class="o">(</span><span class="s1">'mlops_pipeline'</span>, <span class="nv">default_args</span><span class="o">=</span>default_args, <span class="nv">schedule_interval</span><span class="o">=</span><span class="s1">'@daily'</span><span class="o">)</span>
+
+<span class="c"># Define the task to retrain the model</span>
+def retrain_model<span class="o">()</span>:
+ os.system<span class="o">(</span><span class="s1">'python src/train.py'</span><span class="o">)</span>
+
+retrain_task <span class="o">=</span> PythonOperator<span class="o">(</span>
+ <span class="nv">task_id</span><span class="o">=</span><span class="s1">'retrain_model'</span>,
+ <span class="nv">python_callable</span><span class="o">=</span>retrain_model,
+ <span class="nv">dag</span><span class="o">=</span>dag
+<span class="o">)</span>
+
+retrain_task</code></pre></figure>
+
+<p>Run Airflow</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">airflow db init
+airflow webserver <span class="nt">--port</span> 8080
+airflow scheduler</code></pre></figure>
+
+<p>Create airflow web ui Admin user</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">airflow <span class="nb">users </span>create <span class="se">\</span>
+ <span class="nt">--username</span> admin <span class="se">\</span>
+ <span class="nt">--firstname</span> Admin <span class="se">\</span>
+ <span class="nt">--lastname</span> User <span class="se">\</span>
+ <span class="nt">--role</span> Admin <span class="se">\</span>
+ <span class="nt">--email</span> admin@xxx.com <span class="se">\</span>
+ <span class="nt">--password</span> the_password</code></pre></figure>
+
+<p>Navigate to http://127.0.0.1:8080/to view the Airflow
+<img src="/assets/mlops22.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 5: CICD with Jenkins</li>
+</ul>
+
+<p>Create Jenkins pipeline for continuous model training with bellow stages:</p>
+
+<ol>
+  <li>
+    <p>Fetch Data: Executes the <code class="language-plaintext highlighter-rouge">fetch_data.py</code> script to fetch and process new data.</p>
+  </li>
+  <li>
+    <p>Build Docker Image: Build the Docker image using the Dockerfile in the current directory.</p>
+  </li>
+  <li>
+    <p>Run Model Training: Run the Docker container to train the model.</p>
+  </li>
+  <li>
+    <p>Validate Model: Runs the validation script <code class="language-plaintext highlighter-rouge">validate_model.py</code> to validate the trained model.</p>
+  </li>
+  <li>
+    <p>Deploy Model: Pushes the Docker image to a specified Docker registry and executes the deployment script  <code class="language-plaintext highlighter-rouge">deploy-model-script.sh</code>.</p>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim Jenkinsfile</span>
+
+pipeline <span class="o">{</span>
+    agent any
+
+    stages <span class="o">{</span>
+        stage<span class="o">(</span><span class="s1">'Fetch Data'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Fetch and process new data
+                    sh <span class="s1">'python scripts/fetch_data.py'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Build Docker Image'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Build the Docker image
+                    sh <span class="s1">'docker build -t mlops-local-model .'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Run Model Training'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Run the Docker container <span class="k">for </span>training
+                    sh <span class="s1">'docker run mlops-local-model'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Validate Model'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Validate the trained model
+                    sh <span class="s1">'python scripts/validate_model.py'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        stage<span class="o">(</span><span class="s1">'Deploy Model'</span><span class="o">)</span> <span class="o">{</span>
+            steps <span class="o">{</span>
+                script <span class="o">{</span>
+                    // Push the Docker image to the registry
+                    sh <span class="s1">'docker push my-repo/mlops-local-model:latest'</span>
+                    
+                    // Deploy script to update the production environment
+                    sh <span class="s1">'deploy-model-script.sh'</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    // Optional: Post Actions
+    post <span class="o">{</span>
+        always <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s1">'Pipeline finished.'</span>
+        <span class="o">}</span>
+        success <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s1">'Pipeline completed successfully!'</span>
+        <span class="o">}</span>
+        failure <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s1">'Pipeline failed. Check the logs!'</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><b>Conclusion</b></p>
+
+<p>By integrating DVC, MLflow, Docker, Airflow, and CI/CD into a cohesive ML project environment, we can achieve enhanced efficiency, greater automation, and improved collaboration. This synergy not only streamlines the development process but also ensures that machine learning models are robust, reproducible, and ready for production deployment.</p>
+
+<p>In summary, a production-level ML workflow integrates new data, automates model training and deployment, and continuously monitors model performance. By utilizing CI/CD pipelines, Docker for containerization, and tools for versioning and tracking, we can create a robust and efficient machine learning system that can adapt to changing data and business requirements.</p>
+
+<p>In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
 
 <p>In last post, I was able to deploy EKS cluster via Jenkins and Terraform:</p>
 
@@ -2849,170 +3195,4 @@ replicaset.apps/user-service-5d8766d9cb    1         1         1    
   <li>
     <p>K8S deployment</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry><entry><title type="html">Python Microservice: Monitoring with Prometheus and Grafana</title><link href="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html" rel="alternate" type="text/html" title="Python Microservice: Monitoring with Prometheus and Grafana" /><published>2024-05-21T00:17:29+10:00</published><updated>2024-05-21T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/21/py-flask4.html"><![CDATA[<p><b> About Monitoring with Prometheus and Grafana</b></p>
-
-<p>Both Prometheus and Grafana are compatible with microservice applications, integrating Prometheus with Flask is straightforward to provide performance and monitoring metrics.</p>
-
-<p>Here I will update the docker-compose to add Prometheus and Grafana as services, then add Prometheus metrics in both order and user application code by importing <code class="language-plaintext highlighter-rouge">PrometheusMetrics</code> from the <code class="language-plaintext highlighter-rouge">prometheus_flask_exporter</code> module, which is used to expose Prometheus metrics for the Flask application. then initialize Prometheus metrics with <code class="language-plaintext highlighter-rouge">metrics = PrometheusMetrics(app)</code>. Use <code class="language-plaintext highlighter-rouge">@metrics.counter('get_orders_count', 'Count of calls to the get_orders endpoint')</code> to define a Prometheus counter metric that increments each time the get_orders endpoint is called.</p>
-
-<p>Import <code class="language-plaintext highlighter-rouge">os</code> to enable environment variable for Logstash host, <code class="language-plaintext highlighter-rouge">logstash_host = os.getenv('LOGSTASH_HOST', 'localhost')</code> to fetche the Logstash host from environment variables, defaulting to localhost.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder structure</span>
-/06-with-monitoringstack
-├── api_gateway
-│   ├── api_gateway.py
-│   └── Dockerfile
-├── docker-compose.yml
-├── logstash.conf
-├── order_service
-│   ├── Dockerfile
-│   ├── order_service.py
-├── prometheus.yaml
-└── user_service
-    ├── Dockerfile
-    └── user_service.py
-
-<span class="c"># add Prometheus and Grafana in docker-compose.yaml</span>
-version: <span class="s1">'3'</span>
-services:
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - <span class="s2">"9090:9090"</span>
-  grafana:
-    image: grafana/grafana
-    ports:
-      - <span class="s2">"3000:3000"</span>
-
-<span class="c"># create prometheus.yml for Prometheus configration</span>
-<span class="c"># vim prometheus.yml</span>
-global:
-  scrape_interval: 15s
-
-scrape_configs:
-  - job_name: <span class="s1">'flask'</span>
-    static_configs:
-      - targets: <span class="o">[</span><span class="s1">'user-service:5001'</span>, <span class="s1">'order-service:5002'</span><span class="o">]</span>
-
-<span class="c"># add Monitoring logic into python code </span>
-
-<span class="c"># order_service.py</span>
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-from prometheus_flask_exporter import PrometheusMetrics
-import os
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-metrics <span class="o">=</span> PrometheusMetrics<span class="o">(</span>app<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
-def get_orders<span class="o">()</span>:
-    orders <span class="o">=</span> <span class="o">[</span>
-        <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
-        <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
-    <span class="o">]</span>
-    app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
-    <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
-
-def register_service<span class="o">()</span>:
-    payload <span class="o">=</span> <span class="o">{</span>
-        <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
-        <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
-        <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
-        <span class="s2">"Port"</span>: 5002
-    <span class="o">}</span>
-    response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
-    <span class="k">if </span>response.status_code <span class="o">==</span> 200:
-        app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
-    <span class="k">else</span>:
-        app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    <span class="c"># Configure logging</span>
-    logstash_host <span class="o">=</span> os.getenv<span class="o">(</span><span class="s1">'LOGSTASH_HOST'</span>, <span class="s1">'localhost'</span><span class="o">)</span>
-    handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span>logstash_host, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
-    app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
-    app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
-    register_service<span class="o">()</span>
-    app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
-
-
-<span class="c"># user_service.py</span>
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-from prometheus_flask_exporter import PrometheusMetrics
-import os
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-metrics <span class="o">=</span> PrometheusMetrics<span class="o">(</span>app<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
-    <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
-        <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
-        <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
-    <span class="o">]</span>
-    app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
-    <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
-
-def register_service<span class="o">()</span>:
-    payload <span class="o">=</span> <span class="o">{</span>
-        <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
-        <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
-        <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
-        <span class="s2">"Port"</span>: 5001
-    <span class="o">}</span>
-    response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
-    <span class="k">if </span>response.status_code <span class="o">==</span> 200:
-        app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
-    <span class="k">else</span>:
-        app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
-    <span class="c"># Configure logging</span>
-    logstash_host <span class="o">=</span> os.getenv<span class="o">(</span><span class="s1">'LOGSTASH_HOST'</span>, <span class="s1">'localhost'</span><span class="o">)</span>
-    handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span>logstash_host, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
-    app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
-    app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
-    register_service<span class="o">()</span>
-    app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span></code></pre></figure>
-
-<p>Now Run docker-compose to bring all containers up and running. Should see all services with Prometheus and Grafana.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
-
-Creating 06-with-monitoringstack_api-gateway_1   ... <span class="k">done
-</span>Creating 06-with-monitoringstack_order-service_1 ... <span class="k">done
-</span>Creating 06-with-monitoringstack_user-service_1  ... <span class="k">done
-</span>Creating 06-with-monitoringstack_kibana_1        ... <span class="k">done
-</span>Creating 06-with-monitoringstack_grafana_1       ... <span class="k">done
-</span>Creating 06-with-monitoringstack_logstash_1      ... <span class="k">done
-</span>Creating 06-with-monitoringstack_prometheus_1    ... <span class="k">done
-</span>Creating 06-with-monitoringstack_elasticsearch_1 ... <span class="k">done
-</span>Creating 06-with-monitoringstack_consul_1        ... <span class="k">done</span></code></pre></figure>
-
-<p><b> Verify Prometheus and Grafana</b></p>
-
-<p>Access Grafana via http://localhost:3000, log in with admin/admin.</p>
-
-<p>Add Prometheus as a Data Source in Grafana by setting the URL to http://localhost:9090 and save.</p>
-
-<p>Create Dashboards in Grafana to use the Prometheus data source to visualize metrics from user-service and order-service.</p>
-
-<p><img src="/assets/flask10.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/flask9.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we can enable monitoring with Prometheus and Grafana.</p>
-
-<p>In the next post, I will see how to depoly our Python Flask microservice into Kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Monitoring with Prometheus and Grafana]]></summary></entry></feed>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry></feed>
