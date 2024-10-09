@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MLOPS - Local Machine Learning Lab Setup | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MLOPS - Local Machine Learning Lab Setup" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Move to MLOPS" />
+<meta property="og:description" content="Move to MLOPS" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-10-01T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MLOPS - Local Machine Learning Lab Setup" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-10-01T10:15:29+10:00","datePublished":"2024-10-01T10:15:29+10:00","description":"Move to MLOPS","headline":"MLOPS - Local Machine Learning Lab Setup","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"},"url":"http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MLOPS - Local Machine Learning Lab Setup</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-10-01T10:15:29+10:00" itemprop="datePublished">Oct 1, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Move to MLOPS </b></p>
+
+<p>Transitioning from DevOps to MLOps can be achieved by leveraging existing DevOps expertise by adding new layers specific to machine learning.</p>
+
+<ul>
+  <li>Key Differences:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Model Lifecycle Management</code>: MLOps handles model training, deployment, and retraining.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Data Versioning</code>: Tools like DVC ensure dataset version control.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Experiment Tracking</code>: MLflow and Weights &amp; Biases track model training parameters and results.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Serving</code>: Deploy models with TensorFlow Serving or TorchServe.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Drift</code>: Monitor data changes over time to trigger retraining.</p>
+
+<ul>
+  <li>Core MLOps Tools:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Model Training &amp; Experimentation</code>: Tools like DVC, MLflow, and Kubeflow for managing data, tracking experiments, and distributed training.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Deployment &amp; Serving</code>: Use CI/CD pipelines, Docker, Kubernetes, and frameworks like ONNX for deploying models at scale.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring &amp; Retraining</code>: Use Prometheus, Grafana, and Seldon for monitoring performance and retraining pipelines.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Data Pipelines</code>: Automate feature engineering with Apache Airflow, Dagster, or Kubeflow.</p>
+
+<ul>
+  <li>Leverage DevOps Skills for MLOps:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">CI/CD Pipelines</code>: Automate model training, testing, and deployment with Jenkins or cloud solutions.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Infrastructure as Code</code>: Use Terraform or Ansible for cloud-based ML infrastructure.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Containerization &amp; Orchestration</code>: Deploy ML models with Docker and Kubernetes.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring</code>: Track both infrastructure and model-specific metrics like accuracy and drift.</p>
+
+<p><b>Local Lab ML practise</b></p>
+
+<p>I will start the local lab by:  </p>
+
+<ul>
+  <li>
+    <p>Setting up a local ML env</p>
+  </li>
+  <li>
+    <p>Install ML-focused tools (Nvidia Cuda, Python3 and pip Virtual ENV, PyTorch and Jupyter Notebook)</p>
+  </li>
+  <li>
+    <p>Build and version simple ML models locally with tools like DVC, MLflow, and Docker.</p>
+  </li>
+</ul>
+
+<p>Next stages I will try:</p>
+
+<ul>
+  <li>
+    <p>Provision AWS Sagemaker using terraform or Cloudformation.</p>
+  </li>
+  <li>
+    <p>Implement CI pipelines for Model training and continuous packaging.</p>
+  </li>
+  <li>
+    <p>CD pipelines to provision AWS ECS or EKS to deploy models.</p>
+  </li>
+</ul>
+
+<p><b>Prerequisites</b></p>
+
+<ul>
+  <li>
+    <p>Windows 10 with Powershell and Windows Terminal installed</p>
+  </li>
+  <li>
+    <p>CPU Virtulization enabled in BIOS</p>
+  </li>
+  <li>
+    <p>WSL2 with Ubuntu LTS installed</p>
+  </li>
+  <li>
+    <p>Docker Desktop</p>
+  </li>
+</ul>
+
+<p><b>Install WSL with Ubuntu</b></p>
+
+<p>First, we need to configure local WSL to install Ubuntu.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--list</span> <span class="nt">--online</span>
+Use <span class="s1">'wsl.exe --install &lt;Distro&gt;'</span> to <span class="nb">install
+
+</span>NAME                            FRIENDLY NAME
+Ubuntu                          Ubuntu
+Debian                          Debian GNU/Linux
+kali-linux                      Kali Linux Rolling
+Ubuntu-18.04                    Ubuntu 18.04 LTS
+Ubuntu-20.04                    Ubuntu 20.04 LTS
+Ubuntu-22.04                    Ubuntu 22.04 LTS
+Ubuntu-24.04                    Ubuntu 24.04 LTS
+OracleLinux_7_9                 Oracle Linux 7.9
+OracleLinux_8_7                 Oracle Linux 8.7
+OracleLinux_9_1                 Oracle Linux 9.1
+openSUSE-Leap-15.6              openSUSE Leap 15.6
+SUSE-Linux-Enterprise-15-SP5    SUSE Linux Enterprise 15 SP5
+SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
+openSUSE-Tumbleweed             openSUSE Tumbleweed
+
+C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--install</span> <span class="nt">-d</span> Ubuntu-24.04
+Installing: Ubuntu 24.04 LTS
+Installed Ubuntu 24.04 LTS。
+Launching Ubuntu 24.04 LTS...
+Installing, this may take a few minutes...
+Installation successful!
+
+ubuntu@zackz:~<span class="nv">$ </span><span class="nb">cat</span> /etc/os-release
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 24.04.1 LTS"</span>
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"24.04"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"24.04.1 LTS (Noble Numbat)"</span>
+<span class="nv">VERSION_CODENAME</span><span class="o">=</span>noble
+<span class="nv">ID</span><span class="o">=</span>ubuntu
+<span class="nv">ID_LIKE</span><span class="o">=</span>debian
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
+<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
+<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
+<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
+<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>noble
+<span class="nv">LOGO</span><span class="o">=</span>ubuntu-logo</code></pre></figure>
+
+<p><b>Install Nvidia CUDA</b></p>
+
+<ul>
+  <li>CUDA works with C. Thus, we need to install the gcc compiler first, then install CUDA from <a href="https://developer.nvidia.com/cuda-downloads">the official website of Nvidia</a>, then configure environment variable for post-installation  <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">The official CUDA installation guide from Nvidia</a></li>
+</ul>
+
+<p><img src="/assets/mlops1.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops2.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>gcc <span class="nt">--fix-missing</span>
+
+wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
+<span class="nb">sudo mv </span>cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
+<span class="nb">sudo </span>dpkg <span class="nt">-i</span> cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
+<span class="nb">sudo cp</span> /var/cuda-repo-wsl-ubuntu-12-6-local/cuda-<span class="k">*</span><span class="nt">-keyring</span>.gpg /usr/share/keyrings/
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nt">-y</span> <span class="nb">install </span>cuda-toolkit-12-6
+
+vim .bashrc
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-12.6/bin<span class="k">${</span><span class="nv">PATH</span>:+:<span class="k">${</span><span class="nv">PATH</span><span class="k">}}</span>
+
+<span class="c"># To apply and validate the changes, </span>
+<span class="nb">source</span> ~/.bashrc
+<span class="nb">echo</span> <span class="nv">$PATH</span>
+root@zackz:~# <span class="nb">echo</span> <span class="nv">$PATH</span>
+/root/jupyter_env/bin:/usr/local/cuda-12.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/Amazon Corretto/jdk11.0.23_9/bin:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/d/Ruby32/bin:/mnt/f/VM workstation pro 16/bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files <span class="o">(</span>x86<span class="o">)</span>/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/ProgramData/chocolatey/bin:/mnt/d/Program Files/Git/cmd:/mnt/c/Program Files/Java/jdk1.8.0_211/bin:/mnt/c/Program Files/dotnet/:/mnt/d/Program Files <span class="o">(</span>x86<span class="o">)</span>/NetSarang/Xshell 7/:/mnt/c/ProgramData/chocolatey/bin/Minikube:/mnt/c/ProgramData/chocolatey/bin/kubectl:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/ProgramData/chocolatey/lib/maven/apache-maven-3.9.6/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/zack/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/Python313:/mnt/c/Python313/Scripts:/mnt/c/Program Files/Oracle/VirtualBox:/snap/bin</code></pre></figure>
+
+<ul>
+  <li>Install the Nvidia Cuda Toolkit, check the Driver and CUDA versions, validate Nvidia Cuda Compiler Driver has been installed.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>nvidia-cuda-toolkit
+
+root@zackz:~# nvidia-smi
+Wed Oct  9 10:53:26 2024
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.112                Driver Version: 537.42       CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|<span class="o">=========================================</span>+<span class="o">======================</span>+<span class="o">======================</span>|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  | 00000000:01:00.0  On |                  N/A |
+|  0%   55C    P0              80W / 148W |   1635MiB /  8192MiB |      1%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|<span class="o">=======================================================================================</span>|
+|    0   N/A  N/A        27      G   /Xwayland                                 N/A      |
+|    0   N/A  N/A        30      G   /Xwayland                                 N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                 N/A      |
++---------------------------------------------------------------------------------------+
+
+root@zackz:~# nvcc <span class="nt">-V</span>
+nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2024 NVIDIA Corporation
+Built on Thu_Sep_12_02:18:05_PDT_2024
+Cuda compilation tools, release 12.6, V12.6.77
+Build cuda_12.6.r12.6/compiler.34841621_0</code></pre></figure>
+
+<p><b>Install Python3 and PIP Virtual ENV</b></p>
+
+<p>Ensure that python3 and PIP are installed, and create virtual env for Pytorch and Jupyter Notebook</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# python3 <span class="nt">--version</span>
+Python 3.12.3
+
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip
+
+apt <span class="nb">install </span>python3.12-venv
+
+python3 <span class="nt">-m</span> venv jupyter_env
+
+<span class="nb">source </span>jupyter_env/bin/activate
+
+<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# </code></pre></figure>
+
+<p><b>Install PyTorch</b></p>
+
+<p>Installing the PyTorch <a href="https://pytorch.org/get-started/locally/">the official website of PyTorch</a>, and enable the Nvidia Developer Settings for using CUDA via WSL, then validate CUDA from Torch.</p>
+
+<p><img src="/assets/mlops3.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops4.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# pip3 <span class="nb">install </span>torch torchvision torchaudio <span class="nt">--index-url</span> https://download.pytorch.org/whl/cu124 
+
+<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~#  python3
+Python 3.12.3 <span class="o">(</span>main, Sep 11 2024, 14:17:37<span class="o">)</span> <span class="o">[</span>GCC 13.2.0] on linux
+Type <span class="s2">"help"</span>, <span class="s2">"copyright"</span>, <span class="s2">"credits"</span> or <span class="s2">"license"</span> <span class="k">for </span>more information.
+<span class="o">&gt;&gt;&gt;</span> import torch
+ch.cuda.is_available<span class="o">()</span>
+
+True
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<p><b>Install Jupyter Notebook</b></p>
+
+<ul>
+  <li>Installing Jupyter Notebook and run in the virtual env, create the first notebook to verify if it is using CPU or CUDA from GPU, then run a simple notebook to have a performance comparison between CPU and GPU.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># install jupyter notebook</span>
+
+pip <span class="nb">install </span>jupyter notebook 
+
+<span class="c"># run  jupyter notebook in the virtual env</span>
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:~# jupyter notebook  --allow-root</code></pre></figure>
+
+<ul>
+  <li>Verify Torch with CUDA device</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import torch
+
+<span class="k">if </span>torch.cuda.is_available<span class="o">()</span>:
+ device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cuda"</span><span class="o">)</span>
+<span class="k">else</span>:
+ device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cpu"</span><span class="o">)</span>
+print<span class="o">(</span><span class="s2">"using"</span>, device, <span class="s2">"device"</span><span class="o">)</span> </code></pre></figure>
+
+<p><img src="/assets/mlops5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Run performance comparison between my CPU and GPU (CUDA)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import <span class="nb">time
+
+</span>matrix_size <span class="o">=</span> 32<span class="k">*</span>512
+
+x <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
+y <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
+
+print<span class="o">(</span><span class="s2">"************* CPU SPEED *******************"</span><span class="o">)</span>
+start <span class="o">=</span> time.time<span class="o">()</span>
+result <span class="o">=</span> torch.matmul<span class="o">(</span>x, y<span class="o">)</span>
+print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
+print<span class="o">(</span><span class="s2">"verify device:"</span>, result.device<span class="o">)</span>
+
+x_gpu <span class="o">=</span> x.to<span class="o">(</span>device<span class="o">)</span>
+y_gpu <span class="o">=</span> y.to<span class="o">(</span>device<span class="o">)</span>
+torch.cuda.synchronize<span class="o">()</span>
+
+<span class="k">for </span>i <span class="k">in </span>range<span class="o">(</span>3<span class="o">)</span>:
+ print<span class="o">(</span><span class="s2">"************* GPU SPEED *******************"</span><span class="o">)</span>
+ start <span class="o">=</span> time.time<span class="o">()</span>
+ result_gpu <span class="o">=</span> torch.matmul<span class="o">(</span>x_gpu, y_gpu<span class="o">)</span>
+ torch.cuda.synchronize<span class="o">()</span>
+ print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
+ print<span class="o">(</span><span class="s2">"verify device:"</span>, result_gpu.device<span class="o">)</span></code></pre></figure>
+
+<p><img src="/assets/mlops6.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/10/01/mlops1.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

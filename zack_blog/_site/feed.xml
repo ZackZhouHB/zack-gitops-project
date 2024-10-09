@@ -1,4 +1,301 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T01:41:52+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T12:01:32+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOPS - Local Machine Learning Lab Setup</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOPS - Local Machine Learning Lab Setup" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
+
+<p>Transitioning from DevOps to MLOps can be achieved by leveraging existing DevOps expertise by adding new layers specific to machine learning.</p>
+
+<ul>
+  <li>Key Differences:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Model Lifecycle Management</code>: MLOps handles model training, deployment, and retraining.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Data Versioning</code>: Tools like DVC ensure dataset version control.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Experiment Tracking</code>: MLflow and Weights &amp; Biases track model training parameters and results.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Serving</code>: Deploy models with TensorFlow Serving or TorchServe.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Drift</code>: Monitor data changes over time to trigger retraining.</p>
+
+<ul>
+  <li>Core MLOps Tools:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Model Training &amp; Experimentation</code>: Tools like DVC, MLflow, and Kubeflow for managing data, tracking experiments, and distributed training.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Deployment &amp; Serving</code>: Use CI/CD pipelines, Docker, Kubernetes, and frameworks like ONNX for deploying models at scale.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring &amp; Retraining</code>: Use Prometheus, Grafana, and Seldon for monitoring performance and retraining pipelines.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Data Pipelines</code>: Automate feature engineering with Apache Airflow, Dagster, or Kubeflow.</p>
+
+<ul>
+  <li>Leverage DevOps Skills for MLOps:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">CI/CD Pipelines</code>: Automate model training, testing, and deployment with Jenkins or cloud solutions.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Infrastructure as Code</code>: Use Terraform or Ansible for cloud-based ML infrastructure.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Containerization &amp; Orchestration</code>: Deploy ML models with Docker and Kubernetes.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring</code>: Track both infrastructure and model-specific metrics like accuracy and drift.</p>
+
+<p><b>Local Lab ML practise</b></p>
+
+<p>I will start the local lab by:  </p>
+
+<ul>
+  <li>
+    <p>Setting up a local ML env</p>
+  </li>
+  <li>
+    <p>Install ML-focused tools (Nvidia Cuda, Python3 and pip Virtual ENV, PyTorch and Jupyter Notebook)</p>
+  </li>
+  <li>
+    <p>Build and version simple ML models locally with tools like DVC, MLflow, and Docker.</p>
+  </li>
+</ul>
+
+<p>Next stages I will try:</p>
+
+<ul>
+  <li>
+    <p>Provision AWS Sagemaker using terraform or Cloudformation.</p>
+  </li>
+  <li>
+    <p>Implement CI pipelines for Model training and continuous packaging.</p>
+  </li>
+  <li>
+    <p>CD pipelines to provision AWS ECS or EKS to deploy models.</p>
+  </li>
+</ul>
+
+<p><b>Prerequisites</b></p>
+
+<ul>
+  <li>
+    <p>Windows 10 with Powershell and Windows Terminal installed</p>
+  </li>
+  <li>
+    <p>CPU Virtulization enabled in BIOS</p>
+  </li>
+  <li>
+    <p>WSL2 with Ubuntu LTS installed</p>
+  </li>
+  <li>
+    <p>Docker Desktop</p>
+  </li>
+</ul>
+
+<p><b>Install WSL with Ubuntu</b></p>
+
+<p>First, we need to configure local WSL to install Ubuntu.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--list</span> <span class="nt">--online</span>
+Use <span class="s1">'wsl.exe --install &lt;Distro&gt;'</span> to <span class="nb">install
+
+</span>NAME                            FRIENDLY NAME
+Ubuntu                          Ubuntu
+Debian                          Debian GNU/Linux
+kali-linux                      Kali Linux Rolling
+Ubuntu-18.04                    Ubuntu 18.04 LTS
+Ubuntu-20.04                    Ubuntu 20.04 LTS
+Ubuntu-22.04                    Ubuntu 22.04 LTS
+Ubuntu-24.04                    Ubuntu 24.04 LTS
+OracleLinux_7_9                 Oracle Linux 7.9
+OracleLinux_8_7                 Oracle Linux 8.7
+OracleLinux_9_1                 Oracle Linux 9.1
+openSUSE-Leap-15.6              openSUSE Leap 15.6
+SUSE-Linux-Enterprise-15-SP5    SUSE Linux Enterprise 15 SP5
+SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
+openSUSE-Tumbleweed             openSUSE Tumbleweed
+
+C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--install</span> <span class="nt">-d</span> Ubuntu-24.04
+Installing: Ubuntu 24.04 LTS
+Installed Ubuntu 24.04 LTS。
+Launching Ubuntu 24.04 LTS...
+Installing, this may take a few minutes...
+Installation successful!
+
+ubuntu@zackz:~<span class="nv">$ </span><span class="nb">cat</span> /etc/os-release
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 24.04.1 LTS"</span>
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"24.04"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"24.04.1 LTS (Noble Numbat)"</span>
+<span class="nv">VERSION_CODENAME</span><span class="o">=</span>noble
+<span class="nv">ID</span><span class="o">=</span>ubuntu
+<span class="nv">ID_LIKE</span><span class="o">=</span>debian
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
+<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
+<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
+<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
+<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>noble
+<span class="nv">LOGO</span><span class="o">=</span>ubuntu-logo</code></pre></figure>
+
+<p><b>Install Nvidia CUDA</b></p>
+
+<ul>
+  <li>CUDA works with C. Thus, we need to install the gcc compiler first, then install CUDA from <a href="https://developer.nvidia.com/cuda-downloads">the official website of Nvidia</a>, then configure environment variable for post-installation  <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">The official CUDA installation guide from Nvidia</a></li>
+</ul>
+
+<p><img src="/assets/mlops1.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops2.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>gcc <span class="nt">--fix-missing</span>
+
+wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
+<span class="nb">sudo mv </span>cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
+<span class="nb">sudo </span>dpkg <span class="nt">-i</span> cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
+<span class="nb">sudo cp</span> /var/cuda-repo-wsl-ubuntu-12-6-local/cuda-<span class="k">*</span><span class="nt">-keyring</span>.gpg /usr/share/keyrings/
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nt">-y</span> <span class="nb">install </span>cuda-toolkit-12-6
+
+vim .bashrc
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-12.6/bin<span class="k">${</span><span class="nv">PATH</span>:+:<span class="k">${</span><span class="nv">PATH</span><span class="k">}}</span>
+
+<span class="c"># To apply and validate the changes, </span>
+<span class="nb">source</span> ~/.bashrc
+<span class="nb">echo</span> <span class="nv">$PATH</span>
+root@zackz:~# <span class="nb">echo</span> <span class="nv">$PATH</span>
+/root/jupyter_env/bin:/usr/local/cuda-12.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/Amazon Corretto/jdk11.0.23_9/bin:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/d/Ruby32/bin:/mnt/f/VM workstation pro 16/bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files <span class="o">(</span>x86<span class="o">)</span>/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/ProgramData/chocolatey/bin:/mnt/d/Program Files/Git/cmd:/mnt/c/Program Files/Java/jdk1.8.0_211/bin:/mnt/c/Program Files/dotnet/:/mnt/d/Program Files <span class="o">(</span>x86<span class="o">)</span>/NetSarang/Xshell 7/:/mnt/c/ProgramData/chocolatey/bin/Minikube:/mnt/c/ProgramData/chocolatey/bin/kubectl:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/ProgramData/chocolatey/lib/maven/apache-maven-3.9.6/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/zack/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/Python313:/mnt/c/Python313/Scripts:/mnt/c/Program Files/Oracle/VirtualBox:/snap/bin</code></pre></figure>
+
+<ul>
+  <li>Install the Nvidia Cuda Toolkit, check the Driver and CUDA versions, validate Nvidia Cuda Compiler Driver has been installed.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>nvidia-cuda-toolkit
+
+root@zackz:~# nvidia-smi
+Wed Oct  9 10:53:26 2024
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.112                Driver Version: 537.42       CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|<span class="o">=========================================</span>+<span class="o">======================</span>+<span class="o">======================</span>|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  | 00000000:01:00.0  On |                  N/A |
+|  0%   55C    P0              80W / 148W |   1635MiB /  8192MiB |      1%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|<span class="o">=======================================================================================</span>|
+|    0   N/A  N/A        27      G   /Xwayland                                 N/A      |
+|    0   N/A  N/A        30      G   /Xwayland                                 N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                 N/A      |
++---------------------------------------------------------------------------------------+
+
+root@zackz:~# nvcc <span class="nt">-V</span>
+nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2024 NVIDIA Corporation
+Built on Thu_Sep_12_02:18:05_PDT_2024
+Cuda compilation tools, release 12.6, V12.6.77
+Build cuda_12.6.r12.6/compiler.34841621_0</code></pre></figure>
+
+<p><b>Install Python3 and PIP Virtual ENV</b></p>
+
+<p>Ensure that python3 and PIP are installed, and create virtual env for Pytorch and Jupyter Notebook</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# python3 <span class="nt">--version</span>
+Python 3.12.3
+
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip
+
+apt <span class="nb">install </span>python3.12-venv
+
+python3 <span class="nt">-m</span> venv jupyter_env
+
+<span class="nb">source </span>jupyter_env/bin/activate
+
+<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# </code></pre></figure>
+
+<p><b>Install PyTorch</b></p>
+
+<p>Installing the PyTorch <a href="https://pytorch.org/get-started/locally/">the official website of PyTorch</a>, and enable the Nvidia Developer Settings for using CUDA via WSL, then validate CUDA from Torch.</p>
+
+<p><img src="/assets/mlops3.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops4.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# pip3 <span class="nb">install </span>torch torchvision torchaudio <span class="nt">--index-url</span> https://download.pytorch.org/whl/cu124 
+
+<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~#  python3
+Python 3.12.3 <span class="o">(</span>main, Sep 11 2024, 14:17:37<span class="o">)</span> <span class="o">[</span>GCC 13.2.0] on linux
+Type <span class="s2">"help"</span>, <span class="s2">"copyright"</span>, <span class="s2">"credits"</span> or <span class="s2">"license"</span> <span class="k">for </span>more information.
+<span class="o">&gt;&gt;&gt;</span> import torch
+ch.cuda.is_available<span class="o">()</span>
+
+True
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<p><b>Install Jupyter Notebook</b></p>
+
+<ul>
+  <li>Installing Jupyter Notebook and run in the virtual env, create the first notebook to verify if it is using CPU or CUDA from GPU, then run a simple notebook to have a performance comparison between CPU and GPU.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># install jupyter notebook</span>
+
+pip <span class="nb">install </span>jupyter notebook 
+
+<span class="c"># run  jupyter notebook in the virtual env</span>
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:~# jupyter notebook  --allow-root</code></pre></figure>
+
+<ul>
+  <li>Verify Torch with CUDA device</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import torch
+
+<span class="k">if </span>torch.cuda.is_available<span class="o">()</span>:
+ device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cuda"</span><span class="o">)</span>
+<span class="k">else</span>:
+ device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cpu"</span><span class="o">)</span>
+print<span class="o">(</span><span class="s2">"using"</span>, device, <span class="s2">"device"</span><span class="o">)</span> </code></pre></figure>
+
+<p><img src="/assets/mlops5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Run performance comparison between my CPU and GPU (CUDA)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import <span class="nb">time
+
+</span>matrix_size <span class="o">=</span> 32<span class="k">*</span>512
+
+x <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
+y <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
+
+print<span class="o">(</span><span class="s2">"************* CPU SPEED *******************"</span><span class="o">)</span>
+start <span class="o">=</span> time.time<span class="o">()</span>
+result <span class="o">=</span> torch.matmul<span class="o">(</span>x, y<span class="o">)</span>
+print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
+print<span class="o">(</span><span class="s2">"verify device:"</span>, result.device<span class="o">)</span>
+
+x_gpu <span class="o">=</span> x.to<span class="o">(</span>device<span class="o">)</span>
+y_gpu <span class="o">=</span> y.to<span class="o">(</span>device<span class="o">)</span>
+torch.cuda.synchronize<span class="o">()</span>
+
+<span class="k">for </span>i <span class="k">in </span>range<span class="o">(</span>3<span class="o">)</span>:
+ print<span class="o">(</span><span class="s2">"************* GPU SPEED *******************"</span><span class="o">)</span>
+ start <span class="o">=</span> time.time<span class="o">()</span>
+ result_gpu <span class="o">=</span> torch.matmul<span class="o">(</span>x_gpu, y_gpu<span class="o">)</span>
+ torch.cuda.synchronize<span class="o">()</span>
+ print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
+ print<span class="o">(</span><span class="s2">"verify device:"</span>, result_gpu.device<span class="o">)</span></code></pre></figure>
+
+<p><img src="/assets/mlops6.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
 
 <p>In last post, I was able to deploy EKS cluster via Jenkins and Terraform:</p>
 
@@ -2718,295 +3015,4 @@ Creating 06-with-monitoringstack_api-gateway_1   ... <span class="k">done
 
 <p>Now we can enable monitoring with Prometheus and Grafana.</p>
 
-<p>In the next post, I will see how to depoly our Python Flask microservice into Kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Monitoring with Prometheus and Grafana]]></summary></entry><entry><title type="html">Python Microservice: Logging with ELK</title><link href="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html" rel="alternate" type="text/html" title="Python Microservice: Logging with ELK" /><published>2024-05-20T00:16:29+10:00</published><updated>2024-05-20T00:16:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/20/py-flask3.html"><![CDATA[<p><b> About logging with ELK (Elasticsearch, Logstash, Kibana) Stack</b></p>
-
-<p>ELK (Elasticsearch, Logstash, Kibana) is a popular log management solution. We will use the ELK Stack to collect and analyze logs.</p>
-
-<p>Here I need to extend the current configuration by adding services in docker-compose file for <code class="language-plaintext highlighter-rouge">Elasticsearch</code>, <code class="language-plaintext highlighter-rouge">Logstash</code>, and <code class="language-plaintext highlighter-rouge">Kibana</code>, and configure the microservices to send logs to Logstash.</p>
-
-<p>Also, I will need to configure the logging in both <code class="language-plaintext highlighter-rouge">user</code> and <code class="language-plaintext highlighter-rouge">order</code> Python application code to send logs to Logstash. By importing the built-in <code class="language-plaintext highlighter-rouge">logging</code> module and  <code class="language-plaintext highlighter-rouge">GelfUdpHandler</code> from the <code class="language-plaintext highlighter-rouge">pygelf</code> module, to provide a flexible framework for emitting log messages from Python programs to send log messages in the <code class="language-plaintext highlighter-rouge">GELF</code> (Graylog Extended Log Format) to a remote Graylog server, which is typically part of the ELK stack.</p>
-
-<p>By adding log messages using <code class="language-plaintext highlighter-rouge">app.logger.info</code> and <code class="language-plaintext highlighter-rouge">app.logger.error</code>, together with the defined the logging level, I can set the logging level to <code class="language-plaintext highlighter-rouge">INFO</code>, which means all log messages at this level or higher will be emitted.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># folder structure </span>
-05-with-ELK/
-├── api_gateway/
-│   └── Dockerfile
-├── order_service/
-│   └── Dockerfile
-├── user_service/
-│   └── Dockerfile
-├── logstash.conf
-└── docker-compose.yml
-
-<span class="c"># create Logstash Configuration</span>
-<span class="c"># vim logstash.conf</span>
-input <span class="o">{</span>
- gelf <span class="o">{</span>
- port <span class="o">=&gt;</span> 12201
- <span class="o">}</span>
-<span class="o">}</span>
-output <span class="o">{</span>
- elasticsearch <span class="o">{</span>
- hosts <span class="o">=&gt;</span> <span class="o">[</span><span class="s2">"elasticsearch:9200"</span><span class="o">]</span>
- index <span class="o">=&gt;</span> <span class="s2">"%{[@metadata][beat]}-%{+YYYY.MM.dd}"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="c"># vim user_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/users'</span><span class="o">)</span>
-def get_users<span class="o">()</span>:
- <span class="nb">users</span> <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'name'</span>: <span class="s1">'Alice'</span><span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'name'</span>: <span class="s1">'Bob'</span><span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched user data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span><span class="nb">users</span><span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"user-service"</span>,
- <span class="s2">"Port"</span>: 5001
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"User service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register user service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5001<span class="o">)</span>
-
-<span class="c"># vim order_service.py</span>
-
-import logging
-import requests
-from flask import Flask, jsonify
-from pygelf import GelfUdpHandler
-
-app <span class="o">=</span> Flask<span class="o">(</span>__name__<span class="o">)</span>
-
-@app.route<span class="o">(</span><span class="s1">'/orders'</span><span class="o">)</span>
-def get_orders<span class="o">()</span>:
- orders <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span><span class="s1">'id'</span>: 1, <span class="s1">'item'</span>: <span class="s1">'Laptop'</span>, <span class="s1">'price'</span>: 1200<span class="o">}</span>,
- <span class="o">{</span><span class="s1">'id'</span>: 2, <span class="s1">'item'</span>: <span class="s1">'Phone'</span>, <span class="s1">'price'</span>: 800<span class="o">}</span>
- <span class="o">]</span>
- app.logger.info<span class="o">(</span><span class="s2">"Fetched order data"</span><span class="o">)</span>
- <span class="k">return </span>jsonify<span class="o">(</span>orders<span class="o">)</span>
-
-def register_service<span class="o">()</span>:
- payload <span class="o">=</span> <span class="o">{</span>
- <span class="s2">"ID"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Address"</span>: <span class="s2">"order-service"</span>,
- <span class="s2">"Port"</span>: 5002
- <span class="o">}</span>
- response <span class="o">=</span> requests.put<span class="o">(</span><span class="s1">'http://consul:8500/v1/agent/service/register'</span>, <span class="nv">json</span><span class="o">=</span>payload<span class="o">)</span>
- <span class="k">if </span>response.status_code <span class="o">==</span> 200:
- app.logger.info<span class="o">(</span><span class="s2">"Order service registered successfully"</span><span class="o">)</span>
- <span class="k">else</span>:
- app.logger.error<span class="o">(</span><span class="s2">"Failed to register order service"</span><span class="o">)</span>
-
-<span class="k">if </span>__name__ <span class="o">==</span> <span class="s1">'__main__'</span>:
- <span class="c"># Configure logging</span>
- handler <span class="o">=</span> GelfUdpHandler<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'logstash'</span>, <span class="nv">port</span><span class="o">=</span>12201<span class="o">)</span>
- app.logger.addHandler<span class="o">(</span>handler<span class="o">)</span>
- app.logger.setLevel<span class="o">(</span>logging.INFO<span class="o">)</span>
-    
- register_service<span class="o">()</span>
- app.run<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span>, <span class="nv">port</span><span class="o">=</span>5002<span class="o">)</span>
-
-
-<span class="c"># create user_service/requirements.txt for each service (user, order)</span>
-flask
-requests
-pygelf
-
-<span class="c"># modify each Dockerfile: Dockerfile-user</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5001 available to the world outside this container</span>
-EXPOSE 5001
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>user_service.py
-
-<span class="c"># Run user_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5001"</span><span class="o">]</span>
-
-
-<span class="c"># vim Dockerfile-order</span>
-
-<span class="c"># Use an official Python runtime as a parent image</span>
-FROM python:3.9-slim
-
-<span class="c"># Set the working directory in the container</span>
-WORKDIR /app
-
-<span class="c"># Copy the current directory contents into the container at /app</span>
-COPY <span class="nb">.</span> /app
-
-<span class="c"># Install any needed packages specified in requirements.txt</span>
-RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
-
-<span class="c"># Make port 5002 available to the world outside this container</span>
-EXPOSE 5002
-
-<span class="c"># Define environment variable</span>
-ENV <span class="nv">FLASK_APP</span><span class="o">=</span>order_service.py
-
-<span class="c"># Run order_service.py when the container launches</span>
-CMD <span class="o">[</span><span class="s2">"flask"</span>, <span class="s2">"run"</span>, <span class="s2">"--host=0.0.0.0"</span>, <span class="s2">"--port=5002"</span><span class="o">]</span>
-
-<span class="c"># modify docker-compose.yaml</span>
-
-version: <span class="s1">'3'</span>
-services:
- consul:
- image: consul:1.15.4
- ports:
- - <span class="s2">"8500:8500"</span>
-
- elasticsearch:
- image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
- environment:
- - discovery.type<span class="o">=</span>single-node
- ports:
- - <span class="s2">"9200:9200"</span>
- - <span class="s2">"9300:9300"</span>
- volumes:
- - esdata:/usr/share/elasticsearch/data
-
- logstash:
- image: docker.elastic.co/logstash/logstash:7.13.2
- volumes:
- - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
- ports:
- - <span class="s2">"12201:12201/udp"</span>
- - <span class="s2">"5044:5044"</span>
-
- kibana:
- image: docker.elastic.co/kibana/kibana:7.13.2
- ports:
- - <span class="s2">"5601:5601"</span>
- depends_on:
- - elasticsearch
-
- user-service:
- build:
- context: ./user_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5001:5001"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- order-service:
- build:
- context: ./order_service
- depends_on:
- - consul
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5002:5002"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
- api-gateway:
- build:
- context: ./api_gateway
- depends_on:
- - consul
- - user-service
- - order-service
- - logstash
- environment:
- - <span class="nv">CONSUL_HTTP_ADDR</span><span class="o">=</span>consul:8500
- ports:
- - <span class="s2">"5000:5000"</span>
- logging:
- driver: gelf
- options:
- gelf-address: udp://logstash:12201
-
-volumes:
- esdata:</code></pre></figure>
-
-<p>Now Run docker-compose to bring all containers up and running. Should see all services with ES, Logstash and Kibana populating logs on the screen.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker-compose up <span class="nt">--build</span>
-
-Creating 05-with-elk_logstash_1      ... <span class="k">done
-</span>Creating 05-with-elk_consul_1        ... <span class="k">done
-</span>Creating 05-with-elk_elasticsearch_1 ... <span class="k">done
-</span>Creating 05-with-elk_kibana_1        ... <span class="k">done
-</span>Creating 05-with-elk_user-service_1  ... <span class="k">done
-</span>Creating 05-with-elk_order-service_1 ... <span class="k">done
-</span>Creating 05-with-elk_api-gateway_1   ... <span class="k">done
-
-
-</span>logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,140][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] Starting UDP listener <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span><span class="o">}</span>
-logstash_1       | <span class="o">[</span>2024-05-18T14:55:13,187][INFO <span class="o">][</span>logstash.inputs.udp      ][main][a30d8db137f99f1de18acbd53c081374cd720430a4dd0e752ff4a99c3005f9d0] UDP listener started <span class="o">{</span>:address<span class="o">=&gt;</span><span class="s2">"0.0.0.0:12201"</span>, :receive_buffer_bytes<span class="o">=&gt;</span><span class="s2">"106496"</span>, :queue_size<span class="o">=&gt;</span><span class="s2">"2000"</span><span class="o">}</span>
-consul_1         | 2024-05-18T14:55:46.686Z <span class="o">[</span>DEBUG] agent: Skipping remote check since it is managed automatically: <span class="nv">check</span><span class="o">=</span>serfHealth
-consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] agent: Node info <span class="k">in </span><span class="nb">sync
-</span>logstash_1       | https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
-elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
-kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
-
-<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
-
-<p><b> Verify ElasticSearch and Kibana</b></p>
-
-<ul>
-  <li>Validate ElasticSearch status via localhost:9200</li>
-</ul>
-
-<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
-</ul>
-
-<p><img src="/assets/flask8.png" alt="image tooltip here" />
-<b> Conclusion</b></p>
-
-<p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>
-
-<p>In the next post, I will see how to enable monitoring with Prometheus and Grafana stack.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About logging with ELK (Elasticsearch, Logstash, Kibana) Stack]]></summary></entry></feed>
+<p>In the next post, I will see how to depoly our Python Flask microservice into Kubernetes.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Monitoring with Prometheus and Grafana]]></summary></entry></feed>
