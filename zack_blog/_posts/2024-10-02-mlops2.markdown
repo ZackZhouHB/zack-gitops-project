@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOPS - First Machine Learning Project"
+title:  "MLOps - First Machine Learning Project"
 date:   2024-10-01 11:15:29 +1100
 categories: jekyll Cat2
 ---
