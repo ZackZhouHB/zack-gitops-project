@@ -8,6 +8,6 @@ permalink: /aboutme/
 
 - <b>Prefer work location</b>: Sydney
 
-- <b>Year of work</b>:  5 years overseas (China) +  6 years domestic (Austialia)
+- <b>Year of work</b>:  6 years overseas (China) +  7 years domestic (Austialia)
 
 - <b>I love</b>: cooking, riding, Cristiano Ronaldo and Real Madrid
