@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Customize Helm Chart for Zack' Blog  "
+title:  " Kustomize vs Helm with ZackBlog"
 date:   2024-03-12 11:15:29 +1100
 categories: jekyll Cat2
 ---
