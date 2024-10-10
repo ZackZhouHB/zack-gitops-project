@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Automate AWS EC2 tagging
+title: Python for Automate AWS tagging
 date:   2023-10-01 11:15:29 +1100
 categories: jekyll Cat2
 ---
