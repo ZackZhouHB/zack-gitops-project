@@ -3,21 +3,21 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Automate K8S with Terraform and Ansible | Zack’s Blog</title>
+<title>Kubespary with Terraform on AWS | Zack’s Blog</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="Automate K8S with Terraform and Ansible" />
+<meta property="og:title" content="Kubespary with Terraform on AWS" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="K8S on EC2 vs EKS" />
-<meta property="og:description" content="K8S on EC2 vs EKS" />
+<meta name="description" content="About Kubespary" />
+<meta property="og:description" content="About Kubespary" />
 <link rel="canonical" href="http://localhost:4000/jekyll/cat2/2023/05/24/EC2-K8S.html" />
 <meta property="og:url" content="http://localhost:4000/jekyll/cat2/2023/05/24/EC2-K8S.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2023-05-24T10:15:29+10:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Automate K8S with Terraform and Ansible" />
+<meta property="twitter:title" content="Kubespary with Terraform on AWS" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2023-05-24T10:15:29+10:00","datePublished":"2023-05-24T10:15:29+10:00","description":"K8S on EC2 vs EKS","headline":"Automate K8S with Terraform and Ansible","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2023/05/24/EC2-K8S.html"},"url":"http://localhost:4000/jekyll/cat2/2023/05/24/EC2-K8S.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2023-05-24T10:15:29+10:00","datePublished":"2023-05-24T10:15:29+10:00","description":"About Kubespary","headline":"Kubespary with Terraform on AWS","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2023/05/24/EC2-K8S.html"},"url":"http://localhost:4000/jekyll/cat2/2023/05/24/EC2-K8S.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -40,136 +40,269 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline"> Automate K8S with Terraform and Ansible </h1>
+    <h1 class="post-title p-name" itemprop="name headline">Kubespary with Terraform on AWS </h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2023-05-24T10:15:29+10:00" itemprop="datePublished">May 24, 2023
       </time></p>
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p><b> K8S on EC2  vs EKS </b></p>
+    <p><b> About Kubespary</b></p>
 
-<p>While I was in an interview last week, the company heavily using Ansible to provision and configure their k8s cluster on AWS EC2, aim to have the most control and flexibility in case they need to move to another cloud provider.</p>
+<p>Kubespary is a powerful and highly configurable tool that automates and supports deployment on various cloud providers (AWS, GCE, Azure, etc.) and on-premises infrastructure. In this post I will run its build-in Terraform and ansible code to provision a k8s cluster based on AWS EC2.</p>
 
-<p>Here I will use both Terraform and Ansible to automate K8S cluster creation and configuration on a few EC2 instances.</p>
+<p><b> Benefit of Kubespary</b></p>
 
-<p><b> The tools and workflow</b></p>
+<p>We can define specific settings in <code class="language-plaintext highlighter-rouge">cluster-config.yaml</code> for networking, authentication, and other Kubernetes features, it also supports for multiple networking plugins (Calico, Flannel, Weave Net, etc.), By managing hosts file and rerun the playbook to make add or remove nodes easily, Integrated CI/CD Pipelines and Infrastructure as Code (IaC) with Terraform and Ansible to achieve automation.</p>
+
+<p><b>Kubespary on Local Lab</b></p>
+
+<p>In local machine, ensure</p>
 
 <ul>
-  <li>Major tools will include Ansible, terraform, together with a shell script.</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Git</code>, <code class="language-plaintext highlighter-rouge">Ansible</code>, <code class="language-plaintext highlighter-rouge">Python</code>, <code class="language-plaintext highlighter-rouge">Terraform</code> installed</p>
+  </li>
+  <li>
+    <p>5 VM ready with ssh configured</p>
+  </li>
+  <li>
+    <p>clone the Kubespray git repo in a python vritual environment to install Kubespray required packages based on its <code class="language-plaintext highlighter-rouge">requirements.txt</code> file</p>
+  </li>
+  <li>
+    <p>create a local folder under inventory <code class="language-plaintext highlighter-rouge">homelab-k8s</code>, create a <code class="language-plaintext highlighter-rouge">hosts.yaml</code> to define the local nodes, create a <code class="language-plaintext highlighter-rouge">cluster-config.yaml</code> to define specific cofiguration of the k8s cluster</p>
+  </li>
+  <li>
+    <p>run the playbook to have a k8s cluster ready to use</p>
+  </li>
 </ul>
 
-<ol>
-  <li>
-    <p>Use terraform to create S3 as backend state file, create security groups and 4 ec2 instances ( 1 bastion, 1 master, 2 workers)</p>
-  </li>
-  <li>
-    <p>As Instances are created in AWS environment dynamically, Ansible ec2-dynamic-inventory approach is best way to manage them.</p>
-  </li>
-  <li>
-    <p>Using terraform “connection”, to ssh to the bastion host after creation, use provisoners “file” to upload shell script to bootstrap bastion host as a ansbile master, configure ec2-dynamic-inventory to fetch the other 3 instances for K8S.</p>
-  </li>
-  <li>
-    <p>Continue with terraform “file” and “remote-exec” to upload playbooks and with “inline” to execute playbooks to init k8s master node and join the worker node.</p>
-  </li>
-  <li>
-    <p>Finally another playbook to configure bastion to run kubectl</p>
-  </li>
-</ol>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># ensure 5 vms ready with ssh</span>
+ssh-keygen <span class="nt">-t</span> rsa <span class="nt">-b</span> 2048
+ssh-copy-id ubuntu@11.0.1.121  <span class="c"># Repeat for other VMs</span>
 
-<p><b> Create SGs and EC2s, with Bastion bootstrap via terraform </b></p>
+<span class="c"># clone kubespray repo</span>
+git clone https://github.com/kubernetes-sigs/kubespray.git
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf</span>
+<span class="c"># create a python virtual environment</span>
+python3 <span class="nt">-m</span> venv kubespray-venv
+<span class="nb">source </span>kubespray-venv/bin/activate
 
-resource <span class="s2">"aws_instance"</span> <span class="s2">"bolg"</span> <span class="o">{</span>
-  ami             <span class="o">=</span> var.ami_id <span class="c"># Replace with your AMI ID</span>
-  instance_type   <span class="o">=</span> var.instance_type_free
-  security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.blog_sg.name]
-  <span class="c">#  vpc_security_group_ids = ["sg-089842a753c9309bb"]</span>
-  key_name <span class="o">=</span> var.key_pair
-  user_data <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
-    #!/bin/bash
-    sudo apt update
-    sudo apt install software-properties-common
-    sudo add-apt-repository --yes --update ppa:ansible/ansible
-    sudo apt install ansible -y
-</span><span class="no">  EOF
-</span>  tags <span class="o">=</span> <span class="o">{</span>
-    Name <span class="o">=</span> <span class="s2">"blog"</span>
-  <span class="o">}</span>
-  lifecycle <span class="o">{</span>
-    prevent_destroy <span class="o">=</span> <span class="nb">true</span>
-  <span class="o">}</span>
+<span class="c"># install kubespray required packages</span>
+<span class="nb">cd </span>kubespray
+pip <span class="nb">install</span> <span class="nt">-U</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c">#  create a local folder under inventory, manage hosts and cluster configure</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> inventory/homelab-k8s
+
+vim inventory/homelab-k8s/hosts.yaml
+
+all:
+  hosts:
+    node1:
+      ansible_host: 11.0.1.121
+      ip: 11.0.1.121
+    node2:
+      ansible_host: 11.0.1.122
+      ip: 11.0.1.122
+    node3:
+      ansible_host: 11.0.1.123
+      ip: 11.0.1.123
+    node4:
+      ansible_host: 11.0.1.124
+      ip: 11.0.1.124
+    node5:
+      ansible_host: 11.0.1.125
+      ip: 11.0.1.125
+  children:
+    kube_control_plane:
+      hosts:
+        node1:
+    kube_node:
+      hosts:
+        node2:
+        node3:
+        node4:
+        node5:
+    etcd:
+      hosts:
+        node1:
+        node2:
+        node3:
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    calico_rr:
+      hosts: <span class="o">{}</span>
+
+
+vim inventory/homelab-k8s/cluster-config.yaml
+
+cluster_name: kubespray-k8s
+kube_version: v1.30.4
+
+<span class="c"># run  the playbook to create the cluster </span>
+ansible-playbook <span class="nt">-i</span> inventory/homelab-k8s/hosts.yaml <span class="nt">-e</span> inventory/homelab-k8s/cluster-config.yaml <span class="se">\</span>
+<span class="nt">--user</span><span class="o">=</span>ubuntu <span class="se">\</span>
+<span class="nt">--become</span> <span class="se">\</span>
+<span class="nt">--become-user</span><span class="o">=</span>root <span class="se">\</span>
+cluster.yml</code></pre></figure>
+
+<p>Ansible will execute for 15-20mins, then a cluster is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@node1:~<span class="nv">$ </span>kubectl get node <span class="nt">-o</span> wide
+NAME    STATUS   ROLES           AGE    VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+node1   Ready    control-plane    28m   v1.31.1   11.0.1.121    &lt;none&gt;        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node2   Ready    &lt;none&gt;           28m   v1.31.1   11.0.1.122    &lt;none&gt;        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node3   Ready    &lt;none&gt;           28m   v1.31.1   11.0.1.123    &lt;none&gt;        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node4   Ready    &lt;none&gt;           28m   v1.31.1   11.0.1.124    &lt;none&gt;        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node5   Ready    &lt;none&gt;           28m   v1.31.1   11.0.1.125    &lt;none&gt;        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22</code></pre></figure>
+
+<p><b>Kubespray on AWS EC2 with Terraform</b></p>
+
+<p>now let’s move to cloud practice on AWS with Kubespray,</p>
+
+<ul>
+  <li>
+    <p>Move to terraform aws folder, fill out <code class="language-plaintext highlighter-rouge">credentials.tfvars</code> with our AWS credentials</p>
+  </li>
+  <li>
+    <p>Fill desired cluster config like instance type, count and AMI in <code class="language-plaintext highlighter-rouge">terraform.tfvars</code></p>
+  </li>
+  <li>
+    <p>Create 1 ec2 master node and 1 ec2 worker node using terraform.</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">cd </span>kubespray/contrib/terraform/aws/
+
+<span class="c">#AWS Access Key</span>
+AWS_ACCESS_KEY_ID <span class="o">=</span> <span class="s2">"zzzz"</span>
+<span class="c">#AWS Secret Key</span>
+AWS_SECRET_ACCESS_KEY <span class="o">=</span> <span class="s2">"zzzz"</span>
+<span class="c">#EC2 SSH Key Name</span>
+AWS_SSH_KEY_NAME <span class="o">=</span> <span class="s2">"zzzzzzzzzz"</span>
+<span class="c">#AWS Region</span>
+AWS_DEFAULT_REGION <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+
+vim terraform.tfvars
+
+<span class="c">#Global Vars</span>
+aws_cluster_name <span class="o">=</span> <span class="s2">"zack-ec2-k8s-cluster-via-kubespray"</span>
+
+<span class="c">#VPC Vars</span>
+aws_vpc_cidr_block       <span class="o">=</span> <span class="s2">"10.250.192.0/18"</span>
+aws_cidr_subnets_private <span class="o">=</span> <span class="o">[</span><span class="s2">"10.250.192.0/20"</span>, <span class="s2">"10.250.208.0/20"</span><span class="o">]</span>
+aws_cidr_subnets_public  <span class="o">=</span> <span class="o">[</span><span class="s2">"10.250.224.0/20"</span>, <span class="s2">"10.250.240.0/20"</span><span class="o">]</span>
+
+<span class="c">#Bastion Host</span>
+aws_bastion_size <span class="o">=</span> <span class="s2">"t2.micro"</span>
+
+<span class="c">#Kubernetes Cluster</span>
+
+aws_kube_master_num  <span class="o">=</span> 1
+aws_kube_master_size <span class="o">=</span> <span class="s2">"t3.small"</span>
+
+aws_etcd_num  <span class="o">=</span> 3
+aws_etcd_size <span class="o">=</span> <span class="s2">"t2.medium"</span>
+
+aws_kube_worker_num  <span class="o">=</span> 1
+aws_kube_worker_size <span class="o">=</span> <span class="s2">"t3.small"</span>
+
+<span class="c">#Settings AWS ELB</span>
+
+aws_elb_api_port                <span class="o">=</span> 6443
+k8s_secure_api_port             <span class="o">=</span> 6443
+kube_insecure_apiserver_address <span class="o">=</span> <span class="s2">"0.0.0.0"</span>
+
+default_tags <span class="o">=</span> <span class="o">{</span>
+  <span class="c">#  Env = "devtest"</span>
+  <span class="c">#  Product = "kubernetes"</span>
 <span class="o">}</span>
-resource <span class="s2">"null_resource"</span> <span class="s2">"upload_playbook"</span> <span class="o">{</span>
-  triggers <span class="o">=</span> <span class="o">{</span>
-    <span class="c"># Add a dummy trigger to force a refresh</span>
-    timestamp <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">timestamp</span><span class="p">()</span><span class="k">}</span><span class="s2">"</span>
-  <span class="o">}</span>
-  depends_on <span class="o">=</span> <span class="o">[</span>null_resource.wait_for_bastion]
-  connection <span class="o">{</span>
-    <span class="nb">type</span>        <span class="o">=</span> <span class="s2">"ssh"</span>
-    user        <span class="o">=</span> <span class="s2">"ubuntu"</span>
-    private_key <span class="o">=</span> file<span class="o">(</span><span class="s2">"terraform-new-key1.pem"</span><span class="o">)</span>
-    host        <span class="o">=</span> aws_instance.testbastion.public_ip
-  <span class="o">}</span>
-  provisioner <span class="s2">"file"</span> <span class="o">{</span>
-    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"pb1.yaml"</span>
-    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/pb1.yaml"</span>
-  <span class="o">}</span>
-  provisioner <span class="s2">"file"</span> <span class="o">{</span>
-    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"aws_ec2.yaml"</span>
-    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/aws_ec2.yaml"</span>
-  <span class="o">}</span>
-  provisioner <span class="s2">"file"</span> <span class="o">{</span>
-    <span class="nb">source</span>      <span class="o">=</span> <span class="s2">"ansible.sh"</span>
-    destination <span class="o">=</span> <span class="s2">"/home/ubuntu/ansible.sh"</span>
-  <span class="o">}</span>
-  provisioner <span class="s2">"remote-exec"</span> <span class="o">{</span>
-    inline <span class="o">=</span> <span class="o">[</span>
-      <span class="s2">"cd /home/ubuntu/"</span>,
-      <span class="s2">"sudo chmod 600 terraform-new-key1.pem"</span>,
-      <span class="s2">"sudo chmod +x pb1.yaml"</span>,
-      <span class="s2">"sudo ansible-playbook pb1.yaml"</span>,
-      <span class="s2">"sudo chmod +x ansible.sh"</span>,
-      <span class="s2">"sudo ./ansible.sh"</span>,
-      <span class="s2">"sudo ansible-inventory -i aws_ec2.yaml --list"</span>,
-      <span class="s2">"sudo ansible-inventory --graph"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">}</span>
- </code></pre></figure>
 
-<p><b> SSH to bastion host and run playbooks to init and join k8s nodes </b></p>
+inventory_file <span class="o">=</span> <span class="s2">"../../../inventory/hosts"</span>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># k8s-deploy.yaml</span>
+<span class="c"># create ec2 by terraform</span>
+terraform init
+terraform plan <span class="nt">-var-file</span><span class="o">=</span>credentials.tfvars
+terraform apply <span class="nt">-var-file</span><span class="o">=</span>credentials.tfvars
 
-<span class="c"># Playbook hosts can be defined by EC2 tags</span>
-<span class="nt">---</span>
-- name: EC2-K8S cluster setup
-  hosts: all
-  gather_facts: <span class="nb">false
-  </span>tasks:
-    - name: <span class="nb">test </span>EC2 dynamic hosts connections
-      include_playbook: 2-test-connection.yaml
+<span class="c"># Terraform output</span>
+aws_nlb_api_fqdn <span class="o">=</span> <span class="s2">"kubernetes-nlb-devtest-a9cae6ee92bc1b6e.elb.ap-southeast-2.amazonaws.com:6443"</span>
+bastion_ip <span class="o">=</span> <span class="s2">"54.206.92.197"</span>
+default_tags <span class="o">=</span> tomap<span class="o">({})</span>
+etcd <span class="o">=</span> <span class="s2">"10.250.202.194"</span>
+inventory <span class="o">=</span> <span class="o">&lt;&lt;</span><span class="no">EOT</span><span class="sh">
+[all]
+ip-10-250-202-194.ap-southeast-2.compute.internal ansible_host=10.250.202.194
+ip-10-250-196-14.ap-southeast-2.compute.internal ansible_host=10.250.196.14
 
-    - name: Pre-task <span class="k">for </span>all k8s hosts
-      include_playbook: 3-k8s-nodes-preparation.yaml
+bastion ansible_host=54.206.92.197
 
-    - name: init Master node
-      include_playbook: 4-master-init.yaml
+[bastion]
+bastion ansible_host=54.206.92.197
 
-    - name: Join worker nodes
-      include_playbook: 5-work-join.yaml
+[kube_control_plane]
+ip-10-250-202-194.ap-southeast-2.compute.internal
 
-    - name: configure bastion to run kubectl
-      include_playbook: 8-local-kubeconf-admin.yaml</code></pre></figure>
+[kube_node]
+ip-10-250-196-14.ap-southeast-2.compute.internal
 
-<p><b> Conclusion</b></p>
+[etcd]
+ip-10-250-202-194.ap-southeast-2.compute.internal
 
-<p>Now we are able to spin up a 3-nodes K8S cluster on EC2 instances in about 20 minutes.</p>
+[calico_rr]
 
-<p>For lab purpose, running K8S on EC2 instances with default VPC can be cheaper and flexible option compare to EKS, as AWS managed EKS require additional VPC and unable to change node instance type unless delete the existing node group.</p>
+[k8s_cluster:children]
+kube_node
+kube_control_plane
+calico_rr
+
+[k8s_cluster:vars]
+apiserver_loadbalancer_domain_name="kubernetes-nlb-devtest-a9cae6ee92bc1b6e.elb.ap-southeast-2.amazonaws.com"
+</span><span class="no">
+EOT
+</span>masters <span class="o">=</span> <span class="s2">"10.250.202.194"</span>
+workers <span class="o">=</span> <span class="s2">"10.250.196.14"</span></code></pre></figure>
+
+<p>Ansible will pass the ec2 ip into kubespray hosts file, lets verify the hosts file is correct, configure ssh key agent so the playbook can communicate with AWS ec2, then  run the playbook to install kubernetes cluster.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># verify hosts</span>
+<span class="nb">cd</span> ~/kubespray
+<span class="nb">cat </span>inventory/hosts
+
+<span class="c"># enable ssh key agent</span>
+<span class="nb">cat</span> “” <span class="o">&gt;</span> ~/.ssh/zzz.pem
+<span class="nb">eval</span> <span class="si">$(</span>ssh-agent<span class="si">)</span>
+ssh-add <span class="nt">-D</span>
+ssh-add ~/.ssh/zzz.pem
+
+<span class="c"># execute playbook to deploy k8s cluster</span>
+ansible-playbook <span class="nt">-i</span> ./inventory/hosts ./cluster.yml <span class="nt">-e</span> <span class="nv">ansible_user</span><span class="o">=</span>ubuntu <span class="nt">-b</span> <span class="nt">--become-user</span><span class="o">=</span>root
+
+PLAY RECAP <span class="k">**************************************************************************************************************************</span>
+bastion                    : <span class="nv">ok</span><span class="o">=</span>7    <span class="nv">changed</span><span class="o">=</span>2    <span class="nv">unreachable</span><span class="o">=</span>0    <span class="nv">failed</span><span class="o">=</span>0    <span class="nv">skipped</span><span class="o">=</span>3    <span class="nv">rescued</span><span class="o">=</span>0    <span class="nv">ignored</span><span class="o">=</span>0   
+ip-10-250-196-14.ap-southeast-2.compute.internal : <span class="nv">ok</span><span class="o">=</span>464  <span class="nv">changed</span><span class="o">=</span>94   <span class="nv">unreachable</span><span class="o">=</span>0    <span class="nv">failed</span><span class="o">=</span>0    <span class="nv">skipped</span><span class="o">=</span>749  <span class="nv">rescued</span><span class="o">=</span>0    <span class="nv">ignored</span><span class="o">=</span>1   
+ip-10-250-202-194.ap-southeast-2.compute.internal : <span class="nv">ok</span><span class="o">=</span>591  <span class="nv">changed</span><span class="o">=</span>139  <span class="nv">unreachable</span><span class="o">=</span>0    <span class="nv">failed</span><span class="o">=</span>0    <span class="nv">skipped</span><span class="o">=</span>989  <span class="nv">rescued</span><span class="o">=</span>0    <span class="nv">ignored</span><span class="o">=</span>6   
+
+Thursday 10 October 2024  05:06:02 +0000 <span class="o">(</span>0:00:00.072<span class="o">)</span>       0:11:11.596 <span class="k">******</span> 
+<span class="o">===============================================================================</span> </code></pre></figure>
+
+<p>now we can access the cluster by ssh into master node via bastion host. lets verify the cluster is up and running.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># configure kubeconfig to manage cluster</span>
+ubuntu@ip-10-250-202-194:~<span class="nv">$ </span><span class="nb">mkdir</span> <span class="nt">-p</span> /home/ubuntu/.kube
+ubuntu@ip-10-250-202-194:~<span class="nv">$ </span><span class="nb">sudo cp</span> /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+ubuntu@ip-10-250-202-194:~<span class="nv">$ </span><span class="nb">sudo chown </span>ubuntu:ubuntu /home/ubuntu/.kube/config
+ubuntu@ip-10-250-202-194:~<span class="nv">$ </span>kubectl get nodes
+NAME                                                STATUS   ROLES           AGE   VERSION
+ip-10-250-196-14.ap-southeast-2.compute.internal    Ready    &lt;none&gt;          22m   v1.31.1
+ip-10-250-202-194.ap-southeast-2.compute.internal   Ready    control-plane   22m   v1.31.1</code></pre></figure>
+
+<p><b>Conclusion</b></p>
+
+<p>Now we are able to create k8s cluster using Kubespray locally and with cloud providers like AWS, The combination of automated deployment, cloud infrastructure management, offers me hands-on experience and valuable skills for building and maintaining scalable, secure applications in diverse environments.  This is a great starting point for anyone looking to explore Kubernetes and cloud computing. I hope this tutorial has been helpful in anyone’s journey to learn Kubernetes and cloud computing.</p>
 
   </div><a class="u-url" href="/jekyll/cat2/2023/05/24/EC2-K8S.html" hidden></a>
 </article>
