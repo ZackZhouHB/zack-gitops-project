@@ -1,42 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-10T12:37:28+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Lightweight Pre-Trained Models</title><link href="http://localhost:4000/jekyll/cat2/2024/10/03/mlops3.html" rel="alternate" type="text/html" title="MLOps - Lightweight Pre-Trained Models" /><published>2024-10-03T10:15:29+10:00</published><updated>2024-10-03T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/03/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/03/mlops3.html"><![CDATA[<p><b>MLOPS Project </b></p>
-
-<p>I used to run a Disney Cartoonrize ML model on local lab, failed due to GPU limitations, it’s a good idea to start with lightweight models and frameworks that are less resource-hungry.</p>
-
-<p>Begin with Pre-Built Small Models</p>
-
-<p>logistic regression</p>
-
-<p>from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression</p>
-
-<h1 id="load-dataset">Load dataset</h1>
-<p>data = load_iris()
-X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2)</p>
-
-<h1 id="train-model">Train model</h1>
-<p>model = LogisticRegression()
-model.fit(X_train, y_train)</p>
-
-<h1 id="test-model">Test model</h1>
-<p>print(model.score(X_test, y_test))</p>
-
-<p>0.9333333333333333</p>
-
-<p>from transformers import pipeline
-import torch</p>
-
-<h1 id="check-if-a-gpu-is-available-and-get-its-device-id">Check if a GPU is available and get its device ID</h1>
-<p>device = 0 if torch.cuda.is_available() else -1</p>
-
-<h1 id="use-a-small-pre-trained-model-and-specify-the-device-0-for-gpu--1-for-cpu">Use a small pre-trained model and specify the device (0 for GPU, -1 for CPU)</h1>
-<p>classifier = pipeline(“sentiment-analysis”, model=”distilbert-base-uncased-finetuned-sst-2-english”, device=device)</p>
-
-<h1 id="run-inference">Run inference</h1>
-<p>result = classifier(“This is a great start!”)
-print(result)</p>
-
-<p>[{‘label’: ‘POSITIVE’, ‘score’: 0.9998538494110107}]</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">MLOps - First Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - First Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-10T12:40:53+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - First Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - First Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -3189,4 +3151,88 @@ ECS_SERVICE </code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry></feed>
+<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
+
+<p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
+
+<p>I started to look into bellow areas for investigation:</p>
+
+<ul>
+  <li>AWS CloudWatch Metrics for RDS</li>
+</ul>
+
+<p>AWS CloudWatch provides a wide range of metrics that can help diagnose resource usage for databases. So I started with</p>
+
+<p><em>CloudWatch - Metrics - All metrics - Add query - RDS - Top 10 RDS instances by highest CPU utilization</em></p>
+
+<p>This only queries the recent 3 hours metrics, but it is enough for me to identify the issue: CPU 100%</p>
+
+<p><img src="/assets/mysqlcpu1.png" alt="image tooltip here" /></p>
+
+<p>To further understand the high CUP, I go:</p>
+
+<p><em>CloudWatch - Metrics - All metrics - Browse - RDS - DBClusterIdentifier - CPUUtilization</em></p>
+
+<p>which gives me a long period of monitoring, so I can see it started to 100% CPU since yesterday morning.</p>
+
+<p><img src="/assets/mysqlcpu2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>AWS console RDS Logs &amp; events</li>
+</ul>
+
+<p>Now let’s find out from the RDS logs to see if any errors can indicate who could be the person. So I go</p>
+
+<p><em>RDS - “the DB cluster” - “the DB instance” - “Logs &amp; events” - “error/mysql-error-running.log.2024-06-18.02”</em></p>
+
+<p>I got :</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">2024-06-18T00:04:58.750212Z 2831474 <span class="o">[</span>Note] Aborted connection 2831474 to db: <span class="s1">'xxxxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Unknown error<span class="o">)</span>
+2024-06-18T00:12:00.798173Z 2831498 <span class="o">[</span>Note] Aborted connection 2831498 to db: <span class="s1">'xxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Got an error writing communication packets<span class="o">)</span>
+<span class="nt">-----------------------</span> END OF LOG <span class="nt">----------------------</span></code></pre></figure>
+
+<p>Up to here I generally have an idea of what is going on and can locate the person “xxxx” who was running something at the time CPU 100%.</p>
+
+<ul>
+  <li>MySQL Client Tool to list, identiry and terminate long-running queries</li>
+</ul>
+
+<p>It is time to log in to the RDS endpoint to see what is happening and which queries might cause the CPU usage. Here we need login via MySQL “root” to be able to see all other users’ running processes. Then pay attention to the high “Time” and “State” values indicating all the stuck processes, then we kill them and restart the RDS instance</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mysql <span class="nt">-u</span> root <span class="nt">-p</span> <span class="nt">-h</span> rds_endpoint
+SHOW PROCESSLIST<span class="p">;</span>
+KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
+
+<p><img src="/assets/mysqlcpu4.png" alt="image tooltip here" /></p>
+
+<p>Then I go <em>AWS RDS console - Actions - Reboot</em> the RDS instance.</p>
+
+<ul>
+  <li>Now the CPU usage started to drop and back to normal after terminating the stuck processes and DB instance reboot.</li>
+</ul>
+
+<p><img src="/assets/mysqlcpu3.png" alt="image tooltip here" /></p>
+
+<p>Done.</p>
+
+<p><b> Conclusion</b></p>
+
+<p>Even the issue had been fixed, I was still thinking how to better monitor RDS resource usage. I think we need:</p>
+
+<ul>
+  <li>
+    <p>A “CloudWatch Alarm” to set “CPUUtilization” metric threshold to 80%, then specify the period (e.g., 5 minutes) and the number of periods (e.g., 2 out of 3) that the metric must breach the threshold to trigger the alarm.</p>
+  </li>
+  <li>
+    <p>Create “SNS topic” with team Email for the alarm to send a notification</p>
+  </li>
+  <li>
+    <p>Enable “RDS Performance Insights”, this can monitor the load on the database, identify the source of bottlenecks, and understand how the DB is performing, especially during troubleshooting.</p>
+  </li>
+  <li>
+    <p>Enable “Enhanced Monitoring” and select the monitoring interval (e.g., 1 minute), which provides real-time metrics for the operating system that the DB instance runs on, this helps for immediate investigation on OS level</p>
+  </li>
+  <li>
+    <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
+  </li>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry></feed>
