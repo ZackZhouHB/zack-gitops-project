@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Jenkins - Multi-Destination Continuous Deployment with Terraform"
+title:  "Jenkins - Multi-Destination CD pipeline with Terraform"
 date:   2024-08-15 11:15:29 +1100
 categories: jekyll Cat2
 ---

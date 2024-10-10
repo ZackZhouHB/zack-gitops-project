@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  " Lambda for Rancher Golden AMI patching with Cloudformation "
+title:  " Automate AMI patching with Lambda and Cloudformation "
 date:   2024-02-01 11:15:29 +1100
 categories: jekyll Cat2
 ---

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-11T00:24:42+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - First Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - First Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-11T00:28:23+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - a Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - a Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -641,7 +641,7 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS Security Practise with Kube-Bench and OPA Gatekeeper</title><link href="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html" rel="alternate" type="text/html" title="EKS Security Practise with Kube-Bench and OPA Gatekeeper" /><published>2024-09-13T10:15:29+10:00</published><updated>2024-09-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/13/eks2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html"><![CDATA[<p><b>About kube-bench and OPA Gatekeeper </b></p>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">Kube-Bench and OPA Gatekeeper for EKS security</title><link href="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html" rel="alternate" type="text/html" title="Kube-Bench and OPA Gatekeeper for EKS security" /><published>2024-09-13T10:15:29+10:00</published><updated>2024-09-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/13/eks2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html"><![CDATA[<p><b>About kube-bench and OPA Gatekeeper </b></p>
 
 <p>In the last post, I was able to implement <a href="https://zackz.site/jekyll/cat2/2024/09/12/eks1.html">EKS cluster autoscaler and Horizontal Pod Autoscaler (HPA)</a>, in this post I will continue with EKS security practice with Kube-Bench and OPA Gatekeeper.</p>
 
@@ -1161,7 +1161,7 @@ It simulated moving the existing pods to other nodes. Once it determined that th
 
 <p><b> Conclusion: </b></p>
 
-<p>By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS]]></summary></entry><entry><title type="html">Jenkins - Multi-Destination Continuous Deployment with Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" rel="alternate" type="text/html" title="Jenkins - Multi-Destination Continuous Deployment with Terraform" /><published>2024-08-15T10:15:29+10:00</published><updated>2024-08-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
+<p>By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS]]></summary></entry><entry><title type="html">Jenkins - Multi-Destination CD pipeline with Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" rel="alternate" type="text/html" title="Jenkins - Multi-Destination CD pipeline with Terraform" /><published>2024-08-15T10:15:29+10:00</published><updated>2024-08-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
 
 <p>In last post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub:</p>
 
@@ -2856,302 +2856,7 @@ ECS_SERVICE </code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Why go serverless]]></summary></entry><entry><title type="html">Automate Package Deployment via AWS System Manager</title><link href="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html" rel="alternate" type="text/html" title="Automate Package Deployment via AWS System Manager" /><published>2024-06-23T10:15:29+10:00</published><updated>2024-06-23T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/23/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
-
-<p>Recently we got a task from the Company’s security team, to install 2 security agents which will be used to perform centralized security scans for all active AWS EC2 instances. here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and infrastructure at scale.</p>
-
-<p>SSM features will be used :</p>
-
-<ul>
-  <li><b>Session Manager</b>: ensure the EC2 instance has the SSM Agent installed and running and The instances need an IAM role with at least the <code class="language-plaintext highlighter-rouge">AmazonSSMManagedInstanceCore</code> policy attached  </li>
-  <li><b>Run Command</b>: send command and execute security agent software package installation scripts and command to varify post-installation status on remote instances for task automation</li>
-</ul>
-
-<p>Prerequisites:</p>
-<ul>
-  <li>
-    <p><b>AWSCLI</b>: programatically manage all the operation bellow.</p>
-  </li>
-  <li>
-    <p><b>SSM Agent</b>: Ensure the SSM Agent is installed and running on all EC2 instances. Most Amazon Machine Images (AMIs) have the SSM Agent pre-installed.</p>
-  </li>
-  <li>
-    <p><b>IAM Role</b>: Attach an IAM role to each instance with the AmazonSSMManagedInstanceCore policy.</p>
-  </li>
-</ul>
-
-<p>Create and attach IAM role to EC2 instance for SSM to be able to perform action:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>vim trust-policy.json
-
-<span class="o">{</span>
- <span class="s2">"Version"</span>: <span class="s2">"2012-10-17"</span>,
- <span class="s2">"Statement"</span>: <span class="o">[</span>
- <span class="o">{</span>
- <span class="s2">"Effect"</span>: <span class="s2">"Allow"</span>,
- <span class="s2">"Principal"</span>: <span class="o">{</span>
- <span class="s2">"Service"</span>: <span class="s2">"ec2.amazonaws.com"</span>
- <span class="o">}</span>,
- <span class="s2">"Action"</span>: <span class="s2">"sts:AssumeRole"</span>
- <span class="o">}</span>
- <span class="o">]</span>
-<span class="o">}</span>
-
-<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws iam create-role <span class="nt">--role-name</span> SSMAccessRole <span class="nt">--assume-role-policy-document</span> file://trust-policy.json
-<span class="o">{</span>
- <span class="s2">"Role"</span>: <span class="o">{</span>
- <span class="s2">"Path"</span>: <span class="s2">"/"</span>,
- <span class="s2">"RoleName"</span>: <span class="s2">"SSMAccessRole"</span>,
- <span class="s2">"RoleId"</span>: <span class="s2">"AROA4MTWLTSHKK3QL3NOU"</span>,
- <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::85xxxxxx1342:role/SSMAccessRole"</span>,
- <span class="s2">"CreateDate"</span>: <span class="s2">"2024-06-25T00:29:07+00:00"</span>,
- <span class="s2">"AssumeRolePolicyDocument"</span>: <span class="o">{</span>
- <span class="s2">"Version"</span>: <span class="s2">"2012-10-17"</span>,
- <span class="s2">"Statement"</span>: <span class="o">[</span>
- <span class="o">{</span>
- <span class="s2">"Effect"</span>: <span class="s2">"Allow"</span>,
- <span class="s2">"Principal"</span>: <span class="o">{</span>
- <span class="s2">"Service"</span>: <span class="s2">"ec2.amazonaws.com"</span>
- <span class="o">}</span>,
- <span class="s2">"Action"</span>: <span class="s2">"sts:AssumeRole"</span>
- <span class="o">}</span>
- <span class="o">]</span>
- <span class="o">}</span>
- <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws iam attach-role-policy <span class="nt">--role-name</span> SSMAccessRole <span class="nt">--policy-arn</span> arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-
-<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws iam create-instance-profile <span class="nt">--instance-profile-name</span> SSMInstanceProfile
-<span class="o">{</span>
- <span class="s2">"InstanceProfile"</span>: <span class="o">{</span>
- <span class="s2">"Path"</span>: <span class="s2">"/"</span>,
- <span class="s2">"InstanceProfileName"</span>: <span class="s2">"SSMInstanceProfile"</span>,
- <span class="s2">"InstanceProfileId"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>,
- <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::851xxxxxxx42:instance-profile/SSMInstanceProfile"</span>,
- <span class="s2">"CreateDate"</span>: <span class="s2">"2024-06-25T00:31:25+00:00"</span>,
- <span class="s2">"Roles"</span>: <span class="o">[]</span>
- <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> text<span class="si">)</span>
-<span class="k">for </span>INSTANCE_ID <span class="k">in</span> <span class="nv">$INSTANCE_IDS</span><span class="p">;</span> <span class="k">do</span>
-<span class="o">&gt;</span> aws ec2 associate-iam-instance-profile <span class="nt">--instance-id</span> <span class="nv">$INSTANCE_ID</span> <span class="nt">--iam-instance-profile</span> <span class="nv">Name</span><span class="o">=</span>SSMInstanceProfile
-<span class="o">&gt;</span> <span class="k">done</span>
-
-<span class="o">{</span>
- <span class="s2">"IamInstanceProfileAssociation"</span>: <span class="o">{</span>
- <span class="s2">"AssociationId"</span>: <span class="s2">"iip-assoc-04e81626bf6bcd9b5"</span>,
- <span class="s2">"InstanceId"</span>: <span class="s2">"i-0762xxxxxxxcf2"</span>,
- <span class="s2">"IamInstanceProfile"</span>: <span class="o">{</span>
- <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::8517xxxxxxx42:instance-profile/SSMInstanceProfile"</span>,
- <span class="s2">"Id"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>
- <span class="o">}</span>,
- <span class="s2">"State"</span>: <span class="s2">"associating"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="o">{</span>
- <span class="s2">"IamInstanceProfileAssociation"</span>: <span class="o">{</span>
- <span class="s2">"AssociationId"</span>: <span class="s2">"iip-assoc-09233165b3a53ca68"</span>,
- <span class="s2">"InstanceId"</span>: <span class="s2">"i-01a2xxxxxx048c"</span>,
- <span class="s2">"IamInstanceProfile"</span>: <span class="o">{</span>
- <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::851xxxx42:instance-profile/SSMInstanceProfile"</span>,
- <span class="s2">"Id"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>
- <span class="o">}</span>,
- <span class="s2">"State"</span>: <span class="s2">"associating"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="o">{</span>
- <span class="s2">"IamInstanceProfileAssociation"</span>: <span class="o">{</span>
- <span class="s2">"AssociationId"</span>: <span class="s2">"iip-assoc-09236a8ee456e39cd"</span>,
- <span class="s2">"InstanceId"</span>: <span class="s2">"i-07axxxxxxb823"</span>,
- <span class="s2">"IamInstanceProfile"</span>: <span class="o">{</span>
- <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:iam::85xxxxxxx42:instance-profile/SSMInstanceProfile"</span>,
- <span class="s2">"Id"</span>: <span class="s2">"AIPA4MTWLTSHF7KJRFLYC"</span>
- <span class="o">}</span>,
- <span class="s2">"State"</span>: <span class="s2">"associating"</span>
- <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm describe-instance-information</code></pre></figure>
-
-<p>Now verify from session manager to see if instances are there:</p>
-
-<p><img src="/assets/ssm1.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Tag Instances</li>
-</ul>
-
-<p>Tag EC2 instances to identify which instances need the security agent to be installed:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">Key</span><span class="o">=</span>InstallSecurityAgent, <span class="nv">Value</span><span class="o">=</span>True.</code></pre></figure>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># List all instance IDs #: </span>
-<span class="nv">INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="nt">--output</span> text<span class="si">)</span>
-
-<span class="c"># Tag all instances with Key=InstallSecurityAgent and Value=True</span>
-<span class="k">for </span>INSTANCE_ID <span class="k">in</span> <span class="nv">$INSTANCE_IDS</span><span class="p">;</span> <span class="k">do
- </span>aws ec2 create-tags <span class="nt">--resources</span> <span class="nv">$INSTANCE_ID</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span>InstallSecurityAgent,Value<span class="o">=</span>True
-<span class="k">done</span></code></pre></figure>
-
-<ul>
-  <li>SSM Run Command to Create a custom SSM document that contains the script to install the security agent</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>vim install_security_agent.json
-<span class="o">{</span>
- <span class="s2">"schemaVersion"</span>: <span class="s2">"2.2"</span>,
- <span class="s2">"description"</span>: <span class="s2">"Install Security Agent"</span>,
- <span class="s2">"mainSteps"</span>: <span class="o">[</span>
- <span class="o">{</span>
- <span class="s2">"action"</span>: <span class="s2">"aws:runShellScript"</span>,
- <span class="s2">"name"</span>: <span class="s2">"installSecurityAgent"</span>,
- <span class="s2">"inputs"</span>: <span class="o">{</span>
- <span class="s2">"runCommand"</span>: <span class="o">[</span>
- <span class="s2">"curl -o /tmp/security-agent-installer.sh https://github.com/ZackZhouHB/zack-gitops-project/blob/editing/Python_scripts/security-agent-installer.sh"</span>,
- <span class="s2">"chmod +x /tmp/security-agent-installer.sh"</span>,
- <span class="s2">"/tmp/security-agent-installer.sh"</span>
- <span class="o">]</span>
- <span class="o">}</span>
- <span class="o">}</span>
- <span class="o">]</span>
-<span class="o">}</span></code></pre></figure>
-
-<p>Create Document to execute the installation script on all tagged instances.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm create-document <span class="se">\</span>
- <span class="nt">--name</span> <span class="s2">"InstallSecurityAgent"</span> <span class="se">\</span>
- <span class="nt">--document-type</span> <span class="s2">"Command"</span> <span class="se">\</span>
- <span class="nt">--content</span> file://install_security_agent.json
-
-<span class="o">{</span>
- <span class="s2">"DocumentDescription"</span>: <span class="o">{</span>
- <span class="s2">"Hash"</span>: <span class="s2">"9e17a699d2d987134eb05f6b49a7c837161320b0ed42635b07928acc557970b5"</span>,
- <span class="s2">"HashType"</span>: <span class="s2">"Sha256"</span>,
- <span class="s2">"Name"</span>: <span class="s2">"InstallSecurityAgent"</span>,
- <span class="s2">"Owner"</span>: <span class="s2">"851725491342"</span>,
- <span class="s2">"CreatedDate"</span>: <span class="s2">"2024-06-25T01:51:36.666000+00:00"</span>,
- <span class="s2">"Status"</span>: <span class="s2">"Creating"</span>,
- <span class="s2">"DocumentVersion"</span>: <span class="s2">"1"</span>,
- <span class="s2">"Description"</span>: <span class="s2">"Install Security Agent"</span>,
- <span class="s2">"PlatformTypes"</span>: <span class="o">[</span>
- <span class="s2">"Linux"</span>,
- <span class="s2">"MacOS"</span>
- <span class="o">]</span>,
- <span class="s2">"DocumentType"</span>: <span class="s2">"Command"</span>,
- <span class="s2">"SchemaVersion"</span>: <span class="s2">"2.2"</span>,
- <span class="s2">"LatestVersion"</span>: <span class="s2">"1"</span>,
- <span class="s2">"DefaultVersion"</span>: <span class="s2">"1"</span>,
- <span class="s2">"DocumentFormat"</span>: <span class="s2">"JSON"</span>,
- <span class="s2">"Tags"</span>: <span class="o">[]</span>
- <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="o">[</span>cloudshell-user@ip-10-132-90-150 ~]<span class="nv">$ </span>aws ssm send-command <span class="se">\</span>
-<span class="o">&gt;</span> <span class="nt">--document-name</span> <span class="s2">"InstallSecurityAgent"</span> <span class="se">\</span>
-<span class="o">&gt;</span> <span class="nt">--targets</span> <span class="s2">"Key=tag:InstallSecurityAgent,Values=True"</span> <span class="se">\</span>
-<span class="o">&gt;</span> <span class="nt">--comment</span> <span class="s2">"Installing security agent on all instances with the specified tag"</span> <span class="se">\</span>
-<span class="o">&gt;</span> <span class="nt">--max-concurrency</span> <span class="s2">"50"</span> <span class="se">\</span>
-<span class="o">&gt;</span> <span class="nt">--max-errors</span> <span class="s2">"0"</span> <span class="se">\</span>
-<span class="o">&gt;</span> <span class="nt">--region</span> ap-southeast-2
-<span class="o">{</span>
- <span class="s2">"Command"</span>: <span class="o">{</span>
- <span class="s2">"CommandId"</span>: <span class="s2">"edfc9e9b-5e74-4660-8335-a98eb48251f7"</span>,
- <span class="s2">"DocumentName"</span>: <span class="s2">"InstallSecurityAgent"</span>,
- <span class="s2">"DocumentVersion"</span>: <span class="s2">"</span><span class="nv">$DEFAULT</span><span class="s2">"</span>,
- <span class="s2">"Comment"</span>: <span class="s2">"Installing security agent on all instances with the specified tag"</span>,
- <span class="s2">"ExpiresAfter"</span>: <span class="s2">"2024-06-25T04:03:44.665000+00:00"</span>,
- <span class="s2">"Parameters"</span>: <span class="o">{}</span>,
- <span class="s2">"InstanceIds"</span>: <span class="o">[]</span>,
- <span class="s2">"Targets"</span>: <span class="o">[</span>
- <span class="o">{</span>
- <span class="s2">"Key"</span>: <span class="s2">"tag:InstallSecurityAgent"</span>,
- <span class="s2">"Values"</span>: <span class="o">[</span>
- <span class="s2">"True"</span>
- <span class="o">]</span>
- <span class="o">}</span>
- <span class="o">]</span>,
- <span class="s2">"RequestedDateTime"</span>: <span class="s2">"2024-06-25T02:03:44.665000+00:00"</span>,
- <span class="s2">"Status"</span>: <span class="s2">"Pending"</span>,
- <span class="s2">"StatusDetails"</span>: <span class="s2">"Pending"</span>,
- <span class="s2">"OutputS3Region"</span>: <span class="s2">"ap-southeast-2"</span>,
- <span class="s2">"OutputS3BucketName"</span>: <span class="s2">""</span>,
- <span class="s2">"OutputS3KeyPrefix"</span>: <span class="s2">""</span>,
- <span class="s2">"MaxConcurrency"</span>: <span class="s2">"50"</span>,
- <span class="s2">"MaxErrors"</span>: <span class="s2">"0"</span>,
- <span class="s2">"TargetCount"</span>: 0,
- <span class="s2">"CompletedCount"</span>: 0,
- <span class="s2">"ErrorCount"</span>: 0,
- <span class="s2">"DeliveryTimedOutCount"</span>: 0,
- <span class="s2">"ServiceRole"</span>: <span class="s2">""</span>,
- <span class="s2">"NotificationConfig"</span>: <span class="o">{</span>
- <span class="s2">"NotificationArn"</span>: <span class="s2">""</span>,
- <span class="s2">"NotificationEvents"</span>: <span class="o">[]</span>,
- <span class="s2">"NotificationType"</span>: <span class="s2">""</span>
- <span class="o">}</span>,
- <span class="s2">"CloudWatchOutputConfig"</span>: <span class="o">{</span>
- <span class="s2">"CloudWatchLogGroupName"</span>: <span class="s2">""</span>,
- <span class="s2">"CloudWatchOutputEnabled"</span>: <span class="nb">false</span>
- <span class="o">}</span>,
- <span class="s2">"TimeoutSeconds"</span>: 3600,
- <span class="s2">"AlarmConfiguration"</span>: <span class="o">{</span>
- <span class="s2">"IgnorePollAlarmFailure"</span>: <span class="nb">false</span>,
- <span class="s2">"Alarms"</span>: <span class="o">[]</span>
- <span class="o">}</span>,
- <span class="s2">"TriggeredAlarms"</span>: <span class="o">[]</span>
- <span class="o">}</span>
-<span class="o">}</span>
-<span class="o">(</span>END<span class="o">)</span></code></pre></figure>
-
-<p>Validate from Run Command console for the installation:
-<img src="/assets/ssm2.png" alt="image tooltip here" /></p>
-
-<p>Create an SSM Document to Check the package installation status:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>vim verify.json
-
-<span class="o">{</span>
- <span class="s2">"schemaVersion"</span>: <span class="s2">"2.2"</span>,
- <span class="s2">"description"</span>: <span class="s2">"Install Security Agent"</span>,
- <span class="s2">"mainSteps"</span>: <span class="o">[</span>
- <span class="o">{</span>
- <span class="s2">"action"</span>: <span class="s2">"aws:runShellScript"</span>,
- <span class="s2">"name"</span>: <span class="s2">"installSecurityAgent"</span>,
- <span class="s2">"inputs"</span>: <span class="o">{</span>
- <span class="s2">"runCommand"</span>: <span class="o">[</span>
- <span class="s2">"apt list --installed | grep nfs-common"</span>,
- <span class="s2">"apt list --installed | grep lrzsz"</span>
- <span class="o">]</span>
- <span class="o">}</span>
- <span class="o">}</span>
- <span class="o">]</span>
-<span class="o">}</span></code></pre></figure>
-
-<p>Create this document using the AWS CLI:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm create-document <span class="se">\</span>
- <span class="nt">--name</span> <span class="s2">"VerifyPackageInstallation"</span> <span class="se">\</span>
- <span class="nt">--document-type</span> <span class="s2">"Command"</span> <span class="se">\</span>
- <span class="nt">--content</span> file://verify.json
-
-<span class="o">[</span>cloudshell-user@ip-10-134-56-72 ~]<span class="nv">$ </span>aws ssm send-command <span class="se">\</span>
- <span class="nt">--document-name</span> <span class="s2">"VerifyPackageInstallation"</span> <span class="se">\</span>
- <span class="nt">--targets</span> <span class="s2">"Key=tag:InstallSecurityAgent,Values=True"</span> <span class="se">\</span>
- <span class="nt">--comment</span> <span class="s2">"Check if Packages installed on all instances"</span> <span class="se">\</span>
- <span class="nt">--max-concurrency</span> <span class="s2">"50"</span> <span class="se">\</span>
- <span class="nt">--max-errors</span> <span class="s2">"0"</span> <span class="se">\</span>
- <span class="nt">--region</span> ap-southeast-2</code></pre></figure>
-
-<p>Verify both “nfs-common” and “lrzsz”, we have 3 machines with “nfs-common” installed, and 2 instances with Ubuntu24.04 which did not get “lrzsz” installed.</p>
-
-<p><img src="/assets/ssm3.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/ssm4.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
+<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Why go serverless]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
 
 <p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
 
@@ -3235,4 +2940,212 @@ KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
   <li>
     <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry></feed>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry><entry><title type="html">Python Microservice: K8S deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html" rel="alternate" type="text/html" title="Python Microservice: K8S deployment" /><published>2024-05-22T00:17:29+10:00</published><updated>2024-05-22T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html"><![CDATA[<p><b> About K8S deployment</b></p>
+
+<p>Now It is time to change from docker-compose to deploy into Kubernetes.  </p>
+
+<p>As this is not new to me to deploy microservice into K8S, also I already have a running Kubernetes cluster in hand, so here I will just create docker images for the 3 services: API gateway, user and order, then push them into the docker hub repository, then create Kubernetes manifest for deployment and service.  </p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder structure</span>
+/07-with-k8s
+<span class="nb">.</span>
+├── api_gateway.py
+├── depolyment.yaml
+├── Dockerfile_apigateway
+├── Dockerfile_order
+├── Dockerfile_user
+├── order_service.py
+└── user_service.py
+
+<span class="c"># Build, tag and push the docker images</span>
+docker login
+
+docker build <span class="nt">-t</span> zackz001/python-user:latest <span class="nt">-f</span> Dockerfile_user <span class="nb">.</span>
+docker build <span class="nt">-t</span> zackz001/python-order:latest <span class="nt">-f</span> Dockerfile_order <span class="nb">.</span>
+docker build <span class="nt">-t</span> zackz001/python-apigateway:latest <span class="nt">-f</span> Dockerfile_apigateway <span class="nb">.</span>
+docker push zackz001/python-apigateway:latest
+docker push zackz001/python-user:latest
+docker push zackz001/python-order:latest
+
+docker image <span class="nb">ls
+
+</span>REPOSITORY                                      TAG       IMAGE ID       CREATED        SIZE
+zackz001/python-apigateway                      latest    bc3db11f4be8   1 hours ago    138MB
+zackz001/python-user                            latest    c93973bece33   1 hours ago    136MB
+zackz001/python-order                           latest    e35d5de9254b   1 hours ago    136MB
+prom/prometheus                                 latest    1bd2b9635267   8 days ago     271MB
+grafana/grafana                                 latest    c42c21cd0ebc   3 weeks ago    453MB
+consul                                          1.15.4    686495461132   4 months ago   155MB
+docker.elastic.co/elasticsearch/elasticsearch   7.13.2    11a830014f7c   3 years ago    1.02GB
+docker.elastic.co/logstash/logstash             7.13.2    8dc1af4dd662   3 years ago    965MB
+docker.elastic.co/kibana/kibana                 7.13.2    6c4869a27be1   3 years ago    1.35GB
+
+<span class="c"># k8s deployment Manifests</span>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: user-service
+spec:
+ replicas: 1
+ selector:
+ matchLabels:
+ app: user-service
+ template:
+ metadata:
+ labels:
+ app: user-service
+ spec:
+ containers:
+ - name: user-service
+ image: zackz001/python-user:latest
+ ports:
+ - containerPort: 5001
+
+<span class="nt">---</span>
+apiVersion: v1
+kind: Service
+metadata:
+ name: user-service
+spec:
+ selector:
+ app: user-service
+ ports:
+ - protocol: TCP
+ port: 5001
+ targetPort: 5001
+
+<span class="nt">---</span>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: order-service
+spec:
+ replicas: 1
+ selector:
+ matchLabels:
+ app: order-service
+ template:
+ metadata:
+ labels:
+ app: order-service
+ spec:
+ containers:
+ - name: order-service
+ image: zackz001/python-order:latest
+ ports:
+ - containerPort: 5002
+
+<span class="nt">---</span>
+apiVersion: v1
+kind: Service
+metadata:
+ name: order-service
+spec:
+ selector:
+ app: order-service
+ ports:
+ - protocol: TCP
+ port: 5002
+ targetPort: 5002
+
+<span class="nt">---</span>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: api-gateway
+spec:
+ replicas: 1
+ selector:
+ matchLabels:
+ app: api-gateway
+ template:
+ metadata:
+ labels:
+ app: api-gateway
+ spec:
+ containers:
+ - name: api-gateway
+ image: zackz001/python-apigateway:latest
+ ports:
+ - containerPort: 5000
+
+<span class="nt">---</span>
+apiVersion: v1
+kind: Service
+metadata:
+ name: api-gateway
+spec:
+ <span class="nb">type</span>: NodePort
+ selector:
+ app: api-gateway
+ ports:
+ - protocol: TCP
+ port: 5000
+ targetPort: 5000</code></pre></figure>
+
+<p>Now Run kubectl apply -f to bring all deployments and services up and running. Should see all services in the Rancher console.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create ns python
+
+kubectl apply <span class="nt">-f</span> depolyment.yaml <span class="nt">-n</span> python
+
+kubectl get all <span class="nt">-n</span> python
+
+NAME                                 READY   STATUS    RESTARTS      AGE
+pod/api-gateway-d664cf8c4-7l7q8      1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
+pod/order-service-856577f666-gk5gt   1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
+pod/user-service-5d8766d9cb-4rqnz    1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
+
+NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>          AGE
+service/api-gateway     NodePort    10.43.38.27     &lt;none&gt; 5000:32060/TCP   1h
+service/order-service   ClusterIP   10.43.27.255    &lt;none&gt; 5002/TCP         1h
+service/user-service    ClusterIP   10.43.160.232   &lt;none&gt; 5001/TCP         1h
+
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api-gateway     1/1     1            1           1h
+deployment.apps/order-service   1/1     1            1           1h
+deployment.apps/user-service    1/1     1            1           1h
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/api-gateway-d664cf8c4      1         1         1       1h
+replicaset.apps/order-service-856577f666   1         1         1       1h
+replicaset.apps/user-service-5d8766d9cb    1         1         1       1h</code></pre></figure>
+
+<p><b> Verify API gateway, user and order services</b></p>
+
+<p>Access API gateway via http://NodeIP:NodePort/users and http://NodeIP:NodePort/orders</p>
+
+<p><img src="/assets/flask11.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/flask12.png" alt="image tooltip here" /></p>
+
+<p><b> Conclusion</b></p>
+
+<p>Now we complete all Python Flask sessions.</p>
+
+<p>I have done this End-to-End Python Microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  </p>
+
+<ul>
+  <li>
+    <p>simple Python Flask app</p>
+  </li>
+  <li>
+    <p>Microservice applications with user and order</p>
+  </li>
+  <li>
+    <p>Create API gateway Flask app</p>
+  </li>
+  <li>
+    <p>Service registery with Consul</p>
+  </li>
+  <li>
+    <p>Logging with ELK</p>
+  </li>
+  <li>
+    <p>Monitoring with Prometheus and Grafana</p>
+  </li>
+  <li>
+    <p>K8S deployment</p>
+  </li>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry></feed>
