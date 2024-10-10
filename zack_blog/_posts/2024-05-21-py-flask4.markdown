@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python Microservice: Monitoring with Prometheus and Grafana"
+title:  "Python Microservice: Monitoring Stack"
 date:   2024-05-21 1:17:29 +1100
 categories: jekyll Cat2
 ---
