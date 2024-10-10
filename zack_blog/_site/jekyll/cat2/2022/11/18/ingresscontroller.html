@@ -3,21 +3,21 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Ingress-nginx Routing for local DNS | Zack’s Blog</title>
+<title>Ingress controller for Subdomain based Routing | Zack’s Blog</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="Ingress-nginx Routing for local DNS" />
+<meta property="og:title" content="Ingress controller for Subdomain based Routing" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Topic" />
-<meta property="og:description" content="Topic" />
+<meta name="description" content="Ingress-nginx Routing for local DNS (tina.place)" />
+<meta property="og:description" content="Ingress-nginx Routing for local DNS (tina.place)" />
 <link rel="canonical" href="http://localhost:4000/jekyll/cat2/2022/11/18/ingresscontroller.html" />
 <meta property="og:url" content="http://localhost:4000/jekyll/cat2/2022/11/18/ingresscontroller.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-11-18T11:15:29+11:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Ingress-nginx Routing for local DNS" />
+<meta property="twitter:title" content="Ingress controller for Subdomain based Routing" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-11-18T11:15:29+11:00","datePublished":"2022-11-18T11:15:29+11:00","description":"Topic","headline":"Ingress-nginx Routing for local DNS","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2022/11/18/ingresscontroller.html"},"url":"http://localhost:4000/jekyll/cat2/2022/11/18/ingresscontroller.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-11-18T11:15:29+11:00","datePublished":"2022-11-18T11:15:29+11:00","description":"Ingress-nginx Routing for local DNS (tina.place)","headline":"Ingress controller for Subdomain based Routing","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2022/11/18/ingresscontroller.html"},"url":"http://localhost:4000/jekyll/cat2/2022/11/18/ingresscontroller.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -40,51 +40,286 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Ingress-nginx Routing for local DNS</h1>
+    <h1 class="post-title p-name" itemprop="name headline">Ingress controller for Subdomain based Routing</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2022-11-18T11:15:29+11:00" itemprop="datePublished">Nov 18, 2022
       </time></p>
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p>Topic</p>
+    <p><b>Ingress-nginx Routing for local DNS (tina.place)</b></p>
 
-<p><b>Ingress-nginx Routing for local DNS (zz.local)</b></p>
+<p>In this post I will run the steps required to set up MetalLB for LoadBalancer IP allocation, the NGINX Ingress Controller for routing traffic based on subdomains, and how to configure local DNS to enable subdomain-based routing for Kubernetes services.</p>
 
-<ul>
-  <li>helm install ingress controller ingress-nginx</li>
-</ul>
+<p><b>Ingress-nginx install</b></p>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+<p>We will use Helm to install our ingress controller <code class="language-plaintext highlighter-rouge">ingress-nginx</code>, which will be used to route traffic based on subdomains.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># install  ingress controller ingress-nginx</span>
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
-helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>ingress-nginx ingress-nginx/ingress-nginx <span class="nt">--create-namespace</span></code></pre></figure>
+helm <span class="nt">-n</span> ingress-nginx <span class="nb">install </span>ingress-nginx ingress-nginx/ingress-nginx <span class="nt">--create-namespace</span>
 
-<ul>
-  <li>create ingress to route root path to “zz.local” for “zackweb-service”</li>
-</ul>
+<span class="c"># check for ingressclasses</span>
+kubectl get ingressclasses.networking.k8s.io 
+NAME    CONTROLLER             PARAMETERS   AGE
+nginx   k8s.io/ingress-nginx   &lt;none&gt; 149m</code></pre></figure>
 
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<p><b>MetalLB for loadbalancing</b></p>
+
+<p>Then we will set up MetalLB in local K8s cluster, to enable LoadBalancer service.</p>
+
+<p>MetalLB works in two modes: Layer 2 (simpler for home labs) or BGP (more complex, used in production environments), here we will deploy MetalLB manifest and create MetalLB ConfigMap For a Layer 2 configuration, assign a range of IP addresses on local network that MetalLB will use for load balancers.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># install metallb manifest</span>
+kubectl apply <span class="nt">-f</span> https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+
+root@asb:~# kubectl get all <span class="nt">-n</span> metallb-system 
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/controller-fbf54885d-skzkl   1/1     Running   0          174m
+pod/speaker-49m7r                1/1     Running   0          174m
+pod/speaker-5zvfk                1/1     Running   0          174m
+pod/speaker-gdm26                1/1     Running   0          174m
+
+NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
+service/webhook-service   ClusterIP   10.101.12.65   &lt;none&gt; 443/TCP   174m
+
+NAME                     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/speaker   3         3         3       3            3           kubernetes.io/os<span class="o">=</span>linux   174m
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/controller   1/1     1            1           174m
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/controller-fbf54885d   1         1         1       174m
+
+<span class="c"># Create a IP range for loadbalancer IP pool</span>
+vim metalab-pool.yaml 
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+ name: my-ip-pool
+ namespace: metallb-system
+spec:
+ addresses:
+  - 11.0.1.240-11.0.1.252
+
+<span class="c"># verify IP pool</span>
+kubectl describe ipaddresspool my-ip-pool <span class="nt">-n</span> metallb-system
+kubectl get ipaddresspool <span class="nt">-n</span> metallb-system
+NAME         AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
+my-ip-pool   <span class="nb">true</span>          false             <span class="o">[</span><span class="s2">"11.0.1.240-11.0.1.252"</span><span class="o">]</span>
+
+<span class="c"># Loadbalancer auto assigned for Ingress Controller and joesite service with LoadBalancer  </span>
+kubectl get svc <span class="nt">-A</span> | <span class="nb">grep </span>Load
+ingress-nginx       ingress-nginx-controller                             LoadBalancer   10.106.123.55    11.0.1.242    80:32279/TCP,443:31291/TCP      157m
+joesite-argo        joesite-service                                      LoadBalancer   10.111.85.29     11.0.1.240    80:30500/TCP                    23d</code></pre></figure>
+
+<p><b>Local DNS setup</b></p>
+
+<p>I want to replace all the NodePort services with a subdomain for simplicity, so I need to edit both local PC and kubeconfig VM’s host file to point all subdomains to the Ingress Controller LoadBalancer IP (11.0.1.242)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">vim /etc/hosts
+11.0.1.242      pm.tina.place am.tina.place gf.tina.place lh.tina.place ag.tina.place</code></pre></figure>
+
+<p><b>Ingress rules for traffic control</b></p>
+
+<p>Now we can create a list of Ingress rules to route the K8S services to subdomains. As those services come with different namespaces, we need to split each Ingress rule for services in different namespaces, also need to pay attention to TLS setting for https requests to avoid too many redirects.</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="s">vim monitoring-ingress.yaml</span>
+
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
 <span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
 <span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">nginx-ingress</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">monitoring-ingress</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">monitoring</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">nginx.ingress.kubernetes.io/rewrite-target</span><span class="pi">:</span> <span class="s">/</span>
 <span class="na">spec</span><span class="pi">:</span>
-  <span class="na">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">zz.local</span> 
-    <span class="na">http</span><span class="pi">:</span>
-      <span class="na">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
-        <span class="na">pathType</span><span class="pi">:</span> <span class="s">ImplementationSpecific</span>
-        <span class="na">backend</span><span class="pi">:</span>
-          <span class="na">service</span><span class="pi">:</span>
-            <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb-service</span>
-            <span class="na">port</span><span class="pi">:</span>
-              <span class="na">number</span><span class="pi">:</span> <span class="s">80</span></code></pre></figure>
+ <span class="na">ingressClassName</span><span class="pi">:</span> <span class="s">nginx</span>
+ <span class="na">rules</span><span class="pi">:</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">gf.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">prometheus-stack-grafana</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="m">80</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">am.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">prometheus-stack-kube-prom-alertmanager</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="m">9093</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">pm.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">prometheus-stack-kube-prom-prometheus</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="s">9090</span></code></pre></figure>
 
-<ul>
-  <li>Browser visit “zz.local”</li>
-</ul>
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="s">vim other-ingress.yaml</span>
 
-<p><img src="/assets/web.png" alt="image tooltip here" /></p>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">longhorn-ingress</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">longhorn-system</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">nginx.ingress.kubernetes.io/rewrite-target</span><span class="pi">:</span> <span class="s">/</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">ingressClassName</span><span class="pi">:</span> <span class="s">nginx</span>
+ <span class="na">rules</span><span class="pi">:</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">lh.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">longhorn-frontend</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="m">80</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">ui-ingress</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">retail</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">nginx.ingress.kubernetes.io/rewrite-target</span><span class="pi">:</span> <span class="s">/</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">ingressClassName</span><span class="pi">:</span> <span class="s">nginx</span>
+ <span class="na">rules</span><span class="pi">:</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">ui.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">ui</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="m">80</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-ingress</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">zackapp-argo</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">nginx.ingress.kubernetes.io/rewrite-target</span><span class="pi">:</span> <span class="s">/</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">ingressClassName</span><span class="pi">:</span> <span class="s">nginx</span>
+ <span class="na">rules</span><span class="pi">:</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">z.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zack-web-zackblog-helm</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="m">80</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">joesite-ingress</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">joesite-argo</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">nginx.ingress.kubernetes.io/rewrite-target</span><span class="pi">:</span> <span class="s">/</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">ingressClassName</span><span class="pi">:</span> <span class="s">nginx</span>
+ <span class="na">rules</span><span class="pi">:</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">j.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">joesite-service</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="m">80</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">argocd-ingress</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">argocd</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">nginx.ingress.kubernetes.io/ssl-redirect</span><span class="pi">:</span> <span class="s2">"</span><span class="s">true"</span> <span class="s"> # Redirect HTTP to HTTPS</span>
+ <span class="na">nginx.ingress.kubernetes.io/backend-protocol</span><span class="pi">:</span> <span class="s2">"</span><span class="s">HTTPS"</span> <span class="s"> # Ensure HTTPS for the backend</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">ingressClassName</span><span class="pi">:</span> <span class="s">nginx</span>
+ <span class="na">rules</span><span class="pi">:</span>
+<span class="na">  - host</span><span class="pi">:</span> <span class="s">ag.tina.place</span>
+ <span class="s">http</span><span class="err">:</span>
+ <span class="na">paths</span><span class="pi">:</span>
+<span class="na">      - path</span><span class="pi">:</span> <span class="s">/</span>
+ <span class="s">pathType</span><span class="err">:</span> <span class="s">Prefix</span>
+ <span class="s">backend</span><span class="err">:</span>
+ <span class="na">service</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">argocd-server</span>
+ <span class="na">port</span><span class="pi">:</span>
+ <span class="na">number</span><span class="pi">:</span> <span class="s">443  # Forward traffic to ArgoCD on HTTPS</span>
+ <span class="na">tls</span><span class="pi">:</span>
+<span class="na">  - hosts</span><span class="pi">:</span>
+<span class="s">    - ag.tina.place</span>
+ <span class="s">secretName</span><span class="err">:</span> <span class="s">argocd-tls-secret  # Optional, if we need TLS configured</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> monitoring-ingress.yaml
+kubectl apply <span class="nt">-f</span> other-ingress.yaml
+root@asb:~/path-based# kubectl get ingress <span class="nt">-A</span>
+NAMESPACE         NAME                 CLASS   HOSTS                                       ADDRESS      PORTS     AGE
+argocd            argocd-ingress       nginx   ag.tina.place                               11.0.1.242   80, 443   85s
+joesite-argo      joesite-ingress      nginx   j.tina.place                                11.0.1.242   80        85s
+longhorn-system   longhorn-ingress     nginx   lh.tina.place                               11.0.1.242   80        85s
+monitoring        monitoring-ingress   nginx   gf.tina.place,am.tina.place,pm.tina.place   11.0.1.242   80        8m48s
+retail            ui-ingress           nginx   ui.tina.place                               11.0.1.242   80        85s
+zackapp-argo      zackblog-ingress     nginx   z.tina.place                                11.0.1.242   80        85s</code></pre></figure>
+
+<p>Validate from Browser to visit each subdomain for the ingress routed K8S services, those websites used to be very hard by input <code class="language-plaintext highlighter-rouge">NodePort</code> every time, see now the corresponding application running on the subdomain makes my access much easier.</p>
+
+<p><code class="language-plaintext highlighter-rouge">ArgoCD</code>:  https://ag.tina.place/</p>
+
+<p><code class="language-plaintext highlighter-rouge">Prometheus</code>:   http://pm.tina.place/</p>
+
+<p><code class="language-plaintext highlighter-rouge">Grafana</code>: http://gf.tina.place</p>
+
+<p><code class="language-plaintext highlighter-rouge">AlertManager</code>: http://am.tina.place</p>
+
+<p><code class="language-plaintext highlighter-rouge">LongHorn</code>:  http://lh.tina.place/</p>
+
+<p><code class="language-plaintext highlighter-rouge">Retail UI</code>:  http://ui.tina.place/</p>
+
+<p><code class="language-plaintext highlighter-rouge">ZackBlog</code>:   http://z.tina.place/</p>
+
+<p><code class="language-plaintext highlighter-rouge">Joe's Site</code>: http://j.tina.place/</p>
+
+<p><img src="/assets/subdomain1.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/subdomain2.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/subdomain3.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>By using MetalLB and the NGINX Ingress Controller, we can achieve subdomain-based routing for K8s services. The key steps involve configuring MetalLB for IP allocation, deploying the Ingress controller, creating services with Ingress rules for routing, and setting up local DNS.</p>
 
 
   </div><a class="u-url" href="/jekyll/cat2/2022/11/18/ingresscontroller.html" hidden></a>
