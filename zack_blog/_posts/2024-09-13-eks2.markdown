@@ -1,0 +1,260 @@
+---
+layout: post
+title:  "EKS Security Practise with Kube-Bench and OPA Gatekeeper "
+date:   2024-09-13 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b>About kube-bench and OPA Gatekeeper </b>
+
+In the last post, I was able to implement [EKS cluster autoscaler and Horizontal Pod Autoscaler (HPA)](https://zackz.site/jekyll/cat2/2024/09/12/eks1.html), in this post I will continue with EKS security practice with Kube-Bench and OPA Gatekeeper.
+
+- kube-bench:
+
+`kube-bench` is a tool that checks Kubernetes clusters against the CIS (Center for Internet Security) benchmarks, a set of best practices for securing Kubernetes. It is critical to ensure that a cluster complies with these security guidelines, helping identify potential vulnerabilities and misconfigurations. Key features include generating detailed audit reports, performing automated compliance checks, and easily integrating into existing CI/CD pipelines for continuous security assessments
+
+- OPA Gatekeeper
+
+OPA (Open Policy Agent) is a policy engine that allows to define and enforce policies across various services, including Kubernetes. `OPA Gatekeeper` extends OPA's functionality specifically for Kubernetes by providing admission control, enabling the enforcement of custom policies on resources before they are created or modified. The benefits of using OPA Gatekeeper include consistent policy enforcement across the cluster, fine-grained control over resource configurations, and reducing the risk of misconfigurations by ensuring compliance with defined rules.
+
+
+<b>kube-bench in EKS</b>
+
+We will be based on [official cis-kubernetes-benchmark-support webpage](https://github.com/aquasecurity/kube-bench/blob/main/docs/platforms.md#cis-kubernetes-benchmark-support), to apply the kube-bench job yaml for EKS, when the job completed, the results are held in the pod's logs.
+
+{% highlight shell %}
+$ kubectl.exe get node
+NAME                                               STATUS   ROLES    AGE     VERSION
+ip-172-31-37-215.ap-southeast-2.compute.internal   Ready    <none>   2m29s   v1.31.0-eks-a737599
+
+# apply the job yaml for EKS
+kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/refs/heads/main/job-eks.yaml
+
+# check  the job status
+$ kubectl get pods
+NAME                      READY   STATUS              RESTARTS   AGE
+kube-bench-j76s9   0/1     ContainerCreating   0          3s
+
+# Wait for a few seconds for the job to complete
+$ kubectl get pods
+NAME                      READY   STATUS      RESTARTS   AGE
+kube-bench-j76s9   0/1 Completed   0          11s
+
+# The results are held in the pod's logs
+kubectl logs kube-bench-j76s9
+
+[INFO] 3 Worker Node Security Configuration
+[INFO] 3.1 Worker Node Configuration Files
+[PASS] 3.1.1 Ensure that the kubeconfig file permissions are set to 644 or more restrictive (Manual)
+[PASS] 3.1.2 Ensure that the kubelet kubeconfig file ownership is set to root:root (Manual)
+[PASS] 3.1.3 Ensure that the kubelet configuration file has permissions set to 644 or more restrictive (Manual)
+[PASS] 3.1.4 Ensure that the kubelet configuration file ownership is set to root:root (Manual)
+[INFO] 3.2 Kubelet
+[PASS] 3.2.1 Ensure that the Anonymous Auth is Not Enabled (Automated)
+[PASS] 3.2.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow (Automated)
+[PASS] 3.2.3 Ensure that a Client CA File is Configured (Manual)
+[PASS] 3.2.4 Ensure that the --read-only-port is disabled (Manual)
+[PASS] 3.2.5 Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Automated)
+[PASS] 3.2.6 Ensure that the --protect-kernel-defaults argument is set to true (Automated)
+[PASS] 3.2.7 Ensure that the --make-iptables-util-chains argument is set to true (Automated) 
+[WARN] 3.2.8 Ensure that the --hostname-override argument is not set (Manual)
+[WARN] 3.2.9 Ensure that the --eventRecordQPS argument is set to 0 or a level which ensures appropriate event capture (Automated)
+[PASS] 3.2.10 Ensure that the --rotate-certificates argument is not present or is set to true (Manual)
+[PASS] 3.2.11 Ensure that the RotateKubeletServerCertificate argument is set to true (Manual)
+[INFO] 3.3 Container Optimized OS
+[WARN] 3.3.1 Prefer using a container-optimized OS when possible (Manual)
+
+== Remediations node ==
+3.2.8 Edit the kubelet service file /etc/systemd/system/kubelet.service
+on each worker node and remove the --hostname-override argument from the
+KUBELET_SYSTEM_PODS_ARGS variable.
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+3.2.9 If using a Kubelet config file, edit the file to set eventRecordQPS: to an appropriate level.
+If using command line arguments, edit the kubelet service file
+/etc/systemd/system/kubelet.service on each worker node and
+set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+3.3.1 audit test did not run: No tests defined
+
+== Summary node ==
+13 checks PASS
+0 checks FAIL
+3 checks WARN
+0 checks INFO
+
+== Summary total ==
+13 checks PASS
+0 checks FAIL
+3 checks WARN
+0 checks INFO
+{% endhighlight %}
+
+Based on the scan result, the EKS managed workder node can be secure will 13 check pass and 0 check fail, by following the remediation suggestion we can set the EKS cluster compliant with the CIS benchmark.
+
+<b>OPA Gatekeeper in EKS</b>
+
+- Install the OPA Gatekeeper
+
+We will first install Gatekeeper in EKS cluster by applying the Gatekeeper installation manifests from [the official repository](https://open-policy-agent.github.io/gatekeeper/website/docs/install/).
+
+{% highlight shell %}
+$ kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.12.0/deploy/gatekeeper.yaml
+namespace/gatekeeper-system created
+resourcequota/gatekeeper-critical-pods created
+customresourcedefinition.apiextensions.k8s.io/assign.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/assignimage.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/assignmetadata.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/configs.config.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/constraintpodstatuses.status.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/constrainttemplatepodstatuses.status.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/constrainttemplates.templates.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/expansiontemplate.expansion.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/modifyset.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/mutatorpodstatuses.status.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/providers.externaldata.gatekeeper.sh created
+serviceaccount/gatekeeper-admin created
+role.rbac.authorization.k8s.io/gatekeeper-manager-role created
+clusterrole.rbac.authorization.k8s.io/gatekeeper-manager-role created
+rolebinding.rbac.authorization.k8s.io/gatekeeper-manager-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/gatekeeper-manager-rolebinding created
+secret/gatekeeper-webhook-server-cert created
+service/gatekeeper-webhook-service created
+deployment.apps/gatekeeper-audit created
+deployment.apps/gatekeeper-controller-manager created
+poddisruptionbudget.policy/gatekeeper-controller-manager created
+mutatingwebhookconfiguration.admissionregistration.k8s.io/gatekeeper-mutating-webhook-configuration created
+validatingwebhookconfiguration.admissionregistration.k8s.io/gatekeeper-validating-webhook-configuration created
+
+$ kubectl.exe get all -n gatekeeper-system
+NAME                                                 READY   STATUS    RESTARTS        AGE
+pod/gatekeeper-audit-777f449c79-h7lzn                1/1 Running   1 (3m35s ago)   3m42s
+pod/gatekeeper-controller-manager-84bf857ff7-rzlb8   1/1 Running   0               3m42s
+
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/gatekeeper-webhook-service   ClusterIP   10.100.126.57 <none>        443/TCP   3m42s
+
+NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/gatekeeper-audit                1/1     1            1           3m42s
+deployment.apps/gatekeeper-controller-manager   1/1     1            1           3m42s
+
+NAME                                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/gatekeeper-audit-777f449c79                1         1         1       3m42s
+replicaset.apps/gatekeeper-controller-manager-84bf857ff7   1         1         1       3m42s
+{% endhighlight %}
+
+- OPA Gatekeeper works with two main components:
+
+`ConstraintTemplate`: Defines a reusable logic for policies.
+
+`Constraint`: Applies specific policies based on the logic defined in the ConstraintTemplate.
+
+Here we will create a `ConstraintTemplate` and `required-label-policy` to enforce required labels during pod creation, and run a test pod with and without required labels to test the policy enforcement.
+
+{% highlight shell %}
+
+# Create a ConstraintTemplate and policy to enforce require-labels for pod creation
+vim required-label-template.yaml 
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+ name: k8srequiredlabels
+spec:
+ crd:
+ spec:
+ names:
+ kind: K8sRequiredLabels
+ targets:
+ - target: admission.k8s.gatekeeper.sh
+ rego: |
+ package k8srequiredlabels
+
+ violation[{"msg": msg}] {
+ required_label := "required-label"
+ not input.review.object.metadata.labels[required_label]
+ msg := sprintf("You must provide the '%s' label on every resource.", [required_label])
+ }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+ name: require-labels
+spec:
+ match:
+ kinds:
+ - apiGroups: [""]
+ kinds: ["Pod"]
+
+#  Apply the ConstraintTemplate and policy
+$ kubectl.exe apply -f required-label-template.yaml 
+constrainttemplate.templates.gatekeeper.sh/k8srequiredlabels configured
+k8srequiredlabels.constraints.gatekeeper.sh/require-labels created
+
+# Validate constraint templates
+$ kubectl get constrainttemplates
+NAME                AGE
+k8srequiredlabels   15s
+{% endhighlight %}
+
+Then we need to create a test pod with and without required labels to test the policy enforcement
+
+{% highlight shell %}
+$ vim test-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: test-pod
+spec:
+ containers:
+ - name: test-container
+ image: nginx
+
+$ kubectl apply -f test-pod.yaml
+Error from server (Forbidden): error when creating "test-pod.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [require-labels] You must provide the 'required-label' label on every resource.
+
+$ vim test-pod-labeled.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: test-pod-labeled
+ labels:
+ required-label: "true"
+spec:
+ containers:
+ - name: test-container
+ image: nginx
+
+$ kubectl apply -f test-pod-labeled.yaml
+pod/test-pod-labeled created
+
+zack@zackz MINGW64 /f/1/terraform-eks (master)
+$ kubectl.exe get po
+NAME               READY   STATUS              RESTARTS   AGE
+kube-bench-xrx8g   0/1     Completed           0          21m
+test-pod-labeled   0/1     ContainerCreating   0          5s
+
+$ kubectl.exe get po
+NAME               READY   STATUS      RESTARTS   AGE
+kube-bench-xrx8g   0/1 Completed   0          22m
+test-pod-labeled   1/1 Running     0          24s
+{% endhighlight %}
+
+Based on the constraint we created before, the policy prevents the pod from being created with
+
+`Error from server (Forbidden): error when creating "test-pod.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [require-labels] You must provide the 'required-label' label on every resource` 
+
+this can be expanded to more strict rules to enforce k8s cluster to achieve the desired control. 
+
+
+
+<b>Conclusion</b>
+
+In this post, we dive into the process of enhancing the security of an AWS EKS cluster by implementing and validating two critical security tools: Kube-bench and OPA Gatekeeper to get some hands-on to achieve a secure EKS environment by ensuring compliance with best practices and enforcing security policies at runtime.

@@ -1,301 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-09T15:36:59+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Lab Setup</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOps - Lab Setup" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-10T12:37:28+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Lightweight Pre-Trained Models</title><link href="http://localhost:4000/jekyll/cat2/2024/10/03/mlops3.html" rel="alternate" type="text/html" title="MLOps - Lightweight Pre-Trained Models" /><published>2024-10-03T10:15:29+10:00</published><updated>2024-10-03T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/03/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/03/mlops3.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
-<p>Transitioning from DevOps to MLOps can be achieved by leveraging existing DevOps expertise by adding new layers specific to machine learning.</p>
+<p>I used to run a Disney Cartoonrize ML model on local lab, failed due to GPU limitations, it’s a good idea to start with lightweight models and frameworks that are less resource-hungry.</p>
 
-<ul>
-  <li>Key Differences:</li>
-</ul>
+<p>Begin with Pre-Built Small Models</p>
 
-<p><code class="language-plaintext highlighter-rouge">Model Lifecycle Management</code>: MLOps handles model training, deployment, and retraining.</p>
+<p>logistic regression</p>
 
-<p><code class="language-plaintext highlighter-rouge">Data Versioning</code>: Tools like DVC ensure dataset version control.</p>
+<p>from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression</p>
 
-<p><code class="language-plaintext highlighter-rouge">Experiment Tracking</code>: MLflow and Weights &amp; Biases track model training parameters and results.</p>
+<h1 id="load-dataset">Load dataset</h1>
+<p>data = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2)</p>
 
-<p><code class="language-plaintext highlighter-rouge">Model Serving</code>: Deploy models with TensorFlow Serving or TorchServe.</p>
+<h1 id="train-model">Train model</h1>
+<p>model = LogisticRegression()
+model.fit(X_train, y_train)</p>
 
-<p><code class="language-plaintext highlighter-rouge">Model Drift</code>: Monitor data changes over time to trigger retraining.</p>
+<h1 id="test-model">Test model</h1>
+<p>print(model.score(X_test, y_test))</p>
 
-<ul>
-  <li>Core MLOps Tools:</li>
-</ul>
+<p>0.9333333333333333</p>
 
-<p><code class="language-plaintext highlighter-rouge">Model Training &amp; Experimentation</code>: Tools like DVC, MLflow, and Kubeflow for managing data, tracking experiments, and distributed training.</p>
+<p>from transformers import pipeline
+import torch</p>
 
-<p><code class="language-plaintext highlighter-rouge">Model Deployment &amp; Serving</code>: Use CI/CD pipelines, Docker, Kubernetes, and frameworks like ONNX for deploying models at scale.</p>
+<h1 id="check-if-a-gpu-is-available-and-get-its-device-id">Check if a GPU is available and get its device ID</h1>
+<p>device = 0 if torch.cuda.is_available() else -1</p>
 
-<p><code class="language-plaintext highlighter-rouge">Monitoring &amp; Retraining</code>: Use Prometheus, Grafana, and Seldon for monitoring performance and retraining pipelines.</p>
+<h1 id="use-a-small-pre-trained-model-and-specify-the-device-0-for-gpu--1-for-cpu">Use a small pre-trained model and specify the device (0 for GPU, -1 for CPU)</h1>
+<p>classifier = pipeline(“sentiment-analysis”, model=”distilbert-base-uncased-finetuned-sst-2-english”, device=device)</p>
 
-<p><code class="language-plaintext highlighter-rouge">Data Pipelines</code>: Automate feature engineering with Apache Airflow, Dagster, or Kubeflow.</p>
+<h1 id="run-inference">Run inference</h1>
+<p>result = classifier(“This is a great start!”)
+print(result)</p>
 
-<ul>
-  <li>Leverage DevOps Skills for MLOps:</li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">CI/CD Pipelines</code>: Automate model training, testing, and deployment with Jenkins or cloud solutions.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Infrastructure as Code</code>: Use Terraform or Ansible for cloud-based ML infrastructure.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Containerization &amp; Orchestration</code>: Deploy ML models with Docker and Kubernetes.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Monitoring</code>: Track both infrastructure and model-specific metrics like accuracy and drift.</p>
-
-<p><b>Local Lab ML practise</b></p>
-
-<p>I will start the local lab by:  </p>
-
-<ul>
-  <li>
-    <p>Setting up a local ML env</p>
-  </li>
-  <li>
-    <p>Install ML-focused tools (Nvidia Cuda, Python3 and pip Virtual ENV, PyTorch and Jupyter Notebook)</p>
-  </li>
-  <li>
-    <p>Build and version simple ML models locally with tools like DVC, MLflow, and Docker.</p>
-  </li>
-</ul>
-
-<p>Next stages I will try:</p>
-
-<ul>
-  <li>
-    <p>Provision AWS Sagemaker using terraform or Cloudformation.</p>
-  </li>
-  <li>
-    <p>Implement CI pipelines for Model training and continuous packaging.</p>
-  </li>
-  <li>
-    <p>CD pipelines to provision AWS ECS or EKS to deploy models.</p>
-  </li>
-</ul>
-
-<p><b>Prerequisites</b></p>
-
-<ul>
-  <li>
-    <p>Windows 10 with Powershell and Windows Terminal installed</p>
-  </li>
-  <li>
-    <p>CPU Virtulization enabled in BIOS</p>
-  </li>
-  <li>
-    <p>WSL2 with Ubuntu LTS installed</p>
-  </li>
-  <li>
-    <p>Docker Desktop</p>
-  </li>
-</ul>
-
-<p><b>Install WSL with Ubuntu</b></p>
-
-<p>First, we need to configure local WSL to install Ubuntu.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--list</span> <span class="nt">--online</span>
-Use <span class="s1">'wsl.exe --install &lt;Distro&gt;'</span> to <span class="nb">install
-
-</span>NAME                            FRIENDLY NAME
-Ubuntu                          Ubuntu
-Debian                          Debian GNU/Linux
-kali-linux                      Kali Linux Rolling
-Ubuntu-18.04                    Ubuntu 18.04 LTS
-Ubuntu-20.04                    Ubuntu 20.04 LTS
-Ubuntu-22.04                    Ubuntu 22.04 LTS
-Ubuntu-24.04                    Ubuntu 24.04 LTS
-OracleLinux_7_9                 Oracle Linux 7.9
-OracleLinux_8_7                 Oracle Linux 8.7
-OracleLinux_9_1                 Oracle Linux 9.1
-openSUSE-Leap-15.6              openSUSE Leap 15.6
-SUSE-Linux-Enterprise-15-SP5    SUSE Linux Enterprise 15 SP5
-SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
-openSUSE-Tumbleweed             openSUSE Tumbleweed
-
-C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--install</span> <span class="nt">-d</span> Ubuntu-24.04
-Installing: Ubuntu 24.04 LTS
-Installed Ubuntu 24.04 LTS。
-Launching Ubuntu 24.04 LTS...
-Installing, this may take a few minutes...
-Installation successful!
-
-ubuntu@zackz:~<span class="nv">$ </span><span class="nb">cat</span> /etc/os-release
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 24.04.1 LTS"</span>
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"24.04"</span>
-<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"24.04.1 LTS (Noble Numbat)"</span>
-<span class="nv">VERSION_CODENAME</span><span class="o">=</span>noble
-<span class="nv">ID</span><span class="o">=</span>ubuntu
-<span class="nv">ID_LIKE</span><span class="o">=</span>debian
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
-<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
-<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
-<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>noble
-<span class="nv">LOGO</span><span class="o">=</span>ubuntu-logo</code></pre></figure>
-
-<p><b>Install Nvidia CUDA</b></p>
-
-<ul>
-  <li>CUDA works with C. Thus, we need to install the gcc compiler first, then install CUDA from <a href="https://developer.nvidia.com/cuda-downloads">the official website of Nvidia</a>, then configure environment variable for post-installation  <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">The official CUDA installation guide from Nvidia</a></li>
-</ul>
-
-<p><img src="/assets/mlops1.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/mlops2.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>gcc <span class="nt">--fix-missing</span>
-
-wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
-<span class="nb">sudo mv </span>cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
-wget https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
-<span class="nb">sudo </span>dpkg <span class="nt">-i</span> cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
-<span class="nb">sudo cp</span> /var/cuda-repo-wsl-ubuntu-12-6-local/cuda-<span class="k">*</span><span class="nt">-keyring</span>.gpg /usr/share/keyrings/
-<span class="nb">sudo </span>apt-get update
-<span class="nb">sudo </span>apt-get <span class="nt">-y</span> <span class="nb">install </span>cuda-toolkit-12-6
-
-vim .bashrc
-<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-12.6/bin<span class="k">${</span><span class="nv">PATH</span>:+:<span class="k">${</span><span class="nv">PATH</span><span class="k">}}</span>
-
-<span class="c"># To apply and validate the changes, </span>
-<span class="nb">source</span> ~/.bashrc
-<span class="nb">echo</span> <span class="nv">$PATH</span>
-root@zackz:~# <span class="nb">echo</span> <span class="nv">$PATH</span>
-/root/jupyter_env/bin:/usr/local/cuda-12.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/Amazon Corretto/jdk11.0.23_9/bin:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/d/Ruby32/bin:/mnt/f/VM workstation pro 16/bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files <span class="o">(</span>x86<span class="o">)</span>/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/ProgramData/chocolatey/bin:/mnt/d/Program Files/Git/cmd:/mnt/c/Program Files/Java/jdk1.8.0_211/bin:/mnt/c/Program Files/dotnet/:/mnt/d/Program Files <span class="o">(</span>x86<span class="o">)</span>/NetSarang/Xshell 7/:/mnt/c/ProgramData/chocolatey/bin/Minikube:/mnt/c/ProgramData/chocolatey/bin/kubectl:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/ProgramData/chocolatey/lib/maven/apache-maven-3.9.6/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/zack/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/Python313:/mnt/c/Python313/Scripts:/mnt/c/Program Files/Oracle/VirtualBox:/snap/bin</code></pre></figure>
-
-<ul>
-  <li>Install the Nvidia Cuda Toolkit, check the Driver and CUDA versions, validate Nvidia Cuda Compiler Driver has been installed.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>nvidia-cuda-toolkit
-
-root@zackz:~# nvidia-smi
-Wed Oct  9 10:53:26 2024
-+---------------------------------------------------------------------------------------+
-| NVIDIA-SMI 535.112                Driver Version: 537.42       CUDA Version: 12.2     |
-|-----------------------------------------+----------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
-|                                         |                      |               MIG M. |
-|<span class="o">=========================================</span>+<span class="o">======================</span>+<span class="o">======================</span>|
-|   0  NVIDIA GeForce RTX 3070 Ti     On  | 00000000:01:00.0  On |                  N/A |
-|  0%   55C    P0              80W / 148W |   1635MiB /  8192MiB |      1%      Default |
-|                                         |                      |                  N/A |
-+-----------------------------------------+----------------------+----------------------+
-
-+---------------------------------------------------------------------------------------+
-| Processes:                                                                            |
-|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
-|        ID   ID                                                             Usage      |
-|<span class="o">=======================================================================================</span>|
-|    0   N/A  N/A        27      G   /Xwayland                                 N/A      |
-|    0   N/A  N/A        30      G   /Xwayland                                 N/A      |
-|    0   N/A  N/A        37      G   /Xwayland                                 N/A      |
-+---------------------------------------------------------------------------------------+
-
-root@zackz:~# nvcc <span class="nt">-V</span>
-nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
-Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2024 NVIDIA Corporation
-Built on Thu_Sep_12_02:18:05_PDT_2024
-Cuda compilation tools, release 12.6, V12.6.77
-Build cuda_12.6.r12.6/compiler.34841621_0</code></pre></figure>
-
-<p><b>Install Python3 and PIP Virtual ENV</b></p>
-
-<p>Ensure that python3 and PIP are installed, and create virtual env for Pytorch and Jupyter Notebook</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# python3 <span class="nt">--version</span>
-Python 3.12.3
-
-<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip
-
-apt <span class="nb">install </span>python3.12-venv
-
-python3 <span class="nt">-m</span> venv jupyter_env
-
-<span class="nb">source </span>jupyter_env/bin/activate
-
-<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# </code></pre></figure>
-
-<p><b>Install PyTorch</b></p>
-
-<p>Installing the PyTorch <a href="https://pytorch.org/get-started/locally/">the official website of PyTorch</a>, and enable the Nvidia Developer Settings for using CUDA via WSL, then validate CUDA from Torch.</p>
-
-<p><img src="/assets/mlops3.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/mlops4.png" alt="image tooltip here" /></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# pip3 <span class="nb">install </span>torch torchvision torchaudio <span class="nt">--index-url</span> https://download.pytorch.org/whl/cu124 
-
-<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~#  python3
-Python 3.12.3 <span class="o">(</span>main, Sep 11 2024, 14:17:37<span class="o">)</span> <span class="o">[</span>GCC 13.2.0] on linux
-Type <span class="s2">"help"</span>, <span class="s2">"copyright"</span>, <span class="s2">"credits"</span> or <span class="s2">"license"</span> <span class="k">for </span>more information.
-<span class="o">&gt;&gt;&gt;</span> import torch
-ch.cuda.is_available<span class="o">()</span>
-
-True
-<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
-
-<p><b>Install Jupyter Notebook</b></p>
-
-<ul>
-  <li>Installing Jupyter Notebook and run in the virtual env, create the first notebook to verify if it is using CPU or CUDA from GPU, then run a simple notebook to have a performance comparison between CPU and GPU.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># install jupyter notebook</span>
-
-pip <span class="nb">install </span>jupyter notebook 
-
-<span class="c"># run  jupyter notebook in the virtual env</span>
-
-<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:~# jupyter notebook  --allow-root</code></pre></figure>
-
-<ul>
-  <li>Verify Torch with CUDA device</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import torch
-
-<span class="k">if </span>torch.cuda.is_available<span class="o">()</span>:
- device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cuda"</span><span class="o">)</span>
-<span class="k">else</span>:
- device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cpu"</span><span class="o">)</span>
-print<span class="o">(</span><span class="s2">"using"</span>, device, <span class="s2">"device"</span><span class="o">)</span> </code></pre></figure>
-
-<p><img src="/assets/mlops5.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Run performance comparison between my CPU and GPU (CUDA)</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import <span class="nb">time
-
-</span>matrix_size <span class="o">=</span> 32<span class="k">*</span>512
-
-x <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
-y <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
-
-print<span class="o">(</span><span class="s2">"************* CPU SPEED *******************"</span><span class="o">)</span>
-start <span class="o">=</span> time.time<span class="o">()</span>
-result <span class="o">=</span> torch.matmul<span class="o">(</span>x, y<span class="o">)</span>
-print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
-print<span class="o">(</span><span class="s2">"verify device:"</span>, result.device<span class="o">)</span>
-
-x_gpu <span class="o">=</span> x.to<span class="o">(</span>device<span class="o">)</span>
-y_gpu <span class="o">=</span> y.to<span class="o">(</span>device<span class="o">)</span>
-torch.cuda.synchronize<span class="o">()</span>
-
-<span class="k">for </span>i <span class="k">in </span>range<span class="o">(</span>3<span class="o">)</span>:
- print<span class="o">(</span><span class="s2">"************* GPU SPEED *******************"</span><span class="o">)</span>
- start <span class="o">=</span> time.time<span class="o">()</span>
- result_gpu <span class="o">=</span> torch.matmul<span class="o">(</span>x_gpu, y_gpu<span class="o">)</span>
- torch.cuda.synchronize<span class="o">()</span>
- print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
- print<span class="o">(</span><span class="s2">"verify device:"</span>, result_gpu.device<span class="o">)</span></code></pre></figure>
-
-<p><img src="/assets/mlops6.png" alt="image tooltip here" /></p>
-
-<p><b>Conclusion</b></p>
-
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">MLOps - First Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html" rel="alternate" type="text/html" title="MLOps - First Machine Learning Project" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<p>[{‘label’: ‘POSITIVE’, ‘score’: 0.9998538494110107}]</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">MLOps - First Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - First Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -641,7 +382,552 @@ pipeline <span class="o">{</span>
 
 <p>In summary, a production-level ML workflow integrates new data, automates model training and deployment, and continuously monitors model performance. By utilizing CI/CD pipelines, Docker for containerization, and tools for versioning and tracking, we can create a robust and efficient machine learning system that can adapt to changing data and business requirements.</p>
 
-<p>In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
+<p>In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">MLOps - Lab Setup</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOps - Lab Setup" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
+
+<p>Transitioning from DevOps to MLOps can be achieved by leveraging existing DevOps expertise by adding new layers specific to machine learning.</p>
+
+<ul>
+  <li>Key Differences:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Model Lifecycle Management</code>: MLOps handles model training, deployment, and retraining.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Data Versioning</code>: Tools like DVC ensure dataset version control.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Experiment Tracking</code>: MLflow and Weights &amp; Biases track model training parameters and results.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Serving</code>: Deploy models with TensorFlow Serving or TorchServe.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Drift</code>: Monitor data changes over time to trigger retraining.</p>
+
+<ul>
+  <li>Core MLOps Tools:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Model Training &amp; Experimentation</code>: Tools like DVC, MLflow, and Kubeflow for managing data, tracking experiments, and distributed training.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Model Deployment &amp; Serving</code>: Use CI/CD pipelines, Docker, Kubernetes, and frameworks like ONNX for deploying models at scale.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring &amp; Retraining</code>: Use Prometheus, Grafana, and Seldon for monitoring performance and retraining pipelines.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Data Pipelines</code>: Automate feature engineering with Apache Airflow, Dagster, or Kubeflow.</p>
+
+<ul>
+  <li>Leverage DevOps Skills for MLOps:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">CI/CD Pipelines</code>: Automate model training, testing, and deployment with Jenkins or cloud solutions.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Infrastructure as Code</code>: Use Terraform or Ansible for cloud-based ML infrastructure.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Containerization &amp; Orchestration</code>: Deploy ML models with Docker and Kubernetes.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring</code>: Track both infrastructure and model-specific metrics like accuracy and drift.</p>
+
+<p><b>Local Lab ML practise</b></p>
+
+<p>I will start the local lab by:  </p>
+
+<ul>
+  <li>
+    <p>Setting up a local ML env</p>
+  </li>
+  <li>
+    <p>Install ML-focused tools (Nvidia Cuda, Python3 and pip Virtual ENV, PyTorch and Jupyter Notebook)</p>
+  </li>
+  <li>
+    <p>Build and version simple ML models locally with tools like DVC, MLflow, and Docker.</p>
+  </li>
+</ul>
+
+<p>Next stages I will try:</p>
+
+<ul>
+  <li>
+    <p>Provision AWS Sagemaker using terraform or Cloudformation.</p>
+  </li>
+  <li>
+    <p>Implement CI pipelines for Model training and continuous packaging.</p>
+  </li>
+  <li>
+    <p>CD pipelines to provision AWS ECS or EKS to deploy models.</p>
+  </li>
+</ul>
+
+<p><b>Prerequisites</b></p>
+
+<ul>
+  <li>
+    <p>Windows 10 with Powershell and Windows Terminal installed</p>
+  </li>
+  <li>
+    <p>CPU Virtulization enabled in BIOS</p>
+  </li>
+  <li>
+    <p>WSL2 with Ubuntu LTS installed</p>
+  </li>
+  <li>
+    <p>Docker Desktop</p>
+  </li>
+</ul>
+
+<p><b>Install WSL with Ubuntu</b></p>
+
+<p>First, we need to configure local WSL to install Ubuntu.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--list</span> <span class="nt">--online</span>
+Use <span class="s1">'wsl.exe --install &lt;Distro&gt;'</span> to <span class="nb">install
+
+</span>NAME                            FRIENDLY NAME
+Ubuntu                          Ubuntu
+Debian                          Debian GNU/Linux
+kali-linux                      Kali Linux Rolling
+Ubuntu-18.04                    Ubuntu 18.04 LTS
+Ubuntu-20.04                    Ubuntu 20.04 LTS
+Ubuntu-22.04                    Ubuntu 22.04 LTS
+Ubuntu-24.04                    Ubuntu 24.04 LTS
+OracleLinux_7_9                 Oracle Linux 7.9
+OracleLinux_8_7                 Oracle Linux 8.7
+OracleLinux_9_1                 Oracle Linux 9.1
+openSUSE-Leap-15.6              openSUSE Leap 15.6
+SUSE-Linux-Enterprise-15-SP5    SUSE Linux Enterprise 15 SP5
+SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
+openSUSE-Tumbleweed             openSUSE Tumbleweed
+
+C:<span class="se">\U</span>sers<span class="se">\z</span>ack&gt;wsl <span class="nt">--install</span> <span class="nt">-d</span> Ubuntu-24.04
+Installing: Ubuntu 24.04 LTS
+Installed Ubuntu 24.04 LTS。
+Launching Ubuntu 24.04 LTS...
+Installing, this may take a few minutes...
+Installation successful!
+
+ubuntu@zackz:~<span class="nv">$ </span><span class="nb">cat</span> /etc/os-release
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Ubuntu 24.04.1 LTS"</span>
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Ubuntu"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"24.04"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"24.04.1 LTS (Noble Numbat)"</span>
+<span class="nv">VERSION_CODENAME</span><span class="o">=</span>noble
+<span class="nv">ID</span><span class="o">=</span>ubuntu
+<span class="nv">ID_LIKE</span><span class="o">=</span>debian
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/"</span>
+<span class="nv">SUPPORT_URL</span><span class="o">=</span><span class="s2">"https://help.ubuntu.com/"</span>
+<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">"https://bugs.launchpad.net/ubuntu/"</span>
+<span class="nv">PRIVACY_POLICY_URL</span><span class="o">=</span><span class="s2">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span>
+<span class="nv">UBUNTU_CODENAME</span><span class="o">=</span>noble
+<span class="nv">LOGO</span><span class="o">=</span>ubuntu-logo</code></pre></figure>
+
+<p><b>Install Nvidia CUDA</b></p>
+
+<ul>
+  <li>CUDA works with C. Thus, we need to install the gcc compiler first, then install CUDA from <a href="https://developer.nvidia.com/cuda-downloads">the official website of Nvidia</a>, then configure environment variable for post-installation  <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">The official CUDA installation guide from Nvidia</a></li>
+</ul>
+
+<p><img src="/assets/mlops1.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops2.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>gcc <span class="nt">--fix-missing</span>
+
+wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
+<span class="nb">sudo mv </span>cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
+<span class="nb">sudo </span>dpkg <span class="nt">-i</span> cuda-repo-wsl-ubuntu-12-6-local_12.6.2-1_amd64.deb
+<span class="nb">sudo cp</span> /var/cuda-repo-wsl-ubuntu-12-6-local/cuda-<span class="k">*</span><span class="nt">-keyring</span>.gpg /usr/share/keyrings/
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nt">-y</span> <span class="nb">install </span>cuda-toolkit-12-6
+
+vim .bashrc
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-12.6/bin<span class="k">${</span><span class="nv">PATH</span>:+:<span class="k">${</span><span class="nv">PATH</span><span class="k">}}</span>
+
+<span class="c"># To apply and validate the changes, </span>
+<span class="nb">source</span> ~/.bashrc
+<span class="nb">echo</span> <span class="nv">$PATH</span>
+root@zackz:~# <span class="nb">echo</span> <span class="nv">$PATH</span>
+/root/jupyter_env/bin:/usr/local/cuda-12.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/Amazon Corretto/jdk11.0.23_9/bin:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/d/Ruby32/bin:/mnt/f/VM workstation pro 16/bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files <span class="o">(</span>x86<span class="o">)</span>/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/ProgramData/chocolatey/bin:/mnt/d/Program Files/Git/cmd:/mnt/c/Program Files/Java/jdk1.8.0_211/bin:/mnt/c/Program Files/dotnet/:/mnt/d/Program Files <span class="o">(</span>x86<span class="o">)</span>/NetSarang/Xshell 7/:/mnt/c/ProgramData/chocolatey/bin/Minikube:/mnt/c/ProgramData/chocolatey/bin/kubectl:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/ProgramData/chocolatey/lib/maven/apache-maven-3.9.6/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/zack/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/Python313:/mnt/c/Python313/Scripts:/mnt/c/Program Files/Oracle/VirtualBox:/snap/bin</code></pre></figure>
+
+<ul>
+  <li>Install the Nvidia Cuda Toolkit, check the Driver and CUDA versions, validate Nvidia Cuda Compiler Driver has been installed.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>apt <span class="nb">install </span>nvidia-cuda-toolkit
+
+root@zackz:~# nvidia-smi
+Wed Oct  9 10:53:26 2024
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.112                Driver Version: 537.42       CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|<span class="o">=========================================</span>+<span class="o">======================</span>+<span class="o">======================</span>|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  | 00000000:01:00.0  On |                  N/A |
+|  0%   55C    P0              80W / 148W |   1635MiB /  8192MiB |      1%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|<span class="o">=======================================================================================</span>|
+|    0   N/A  N/A        27      G   /Xwayland                                 N/A      |
+|    0   N/A  N/A        30      G   /Xwayland                                 N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                 N/A      |
++---------------------------------------------------------------------------------------+
+
+root@zackz:~# nvcc <span class="nt">-V</span>
+nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2024 NVIDIA Corporation
+Built on Thu_Sep_12_02:18:05_PDT_2024
+Cuda compilation tools, release 12.6, V12.6.77
+Build cuda_12.6.r12.6/compiler.34841621_0</code></pre></figure>
+
+<p><b>Install Python3 and PIP Virtual ENV</b></p>
+
+<p>Ensure that python3 and PIP are installed, and create virtual env for Pytorch and Jupyter Notebook</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# python3 <span class="nt">--version</span>
+Python 3.12.3
+
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>python3-pip
+
+apt <span class="nb">install </span>python3.12-venv
+
+python3 <span class="nt">-m</span> venv jupyter_env
+
+<span class="nb">source </span>jupyter_env/bin/activate
+
+<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# </code></pre></figure>
+
+<p><b>Install PyTorch</b></p>
+
+<p>Installing the PyTorch <a href="https://pytorch.org/get-started/locally/">the official website of PyTorch</a>, and enable the Nvidia Developer Settings for using CUDA via WSL, then validate CUDA from Torch.</p>
+
+<p><img src="/assets/mlops3.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops4.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~# pip3 <span class="nb">install </span>torch torchvision torchaudio <span class="nt">--index-url</span> https://download.pytorch.org/whl/cu124 
+
+<span class="o">(</span>jupyter_env<span class="o">)</span>root@zackz:~#  python3
+Python 3.12.3 <span class="o">(</span>main, Sep 11 2024, 14:17:37<span class="o">)</span> <span class="o">[</span>GCC 13.2.0] on linux
+Type <span class="s2">"help"</span>, <span class="s2">"copyright"</span>, <span class="s2">"credits"</span> or <span class="s2">"license"</span> <span class="k">for </span>more information.
+<span class="o">&gt;&gt;&gt;</span> import torch
+ch.cuda.is_available<span class="o">()</span>
+
+True
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<p><b>Install Jupyter Notebook</b></p>
+
+<ul>
+  <li>Installing Jupyter Notebook and run in the virtual env, create the first notebook to verify if it is using CPU or CUDA from GPU, then run a simple notebook to have a performance comparison between CPU and GPU.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># install jupyter notebook</span>
+
+pip <span class="nb">install </span>jupyter notebook 
+
+<span class="c"># run  jupyter notebook in the virtual env</span>
+
+<span class="o">(</span>jupyter_env<span class="o">)</span> root@zackz:~# jupyter notebook  --allow-root</code></pre></figure>
+
+<ul>
+  <li>Verify Torch with CUDA device</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import torch
+
+<span class="k">if </span>torch.cuda.is_available<span class="o">()</span>:
+ device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cuda"</span><span class="o">)</span>
+<span class="k">else</span>:
+ device <span class="o">=</span> torch.device<span class="o">(</span><span class="s2">"cpu"</span><span class="o">)</span>
+print<span class="o">(</span><span class="s2">"using"</span>, device, <span class="s2">"device"</span><span class="o">)</span> </code></pre></figure>
+
+<p><img src="/assets/mlops5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Run performance comparison between my CPU and GPU (CUDA)</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">import <span class="nb">time
+
+</span>matrix_size <span class="o">=</span> 32<span class="k">*</span>512
+
+x <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
+y <span class="o">=</span> torch.randn<span class="o">(</span>matrix_size, matrix_size<span class="o">)</span>
+
+print<span class="o">(</span><span class="s2">"************* CPU SPEED *******************"</span><span class="o">)</span>
+start <span class="o">=</span> time.time<span class="o">()</span>
+result <span class="o">=</span> torch.matmul<span class="o">(</span>x, y<span class="o">)</span>
+print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
+print<span class="o">(</span><span class="s2">"verify device:"</span>, result.device<span class="o">)</span>
+
+x_gpu <span class="o">=</span> x.to<span class="o">(</span>device<span class="o">)</span>
+y_gpu <span class="o">=</span> y.to<span class="o">(</span>device<span class="o">)</span>
+torch.cuda.synchronize<span class="o">()</span>
+
+<span class="k">for </span>i <span class="k">in </span>range<span class="o">(</span>3<span class="o">)</span>:
+ print<span class="o">(</span><span class="s2">"************* GPU SPEED *******************"</span><span class="o">)</span>
+ start <span class="o">=</span> time.time<span class="o">()</span>
+ result_gpu <span class="o">=</span> torch.matmul<span class="o">(</span>x_gpu, y_gpu<span class="o">)</span>
+ torch.cuda.synchronize<span class="o">()</span>
+ print<span class="o">(</span>time.time<span class="o">()</span> - start<span class="o">)</span>
+ print<span class="o">(</span><span class="s2">"verify device:"</span>, result_gpu.device<span class="o">)</span></code></pre></figure>
+
+<p><img src="/assets/mlops6.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS Security Practise with Kube-Bench and OPA Gatekeeper</title><link href="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html" rel="alternate" type="text/html" title="EKS Security Practise with Kube-Bench and OPA Gatekeeper" /><published>2024-09-13T10:15:29+10:00</published><updated>2024-09-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/13/eks2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html"><![CDATA[<p><b>About kube-bench and OPA Gatekeeper </b></p>
+
+<p>In the last post, I was able to implement <a href="https://zackz.site/jekyll/cat2/2024/09/12/eks1.html">EKS cluster autoscaler and Horizontal Pod Autoscaler (HPA)</a>, in this post I will continue with EKS security practice with Kube-Bench and OPA Gatekeeper.</p>
+
+<ul>
+  <li>kube-bench:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">kube-bench</code> is a tool that checks Kubernetes clusters against the CIS (Center for Internet Security) benchmarks, a set of best practices for securing Kubernetes. It is critical to ensure that a cluster complies with these security guidelines, helping identify potential vulnerabilities and misconfigurations. Key features include generating detailed audit reports, performing automated compliance checks, and easily integrating into existing CI/CD pipelines for continuous security assessments</p>
+
+<ul>
+  <li>OPA Gatekeeper</li>
+</ul>
+
+<p>OPA (Open Policy Agent) is a policy engine that allows to define and enforce policies across various services, including Kubernetes. <code class="language-plaintext highlighter-rouge">OPA Gatekeeper</code> extends OPA’s functionality specifically for Kubernetes by providing admission control, enabling the enforcement of custom policies on resources before they are created or modified. The benefits of using OPA Gatekeeper include consistent policy enforcement across the cluster, fine-grained control over resource configurations, and reducing the risk of misconfigurations by ensuring compliance with defined rules.</p>
+
+<p><b>kube-bench in EKS</b></p>
+
+<p>We will be based on <a href="https://github.com/aquasecurity/kube-bench/blob/main/docs/platforms.md#cis-kubernetes-benchmark-support">official cis-kubernetes-benchmark-support webpage</a>, to apply the kube-bench job yaml for EKS, when the job completed, the results are held in the pod’s logs.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl.exe get node
+NAME                                               STATUS   ROLES    AGE     VERSION
+ip-172-31-37-215.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   2m29s   v1.31.0-eks-a737599
+
+<span class="c"># apply the job yaml for EKS</span>
+kubectl apply <span class="nt">-f</span> https://raw.githubusercontent.com/aquasecurity/kube-bench/refs/heads/main/job-eks.yaml
+
+<span class="c"># check  the job status</span>
+<span class="nv">$ </span>kubectl get pods
+NAME                      READY   STATUS              RESTARTS   AGE
+kube-bench-j76s9   0/1     ContainerCreating   0          3s
+
+<span class="c"># Wait for a few seconds for the job to complete</span>
+<span class="nv">$ </span>kubectl get pods
+NAME                      READY   STATUS      RESTARTS   AGE
+kube-bench-j76s9   0/1 Completed   0          11s
+
+<span class="c"># The results are held in the pod's logs</span>
+kubectl logs kube-bench-j76s9
+
+<span class="o">[</span>INFO] 3 Worker Node Security Configuration
+<span class="o">[</span>INFO] 3.1 Worker Node Configuration Files
+<span class="o">[</span>PASS] 3.1.1 Ensure that the kubeconfig file permissions are <span class="nb">set </span>to 644 or more restrictive <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>PASS] 3.1.2 Ensure that the kubelet kubeconfig file ownership is <span class="nb">set </span>to root:root <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>PASS] 3.1.3 Ensure that the kubelet configuration file has permissions <span class="nb">set </span>to 644 or more restrictive <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>PASS] 3.1.4 Ensure that the kubelet configuration file ownership is <span class="nb">set </span>to root:root <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>INFO] 3.2 Kubelet
+<span class="o">[</span>PASS] 3.2.1 Ensure that the Anonymous Auth is Not Enabled <span class="o">(</span>Automated<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.2 Ensure that the <span class="nt">--authorization-mode</span> argument is not <span class="nb">set </span>to AlwaysAllow <span class="o">(</span>Automated<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.3 Ensure that a Client CA File is Configured <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.4 Ensure that the <span class="nt">--read-only-port</span> is disabled <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.5 Ensure that the <span class="nt">--streaming-connection-idle-timeout</span> argument is not <span class="nb">set </span>to 0 <span class="o">(</span>Automated<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.6 Ensure that the <span class="nt">--protect-kernel-defaults</span> argument is <span class="nb">set </span>to <span class="nb">true</span> <span class="o">(</span>Automated<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.7 Ensure that the <span class="nt">--make-iptables-util-chains</span> argument is <span class="nb">set </span>to <span class="nb">true</span> <span class="o">(</span>Automated<span class="o">)</span> 
+<span class="o">[</span>WARN] 3.2.8 Ensure that the <span class="nt">--hostname-override</span> argument is not <span class="nb">set</span> <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>WARN] 3.2.9 Ensure that the <span class="nt">--eventRecordQPS</span> argument is <span class="nb">set </span>to 0 or a level which ensures appropriate event capture <span class="o">(</span>Automated<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.10 Ensure that the <span class="nt">--rotate-certificates</span> argument is not present or is <span class="nb">set </span>to <span class="nb">true</span> <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>PASS] 3.2.11 Ensure that the RotateKubeletServerCertificate argument is <span class="nb">set </span>to <span class="nb">true</span> <span class="o">(</span>Manual<span class="o">)</span>
+<span class="o">[</span>INFO] 3.3 Container Optimized OS
+<span class="o">[</span>WARN] 3.3.1 Prefer using a container-optimized OS when possible <span class="o">(</span>Manual<span class="o">)</span>
+
+<span class="o">==</span> Remediations node <span class="o">==</span>
+3.2.8 Edit the kubelet service file /etc/systemd/system/kubelet.service
+on each worker node and remove the <span class="nt">--hostname-override</span> argument from the
+KUBELET_SYSTEM_PODS_ARGS variable.
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+3.2.9 If using a Kubelet config file, edit the file to <span class="nb">set </span>eventRecordQPS: to an appropriate level.
+If using <span class="nb">command </span>line arguments, edit the kubelet service file
+/etc/systemd/system/kubelet.service on each worker node and
+<span class="nb">set </span>the below parameter <span class="k">in </span>KUBELET_SYSTEM_PODS_ARGS variable.
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+3.3.1 audit <span class="nb">test </span>did not run: No tests defined
+
+<span class="o">==</span> Summary node <span class="o">==</span>
+13 checks PASS
+0 checks FAIL
+3 checks WARN
+0 checks INFO
+
+<span class="o">==</span> Summary total <span class="o">==</span>
+13 checks PASS
+0 checks FAIL
+3 checks WARN
+0 checks INFO</code></pre></figure>
+
+<p>Based on the scan result, the EKS managed workder node can be secure will 13 check pass and 0 check fail, by following the remediation suggestion we can set the EKS cluster compliant with the CIS benchmark.</p>
+
+<p><b>OPA Gatekeeper in EKS</b></p>
+
+<ul>
+  <li>Install the OPA Gatekeeper</li>
+</ul>
+
+<p>We will first install Gatekeeper in EKS cluster by applying the Gatekeeper installation manifests from <a href="https://open-policy-agent.github.io/gatekeeper/website/docs/install/">the official repository</a>.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl apply <span class="nt">-f</span> https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.12.0/deploy/gatekeeper.yaml
+namespace/gatekeeper-system created
+resourcequota/gatekeeper-critical-pods created
+customresourcedefinition.apiextensions.k8s.io/assign.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/assignimage.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/assignmetadata.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/configs.config.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/constraintpodstatuses.status.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/constrainttemplatepodstatuses.status.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/constrainttemplates.templates.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/expansiontemplate.expansion.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/modifyset.mutations.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/mutatorpodstatuses.status.gatekeeper.sh created
+customresourcedefinition.apiextensions.k8s.io/providers.externaldata.gatekeeper.sh created
+serviceaccount/gatekeeper-admin created
+role.rbac.authorization.k8s.io/gatekeeper-manager-role created
+clusterrole.rbac.authorization.k8s.io/gatekeeper-manager-role created
+rolebinding.rbac.authorization.k8s.io/gatekeeper-manager-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/gatekeeper-manager-rolebinding created
+secret/gatekeeper-webhook-server-cert created
+service/gatekeeper-webhook-service created
+deployment.apps/gatekeeper-audit created
+deployment.apps/gatekeeper-controller-manager created
+poddisruptionbudget.policy/gatekeeper-controller-manager created
+mutatingwebhookconfiguration.admissionregistration.k8s.io/gatekeeper-mutating-webhook-configuration created
+validatingwebhookconfiguration.admissionregistration.k8s.io/gatekeeper-validating-webhook-configuration created
+
+<span class="nv">$ </span>kubectl.exe get all <span class="nt">-n</span> gatekeeper-system
+NAME                                                 READY   STATUS    RESTARTS        AGE
+pod/gatekeeper-audit-777f449c79-h7lzn                1/1 Running   1 <span class="o">(</span>3m35s ago<span class="o">)</span>   3m42s
+pod/gatekeeper-controller-manager-84bf857ff7-rzlb8   1/1 Running   0               3m42s
+
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
+service/gatekeeper-webhook-service   ClusterIP   10.100.126.57 &lt;none&gt;        443/TCP   3m42s
+
+NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/gatekeeper-audit                1/1     1            1           3m42s
+deployment.apps/gatekeeper-controller-manager   1/1     1            1           3m42s
+
+NAME                                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/gatekeeper-audit-777f449c79                1         1         1       3m42s
+replicaset.apps/gatekeeper-controller-manager-84bf857ff7   1         1         1       3m42s</code></pre></figure>
+
+<ul>
+  <li>OPA Gatekeeper works with two main components:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">ConstraintTemplate</code>: Defines a reusable logic for policies.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Constraint</code>: Applies specific policies based on the logic defined in the ConstraintTemplate.</p>
+
+<p>Here we will create a <code class="language-plaintext highlighter-rouge">ConstraintTemplate</code> and <code class="language-plaintext highlighter-rouge">required-label-policy</code> to enforce required labels during pod creation, and run a test pod with and without required labels to test the policy enforcement.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create a ConstraintTemplate and policy to enforce require-labels for pod creation</span>
+vim required-label-template.yaml 
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+ name: k8srequiredlabels
+spec:
+ crd:
+ spec:
+ names:
+ kind: K8sRequiredLabels
+ targets:
+ - target: admission.k8s.gatekeeper.sh
+ rego: |
+ package k8srequiredlabels
+
+ violation[<span class="o">{</span><span class="s2">"msg"</span>: msg<span class="o">}]</span> <span class="o">{</span>
+ required_label :<span class="o">=</span> <span class="s2">"required-label"</span>
+ not input.review.object.metadata.labels[required_label]
+ msg :<span class="o">=</span> sprintf<span class="o">(</span><span class="s2">"You must provide the '%s' label on every resource."</span>, <span class="o">[</span>required_label]<span class="o">)</span>
+ <span class="o">}</span>
+<span class="nt">---</span>
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+ name: require-labels
+spec:
+ match:
+ kinds:
+ - apiGroups: <span class="o">[</span><span class="s2">""</span><span class="o">]</span>
+ kinds: <span class="o">[</span><span class="s2">"Pod"</span><span class="o">]</span>
+
+<span class="c">#  Apply the ConstraintTemplate and policy</span>
+<span class="nv">$ </span>kubectl.exe apply <span class="nt">-f</span> required-label-template.yaml 
+constrainttemplate.templates.gatekeeper.sh/k8srequiredlabels configured
+k8srequiredlabels.constraints.gatekeeper.sh/require-labels created
+
+<span class="c"># Validate constraint templates</span>
+<span class="nv">$ </span>kubectl get constrainttemplates
+NAME                AGE
+k8srequiredlabels   15s</code></pre></figure>
+
+<p>Then we need to create a test pod with and without required labels to test the policy enforcement</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>vim test-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: test-pod
+spec:
+ containers:
+ - name: test-container
+ image: nginx
+
+<span class="nv">$ </span>kubectl apply <span class="nt">-f</span> test-pod.yaml
+Error from server <span class="o">(</span>Forbidden<span class="o">)</span>: error when creating <span class="s2">"test-pod.yaml"</span>: admission webhook <span class="s2">"validation.gatekeeper.sh"</span> denied the request: <span class="o">[</span>require-labels] You must provide the <span class="s1">'required-label'</span> label on every resource.
+
+<span class="nv">$ </span>vim test-pod-labeled.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: test-pod-labeled
+ labels:
+ required-label: <span class="s2">"true"</span>
+spec:
+ containers:
+ - name: test-container
+ image: nginx
+
+<span class="nv">$ </span>kubectl apply <span class="nt">-f</span> test-pod-labeled.yaml
+pod/test-pod-labeled created
+
+zack@zackz MINGW64 /f/1/terraform-eks <span class="o">(</span>master<span class="o">)</span>
+<span class="nv">$ </span>kubectl.exe get po
+NAME               READY   STATUS              RESTARTS   AGE
+kube-bench-xrx8g   0/1     Completed           0          21m
+test-pod-labeled   0/1     ContainerCreating   0          5s
+
+<span class="nv">$ </span>kubectl.exe get po
+NAME               READY   STATUS      RESTARTS   AGE
+kube-bench-xrx8g   0/1 Completed   0          22m
+test-pod-labeled   1/1 Running     0          24s</code></pre></figure>
+
+<p>Based on the constraint we created before, the policy prevents the pod from being created with</p>
+
+<p><code class="language-plaintext highlighter-rouge">Error from server (Forbidden): error when creating "test-pod.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [require-labels] You must provide the 'required-label' label on every resource</code></p>
+
+<p>this can be expanded to more strict rules to enforce k8s cluster to achieve the desired control.</p>
+
+<p><b>Conclusion</b></p>
+
+<p>In this post, we dive into the process of enhancing the security of an AWS EKS cluster by implementing and validating two critical security tools: Kube-bench and OPA Gatekeeper to get some hands-on to achieve a secure EKS environment by ensuring compliance with best practices and enforcing security policies at runtime.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About kube-bench and OPA Gatekeeper]]></summary></entry><entry><title type="html">EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
 
 <p>In last post, I was able to deploy EKS cluster via Jenkins and Terraform:</p>
 
@@ -2903,296 +3189,4 @@ ECS_SERVICE </code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
-
-<p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
-
-<p>I started to look into bellow areas for investigation:</p>
-
-<ul>
-  <li>AWS CloudWatch Metrics for RDS</li>
-</ul>
-
-<p>AWS CloudWatch provides a wide range of metrics that can help diagnose resource usage for databases. So I started with</p>
-
-<p><em>CloudWatch - Metrics - All metrics - Add query - RDS - Top 10 RDS instances by highest CPU utilization</em></p>
-
-<p>This only queries the recent 3 hours metrics, but it is enough for me to identify the issue: CPU 100%</p>
-
-<p><img src="/assets/mysqlcpu1.png" alt="image tooltip here" /></p>
-
-<p>To further understand the high CUP, I go:</p>
-
-<p><em>CloudWatch - Metrics - All metrics - Browse - RDS - DBClusterIdentifier - CPUUtilization</em></p>
-
-<p>which gives me a long period of monitoring, so I can see it started to 100% CPU since yesterday morning.</p>
-
-<p><img src="/assets/mysqlcpu2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>AWS console RDS Logs &amp; events</li>
-</ul>
-
-<p>Now let’s find out from the RDS logs to see if any errors can indicate who could be the person. So I go</p>
-
-<p><em>RDS - “the DB cluster” - “the DB instance” - “Logs &amp; events” - “error/mysql-error-running.log.2024-06-18.02”</em></p>
-
-<p>I got :</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">2024-06-18T00:04:58.750212Z 2831474 <span class="o">[</span>Note] Aborted connection 2831474 to db: <span class="s1">'xxxxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Unknown error<span class="o">)</span>
-2024-06-18T00:12:00.798173Z 2831498 <span class="o">[</span>Note] Aborted connection 2831498 to db: <span class="s1">'xxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Got an error writing communication packets<span class="o">)</span>
-<span class="nt">-----------------------</span> END OF LOG <span class="nt">----------------------</span></code></pre></figure>
-
-<p>Up to here I generally have an idea of what is going on and can locate the person “xxxx” who was running something at the time CPU 100%.</p>
-
-<ul>
-  <li>MySQL Client Tool to list, identiry and terminate long-running queries</li>
-</ul>
-
-<p>It is time to log in to the RDS endpoint to see what is happening and which queries might cause the CPU usage. Here we need login via MySQL “root” to be able to see all other users’ running processes. Then pay attention to the high “Time” and “State” values indicating all the stuck processes, then we kill them and restart the RDS instance</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mysql <span class="nt">-u</span> root <span class="nt">-p</span> <span class="nt">-h</span> rds_endpoint
-SHOW PROCESSLIST<span class="p">;</span>
-KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
-
-<p><img src="/assets/mysqlcpu4.png" alt="image tooltip here" /></p>
-
-<p>Then I go <em>AWS RDS console - Actions - Reboot</em> the RDS instance.</p>
-
-<ul>
-  <li>Now the CPU usage started to drop and back to normal after terminating the stuck processes and DB instance reboot.</li>
-</ul>
-
-<p><img src="/assets/mysqlcpu3.png" alt="image tooltip here" /></p>
-
-<p>Done.</p>
-
-<p><b> Conclusion</b></p>
-
-<p>Even the issue had been fixed, I was still thinking how to better monitor RDS resource usage. I think we need:</p>
-
-<ul>
-  <li>
-    <p>A “CloudWatch Alarm” to set “CPUUtilization” metric threshold to 80%, then specify the period (e.g., 5 minutes) and the number of periods (e.g., 2 out of 3) that the metric must breach the threshold to trigger the alarm.</p>
-  </li>
-  <li>
-    <p>Create “SNS topic” with team Email for the alarm to send a notification</p>
-  </li>
-  <li>
-    <p>Enable “RDS Performance Insights”, this can monitor the load on the database, identify the source of bottlenecks, and understand how the DB is performing, especially during troubleshooting.</p>
-  </li>
-  <li>
-    <p>Enable “Enhanced Monitoring” and select the monitoring interval (e.g., 1 minute), which provides real-time metrics for the operating system that the DB instance runs on, this helps for immediate investigation on OS level</p>
-  </li>
-  <li>
-    <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
-  </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry><entry><title type="html">Python Microservice: K8S deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html" rel="alternate" type="text/html" title="Python Microservice: K8S deployment" /><published>2024-05-22T00:17:29+10:00</published><updated>2024-05-22T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html"><![CDATA[<p><b> About K8S deployment</b></p>
-
-<p>Now It is time to change from docker-compose to deploy into Kubernetes.  </p>
-
-<p>As this is not new to me to deploy microservice into K8S, also I already have a running Kubernetes cluster in hand, so here I will just create docker images for the 3 services: API gateway, user and order, then push them into the docker hub repository, then create Kubernetes manifest for deployment and service.  </p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder structure</span>
-/07-with-k8s
-<span class="nb">.</span>
-├── api_gateway.py
-├── depolyment.yaml
-├── Dockerfile_apigateway
-├── Dockerfile_order
-├── Dockerfile_user
-├── order_service.py
-└── user_service.py
-
-<span class="c"># Build, tag and push the docker images</span>
-docker login
-
-docker build <span class="nt">-t</span> zackz001/python-user:latest <span class="nt">-f</span> Dockerfile_user <span class="nb">.</span>
-docker build <span class="nt">-t</span> zackz001/python-order:latest <span class="nt">-f</span> Dockerfile_order <span class="nb">.</span>
-docker build <span class="nt">-t</span> zackz001/python-apigateway:latest <span class="nt">-f</span> Dockerfile_apigateway <span class="nb">.</span>
-docker push zackz001/python-apigateway:latest
-docker push zackz001/python-user:latest
-docker push zackz001/python-order:latest
-
-docker image <span class="nb">ls
-
-</span>REPOSITORY                                      TAG       IMAGE ID       CREATED        SIZE
-zackz001/python-apigateway                      latest    bc3db11f4be8   1 hours ago    138MB
-zackz001/python-user                            latest    c93973bece33   1 hours ago    136MB
-zackz001/python-order                           latest    e35d5de9254b   1 hours ago    136MB
-prom/prometheus                                 latest    1bd2b9635267   8 days ago     271MB
-grafana/grafana                                 latest    c42c21cd0ebc   3 weeks ago    453MB
-consul                                          1.15.4    686495461132   4 months ago   155MB
-docker.elastic.co/elasticsearch/elasticsearch   7.13.2    11a830014f7c   3 years ago    1.02GB
-docker.elastic.co/logstash/logstash             7.13.2    8dc1af4dd662   3 years ago    965MB
-docker.elastic.co/kibana/kibana                 7.13.2    6c4869a27be1   3 years ago    1.35GB
-
-<span class="c"># k8s deployment Manifests</span>
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: user-service
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: user-service
- template:
- metadata:
- labels:
- app: user-service
- spec:
- containers:
- - name: user-service
- image: zackz001/python-user:latest
- ports:
- - containerPort: 5001
-
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
- name: user-service
-spec:
- selector:
- app: user-service
- ports:
- - protocol: TCP
- port: 5001
- targetPort: 5001
-
-<span class="nt">---</span>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: order-service
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: order-service
- template:
- metadata:
- labels:
- app: order-service
- spec:
- containers:
- - name: order-service
- image: zackz001/python-order:latest
- ports:
- - containerPort: 5002
-
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
- name: order-service
-spec:
- selector:
- app: order-service
- ports:
- - protocol: TCP
- port: 5002
- targetPort: 5002
-
-<span class="nt">---</span>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: api-gateway
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: api-gateway
- template:
- metadata:
- labels:
- app: api-gateway
- spec:
- containers:
- - name: api-gateway
- image: zackz001/python-apigateway:latest
- ports:
- - containerPort: 5000
-
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
- name: api-gateway
-spec:
- <span class="nb">type</span>: NodePort
- selector:
- app: api-gateway
- ports:
- - protocol: TCP
- port: 5000
- targetPort: 5000</code></pre></figure>
-
-<p>Now Run kubectl apply -f to bring all deployments and services up and running. Should see all services in the Rancher console.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create ns python
-
-kubectl apply <span class="nt">-f</span> depolyment.yaml <span class="nt">-n</span> python
-
-kubectl get all <span class="nt">-n</span> python
-
-NAME                                 READY   STATUS    RESTARTS      AGE
-pod/api-gateway-d664cf8c4-7l7q8      1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
-pod/order-service-856577f666-gk5gt   1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
-pod/user-service-5d8766d9cb-4rqnz    1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
-
-NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>          AGE
-service/api-gateway     NodePort    10.43.38.27     &lt;none&gt; 5000:32060/TCP   1h
-service/order-service   ClusterIP   10.43.27.255    &lt;none&gt; 5002/TCP         1h
-service/user-service    ClusterIP   10.43.160.232   &lt;none&gt; 5001/TCP         1h
-
-NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/api-gateway     1/1     1            1           1h
-deployment.apps/order-service   1/1     1            1           1h
-deployment.apps/user-service    1/1     1            1           1h
-
-NAME                                       DESIRED   CURRENT   READY   AGE
-replicaset.apps/api-gateway-d664cf8c4      1         1         1       1h
-replicaset.apps/order-service-856577f666   1         1         1       1h
-replicaset.apps/user-service-5d8766d9cb    1         1         1       1h</code></pre></figure>
-
-<p><b> Verify API gateway, user and order services</b></p>
-
-<p>Access API gateway via http://NodeIP:NodePort/users and http://NodeIP:NodePort/orders</p>
-
-<p><img src="/assets/flask11.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/flask12.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we complete all Python Flask sessions.</p>
-
-<p>I have done this End-to-End Python Microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  </p>
-
-<ul>
-  <li>
-    <p>simple Python Flask app</p>
-  </li>
-  <li>
-    <p>Microservice applications with user and order</p>
-  </li>
-  <li>
-    <p>Create API gateway Flask app</p>
-  </li>
-  <li>
-    <p>Service registery with Consul</p>
-  </li>
-  <li>
-    <p>Logging with ELK</p>
-  </li>
-  <li>
-    <p>Monitoring with Prometheus and Grafana</p>
-  </li>
-  <li>
-    <p>K8S deployment</p>
-  </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry></feed>
+<p>So now we can use AWS CLI and AWS System Manager to automate software deployment and verify the installation status.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry></feed>

@@ -1,0 +1,48 @@
+---
+layout: post
+title:  "MLOps - Lightweight Pre-Trained Models"
+date:   2024-10-03 11:15:29 +1100
+categories: jekyll Cat2
+---
+
+<b>MLOPS Project </b>
+
+I used to run a Disney Cartoonrize ML model on local lab, failed due to GPU limitations, it's a good idea to start with lightweight models and frameworks that are less resource-hungry. 
+
+Begin with Pre-Built Small Models
+
+logistic regression
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+# Load dataset
+data = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2)
+
+# Train model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Test model
+print(model.score(X_test, y_test))
+
+0.9333333333333333
+
+
+
+from transformers import pipeline
+import torch
+
+# Check if a GPU is available and get its device ID
+device = 0 if torch.cuda.is_available() else -1
+
+# Use a small pre-trained model and specify the device (0 for GPU, -1 for CPU)
+classifier = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english", device=device)
+
+# Run inference
+result = classifier("This is a great start!")
+print(result)
+
+[{'label': 'POSITIVE', 'score': 0.9998538494110107}]
