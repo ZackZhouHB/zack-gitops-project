@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>EKS - Cluster Backup with Velero | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="EKS - Cluster Backup with Velero" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Valero" />
+<meta property="og:description" content="About Valero" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-15T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="EKS - Cluster Backup with Velero" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-09-15T10:15:29+10:00","datePublished":"2024-09-15T10:15:29+10:00","description":"About Valero","headline":"EKS - Cluster Backup with Velero","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html"},"url":"http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">EKS - Cluster Backup with Velero</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-09-15T10:15:29+10:00" itemprop="datePublished">Sep 15, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>About Valero </b></p>
+
+<p>Valero is an open-source tool for storing, restoring, and migrating Kubernetes cluster resources and persistent volumes. Valero provides a way to hold the entire state of a Kubernetes cluster, all its objects and their consistent numbers, store backup files to Cloud storage like AWS S3, and then restore them to a previous state to ensure K8S data resilience, disaster recovery results and easy transport between clusters.</p>
+
+<p><b>Velero for EKS </b></p>
+
+<p>Backup EKS cluster using Velero, can be followed by the below path:</p>
+
+<ol>
+  <li>
+    <p>Install Velero in EKS cluster</p>
+  </li>
+  <li>
+    <p>AWS CLI is configured with the correct credentials</p>
+  </li>
+  <li>
+    <p>S3 bucket created and configured for Velero to communicate for backup and restore</p>
+  </li>
+</ol>
+
+<ul>
+  <li>Prepare AWS S3 bucket and IAM user</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create S3 bucket for Velero</span>
+<span class="nv">BUCKET</span><span class="o">=</span>zz-asb-k8s-velero-backup-bucket
+<span class="nv">REGION</span><span class="o">=</span>ap-southeast-2
+
+aws s3api create-bucket <span class="se">\</span>
+ <span class="nt">--bucket</span> <span class="nv">$BUCKET</span> <span class="se">\</span>
+ <span class="nt">--region</span> <span class="nv">$REGION</span> <span class="se">\</span>
+ <span class="nt">--create-bucket-configuration</span> <span class="nv">LocationConstraint</span><span class="o">=</span><span class="nv">$REGION</span>
+
+<span class="c"># create IAM user for Velero</span>
+aws iam create-user <span class="nt">--user-name</span> velero
+
+<span class="nb">cat</span> <span class="o">&gt;</span> velero-policy.json <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+{
+ "Version": "2012-10-17",
+ "Statement": [
+ {
+ "Effect": "Allow",
+ "Action": [
+ "ec2:DescribeVolumes",
+ "ec2:DescribeSnapshots",
+ "ec2:CreateTags",
+ "ec2:CreateVolume",
+ "ec2:CreateSnapshot",
+ "ec2:DeleteSnapshot"
+ ],
+ "Resource": "*"
+ },
+ {
+ "Effect": "Allow",
+ "Action": [
+ "s3:GetObject",
+ "s3:DeleteObject",
+ "s3:PutObject",
+ "s3:AbortMultipartUpload",
+ "s3:ListMultipartUploadParts"
+ ],
+ "Resource": [
+ "arn:aws:s3:::</span><span class="k">${</span><span class="nv">BUCKET</span><span class="k">}</span><span class="sh">/*"
+ ]
+ },
+ {
+ "Effect": "Allow",
+ "Action": [
+ "s3:ListBucket"
+ ],
+ "Resource": [
+ "arn:aws:s3:::</span><span class="k">${</span><span class="nv">BUCKET</span><span class="k">}</span><span class="sh">"
+ ]
+ }
+ ]
+}
+</span><span class="no">EOF
+
+</span>aws iam put-user-policy <span class="se">\</span>
+ <span class="nt">--user-name</span> velero <span class="se">\</span>
+ <span class="nt">--policy-name</span> velero <span class="se">\</span>
+ <span class="nt">--policy-document</span> file://velero-policy.json
+
+aws iam create-access-key <span class="nt">--user-name</span> velero
+
+vim credentials-velero
+
+<span class="o">[</span>default]
+<span class="nv">aws_access_key_id</span><span class="o">=</span>&lt;AWS_ACCESS_KEY_ID&gt;
+<span class="nv">aws_secret_access_key</span><span class="o">=</span>&lt;AWS_SECRET_ACCESS_KEY&gt;</code></pre></figure>
+
+<ul>
+  <li>Install Velero</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># install Velero with AWS s3 and IAM user cred</span>
+velero <span class="nb">install</span> <span class="se">\</span>
+ <span class="nt">--provider</span> aws <span class="se">\</span>
+ <span class="nt">--bucket</span> <span class="nv">$BUCKET</span> <span class="se">\</span>
+ <span class="nt">--secret-file</span> ./credentials-velero <span class="se">\</span>
+ <span class="nt">--backup-location-config</span> <span class="nv">region</span><span class="o">=</span><span class="nv">$REGION</span> <span class="se">\</span>
+ <span class="nt">--snapshot-location-config</span> <span class="nv">region</span><span class="o">=</span><span class="nv">$REGION</span>
+
+<span class="c"># check for Velero deployment status</span>
+kubectl get all <span class="nt">-n</span> velero 
+NAME                          READY   STATUS    RESTARTS      AGE
+pod/velero-86c547688f-s6l4d   1/1     Running   3 <span class="o">(</span>17m ago<span class="o">)</span>   42h
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/velero   1/1     1            1           25d
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/velero-657bc85678   0         0         0       25d
+replicaset.apps/velero-86c547688f   1         1         1       42h
+
+<span class="c"># verify Velero version and S3 backup location</span>
+velero version
+Client:
+ Version: v1.11.0
+ Git commit: 0da2baa908c88ec3c45da15001f6a4b0bda64ae2
+Server:
+ Version: v1.11.0
+
+velero backup-location get
+NAME      PROVIDER   BUCKET/PREFIX                     PHASE         LAST VALIDATED                  ACCESS MODE   DEFAULT
+default   aws        zz-asb-k8s-velero-backup-bucket   available     2024-09-11 06:49:39 +0000 UTC   ReadWrite     <span class="nb">true</span></code></pre></figure>
+
+<ul>
+  <li>Initial namespace based backup and a full cluster backup, then verify backup status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># mamually initiate a cluster full backup and a namespace backup </span>
+velero backup logs full-cluster-backup
+velero backup create eks-backup <span class="nt">--include-namespaces</span> zackblog-dev
+
+velero get backup
+NAME                           STATUS            ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+eks-backup                     Completed         0        0          2024-10-11 07:17:58 +0000 UTC   29d       default            &lt;none&gt;
+full-cluster-backup            Completed         2        0          2024-10-11 07:15:51 +0000 UTC   29d       default            &lt;none&gt;
+
+<span class="c"># check and verify backup details</span>
+
+velero backup logs eks-backup
+velero backup describe eks-backup
+Name:         eks-backup
+Namespace:    velero
+Labels:       velero.io/storage-location<span class="o">=</span>default
+Annotations:  velero.io/source-cluster-k8s-gitversion<span class="o">=</span>v1.31.1
+ velero.io/source-cluster-k8s-major-version<span class="o">=</span>1
+ velero.io/source-cluster-k8s-minor-version<span class="o">=</span>31
+
+Phase:  Completed
+
+Namespaces:
+ Included:  zackblog-dev
+ Excluded:  &lt;none&gt;
+
+Resources:
+ Included:        <span class="k">*</span>
+ Excluded:        &lt;none&gt;
+ Cluster-scoped:  auto</code></pre></figure>
+
+<ul>
+  <li>Restore from previous backup after deleting deployment under a namespace</li>
+</ul>
+
+<p>Now we are going to validate Velero restore from the previous backup, we will first delete the deployment under namespace <code class="language-plaintext highlighter-rouge">zackblog-dev</code> and then restore it from the previous backup <code class="language-plaintext highlighter-rouge">eks-backup</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># existing resource under namespace</span>
+kubectl get all <span class="nt">-n</span> zackblog-dev 
+NAME                           READY   STATUS    RESTARTS       AGE
+pod/zackweb-674759b48f-b9frj   1/1     Running   1 <span class="o">(</span>127m ago<span class="o">)</span>   4h10m
+pod/zackweb-674759b48f-zl6gq   1/1     Running   1 <span class="o">(</span>127m ago<span class="o">)</span>   4h10m
+
+NAME                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackweb-service   LoadBalancer   10.111.140.121   &lt;none&gt;        80:31132/TCP   7h56m
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackweb   2/2     2            2           7h56m
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackweb-55547554f6   0         0         0       7h56m
+replicaset.apps/zackweb-5bd544cfb4   0         0         0       7h39m
+replicaset.apps/zackweb-674759b48f   2         2         2       4h10m
+replicaset.apps/zackweb-f4f74b898    0         0         0       4h13m
+
+<span class="c"># delete deployment</span>
+kubectl delete deployments.apps <span class="nt">-n</span> zackblog-dev zackweb 
+deployment.apps <span class="s2">"zackweb"</span> deleted
+kubectl get all <span class="nt">-n</span> zackblog-dev 
+NAME                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackweb-service   LoadBalancer   10.111.140.121   &lt;none&gt;        80:31132/TCP   7h57m
+
+<span class="c"># restore via velero</span>
+velero restore create <span class="nt">--from-backup</span> eks-backup
+Restore request <span class="s2">"eks-backup-20241011083747"</span> submitted successfully.
+Run <span class="sb">`</span>velero restore describe eks-backup-20241011083747<span class="sb">`</span> or <span class="sb">`</span>velero restore logs eks-backup-20241011083747<span class="sb">`</span> <span class="k">for </span>more details.
+
+<span class="c"># verify velero restore status</span>
+velero restore get
+NAME                        BACKUP       STATUS      STARTED                         COMPLETED                       ERRORS   WARNINGS   CREATED                         SELECTOR
+eks-backup-20241011083747   eks-backup   Completed   2024-10-11 08:37:48 +0000 UTC   2024-10-11 08:37:49 +0000 UTC   0        3          2024-10-11 08:37:48 +0000 UTC   &lt;none&gt;
+
+kubectl get all <span class="nt">-n</span> zackblog-dev 
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/zackweb-674759b48f-b9frj   1/1     Running   0          18s
+pod/zackweb-674759b48f-zl6gq   1/1     Running   0          18s
+
+NAME                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackweb-service   LoadBalancer   10.111.140.121   &lt;none&gt;        80:31132/TCP   7h58m
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackweb   2/2     2            2           17s
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackweb-55547554f6   0         0         0       18s
+replicaset.apps/zackweb-5bd544cfb4   0         0         0       18s
+replicaset.apps/zackweb-674759b48f   2         2         2       18s
+replicaset.apps/zackweb-f4f74b898    0         0         0       17s</code></pre></figure>
+
+<ul>
+  <li>Scheduled Backups</li>
+</ul>
+
+<p>Velero can be set to perform scheduled backups at regular intervals, here we will create a scheduled Backup hourly.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">velero schedule create daily-backup <span class="nt">--schedule</span> <span class="s2">"0 * * * *"</span>
+
+<span class="c"># Cron schedules use the following format</span>
+<span class="c"># ┌───────────── minute (0 - 59)</span>
+<span class="c"># │ ┌───────────── hour (0 - 23)</span>
+<span class="c"># │ │ ┌───────────── day of the month (1 - 31)</span>
+<span class="c"># │ │ │ ┌───────────── month (1 - 12)</span>
+<span class="c"># │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;</span>
+<span class="c"># │ │ │ │ │                        7 is also Sunday on some systems)</span>
+<span class="c"># │ │ │ │ │</span>
+<span class="c"># │ │ │ │ │</span>
+<span class="c"># * * * * *</span>
+
+<span class="c"># validate schedule</span>
+velero schedule get
+NAME            STATUS    CREATED                         SCHEDULE    BACKUP TTL   LAST BACKUP   SELECTOR   PAUSED
+hourly-backup   Enabled   2024-09-16 03:48:52 +0000 UTC   0 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span>   72h0m0s      45m ago       &lt;none&gt;     <span class="nb">false</span>
+
+<span class="c"># check scheduled backup </span>
+root@asb:~# velero backup get
+NAME                           STATUS            ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+eks-backup                     Completed         0        0          2024-10-11 07:17:58 +0000 UTC   29d       default            &lt;none&gt;
+full-cluster-backup            Completed         2        0          2024-10-11 07:15:51 +0000 UTC   29d       default            &lt;none&gt;
+hourly-backup-20241011080039   Completed         2        0          2024-10-11 08:00:39 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011070039   Completed         2        0          2024-10-11 07:00:39 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011063839   Completed         2        0          2024-10-11 06:38:42 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011050003   Completed         2        0          2024-10-11 05:00:03 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011040003   Completed         2        0          2024-10-11 04:00:03 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011030003   Completed         2        0          2024-10-11 03:00:03 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011020003   Completed         2        0          2024-10-11 02:00:03 +0000 UTC   2d        default            &lt;none&gt;</code></pre></figure>
+
+<ul>
+  <li>Cloud backup storage verification</li>
+</ul>
+
+<p>Verify backups in S3 bucket</p>
+
+<p><img src="/assets/velero1.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Here’s a summary of what we covered and achieved in the common Velero administrative tasks for backup and restore on EKS cluster:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Reliable Backup System</code>: Set up a robust system to back up your Kubernetes cluster, including both application data and persistent volumes.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Restore Flexibility</code>: Gained the ability to restore the cluster to specific points in time, including partial or full cluster recovery.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Disaster Recovery</code>: Developed a strategy for recovering from a full cluster failure using Velero and S3 storage.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Automated Backups</code>: Automated backups with scheduling to ensure that regular backups are taken without manual effort.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Storage Efficiency</code>: Managed backup retention to save on storage costs and keep backups organized.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring and Logs</code>: Monitored the status of all backup and restore tasks through detailed logging and error reporting.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/09/15/eks3.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

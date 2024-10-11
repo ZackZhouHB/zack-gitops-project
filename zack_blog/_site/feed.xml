@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-11T16:26:37+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-11T20:07:09+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -671,7 +671,286 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - KubeBench and OPA Gatekeeper</title><link href="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html" rel="alternate" type="text/html" title="EKS - KubeBench and OPA Gatekeeper" /><published>2024-09-13T10:15:29+10:00</published><updated>2024-09-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/13/eks2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html"><![CDATA[<p><b>About kube-bench and OPA Gatekeeper </b></p>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Cluster Backup with Velero</title><link href="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html" rel="alternate" type="text/html" title="EKS - Cluster Backup with Velero" /><published>2024-09-15T10:15:29+10:00</published><updated>2024-09-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/15/eks3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html"><![CDATA[<p><b>About Valero </b></p>
+
+<p>Valero is an open-source tool for storing, restoring, and migrating Kubernetes cluster resources and persistent volumes. Valero provides a way to hold the entire state of a Kubernetes cluster, all its objects and their consistent numbers, store backup files to Cloud storage like AWS S3, and then restore them to a previous state to ensure K8S data resilience, disaster recovery results and easy transport between clusters.</p>
+
+<p><b>Velero for EKS </b></p>
+
+<p>Backup EKS cluster using Velero, can be followed by the below path:</p>
+
+<ol>
+  <li>
+    <p>Install Velero in EKS cluster</p>
+  </li>
+  <li>
+    <p>AWS CLI is configured with the correct credentials</p>
+  </li>
+  <li>
+    <p>S3 bucket created and configured for Velero to communicate for backup and restore</p>
+  </li>
+</ol>
+
+<ul>
+  <li>Prepare AWS S3 bucket and IAM user</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create S3 bucket for Velero</span>
+<span class="nv">BUCKET</span><span class="o">=</span>zz-asb-k8s-velero-backup-bucket
+<span class="nv">REGION</span><span class="o">=</span>ap-southeast-2
+
+aws s3api create-bucket <span class="se">\</span>
+ <span class="nt">--bucket</span> <span class="nv">$BUCKET</span> <span class="se">\</span>
+ <span class="nt">--region</span> <span class="nv">$REGION</span> <span class="se">\</span>
+ <span class="nt">--create-bucket-configuration</span> <span class="nv">LocationConstraint</span><span class="o">=</span><span class="nv">$REGION</span>
+
+<span class="c"># create IAM user for Velero</span>
+aws iam create-user <span class="nt">--user-name</span> velero
+
+<span class="nb">cat</span> <span class="o">&gt;</span> velero-policy.json <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+{
+ "Version": "2012-10-17",
+ "Statement": [
+ {
+ "Effect": "Allow",
+ "Action": [
+ "ec2:DescribeVolumes",
+ "ec2:DescribeSnapshots",
+ "ec2:CreateTags",
+ "ec2:CreateVolume",
+ "ec2:CreateSnapshot",
+ "ec2:DeleteSnapshot"
+ ],
+ "Resource": "*"
+ },
+ {
+ "Effect": "Allow",
+ "Action": [
+ "s3:GetObject",
+ "s3:DeleteObject",
+ "s3:PutObject",
+ "s3:AbortMultipartUpload",
+ "s3:ListMultipartUploadParts"
+ ],
+ "Resource": [
+ "arn:aws:s3:::</span><span class="k">${</span><span class="nv">BUCKET</span><span class="k">}</span><span class="sh">/*"
+ ]
+ },
+ {
+ "Effect": "Allow",
+ "Action": [
+ "s3:ListBucket"
+ ],
+ "Resource": [
+ "arn:aws:s3:::</span><span class="k">${</span><span class="nv">BUCKET</span><span class="k">}</span><span class="sh">"
+ ]
+ }
+ ]
+}
+</span><span class="no">EOF
+
+</span>aws iam put-user-policy <span class="se">\</span>
+ <span class="nt">--user-name</span> velero <span class="se">\</span>
+ <span class="nt">--policy-name</span> velero <span class="se">\</span>
+ <span class="nt">--policy-document</span> file://velero-policy.json
+
+aws iam create-access-key <span class="nt">--user-name</span> velero
+
+vim credentials-velero
+
+<span class="o">[</span>default]
+<span class="nv">aws_access_key_id</span><span class="o">=</span>&lt;AWS_ACCESS_KEY_ID&gt;
+<span class="nv">aws_secret_access_key</span><span class="o">=</span>&lt;AWS_SECRET_ACCESS_KEY&gt;</code></pre></figure>
+
+<ul>
+  <li>Install Velero</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># install Velero with AWS s3 and IAM user cred</span>
+velero <span class="nb">install</span> <span class="se">\</span>
+ <span class="nt">--provider</span> aws <span class="se">\</span>
+ <span class="nt">--bucket</span> <span class="nv">$BUCKET</span> <span class="se">\</span>
+ <span class="nt">--secret-file</span> ./credentials-velero <span class="se">\</span>
+ <span class="nt">--backup-location-config</span> <span class="nv">region</span><span class="o">=</span><span class="nv">$REGION</span> <span class="se">\</span>
+ <span class="nt">--snapshot-location-config</span> <span class="nv">region</span><span class="o">=</span><span class="nv">$REGION</span>
+
+<span class="c"># check for Velero deployment status</span>
+kubectl get all <span class="nt">-n</span> velero 
+NAME                          READY   STATUS    RESTARTS      AGE
+pod/velero-86c547688f-s6l4d   1/1     Running   3 <span class="o">(</span>17m ago<span class="o">)</span>   42h
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/velero   1/1     1            1           25d
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/velero-657bc85678   0         0         0       25d
+replicaset.apps/velero-86c547688f   1         1         1       42h
+
+<span class="c"># verify Velero version and S3 backup location</span>
+velero version
+Client:
+ Version: v1.11.0
+ Git commit: 0da2baa908c88ec3c45da15001f6a4b0bda64ae2
+Server:
+ Version: v1.11.0
+
+velero backup-location get
+NAME      PROVIDER   BUCKET/PREFIX                     PHASE         LAST VALIDATED                  ACCESS MODE   DEFAULT
+default   aws        zz-asb-k8s-velero-backup-bucket   available     2024-09-11 06:49:39 +0000 UTC   ReadWrite     <span class="nb">true</span></code></pre></figure>
+
+<ul>
+  <li>Initial namespace based backup and a full cluster backup, then verify backup status</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># mamually initiate a cluster full backup and a namespace backup </span>
+velero backup logs full-cluster-backup
+velero backup create eks-backup <span class="nt">--include-namespaces</span> zackblog-dev
+
+velero get backup
+NAME                           STATUS            ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+eks-backup                     Completed         0        0          2024-10-11 07:17:58 +0000 UTC   29d       default            &lt;none&gt;
+full-cluster-backup            Completed         2        0          2024-10-11 07:15:51 +0000 UTC   29d       default            &lt;none&gt;
+
+<span class="c"># check and verify backup details</span>
+
+velero backup logs eks-backup
+velero backup describe eks-backup
+Name:         eks-backup
+Namespace:    velero
+Labels:       velero.io/storage-location<span class="o">=</span>default
+Annotations:  velero.io/source-cluster-k8s-gitversion<span class="o">=</span>v1.31.1
+ velero.io/source-cluster-k8s-major-version<span class="o">=</span>1
+ velero.io/source-cluster-k8s-minor-version<span class="o">=</span>31
+
+Phase:  Completed
+
+Namespaces:
+ Included:  zackblog-dev
+ Excluded:  &lt;none&gt;
+
+Resources:
+ Included:        <span class="k">*</span>
+ Excluded:        &lt;none&gt;
+ Cluster-scoped:  auto</code></pre></figure>
+
+<ul>
+  <li>Restore from previous backup after deleting deployment under a namespace</li>
+</ul>
+
+<p>Now we are going to validate Velero restore from the previous backup, we will first delete the deployment under namespace <code class="language-plaintext highlighter-rouge">zackblog-dev</code> and then restore it from the previous backup <code class="language-plaintext highlighter-rouge">eks-backup</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># existing resource under namespace</span>
+kubectl get all <span class="nt">-n</span> zackblog-dev 
+NAME                           READY   STATUS    RESTARTS       AGE
+pod/zackweb-674759b48f-b9frj   1/1     Running   1 <span class="o">(</span>127m ago<span class="o">)</span>   4h10m
+pod/zackweb-674759b48f-zl6gq   1/1     Running   1 <span class="o">(</span>127m ago<span class="o">)</span>   4h10m
+
+NAME                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackweb-service   LoadBalancer   10.111.140.121   &lt;none&gt;        80:31132/TCP   7h56m
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackweb   2/2     2            2           7h56m
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackweb-55547554f6   0         0         0       7h56m
+replicaset.apps/zackweb-5bd544cfb4   0         0         0       7h39m
+replicaset.apps/zackweb-674759b48f   2         2         2       4h10m
+replicaset.apps/zackweb-f4f74b898    0         0         0       4h13m
+
+<span class="c"># delete deployment</span>
+kubectl delete deployments.apps <span class="nt">-n</span> zackblog-dev zackweb 
+deployment.apps <span class="s2">"zackweb"</span> deleted
+kubectl get all <span class="nt">-n</span> zackblog-dev 
+NAME                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackweb-service   LoadBalancer   10.111.140.121   &lt;none&gt;        80:31132/TCP   7h57m
+
+<span class="c"># restore via velero</span>
+velero restore create <span class="nt">--from-backup</span> eks-backup
+Restore request <span class="s2">"eks-backup-20241011083747"</span> submitted successfully.
+Run <span class="sb">`</span>velero restore describe eks-backup-20241011083747<span class="sb">`</span> or <span class="sb">`</span>velero restore logs eks-backup-20241011083747<span class="sb">`</span> <span class="k">for </span>more details.
+
+<span class="c"># verify velero restore status</span>
+velero restore get
+NAME                        BACKUP       STATUS      STARTED                         COMPLETED                       ERRORS   WARNINGS   CREATED                         SELECTOR
+eks-backup-20241011083747   eks-backup   Completed   2024-10-11 08:37:48 +0000 UTC   2024-10-11 08:37:49 +0000 UTC   0        3          2024-10-11 08:37:48 +0000 UTC   &lt;none&gt;
+
+kubectl get all <span class="nt">-n</span> zackblog-dev 
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/zackweb-674759b48f-b9frj   1/1     Running   0          18s
+pod/zackweb-674759b48f-zl6gq   1/1     Running   0          18s
+
+NAME                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackweb-service   LoadBalancer   10.111.140.121   &lt;none&gt;        80:31132/TCP   7h58m
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackweb   2/2     2            2           17s
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackweb-55547554f6   0         0         0       18s
+replicaset.apps/zackweb-5bd544cfb4   0         0         0       18s
+replicaset.apps/zackweb-674759b48f   2         2         2       18s
+replicaset.apps/zackweb-f4f74b898    0         0         0       17s</code></pre></figure>
+
+<ul>
+  <li>Scheduled Backups</li>
+</ul>
+
+<p>Velero can be set to perform scheduled backups at regular intervals, here we will create a scheduled Backup hourly.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">velero schedule create daily-backup <span class="nt">--schedule</span> <span class="s2">"0 * * * *"</span>
+
+<span class="c"># Cron schedules use the following format</span>
+<span class="c"># ┌───────────── minute (0 - 59)</span>
+<span class="c"># │ ┌───────────── hour (0 - 23)</span>
+<span class="c"># │ │ ┌───────────── day of the month (1 - 31)</span>
+<span class="c"># │ │ │ ┌───────────── month (1 - 12)</span>
+<span class="c"># │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;</span>
+<span class="c"># │ │ │ │ │                        7 is also Sunday on some systems)</span>
+<span class="c"># │ │ │ │ │</span>
+<span class="c"># │ │ │ │ │</span>
+<span class="c"># * * * * *</span>
+
+<span class="c"># validate schedule</span>
+velero schedule get
+NAME            STATUS    CREATED                         SCHEDULE    BACKUP TTL   LAST BACKUP   SELECTOR   PAUSED
+hourly-backup   Enabled   2024-09-16 03:48:52 +0000 UTC   0 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span>   72h0m0s      45m ago       &lt;none&gt;     <span class="nb">false</span>
+
+<span class="c"># check scheduled backup </span>
+root@asb:~# velero backup get
+NAME                           STATUS            ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+eks-backup                     Completed         0        0          2024-10-11 07:17:58 +0000 UTC   29d       default            &lt;none&gt;
+full-cluster-backup            Completed         2        0          2024-10-11 07:15:51 +0000 UTC   29d       default            &lt;none&gt;
+hourly-backup-20241011080039   Completed         2        0          2024-10-11 08:00:39 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011070039   Completed         2        0          2024-10-11 07:00:39 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011063839   Completed         2        0          2024-10-11 06:38:42 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011050003   Completed         2        0          2024-10-11 05:00:03 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011040003   Completed         2        0          2024-10-11 04:00:03 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011030003   Completed         2        0          2024-10-11 03:00:03 +0000 UTC   2d        default            &lt;none&gt;
+hourly-backup-20241011020003   Completed         2        0          2024-10-11 02:00:03 +0000 UTC   2d        default            &lt;none&gt;</code></pre></figure>
+
+<ul>
+  <li>Cloud backup storage verification</li>
+</ul>
+
+<p>Verify backups in S3 bucket</p>
+
+<p><img src="/assets/velero1.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Here’s a summary of what we covered and achieved in the common Velero administrative tasks for backup and restore on EKS cluster:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Reliable Backup System</code>: Set up a robust system to back up your Kubernetes cluster, including both application data and persistent volumes.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Restore Flexibility</code>: Gained the ability to restore the cluster to specific points in time, including partial or full cluster recovery.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Disaster Recovery</code>: Developed a strategy for recovering from a full cluster failure using Velero and S3 storage.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Automated Backups</code>: Automated backups with scheduling to ensure that regular backups are taken without manual effort.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Storage Efficiency</code>: Managed backup retention to save on storage costs and keep backups organized.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Monitoring and Logs</code>: Monitored the status of all backup and restore tasks through detailed logging and error reporting.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Valero]]></summary></entry><entry><title type="html">EKS - KubeBench and OPA Gatekeeper</title><link href="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html" rel="alternate" type="text/html" title="EKS - KubeBench and OPA Gatekeeper" /><published>2024-09-13T10:15:29+10:00</published><updated>2024-09-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/13/eks2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/13/eks2.html"><![CDATA[<p><b>About kube-bench and OPA Gatekeeper </b></p>
 
 <p>In the last post, I was able to implement <a href="https://zackz.site/jekyll/cat2/2024/09/12/eks1.html">EKS cluster autoscaler and Horizontal Pod Autoscaler (HPA)</a>, in this post I will continue with EKS security practice with Kube-Bench and OPA Gatekeeper.</p>
 
@@ -2970,212 +3249,4 @@ KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
   <li>
     <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry><entry><title type="html">Python Microservice: K8S deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html" rel="alternate" type="text/html" title="Python Microservice: K8S deployment" /><published>2024-05-22T00:17:29+10:00</published><updated>2024-05-22T00:17:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/05/22/py-flask5.html"><![CDATA[<p><b> About K8S deployment</b></p>
-
-<p>Now It is time to change from docker-compose to deploy into Kubernetes.  </p>
-
-<p>As this is not new to me to deploy microservice into K8S, also I already have a running Kubernetes cluster in hand, so here I will just create docker images for the 3 services: API gateway, user and order, then push them into the docker hub repository, then create Kubernetes manifest for deployment and service.  </p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Folder structure</span>
-/07-with-k8s
-<span class="nb">.</span>
-├── api_gateway.py
-├── depolyment.yaml
-├── Dockerfile_apigateway
-├── Dockerfile_order
-├── Dockerfile_user
-├── order_service.py
-└── user_service.py
-
-<span class="c"># Build, tag and push the docker images</span>
-docker login
-
-docker build <span class="nt">-t</span> zackz001/python-user:latest <span class="nt">-f</span> Dockerfile_user <span class="nb">.</span>
-docker build <span class="nt">-t</span> zackz001/python-order:latest <span class="nt">-f</span> Dockerfile_order <span class="nb">.</span>
-docker build <span class="nt">-t</span> zackz001/python-apigateway:latest <span class="nt">-f</span> Dockerfile_apigateway <span class="nb">.</span>
-docker push zackz001/python-apigateway:latest
-docker push zackz001/python-user:latest
-docker push zackz001/python-order:latest
-
-docker image <span class="nb">ls
-
-</span>REPOSITORY                                      TAG       IMAGE ID       CREATED        SIZE
-zackz001/python-apigateway                      latest    bc3db11f4be8   1 hours ago    138MB
-zackz001/python-user                            latest    c93973bece33   1 hours ago    136MB
-zackz001/python-order                           latest    e35d5de9254b   1 hours ago    136MB
-prom/prometheus                                 latest    1bd2b9635267   8 days ago     271MB
-grafana/grafana                                 latest    c42c21cd0ebc   3 weeks ago    453MB
-consul                                          1.15.4    686495461132   4 months ago   155MB
-docker.elastic.co/elasticsearch/elasticsearch   7.13.2    11a830014f7c   3 years ago    1.02GB
-docker.elastic.co/logstash/logstash             7.13.2    8dc1af4dd662   3 years ago    965MB
-docker.elastic.co/kibana/kibana                 7.13.2    6c4869a27be1   3 years ago    1.35GB
-
-<span class="c"># k8s deployment Manifests</span>
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: user-service
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: user-service
- template:
- metadata:
- labels:
- app: user-service
- spec:
- containers:
- - name: user-service
- image: zackz001/python-user:latest
- ports:
- - containerPort: 5001
-
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
- name: user-service
-spec:
- selector:
- app: user-service
- ports:
- - protocol: TCP
- port: 5001
- targetPort: 5001
-
-<span class="nt">---</span>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: order-service
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: order-service
- template:
- metadata:
- labels:
- app: order-service
- spec:
- containers:
- - name: order-service
- image: zackz001/python-order:latest
- ports:
- - containerPort: 5002
-
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
- name: order-service
-spec:
- selector:
- app: order-service
- ports:
- - protocol: TCP
- port: 5002
- targetPort: 5002
-
-<span class="nt">---</span>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: api-gateway
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: api-gateway
- template:
- metadata:
- labels:
- app: api-gateway
- spec:
- containers:
- - name: api-gateway
- image: zackz001/python-apigateway:latest
- ports:
- - containerPort: 5000
-
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
- name: api-gateway
-spec:
- <span class="nb">type</span>: NodePort
- selector:
- app: api-gateway
- ports:
- - protocol: TCP
- port: 5000
- targetPort: 5000</code></pre></figure>
-
-<p>Now Run kubectl apply -f to bring all deployments and services up and running. Should see all services in the Rancher console.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create ns python
-
-kubectl apply <span class="nt">-f</span> depolyment.yaml <span class="nt">-n</span> python
-
-kubectl get all <span class="nt">-n</span> python
-
-NAME                                 READY   STATUS    RESTARTS      AGE
-pod/api-gateway-d664cf8c4-7l7q8      1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
-pod/order-service-856577f666-gk5gt   1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
-pod/user-service-5d8766d9cb-4rqnz    1/1     Running   2 <span class="o">(</span>50m ago<span class="o">)</span>   1h
-
-NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>          AGE
-service/api-gateway     NodePort    10.43.38.27     &lt;none&gt; 5000:32060/TCP   1h
-service/order-service   ClusterIP   10.43.27.255    &lt;none&gt; 5002/TCP         1h
-service/user-service    ClusterIP   10.43.160.232   &lt;none&gt; 5001/TCP         1h
-
-NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/api-gateway     1/1     1            1           1h
-deployment.apps/order-service   1/1     1            1           1h
-deployment.apps/user-service    1/1     1            1           1h
-
-NAME                                       DESIRED   CURRENT   READY   AGE
-replicaset.apps/api-gateway-d664cf8c4      1         1         1       1h
-replicaset.apps/order-service-856577f666   1         1         1       1h
-replicaset.apps/user-service-5d8766d9cb    1         1         1       1h</code></pre></figure>
-
-<p><b> Verify API gateway, user and order services</b></p>
-
-<p>Access API gateway via http://NodeIP:NodePort/users and http://NodeIP:NodePort/orders</p>
-
-<p><img src="/assets/flask11.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/flask12.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we complete all Python Flask sessions.</p>
-
-<p>I have done this End-to-End Python Microservice application solution development, which enhanced my DevOps practices of Python programming, microservices architecture design and deployment with docker-compose, API Gateway implementation, service registery with Consul, logging and monitoring, and finally Kubernetes deployment.  </p>
-
-<ul>
-  <li>
-    <p>simple Python Flask app</p>
-  </li>
-  <li>
-    <p>Microservice applications with user and order</p>
-  </li>
-  <li>
-    <p>Create API gateway Flask app</p>
-  </li>
-  <li>
-    <p>Service registery with Consul</p>
-  </li>
-  <li>
-    <p>Logging with ELK</p>
-  </li>
-  <li>
-    <p>Monitoring with Prometheus and Grafana</p>
-  </li>
-  <li>
-    <p>K8S deployment</p>
-  </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About K8S deployment]]></summary></entry></feed>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry></feed>

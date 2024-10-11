@@ -253,8 +253,6 @@ Based on the constraint we created before, the policy prevents the pod from bein
 
 this can be expanded to more strict rules to enforce k8s cluster to achieve the desired control. 
 
-
-
 <b>Conclusion</b>
 
 In this post, we dive into the process of enhancing the security of an AWS EKS cluster by implementing and validating two critical security tools: Kube-bench and OPA Gatekeeper to get some hands-on to achieve a secure EKS environment by ensuring compliance with best practices and enforcing security policies at runtime.
