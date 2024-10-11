@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Lab Setup"
+title:  "MLOps - Home Lab with Pre-trained ML model"
 date:   2024-10-01 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -282,6 +282,38 @@ for i in range(3):
 {% endhighlight %}
 
 ![image tooltip here](/assets/mlops6.png)
+
+
+Here I run a pretrained model `RedPajama`, ask questions from prompt, the 2nd answer just killing me :) 
+
+{% highlight python %}
+import torch
+import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+MIN_TRANSFORMERS_VERSION = '4.25.1'
+
+# check transformers version
+assert transformers.__version__ >= MIN_TRANSFORMERS_VERSION, f'Please upgrade transformers to version {MIN_TRANSFORMERS_VERSION} or higher.'
+
+# init
+tokenizer = AutoTokenizer.from_pretrained("togethercomputer/RedPajama-INCITE-Instruct-3B-v1")
+model = AutoModelForCausalLM.from_pretrained("togethercomputer/RedPajama-INCITE-Instruct-3B-v1", torch_dtype=torch.float16)
+model = model.to('cuda:0')
+# infer
+prompt = "Q: who is the best soccer player?\nA:"
+inputs = tokenizer(prompt, return_tensors='pt').to(model.device)
+input_length = inputs.input_ids.shape[1]
+outputs = model.generate(
+    **inputs, max_new_tokens=128, do_sample=True, temperature=0.7, top_p=0.7, top_k=50, return_dict_in_generate=True
+)
+token = outputs.sequences[0, input_length:]
+output_str = tokenizer.decode(token)
+print(output_str)
+{% endhighlight %}
+![image tooltip here](/assets/mlops7.png)
+
+![image tooltip here](/assets/mlops8.png)
 
 <b>Conclusion</b>
 

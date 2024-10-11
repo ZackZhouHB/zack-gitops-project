@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-11T15:58:45+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - a Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - a Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-10-11T16:21:04+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - a Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - a Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -344,7 +344,7 @@ pipeline <span class="o">{</span>
 
 <p>In summary, a production-level ML workflow integrates new data, automates model training and deployment, and continuously monitors model performance. By utilizing CI/CD pipelines, Docker for containerization, and tools for versioning and tracking, we can create a robust and efficient machine learning system that can adapt to changing data and business requirements.</p>
 
-<p>In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">MLOps - Lab Setup</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOps - Lab Setup" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
+<p>In the next post, I will refactor the local tools into AWS ML services, to move the ML pipeline and deployment to the cloud.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[MLOPS Project]]></summary></entry><entry><title type="html">MLOps - Home Lab with Pre-trained ML model</title><link href="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html" rel="alternate" type="text/html" title="MLOps - Home Lab with Pre-trained ML model" /><published>2024-10-01T10:15:29+10:00</published><updated>2024-10-01T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/01/mlops1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/01/mlops1.html"><![CDATA[<p><b>Move to MLOPS </b></p>
 
 <p>Transitioning from DevOps to MLOps can be achieved by leveraging existing DevOps expertise by adding new layers specific to machine learning.</p>
 
@@ -638,6 +638,36 @@ torch.cuda.synchronize<span class="o">()</span>
  print<span class="o">(</span><span class="s2">"verify device:"</span>, result_gpu.device<span class="o">)</span></code></pre></figure>
 
 <p><img src="/assets/mlops6.png" alt="image tooltip here" /></p>
+
+<p>Here I run a pretrained model <code class="language-plaintext highlighter-rouge">RedPajama</code>, ask questions from prompt, the 2nd answer just killing me :)</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="n">torch</span>
+<span class="kn">import</span> <span class="n">transformers</span>
+<span class="kn">from</span> <span class="n">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">AutoModelForCausalLM</span>
+
+<span class="n">MIN_TRANSFORMERS_VERSION</span> <span class="o">=</span> <span class="sh">'</span><span class="s">4.25.1</span><span class="sh">'</span>
+
+<span class="c1"># check transformers version
+</span><span class="k">assert</span> <span class="n">transformers</span><span class="p">.</span><span class="n">__version__</span> <span class="o">&gt;=</span> <span class="n">MIN_TRANSFORMERS_VERSION</span><span class="p">,</span> <span class="sa">f</span><span class="sh">'</span><span class="s">Please upgrade transformers to version </span><span class="si">{</span><span class="n">MIN_TRANSFORMERS_VERSION</span><span class="si">}</span><span class="s"> or higher.</span><span class="sh">'</span>
+
+<span class="c1"># init
+</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="p">.</span><span class="nf">from_pretrained</span><span class="p">(</span><span class="sh">"</span><span class="s">togethercomputer/RedPajama-INCITE-Instruct-3B-v1</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="p">.</span><span class="nf">from_pretrained</span><span class="p">(</span><span class="sh">"</span><span class="s">togethercomputer/RedPajama-INCITE-Instruct-3B-v1</span><span class="sh">"</span><span class="p">,</span> <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">float16</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">to</span><span class="p">(</span><span class="sh">'</span><span class="s">cuda:0</span><span class="sh">'</span><span class="p">)</span>
+<span class="c1"># infer
+</span><span class="n">prompt</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Q: who is the best soccer player?</span><span class="se">\n</span><span class="s">A:</span><span class="sh">"</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="nf">tokenizer</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="sh">'</span><span class="s">pt</span><span class="sh">'</span><span class="p">).</span><span class="nf">to</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">input_length</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">.</span><span class="n">input_ids</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">generate</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">inputs</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">do_sample</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">return_dict_in_generate</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">.</span><span class="n">sequences</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">input_length</span><span class="p">:]</span>
+<span class="n">output_str</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">.</span><span class="nf">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">output_str</span><span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/mlops7.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops8.png" alt="image tooltip here" /></p>
 
 <p><b>Conclusion</b></p>
 
