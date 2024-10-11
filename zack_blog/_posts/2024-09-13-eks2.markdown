@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Kube-Bench and OPA Gatekeeper for EKS security"
+title:  "EKS - KubeBench and OPA Gatekeeper"
 date:   2024-09-13 11:15:29 +1100
 categories: jekyll Cat2
 ---

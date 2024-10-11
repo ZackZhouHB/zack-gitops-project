@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "EKS Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)"
+title:  "EKS - Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)"
 date:   2024-09-12 11:15:29 +1100
 categories: jekyll Cat2
 ---
