@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Istio: Distributed Tracing with Jaeger"
-date:   2024-12-24 11:15:29 +1100
+date:   2023-12-24 11:15:29 +1100
 categories: jekyll Cat2
 ---
 

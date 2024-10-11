@@ -3,21 +3,21 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Kustomize vs Helm with ZackBlog | Zack’s Blog</title>
+<title>Helm + Kustomize for ZackBlog | Zack’s Blog</title>
 <meta name="generator" content="Jekyll v4.3.2" />
-<meta property="og:title" content="Kustomize vs Helm with ZackBlog" />
+<meta property="og:title" content="Helm + Kustomize for ZackBlog" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="About Helm" />
-<meta property="og:description" content="About Helm" />
+<meta name="description" content="About Kustomize" />
+<meta property="og:description" content="About Kustomize" />
 <link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/03/12/Helm.html" />
 <meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/03/12/Helm.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-03-12T11:15:29+11:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Kustomize vs Helm with ZackBlog" />
+<meta property="twitter:title" content="Helm + Kustomize for ZackBlog" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-03-12T11:15:29+11:00","datePublished":"2024-03-12T11:15:29+11:00","description":"About Helm","headline":"Kustomize vs Helm with ZackBlog","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/03/12/Helm.html"},"url":"http://localhost:4000/jekyll/cat2/2024/03/12/Helm.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-03-12T11:15:29+11:00","datePublished":"2024-03-12T11:15:29+11:00","description":"About Kustomize","headline":"Helm + Kustomize for ZackBlog","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/03/12/Helm.html"},"url":"http://localhost:4000/jekyll/cat2/2024/03/12/Helm.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -40,47 +40,330 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline"> Kustomize vs Helm with ZackBlog</h1>
+    <h1 class="post-title p-name" itemprop="name headline"> Helm + Kustomize for ZackBlog</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="2024-03-12T11:15:29+11:00" itemprop="datePublished">Mar 12, 2024
       </time></p>
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p><b> About Helm </b></p>
+    <p><b> About Kustomize </b></p>
 
-<p>Helm is the popular package manager for Kubernetes application deployment, not new to me as I had tried many charts previously with Kafka, and Redis helm charts installation, today I am going to explore how to build my own helm chart for this zack blog, also deep dive into the chart development for advanced templating, together with helm release management and version control, finally integrate my own chart with CI/CD for GitOps.  </p>
+<p>Kustomize is a configuration management tool for Kubernetes that allows users to customize application manifests without modifying the original YAML files, in this post I will explore Kustomize with overlays, bases, and transformers, then create simple kustomization.yaml files for different environments using Zackblog, then to practice using Kustomize’s built-in resources like configMapGenerator and secretGenerator.</p>
+
+<p>Let’s take Zackblog k8s deployment manifest as an example and convert it into a Kustomize setup. We will start by organizing the files and gradually exploring key Kustomize features.</p>
+
+<ul>
+  <li>Set Up Kustomize Folder Structure</li>
+</ul>
+
+<p>The base directory contains the common configuration. The overlays directories are for environment-specific customizations (e.g., dev and prod).</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">mkdir</span> <span class="nt">-p</span> zackblog/base
+<span class="nb">mkdir</span> <span class="nt">-p</span> zackblog/overlays/dev
+<span class="nb">mkdir</span> <span class="nt">-p</span> zackblog/overlays/prod</code></pre></figure>
+
+<ul>
+  <li>Create the Base Kustomization</li>
+</ul>
+
+<p>Move the original zackblog.yaml manifest to the base directory and split it into separate files for the <code class="language-plaintext highlighter-rouge">deployment.yaml</code> and <code class="language-plaintext highlighter-rouge">service.yaml</code>, then create a kustomization.yaml file in the base directory to manage these resources:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># zackblog/base/deployment.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
+ <span class="na">labels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackweb</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+ <span class="na">selector</span><span class="pi">:</span>
+ <span class="na">matchLabels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackweb</span>
+ <span class="na">template</span><span class="pi">:</span>
+ <span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">labels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackweb</span>
+ <span class="na">spec</span><span class="pi">:</span>
+ <span class="na">containers</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
+ <span class="na">image</span><span class="pi">:</span> <span class="s">zackz001/gitops-jekyll:latest</span>
+ <span class="na">ports</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">80</span>
+
+<span class="c1"># zackblog/base/service.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb-service</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">selector</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackweb</span>
+ <span class="na">ports</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+ <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
+ <span class="na">targetPort</span><span class="pi">:</span> <span class="m">80</span>
+ <span class="na">type</span><span class="pi">:</span> <span class="s">LoadBalancer</span>
+
+<span class="c1"># zackblog/base/kustomization.yaml</span>
+<span class="na">resources</span><span class="pi">:</span>
+<span class="s">  - deployment.yaml</span>
+<span class="s">  - service.yaml</span></code></pre></figure>
+
+<ul>
+  <li>Create Environment Overlays</li>
+</ul>
+
+<p>In Kustomize, we create environment-specific overlays by overriding or patching the base configuration.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Dev Overlay</code>: In the dev directory, create a <code class="language-plaintext highlighter-rouge">kustomization.yaml</code> file to customize the base configuration for development, then create a patch file <code class="language-plaintext highlighter-rouge">patch.yaml</code> to modify the replicas for the dev environment.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">mkdir</span> <span class="nt">-p</span> zackblog/overlays/dev/
+<span class="nb">mkdir</span> <span class="nt">-p</span> zackblog/overlays/prod
+
+<span class="c"># zackblog/overlays/dev/kustomization.yaml</span>
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - patch.yaml
+
+commonLabels:
+ environment: dev</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># zackblog/overlays/dev/patch.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">replicas</span><span class="pi">:</span> <span class="s">2  # Increase replica count in dev</span></code></pre></figure>
+
+<p>Similarly, for production, create another <code class="language-plaintext highlighter-rouge">kustomization.yaml</code> and <code class="language-plaintext highlighter-rouge">patch.yaml</code> in the prod directory and set replicas to 4:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># zackblog/overlays/prod/kustomization.yaml</span>
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - patch.yaml
+
+commonLabels:
+ environment: prod</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># zackblog/overlays/prod/patch.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">replicas</span><span class="pi">:</span> <span class="s">5  # Scale to 5 replicas in prod</span></code></pre></figure>
+
+<p>The final Kustomiz Folder tree looks like this, then we go and apply both dev and prod deployment into 2 namespaces using Kustomize environment overlays.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">/zackblog# tree
+<span class="nb">.</span>
+├── base
+│   ├── deployment.yaml
+│   ├── kustomization.yaml
+│   └── service.yaml
+└── overlays
+ ├── dev
+ │   ├── kustomization.yaml
+ │   └── patch.yaml
+ └── prod
+ ├── kustomization.yaml
+ └── patch.yaml
+
+kubectl create namespace zackblog-dev
+kubectl create namespace zackblog-prod
+namespace/zackblog-dev created
+namespace/zackblog-prod created
+
+kubectl apply <span class="nt">-k</span> ./zackblog/overlays/dev
+service/zackweb-service created
+deployment.apps/zackweb created
+
+kubectl apply <span class="nt">-k</span> ./zackblog/overlays/prod
+service/zackweb-service created
+deployment.apps/zackweb created
+
+root@asb:~/kustomizahelm/kustomize-z# kubectl get deployment zackweb <span class="nt">-n</span> zackblog-dev <span class="nt">--show-labels</span>
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE     LABELS
+zackweb   2/2     2            2           3m20s   <span class="nv">app</span><span class="o">=</span>zackweb,environment<span class="o">=</span>dev
+root@asb:~/kustomizahelm/kustomize-z# kubectl get deployment zackweb <span class="nt">-n</span> zackblog-prod <span class="nt">--show-labels</span>
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE     LABELS
+zackweb   4/4     4            4           2m47s   <span class="nv">app</span><span class="o">=</span>zackweb,environment<span class="o">=</span>prod</code></pre></figure>
+
+<ul>
+  <li>Generate ConfigMaps and Secrets dynamically without manually creating YAML files</li>
+</ul>
+
+<p>Here we will add a ConfigMap by updating Base kustomization.yaml, then update deployment.yaml to merge and use the ConfigMap:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># zackblog/base/kustomization.yaml</span>
+<span class="na">resources</span><span class="pi">:</span>
+<span class="s">  - deployment.yaml</span>
+<span class="s">  - service.yaml</span>
+
+<span class="na">configMapGenerator</span><span class="pi">:</span>
+<span class="na">  - name</span><span class="pi">:</span> <span class="s">zackweb-config</span>
+ <span class="s">literals</span><span class="err">:</span>
+<span class="s">      - LOG_LEVEL=debug</span>
+
+<span class="c1"># zackblog/base/deployment.yaml</span>
+ <span class="na">spec</span><span class="pi">:</span>
+ <span class="na">containers</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb</span>
+ <span class="na">image</span><span class="pi">:</span> <span class="s">zackz001/gitops-jekyll:latest</span>
+ <span class="na">ports</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">80</span>
+ <span class="na">envFrom</span><span class="pi">:</span> <span class="s"> </span> <span class="c1"># add configmap</span>
+ <span class="pi">-</span> <span class="na">configMapRef</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackweb-config</span>
+
+<span class="c1"># zackblog/overlays/dev/kustomization.yaml</span>
+<span class="na">configMapGenerator</span><span class="pi">:</span>
+<span class="na">  - name</span><span class="pi">:</span> <span class="s">zackweb-config</span>
+ <span class="s">behavior</span><span class="err">:</span> <span class="s">merge  # Merge with the base ConfigMap</span>
+ <span class="s">literals</span><span class="err">:</span>
+<span class="s">      - LOG_LEVEL=debug  # Dev-specific log level</span>
+
+<span class="c1"># zackblog/overlays/prod/kustomization.yaml</span>
+<span class="na">configMapGenerator</span><span class="pi">:</span>
+<span class="na">  - name</span><span class="pi">:</span> <span class="s">zackweb-config</span>
+ <span class="s">behavior</span><span class="err">:</span> <span class="s">merge  # Merge with the base ConfigMap</span>
+ <span class="s">literals</span><span class="err">:</span>
+<span class="s">      - LOG_LEVEL=info  # Prod-specific log level</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:~/kustomizahelm/kustomize-z# kubectl apply <span class="nt">-k</span> zackblog/base
+configmap/zackweb-config-47668c6k28 created
+service/zackweb-service created
+deployment.apps/zackweb created
+
+root@asb:~/kustomizahelm/kustomize-z# kubectl apply <span class="nt">-k</span> zackblog/overlays/dev
+configmap/zackweb-config-hf678c7m2b created
+service/zackweb-service unchanged
+deployment.apps/zackweb configured
+
+root@asb:~/kustomizahelm/kustomize-z# kubectl apply <span class="nt">-k</span> zackblog/overlays/prod
+configmap/zackweb-config-hf678c7m2b created
+service/zackweb-service unchanged
+deployment.apps/zackweb configured</code></pre></figure>
+
+<ul>
+  <li>Using Transformers for Advanced Customizations</li>
+</ul>
+
+<p>Next we will create a Transformer File to add Resource Limits for deployment in dev</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># zackblog/overlays/dev/resource-limits.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">builtin</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">PatchTransformer</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">add-resource-limits</span>
+<span class="na">patch</span><span class="pi">:</span> <span class="pi">|</span>
+<span class="err"> </span><span class="s"> - op: add</span>
+ <span class="s">path: /spec/template/spec/containers/0/resources</span>
+ <span class="s">value:</span>
+ <span class="s">limits:</span>
+ <span class="s">cpu: "500m"</span>
+ <span class="s">memory: "256Mi"</span>
+ <span class="s">requests:</span>
+ <span class="s">cpu: "250m"</span>
+ <span class="s">memory: "128Mi"</span>
+<span class="err">t</span><span class="s">arget:</span>
+ <span class="s">kind: Deployment</span>
+ <span class="s">name: zackweb</span>
+
+<span class="err">#</span><span class="s"> zackblog/overlays/dev/kustomization.yaml</span>
+<span class="err">n</span><span class="s">amespace: zackblog-dev</span>
+
+<span class="err">t</span><span class="s">ransformers:</span>
+<span class="err"> </span><span class="s"> - resource-limits.yaml</span>
+
+<span class="err">r</span><span class="s">oot@asb:~/kustomizahelm/kustomize-z# kubectl apply -k zackblog/overlays/dev</span>
+<span class="err">c</span><span class="s">onfigmap/zackweb-config-hf678c7m2b unchanged</span>
+<span class="err">s</span><span class="s">ervice/zackweb-service unchanged</span>
+<span class="err">d</span><span class="s">eployment.apps/zackweb configured</span>
+
+<span class="err">r</span><span class="s">oot@asb:~/kustomizahelm/kustomize-z# kubectl describe deployments.apps -n zackblog-dev</span>
+
+<span class="err">P</span><span class="s">od Template:</span>
+ <span class="s">Labels:  app=zackweb</span>
+ <span class="s">environment=dev</span>
+ <span class="s">Containers:</span>
+ <span class="s">zackweb:</span>
+ <span class="s">Image:      zackz001/gitops-jekyll:latest</span>
+ <span class="s">Port:       80/TCP</span>
+ <span class="s">Host Port:  0/TCP</span>
+ <span class="s">Limits:</span>
+ <span class="s">cpu:     500m</span>
+ <span class="s">memory:  256Mi</span>
+ <span class="s">Requests:</span>
+ <span class="s">cpu:     250m</span>
+ <span class="s">memory:  128Mi</span>
+ <span class="s">Environment Variables from:</span>
+ <span class="s">zackweb-config-hf678c7m2b  ConfigMap  Optional: false</span></code></pre></figure>
+
+<ul>
+  <li>Override container image tags for different environments.</li>
+</ul>
+
+<p>Lastly, we can update image tags in Dev to use zackz001/gitops-jekyll:v222 by update overlay kustomization.yaml</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># zackblog/overlays/dev/kustomization.yaml</span>
+<span class="na">namespace</span><span class="pi">:</span> <span class="s">zackblog-dev</span>
+
+<span class="na">images</span><span class="pi">:</span>
+<span class="na">  - name</span><span class="pi">:</span> <span class="s">zackz001/gitops-jekyll</span>
+ <span class="s">newTag</span><span class="err">:</span> <span class="s">dev</span>
+
+<span class="s">root@asb:~/kustomizahelm/kustomize-z# kubectl describe deployments.apps -n zackblog-dev | grep Image</span>
+ <span class="s">Image</span><span class="err">:</span> <span class="s">     zackz001/gitops-jekyll:v222</span></code></pre></figure>
+
+<p><b> Summary about Kustomize </b></p>
+
+<p>We had done the bellow practice using Kustomize:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Namespace Isolation</code>: Use separate namespaces (zackblog-dev and zackblog-prod) to isolate environments.</li>
+  <li><code class="language-plaintext highlighter-rouge">Environment-Specific Customizations</code>: Utilize overlays to manage environment-specific configurations, such as replica counts, resource limits, and image tags.</li>
+  <li><code class="language-plaintext highlighter-rouge">Maintainable Structure</code>: Keep a clear base and overlay structure to manage configurations efficiently.</li>
+  <li><code class="language-plaintext highlighter-rouge">Leverage Kustomize Features</code>: Explore generators, transformers, and image overrides to maximize Kustomize’s capabilities.</li>
+  <li><code class="language-plaintext highlighter-rouge">Version Control</code>: Keep Kustomize configurations under version control to track changes and collaborate effectively.</li>
+</ul>
+
+<p>Next stage I want to explore :</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Strategic Merge vs. JSON Patches</code>: Understand the differences and use cases for each patch type.</li>
+  <li><code class="language-plaintext highlighter-rouge">Custom Transformers</code>: Create custom transformers for complex modifications.</li>
+  <li><code class="language-plaintext highlighter-rouge">Integration with GitOps Tools</code>: Integrate Kustomize with ArgoCD or Flux for automated, Git-driven deployments.</li>
+  <li><code class="language-plaintext highlighter-rouge">Managing Secrets Securely</code>: Use tools like sealed-secrets or SOPS with Kustomize to manage sensitive information.</li>
+</ul>
+
+<p>===================================================================</p>
+
+<p>===================================================================</p>
+
+<p><b> About Helm </b></p>
+
+<p>Helm is another popular package manager for Kubernetes application deployment, not new to me as I had tried many charts previously with Kafka, and Redis helm charts installation, today I am going to explore how to build my helm chart for this zack blog, and deep dive into the chart development for advanced templating, together with helm release management and version control, finally integrate my chart with CI/CD for GitOps.  </p>
 
 <p><b> Common Helm command</b></p>
 
 <ul>
-  <li>
-    <p>helm list -A   # list releases across all namespaces</p>
-  </li>
-  <li>
-    <p>helm pull bitnami/postgresql-ha –untar  # untar the chart after pull online chart</p>
-  </li>
-  <li>
-    <p>helm repo add bitnami https://charts.bitnami.com/bitnami  # add a repo</p>
-  </li>
-  <li>
-    <p>helm create zackblog-helm  # create a new chart</p>
-  </li>
-  <li>
-    <p>helm install zackblog-helm ~/zackblog-helm -n NAMESPACE -f dev-values.yaml # define ns and override with a new value file</p>
-  </li>
-  <li>
-    <p>helm upgrade zackblog-helm ~/zackblog-helm –set image.repository=<new-image-repository> --set image.tag=<new-image-tag> # --set to upgrade chart with override a new value</new-image-tag></new-image-repository></p>
-  </li>
-  <li>
-    <p>helm lint ~/zackblog-helm  # lint syntax</p>
-  </li>
-  <li>
-    <p>helm rollback zackblog-helm 2   # rollback to revision 2 of a release</p>
-  </li>
-  <li>
-    <p>helm uninstall zackblog-helm -n Production  # uninstall a chart from a ns</p>
-  </li>
+  <li><code class="language-plaintext highlighter-rouge">helm list -A</code> # list releases across all namespaces</li>
+  <li><code class="language-plaintext highlighter-rouge">helm pull</code> bitnami/postgresql-ha –untar  # untar the chart after pull online chart</li>
+  <li><code class="language-plaintext highlighter-rouge">helm repo add</code> bitnami https://charts.bitnami.com/bitnami  # add a repo</li>
+  <li><code class="language-plaintext highlighter-rouge">helm create</code> zackblog-helm  # create a new chart</li>
+  <li><code class="language-plaintext highlighter-rouge">helm install</code> zackblog-helm ~/zackblog-helm -n NAMESPACE -f dev-values.yaml # define ns and override with a new value file</li>
+  <li><code class="language-plaintext highlighter-rouge">helm upgrade</code> zackblog-helm ~/zackblog-helm –set image.repository=<new-image-repository> --set image.tag=<new-image-tag> # --set to upgrade chart with override a new value</new-image-tag></new-image-repository></li>
+  <li><code class="language-plaintext highlighter-rouge">helm lint</code> ~/zackblog-helm  # lint syntax</li>
+  <li><code class="language-plaintext highlighter-rouge">helm rollback</code> zackblog-helm 2   # rollback to revision 2 of a release</li>
+  <li><code class="language-plaintext highlighter-rouge">helm uninstall</code> zackblog-helm -n Production  # uninstall a chart from a ns</li>
 </ul>
 
 <p><b> Start with own chart</b></p>
@@ -98,14 +381,14 @@ Creating zackblog-helm
 replicaCount: 3
 
 image:
-  repository: zackz001/gitops-jekyll
-  pullPolicy: IfNotPresent
-  <span class="c"># Overrides the image tag.</span>
-  tag: <span class="s2">"latest"</span>
+ repository: zackz001/gitops-jekyll
+ pullPolicy: IfNotPresent
+ <span class="c"># Overrides the image tag.</span>
+ tag: <span class="s2">"latest"</span>
 
 service:
-  <span class="nb">type</span>: NodePort
-  port: 80</code></pre></figure>
+ <span class="nb">type</span>: NodePort
+ port: 80</code></pre></figure>
 
 <ul>
   <li>Lint chart syntacx before install</li>
@@ -128,9 +411,9 @@ STATUS: deployed
 REVISION: 1
 NOTES:
 1. Get the application URL by running these commands:
-  <span class="nb">export </span><span class="nv">NODE_PORT</span><span class="o">=</span><span class="si">$(</span>kubectl get <span class="nt">--namespace</span> default <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.spec.ports[0].nodePort}"</span> services zackblog-helm<span class="si">)</span>
-  <span class="nb">export </span><span class="nv">NODE_IP</span><span class="o">=</span><span class="si">$(</span>kubectl get nodes <span class="nt">--namespace</span> default <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.items[0].status.addresses[0].address}"</span><span class="si">)</span>
-  <span class="nb">echo </span>http://<span class="nv">$NODE_IP</span>:<span class="nv">$NODE_PORT</span>
+ <span class="nb">export </span><span class="nv">NODE_PORT</span><span class="o">=</span><span class="si">$(</span>kubectl get <span class="nt">--namespace</span> default <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.spec.ports[0].nodePort}"</span> services zackblog-helm<span class="si">)</span>
+ <span class="nb">export </span><span class="nv">NODE_IP</span><span class="o">=</span><span class="si">$(</span>kubectl get nodes <span class="nt">--namespace</span> default <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.items[0].status.addresses[0].address}"</span><span class="si">)</span>
+ <span class="nb">echo </span>http://<span class="nv">$NODE_IP</span>:<span class="nv">$NODE_PORT</span>
 
 <span class="o">[</span>root@freeipa-server ~]# helm list <span class="nt">-a</span>
 NAME            NAMESPACE   REVISION    UPDATED                                     STATUS      CHART               APP VERSION
@@ -140,7 +423,7 @@ zackblog-helm   default     1           2024-03-13 21:27:14.825391301 +1
 <span class="o">[</span>root@freeipa-server ~]# kubectl get deployments.apps | <span class="nb">grep </span>zack
 zackblog-helm                              3/3     3            3           113s
 <span class="o">[</span>root@freeipa-server ~]# kubectl get svc | <span class="nb">grep </span>zack
-zackblog-helm                              NodePort    10.43.90.209    &lt;none&gt;        80:31070/TCP                 2m7s</code></pre></figure>
+zackblog-helm                              NodePort    10.43.90.209    &lt;none&gt; 80:31070/TCP                 2m7s</code></pre></figure>
 
 <ul>
   <li>Customize vaule.yaml by change replica and image tag</li>
@@ -151,10 +434,10 @@ zackblog-helm                              NodePort    10.43.90
 replicaCount: 1
 
 image:
-  repository: zackz001/gitops-jekyll
-  pullPolicy: IfNotPresent
-  <span class="c"># Overrides the image tag.</span>
-  tag: <span class="s2">"v139"</span>
+ repository: zackz001/gitops-jekyll
+ pullPolicy: IfNotPresent
+ <span class="c"># Overrides the image tag.</span>
+ tag: <span class="s2">"v139"</span>
 
 <span class="o">[</span>root@freeipa-server ~]# helm list <span class="nt">-a</span>
 NAME            NAMESPACE   REVISION    UPDATED                                     STATUS      CHART               APP VERSION
@@ -170,12 +453,12 @@ zackblog-helm                              1/1     1       �
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create a dev ns then deploy and override with dev-values.yaml</span>
 <span class="o">[</span>root@freeipa-server ~]# vim zackblog-helm/dev-values.yaml
 image:
-  repository: zackz001/gitops-jekyll
-  tag: v140
+ repository: zackz001/gitops-jekyll
+ tag: v140
 replicaCount: 2
 service:
-  <span class="nb">type</span>: NodePort
-  port: 80
+ <span class="nb">type</span>: NodePort
+ port: 80
 
 <span class="o">[</span>root@freeipa-server ~]# kubectl create ns dev
 namespace/dev created
@@ -189,16 +472,16 @@ STATUS: deployed
 REVISION: 1
 NOTES:
 1. Get the application URL by running these commands:
-  <span class="nb">export </span><span class="nv">NODE_PORT</span><span class="o">=</span><span class="si">$(</span>kubectl get <span class="nt">--namespace</span> dev <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.spec.ports[0].nodePort}"</span> services dev-zackblog-helm<span class="si">)</span>
-  <span class="nb">export </span><span class="nv">NODE_IP</span><span class="o">=</span><span class="si">$(</span>kubectl get nodes <span class="nt">--namespace</span> dev <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.items[0].status.addresses[0].address}"</span><span class="si">)</span>
-  <span class="nb">echo </span>http://<span class="nv">$NODE_IP</span>:<span class="nv">$NODE_PORT</span>
+ <span class="nb">export </span><span class="nv">NODE_PORT</span><span class="o">=</span><span class="si">$(</span>kubectl get <span class="nt">--namespace</span> dev <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.spec.ports[0].nodePort}"</span> services dev-zackblog-helm<span class="si">)</span>
+ <span class="nb">export </span><span class="nv">NODE_IP</span><span class="o">=</span><span class="si">$(</span>kubectl get nodes <span class="nt">--namespace</span> dev <span class="nt">-o</span> <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.items[0].status.addresses[0].address}"</span><span class="si">)</span>
+ <span class="nb">echo </span>http://<span class="nv">$NODE_IP</span>:<span class="nv">$NODE_PORT</span>
 
 <span class="o">[</span>root@freeipa-server ~]# kubectl get deployments.apps <span class="nt">-n</span> dev
 NAME                READY   UP-TO-DATE   AVAILABLE   AGE
 dev-zackblog-helm   2/2     2            2           96s
 <span class="o">[</span>root@freeipa-server ~]# kubectl get svc <span class="nt">-n</span> dev
 NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-dev-zackblog-helm   NodePort   10.43.239.229   &lt;none&gt;        80:31391/TCP   103s</code></pre></figure>
+dev-zackblog-helm   NodePort   10.43.239.229   &lt;none&gt; 80:31391/TCP   103s</code></pre></figure>
 
 <ul>
   <li>Advanced templating to add pvc into chart</li>
@@ -209,61 +492,81 @@ dev-zackblog-helm   NodePort   10.43.239.229   &lt;none&gt;        80:313
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: longhron-pvc
+ name: longhron-pvc
 spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 1Gi
+ accessModes:
+ - ReadWriteOnce
+ storageClassName: longhorn
+ resources:
+ requests:
+ storage: 1Gi
 
 <span class="c"># add pvc in values.yaml</span>
 <span class="o">[</span>root@freeipa-server ~]# vim zackblog-helm/values.yaml
 pvc:
-  enabled: <span class="nb">true</span>
-  templateFiles:
-    - pvc.yaml
+ enabled: <span class="nb">true
+ </span>templateFiles:
+ - pvc.yaml
 
 <span class="c"># add persistentVolumeClaim in templates/deployment.yaml</span>
 <span class="o">[</span>root@freeipa-server ~]# vim zackblog-helm/templates/deployment.yaml
 ...
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: longhron-pvc
+ volumes:
+ - name: data
+ persistentVolumeClaim:
+ claimName: longhron-pvc
 ...
 <span class="o">[</span>root@freeipa-server ~]# helm upgrade zackblog-helm zackblog-helm
 Release <span class="s2">"zackblog-helm"</span> has been upgraded. Happy Helming!</code></pre></figure>
 
-<p><b> CICD integration to deploy chart with ArgoCD </b></p>
+<ul>
+  <li>Integrate chart deployment with ArgoCD</li>
+</ul>
 
-<p>Now commit and upload “zackblog-helm” folder into github repo, create ArgoCD application manifest to sync with from  path of own helm chart</p>
+<p>Now commit and upload “zackblog-helm” folder into github repo, create ArgoCD application manifest to sync with from  path of own helm chart</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># argoCD application manifest</span>
 project: default
 <span class="nb">source</span>:
-  repoURL: <span class="s1">'https://github.com/ZackZhouHB/zack-gitops-project.git'</span>
-  path: argo-helm-zackblog
-  targetRevision: editing
-  helm:
-    valueFiles:
-      - values.yaml
+ repoURL: <span class="s1">'https://github.com/ZackZhouHB/zack-gitops-project.git'</span>
+ path: argo-helm-zackblog
+ targetRevision: editing
+ helm:
+ valueFiles:
+ - values.yaml
 destination:
-  server: <span class="s1">'https://kubernetes.default.svc'</span>
-  namespace: helm
+ server: <span class="s1">'https://kubernetes.default.svc'</span>
+ namespace: helm
 syncPolicy:
-  automated: <span class="o">{}</span>
-  syncOptions:
-    - <span class="nv">CreateNamespace</span><span class="o">=</span><span class="nb">true</span></code></pre></figure>
+ automated: <span class="o">{}</span>
+ syncOptions:
+ - <span class="nv">CreateNamespace</span><span class="o">=</span><span class="nb">true</span></code></pre></figure>
 
 <p><img src="/assets/helm1.png" alt="image tooltip here" /></p>
 
 <p><b> Conclusion</b></p>
 
-<p>Finally, I had a chance to go over helm, it makes package management easier and more convenient, through charts, k8s deployment can be more flexible with values and templates that can be deployed and reusable into different environments, it provides versioning and rollbacks, also allow customization of the template. however using on-line chart can also be risky in a production environment with quality, dependency and security risks.</p>
+<p>Finally, I had a chance to go over helm, it makes package management easier and more convenient, through charts, k8s deployment can be more flexible with values and templates that can be deployed and reusable into different environments, it provides versioning and rollbacks, also allow customization of the template. However using on-line chart can also be risky in a production environment with quality, dependency and security risks.</p>
 
-<p>Overall I think helm chart is a very good way to start deployment into k8s.</p>
+<p>Next stage for Helm advanced templating:</p>
+
+<ul>
+  <li>
+    <p>Helmfile for Multi-Release Management</p>
+  </li>
+  <li>
+    <p>Use Helm’s built-in test hooks to create automated tests for your deployments</p>
+  </li>
+  <li>
+    <p>Master dependencies and subcharts for modular Helm chart creation</p>
+  </li>
+  <li>
+    <p>Helm Chart private Repositories and Version Control</p>
+  </li>
+  <li>
+    <p>Helm + Kustomize Hybrid Approaches</p>
+  </li>
+</ul>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/03/12/Helm.html" hidden></a>
 </article>
