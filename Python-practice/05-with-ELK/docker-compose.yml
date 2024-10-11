@@ -1,0 +1,72 @@
+version: '3'
+services:
+  consul:
+    image: consul:1.15.4
+    ports:
+      - "8500:8500"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.13.2
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "12201:12201/udp"
+      - "5044:5044"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.2
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  user-service:
+    build:
+      context: ./user_service
+    depends_on:
+      - consul
+      - logstash
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - LOGSTASH_HOST=logstash
+    ports:
+      - "5001:5001"
+
+  order-service:
+    build:
+      context: ./order_service
+    depends_on:
+      - consul
+      - logstash
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - LOGSTASH_HOST=logstash
+    ports:
+      - "5002:5002"
+
+  api-gateway:
+    build:
+      context: ./api_gateway
+    depends_on:
+      - consul
+      - user-service
+      - order-service
+      - logstash
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - LOGSTASH_HOST=logstash
+    ports:
+      - "5000:5000"
+
+volumes:
+  esdata:

@@ -1,9 +1,0 @@
----
-- name: Test Playbook
-  hosts: localhost
-  tasks:
-    - name: Ping localhost
-      ping:
-    - name: Display a message
-      debug:
-        msg: "Ansible is working correctly on Jenkins EC2"

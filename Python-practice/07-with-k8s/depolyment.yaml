@@ -1,0 +1,110 @@
+
+# docker build -t zackz001/python-user:latest -f Dockerfile_user 
+# docker build -t zackz001/python-user:latest -f Dockerfile_user .
+# docker build -t zackz001/python-order:latest -f Dockerfile_order .
+# docker build -t zackz001/python-apigateway:latest -f Dockerfile_apigateway .
+# docker push zackz001/python-apigateway:latest
+# docker push zackz001/python-user:latest
+# docker push zackz001/python-order:latest
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: zackz001/python-user:latest
+        ports:
+        - containerPort: 5001
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: zackz001/python-order:latest
+        ports:
+        - containerPort: 5002
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order-service
+  ports:
+    - protocol: TCP
+      port: 5002
+      targetPort: 5002
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: zackz001/python-apigateway:latest
+        ports:
+        - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  type: NodePort
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

@@ -1,0 +1,22 @@
+# docker-compose.yml
+version: '3'
+services:
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile_user
+    ports:
+      - "5001:5001"
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile_order
+    ports:
+      - "5002:5002"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile_apigateway
+    ports:
+      - "5000:5000"
