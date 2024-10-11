@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Terraform Module for AWS SSO User Assignment
+title: Modularizing AWS SSO User Assignment with Terraform 
 date:   2024-04-13 11:15:29 +1100
 categories: jekyll Cat2
 ---
