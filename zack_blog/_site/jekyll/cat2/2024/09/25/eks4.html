@@ -147,7 +147,7 @@ NAME                               READY   STATUS    RESTARTS 
 pod/zackblog-app-948b6859c-492dm   1/1     Running   0          7s
 
 NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-service/zackblog-service   LoadBalancer   10.107.57.144   &lt;none&gt; 80:30501/TCP   83s
+service/zackblog-service   LoadBalancer   10.107.57.144   &lt;none&gt;        80:30501/TCP   83s
 
 NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/zackblog-app   1/1     1            1           2m49s
@@ -155,19 +155,7 @@ deployment.apps/zackblog-app   1/1     1            1           2m
 NAME                                      DESIRED   CURRENT   READY   AGE
 replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m49s
 replicaset.apps/zackblog-app-948b6859c    1         1         1       7s
-root@asb:/home/ubuntu# kubectl get all <span class="nt">-n</span> config-secret-demo 
-NAME                               READY   STATUS    RESTARTS   AGE
-pod/zackblog-app-948b6859c-492dm   1/1     Running   0          10s
 
-NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-service/zackblog-service   NodePort   10.107.57.144   &lt;none&gt; 80:30501/TCP   86s
-
-NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/zackblog-app   1/1     1            1           2m52s
-
-NAME                                      DESIRED   CURRENT   READY   AGE
-replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m52s
-replicaset.apps/zackblog-app-948b6859c    1         1         1       10s
 
 <span class="c"># Kubectl exec into pod to verify the configmap and secret</span>
 

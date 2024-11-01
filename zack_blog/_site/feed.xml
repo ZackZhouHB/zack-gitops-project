@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-01T23:03:59+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-01T23:06:26+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -771,7 +771,7 @@ NAME                               READY   STATUS    RESTARTS 
 pod/zackblog-app-948b6859c-492dm   1/1     Running   0          7s
 
 NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-service/zackblog-service   LoadBalancer   10.107.57.144   &lt;none&gt; 80:30501/TCP   83s
+service/zackblog-service   LoadBalancer   10.107.57.144   &lt;none&gt;        80:30501/TCP   83s
 
 NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/zackblog-app   1/1     1            1           2m49s
@@ -779,19 +779,7 @@ deployment.apps/zackblog-app   1/1     1            1           2m
 NAME                                      DESIRED   CURRENT   READY   AGE
 replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m49s
 replicaset.apps/zackblog-app-948b6859c    1         1         1       7s
-root@asb:/home/ubuntu# kubectl get all <span class="nt">-n</span> config-secret-demo 
-NAME                               READY   STATUS    RESTARTS   AGE
-pod/zackblog-app-948b6859c-492dm   1/1     Running   0          10s
 
-NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-service/zackblog-service   NodePort   10.107.57.144   &lt;none&gt; 80:30501/TCP   86s
-
-NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/zackblog-app   1/1     1            1           2m52s
-
-NAME                                      DESIRED   CURRENT   READY   AGE
-replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m52s
-replicaset.apps/zackblog-app-948b6859c    1         1         1       10s
 
 <span class="c"># Kubectl exec into pod to verify the configmap and secret</span>
 
