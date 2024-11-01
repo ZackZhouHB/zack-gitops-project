@@ -1,0 +1,268 @@
+---
+layout: post
+title:  "EKS - Enable IAM role for Service Accounts (IRSA)"
+date:   2024-09-25 11:15:29 +1100
+categories: jekyll Cat2
+---
+<b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b>
+
+Here I will demo Zackblog as deployment in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.
+
+- Create demo resources
+{% highlight yaml %}
+# vim cf-demo.yaml to create demo namespace,  configmap, secret and deployment
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: app-config
+ namespace: config-secret-demo
+data:
+ ENVIRONMENT: "production"
+ FEATURE_FLAG: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: db-secret
+ namespace: config-secret-demo
+type: Opaque
+data:
+ DB_PASSWORD: bXlTdXBlclNlY3JldFBhc3N3b3Jk # base64 encoded password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: zackblog-app
+ namespace: config-secret-demo
+spec:
+ replicas: 1
+ selector:
+ matchLabels:
+ app: zackblog-app
+ template:
+ metadata:
+ labels:
+ app: zackblog-app
+ spec:
+ containers:
+ - name: zackblog-app
+ image: zackz001/gitops-jekyll:latest 
+ env:
+ - name: ENVIRONMENT
+ valueFrom:
+ configMapKeyRef:
+ name: app-config
+ key: ENVIRONMENT
+ - name: FEATURE_FLAG
+ valueFrom:
+ configMapKeyRef:
+ name: app-config
+ key: FEATURE_FLAG
+ - name: DB_PASSWORD
+ valueFrom:
+ secretKeyRef:
+ name: db-secret
+ key: DB_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: zackblog-service
+ namespace: config-secret-demo
+spec:
+ selector:
+ app: zackblog-app  
+ ports:
+ - protocol: TCP
+ port: 80
+ targetPort: 80
+ nodePort: 30501
+ type: NodePort
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+ name: config-secret-demo
+{% endhighlight %}
+
+- Apply and verify the Configuration and Secrets in the Pod
+
+{% highlight shell %}
+
+root@asb:/home/ubuntu# kubectl apply -f cf-demo.yaml 
+configmap/app-config created
+secret/db-secret created
+deployment.apps/zackblog-app created
+namespace/config-secret-demo created
+service/zackblog-service created
+
+
+root@asb:/home/ubuntu# kubectl get all -n config-secret-demo 
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/zackblog-app-948b6859c-492dm   1/1     Running   0          7s
+
+NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/zackblog-service   LoadBalancer   10.107.57.144   <none>        80:30501/TCP   83s
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackblog-app   1/1     1            1           2m49s
+
+NAME                                      DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m49s
+replicaset.apps/zackblog-app-948b6859c    1         1         1       7s
+
+
+# Kubectl exec into pod to verify the configmap and secret
+
+root@asb:/home/ubuntu# kubectl exec -it zackblog-app-948b6859c-492dm -n config-secret-demo -- /bin/sh
+/usr/share/nginx/html # echo $ENVIRONMENT
+production
+/usr/share/nginx/html # echo $FEATURE_FLAG
+true
+/usr/share/nginx/html # echo $DB_PASSWORD
+mySuperSecretPassword
+
+{% endhighlight %}
+
+<b>IRSA with AWS Secret Manager to ensure security best practices in EKS </b>
+
+Some best practices for using secrets in AWS EKS include:
+
+- `Avoid Storing Secrets in Kubernetes`: Instead of storing sensitive information in Kubernetes Secrets, use AWS Secrets Manager to store secrets securely.
+
+- `Use IAM Roles for Authorization`: Rely on IAM roles and policies to control access to secrets in AWS Secrets Manager, ensuring that only authorized pods can retrieve specific secrets.
+
+- `Retrieve Secrets at Runtime`: Configure your application to retrieve secrets directly from AWS Secrets Manager at runtime, using an SDK or API, rather than storing secrets as environment variables.
+
+- `Automate Secret Rotation`: Set up AWS Secrets Manager to rotate secrets automatically, reducing the risk of stale or compromised credentials.
+
+Here I will run a Step-by-Step Guide to Using AWS Secrets Manager with Kubernetes in EKS so the application can retrieve secrets at Runtime from AWS Secret Manager with  IRSA (Identity and Access Management Roles for Service Accounts).
+
+- set up AWS Secrets Manager and create a secret, then create a IAM policy attach to IAM role, use EKS OIDC provider together with namespace and service account, so our deployment with an IAM role will have access to the secret in AWS.
+
+{% highlight shell %}
+
+# Create a new AWS Secrets Manager secret
+aws secretsmanager create-secret \
+ --name prod/myapp/db \
+ --description "Secret for database credentials" \
+ --secret-string '{"DB_USER": "mydatabaseuser", "DB_PASSWORD": "mypassword"}'
+
+# create an IAM policy named ReadProdMyAppDBSecret with read-only access to the prod/myapp/db secret
+aws iam create-policy \
+ --policy-name ReadProdMyAppDBSecret \
+ --policy-document '{
+ "Version": "2012-10-17",
+ "Statement": [
+ {
+ "Effect": "Allow",
+ "Action": "secretsmanager:GetSecretValue",
+ "Resource": "arn:aws:secretsmanager:$REGION:$ACCOUNT_ID:secret:prod/myapp/db*"
+ }
+ ]
+ }'
+
+# get EKS OIDC provider  
+aws eks describe-cluster --name zack-eks-cluster --query "cluster.identity.oidc.issuer" --output text
+
+# create the trust policy file, use EKS OIDC provider together with namespace and service account
+# vim trust-policy.json
+{
+ "Version": "2012-10-17",
+ "Statement": [
+ {
+ "Effect": "Allow",
+ "Principal": {
+ "Federated": "arn:aws:iam::$ACCOUNT_ID:oidc-provider/oidc.eks.$REGION.amazonaws.com/id/zack-eks-cluster"
+},
+ "Action": "sts:AssumeRoleWithWebIdentity",
+ "Condition": {
+ "StringEquals": {
+ "arn:aws:iam::$ACCOUNT_ID:oidc-provider/oidc.eks.$REGION.amazonaws.com/id/zack-eks-cluster:sub": "system:serviceaccount:ns-zack-irsa-demo:sa-zack-irsa-demo"
+ }
+ }
+ }
+ ]
+}
+
+# create the IAM role with the trust policy
+aws iam create-role \
+ --role-name EKSSecretsAccessRole \
+ --assume-role-policy-document file://trust-policy.json
+
+# Attach the Policy to the Role
+aws iam attach-role-policy \
+ --role-name EKSSecretsAccessRole \
+ --policy-arn arn:aws:iam:#ACCOUNT_ID:policy/ReadProdMyAppDBSecret
+{% endhighlight %}
+
+- Create namespace and service account in EKS and annotate it with above IAM role ARN
+
+{% highlight yaml %}
+# create service account "sa-zack-irsa-demo" in namespace "ns-zack-irsa-demo" with annotation of IAM role ARN:
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: sa-zack-irsa-demo
+ namespace: ns-zack-irsa-demo
+ annotations:
+ eks.amazonaws.com/role-arn: arn:aws:iam::$ACCOUNT_ID:role/EKSSecretsAccessRole
+{% endhighlight %}
+
+- Create Zackblog Deployment to use the service account created above, so that pods launched by the Deployment will inherit permissions to access the secret
+{% highlight yaml %}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: zackblog-app
+ namespace: ns-zack-irsa-demo
+spec:
+ replicas: 1
+ selector:
+ matchLabels:
+ app: zackblog-app
+ template:
+ metadata:
+ labels:
+ app: zackblog-app
+ spec:
+ serviceAccountName: sa-zack-irsa-demo  # Use the custom service account
+ containers:
+ - name: zackblog-app
+ image: zackz001/gitops-jekyll:latest
+{% endhighlight %}
+
+- Modify Application Code to Retrieve Secrets at Runtime, bellow python with boto3 can retrieve the `DB_USER` and `DB_PASSWORD` fields from the secret in AWS Secrets Manager
+
+{% highlight python %}
+import boto3
+import json
+
+def get_secret():
+ secret_name = "prod/myapp/db"
+ region_name = "ap-southeast-2"
+
+ client = boto3.client("secretsmanager", region_name=region_name)
+
+ response = client.get_secret_value(SecretId=secret_name)
+ secret = json.loads(response["SecretString"])
+    
+ db_user = secret["DB_USER"]
+ db_password = secret["DB_PASSWORD"]
+
+ return db_user, db_password
+{% endhighlight %}
+
+<b>Conclusion</b>
+
+This setup with EKS and IAM role with Service Account (IRSA), which combines AWS Secrets Manager, IAM roles, and Kubernetes Service Accounts, provides a secure and scalable way to manage sensitive information in Kubernetes on EKS. 
+
+More to be considered to ensure EKS security best practices:
+    
+- `Enable Encryption`: AWS Secrets Manager secrets are encrypted by default
+
+- `Limit IAM Permissions`: Follow the principle of least privilege by restricting IAM permissions to only the required secrets.
+
+- `Audit and Monitor Access`: Use AWS CloudTrail to monitor access to secrets for security and auditing purposes.

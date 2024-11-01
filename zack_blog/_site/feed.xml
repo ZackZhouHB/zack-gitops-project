@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-01T21:45:46+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-01T23:03:59+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -671,7 +671,292 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Cluster Backup with Velero</title><link href="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html" rel="alternate" type="text/html" title="EKS - Cluster Backup with Velero" /><published>2024-09-15T10:15:29+10:00</published><updated>2024-09-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/15/eks3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html"><![CDATA[<p><b>About Valero </b></p>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
+
+<p>Here I will demo Zackblog as deployment in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.</p>
+
+<ul>
+  <li>Create demo resources</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># vim cf-demo.yaml to create demo namespace,  configmap, secret and deployment</span>
+
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ConfigMap</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">app-config</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+<span class="na">data</span><span class="pi">:</span>
+ <span class="na">ENVIRONMENT</span><span class="pi">:</span> <span class="s2">"</span><span class="s">production"</span>
+ <span class="na">FEATURE_FLAG</span><span class="pi">:</span> <span class="s2">"</span><span class="s">true"</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Secret</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">db-secret</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+<span class="na">type</span><span class="pi">:</span> <span class="s">Opaque</span>
+<span class="na">data</span><span class="pi">:</span>
+ <span class="na">DB_PASSWORD</span><span class="pi">:</span> <span class="s">bXlTdXBlclNlY3JldFBhc3N3b3Jk</span> <span class="c1"># base64 encoded password</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+ <span class="na">selector</span><span class="pi">:</span>
+ <span class="na">matchLabels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">template</span><span class="pi">:</span>
+ <span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">labels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">spec</span><span class="pi">:</span>
+ <span class="na">containers</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">image</span><span class="pi">:</span> <span class="s">zackz001/gitops-jekyll:latest</span> 
+ <span class="na">env</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">ENVIRONMENT</span>
+ <span class="na">valueFrom</span><span class="pi">:</span>
+ <span class="na">configMapKeyRef</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">app-config</span>
+ <span class="na">key</span><span class="pi">:</span> <span class="s">ENVIRONMENT</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">FEATURE_FLAG</span>
+ <span class="na">valueFrom</span><span class="pi">:</span>
+ <span class="na">configMapKeyRef</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">app-config</span>
+ <span class="na">key</span><span class="pi">:</span> <span class="s">FEATURE_FLAG</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">DB_PASSWORD</span>
+ <span class="na">valueFrom</span><span class="pi">:</span>
+ <span class="na">secretKeyRef</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">db-secret</span>
+ <span class="na">key</span><span class="pi">:</span> <span class="s">DB_PASSWORD</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-service</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">selector</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app  </span>
+ <span class="na">ports</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+ <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
+ <span class="na">targetPort</span><span class="pi">:</span> <span class="m">80</span>
+ <span class="na">nodePort</span><span class="pi">:</span> <span class="m">30501</span>
+ <span class="na">type</span><span class="pi">:</span> <span class="s">NodePort</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Namespace</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">config-secret-demo</span></code></pre></figure>
+
+<ul>
+  <li>Apply and verify the Configuration and Secrets in the Pod</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:/home/ubuntu# kubectl apply <span class="nt">-f</span> cf-demo.yaml 
+configmap/app-config created
+secret/db-secret created
+deployment.apps/zackblog-app created
+namespace/config-secret-demo created
+service/zackblog-service created
+
+
+root@asb:/home/ubuntu# kubectl get all <span class="nt">-n</span> config-secret-demo 
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/zackblog-app-948b6859c-492dm   1/1     Running   0          7s
+
+NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackblog-service   LoadBalancer   10.107.57.144   &lt;none&gt; 80:30501/TCP   83s
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackblog-app   1/1     1            1           2m49s
+
+NAME                                      DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m49s
+replicaset.apps/zackblog-app-948b6859c    1         1         1       7s
+root@asb:/home/ubuntu# kubectl get all <span class="nt">-n</span> config-secret-demo 
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/zackblog-app-948b6859c-492dm   1/1     Running   0          10s
+
+NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/zackblog-service   NodePort   10.107.57.144   &lt;none&gt; 80:30501/TCP   86s
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/zackblog-app   1/1     1            1           2m52s
+
+NAME                                      DESIRED   CURRENT   READY   AGE
+replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m52s
+replicaset.apps/zackblog-app-948b6859c    1         1         1       10s
+
+<span class="c"># Kubectl exec into pod to verify the configmap and secret</span>
+
+root@asb:/home/ubuntu# kubectl <span class="nb">exec</span> <span class="nt">-it</span> zackblog-app-948b6859c-492dm <span class="nt">-n</span> config-secret-demo <span class="nt">--</span> /bin/sh
+/usr/share/nginx/html <span class="c"># echo $ENVIRONMENT</span>
+production
+/usr/share/nginx/html <span class="c"># echo $FEATURE_FLAG</span>
+<span class="nb">true</span>
+/usr/share/nginx/html <span class="c"># echo $DB_PASSWORD</span>
+mySuperSecretPassword</code></pre></figure>
+
+<p><b>IRSA with AWS Secret Manager to ensure security best practices in EKS </b></p>
+
+<p>Some best practices for using secrets in AWS EKS include:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Avoid Storing Secrets in Kubernetes</code>: Instead of storing sensitive information in Kubernetes Secrets, use AWS Secrets Manager to store secrets securely.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Use IAM Roles for Authorization</code>: Rely on IAM roles and policies to control access to secrets in AWS Secrets Manager, ensuring that only authorized pods can retrieve specific secrets.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Retrieve Secrets at Runtime</code>: Configure your application to retrieve secrets directly from AWS Secrets Manager at runtime, using an SDK or API, rather than storing secrets as environment variables.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Automate Secret Rotation</code>: Set up AWS Secrets Manager to rotate secrets automatically, reducing the risk of stale or compromised credentials.</p>
+  </li>
+</ul>
+
+<p>Here I will run a Step-by-Step Guide to Using AWS Secrets Manager with Kubernetes in EKS so the application can retrieve secrets at Runtime from AWS Secret Manager with  IRSA (Identity and Access Management Roles for Service Accounts).</p>
+
+<ul>
+  <li>set up AWS Secrets Manager and create a secret, then create a IAM policy attach to IAM role, use EKS OIDC provider together with namespace and service account, so our deployment with an IAM role will have access to the secret in AWS.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Create a new AWS Secrets Manager secret</span>
+aws secretsmanager create-secret <span class="se">\</span>
+ <span class="nt">--name</span> prod/myapp/db <span class="se">\</span>
+ <span class="nt">--description</span> <span class="s2">"Secret for database credentials"</span> <span class="se">\</span>
+ <span class="nt">--secret-string</span> <span class="s1">'{"DB_USER": "mydatabaseuser", "DB_PASSWORD": "mypassword"}'</span>
+
+<span class="c"># create an IAM policy named ReadProdMyAppDBSecret with read-only access to the prod/myapp/db secret</span>
+aws iam create-policy <span class="se">\</span>
+ <span class="nt">--policy-name</span> ReadProdMyAppDBSecret <span class="se">\</span>
+ <span class="nt">--policy-document</span> <span class="s1">'{
+ "Version": "2012-10-17",
+ "Statement": [
+ {
+ "Effect": "Allow",
+ "Action": "secretsmanager:GetSecretValue",
+ "Resource": "arn:aws:secretsmanager:$REGION:$ACCOUNT_ID:secret:prod/myapp/db*"
+ }
+ ]
+ }'</span>
+
+<span class="c"># get EKS OIDC provider  </span>
+aws eks describe-cluster <span class="nt">--name</span> zack-eks-cluster <span class="nt">--query</span> <span class="s2">"cluster.identity.oidc.issuer"</span> <span class="nt">--output</span> text
+
+<span class="c"># create the trust policy file, use EKS OIDC provider together with namespace and service account</span>
+<span class="c"># vim trust-policy.json</span>
+<span class="o">{</span>
+ <span class="s2">"Version"</span>: <span class="s2">"2012-10-17"</span>,
+ <span class="s2">"Statement"</span>: <span class="o">[</span>
+ <span class="o">{</span>
+ <span class="s2">"Effect"</span>: <span class="s2">"Allow"</span>,
+ <span class="s2">"Principal"</span>: <span class="o">{</span>
+ <span class="s2">"Federated"</span>: <span class="s2">"arn:aws:iam::</span><span class="nv">$ACCOUNT_ID</span><span class="s2">:oidc-provider/oidc.eks.</span><span class="nv">$REGION</span><span class="s2">.amazonaws.com/id/zack-eks-cluster"</span>
+<span class="o">}</span>,
+ <span class="s2">"Action"</span>: <span class="s2">"sts:AssumeRoleWithWebIdentity"</span>,
+ <span class="s2">"Condition"</span>: <span class="o">{</span>
+ <span class="s2">"StringEquals"</span>: <span class="o">{</span>
+ <span class="s2">"arn:aws:iam::</span><span class="nv">$ACCOUNT_ID</span><span class="s2">:oidc-provider/oidc.eks.</span><span class="nv">$REGION</span><span class="s2">.amazonaws.com/id/zack-eks-cluster:sub"</span>: <span class="s2">"system:serviceaccount:ns-zack-irsa-demo:sa-zack-irsa-demo"</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="o">]</span>
+<span class="o">}</span>
+
+<span class="c"># create the IAM role with the trust policy</span>
+aws iam create-role <span class="se">\</span>
+ <span class="nt">--role-name</span> EKSSecretsAccessRole <span class="se">\</span>
+ <span class="nt">--assume-role-policy-document</span> file://trust-policy.json
+
+<span class="c"># Attach the Policy to the Role</span>
+aws iam attach-role-policy <span class="se">\</span>
+ <span class="nt">--role-name</span> EKSSecretsAccessRole <span class="se">\</span>
+ <span class="nt">--policy-arn</span> arn:aws:iam:#ACCOUNT_ID:policy/ReadProdMyAppDBSecret</code></pre></figure>
+
+<ul>
+  <li>Create namespace and service account in EKS and annotate it with above IAM role ARN</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># create service account "sa-zack-irsa-demo" in namespace "ns-zack-irsa-demo" with annotation of IAM role ARN:</span>
+
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">sa-zack-irsa-demo</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">ns-zack-irsa-demo</span>
+ <span class="na">annotations</span><span class="pi">:</span>
+ <span class="na">eks.amazonaws.com/role-arn</span><span class="pi">:</span> <span class="s">arn:aws:iam::$ACCOUNT_ID:role/EKSSecretsAccessRole</span></code></pre></figure>
+
+<ul>
+  <li>Create Zackblog Deployment to use the service account created above, so that pods launched by the Deployment will inherit permissions to access the secret</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">namespace</span><span class="pi">:</span> <span class="s">ns-zack-irsa-demo</span>
+<span class="na">spec</span><span class="pi">:</span>
+ <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+ <span class="na">selector</span><span class="pi">:</span>
+ <span class="na">matchLabels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">template</span><span class="pi">:</span>
+ <span class="na">metadata</span><span class="pi">:</span>
+ <span class="na">labels</span><span class="pi">:</span>
+ <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">spec</span><span class="pi">:</span>
+ <span class="na">serviceAccountName</span><span class="pi">:</span> <span class="s">sa-zack-irsa-demo  # Use the custom service account</span>
+ <span class="na">containers</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-app</span>
+ <span class="na">image</span><span class="pi">:</span> <span class="s">zackz001/gitops-jekyll:latest</span></code></pre></figure>
+
+<ul>
+  <li>Modify Application Code to Retrieve Secrets at Runtime, bellow python with boto3 can retrieve the <code class="language-plaintext highlighter-rouge">DB_USER</code> and <code class="language-plaintext highlighter-rouge">DB_PASSWORD</code> fields from the secret in AWS Secrets Manager</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="n">boto3</span>
+<span class="kn">import</span> <span class="n">json</span>
+
+<span class="k">def</span> <span class="nf">get_secret</span><span class="p">():</span>
+ <span class="n">secret_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">prod/myapp/db</span><span class="sh">"</span>
+ <span class="n">region_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">ap-southeast-2</span><span class="sh">"</span>
+
+ <span class="n">client</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="nf">client</span><span class="p">(</span><span class="sh">"</span><span class="s">secretsmanager</span><span class="sh">"</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region_name</span><span class="p">)</span>
+
+ <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">get_secret_value</span><span class="p">(</span><span class="n">SecretId</span><span class="o">=</span><span class="n">secret_name</span><span class="p">)</span>
+ <span class="n">secret</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">loads</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="sh">"</span><span class="s">SecretString</span><span class="sh">"</span><span class="p">])</span>
+<span class="err"> </span> <span class="err"> </span> 
+ <span class="n">db_user</span> <span class="o">=</span> <span class="n">secret</span><span class="p">[</span><span class="sh">"</span><span class="s">DB_USER</span><span class="sh">"</span><span class="p">]</span>
+ <span class="n">db_password</span> <span class="o">=</span> <span class="n">secret</span><span class="p">[</span><span class="sh">"</span><span class="s">DB_PASSWORD</span><span class="sh">"</span><span class="p">]</span>
+
+ <span class="k">return</span> <span class="n">db_user</span><span class="p">,</span> <span class="n">db_password</span></code></pre></figure>
+
+<p><b>Conclusion</b></p>
+
+<p>This setup with EKS and IAM role with Service Account (IRSA), which combines AWS Secrets Manager, IAM roles, and Kubernetes Service Accounts, provides a secure and scalable way to manage sensitive information in Kubernetes on EKS.</p>
+
+<p>More to be considered to ensure EKS security best practices:
+   </p>
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Enable Encryption</code>: AWS Secrets Manager secrets are encrypted by default</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Limit IAM Permissions</code>: Follow the principle of least privilege by restricting IAM permissions to only the required secrets.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Audit and Monitor Access</code>: Use AWS CloudTrail to monitor access to secrets for security and auditing purposes.</p>
+  </li>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[EKS ConfigMap and Secret Demo without AWS Secret Manager]]></summary></entry><entry><title type="html">EKS - Cluster Backup with Velero</title><link href="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html" rel="alternate" type="text/html" title="EKS - Cluster Backup with Velero" /><published>2024-09-15T10:15:29+10:00</published><updated>2024-09-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/15/eks3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/15/eks3.html"><![CDATA[<p><b>About Valero </b></p>
 
 <p>Valero is an open-source tool for storing, restoring, and migrating Kubernetes cluster resources and persistent volumes. Valero provides a way to hold the entire state of a Kubernetes cluster, all its objects and their consistent numbers, store backup files to Cloud storage like AWS S3, and then restore them to a previous state to ensure K8S data resilience, disaster recovery results and easy transport between clusters.</p>
 
@@ -3165,88 +3450,4 @@ ECS_SERVICE </code></pre></figure>
 
 <p><b> Conclusion</b></p>
 
-<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Why go serverless]]></summary></entry><entry><title type="html">Handling a RDS MySQL cluster CPU 100%</title><link href="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html" rel="alternate" type="text/html" title="Handling a RDS MySQL cluster CPU 100%" /><published>2024-06-17T10:15:29+10:00</published><updated>2024-06-17T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/06/17/mysql-cup100.html"><![CDATA[<p><b>The Incident</b></p>
-
-<p>Today I got a performance issue from our analytic team, saying they experienced a Production MySQL cluster running on RDS very slow since yesterday morning.  </p>
-
-<p>I started to look into bellow areas for investigation:</p>
-
-<ul>
-  <li>AWS CloudWatch Metrics for RDS</li>
-</ul>
-
-<p>AWS CloudWatch provides a wide range of metrics that can help diagnose resource usage for databases. So I started with</p>
-
-<p><em>CloudWatch - Metrics - All metrics - Add query - RDS - Top 10 RDS instances by highest CPU utilization</em></p>
-
-<p>This only queries the recent 3 hours metrics, but it is enough for me to identify the issue: CPU 100%</p>
-
-<p><img src="/assets/mysqlcpu1.png" alt="image tooltip here" /></p>
-
-<p>To further understand the high CUP, I go:</p>
-
-<p><em>CloudWatch - Metrics - All metrics - Browse - RDS - DBClusterIdentifier - CPUUtilization</em></p>
-
-<p>which gives me a long period of monitoring, so I can see it started to 100% CPU since yesterday morning.</p>
-
-<p><img src="/assets/mysqlcpu2.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>AWS console RDS Logs &amp; events</li>
-</ul>
-
-<p>Now let’s find out from the RDS logs to see if any errors can indicate who could be the person. So I go</p>
-
-<p><em>RDS - “the DB cluster” - “the DB instance” - “Logs &amp; events” - “error/mysql-error-running.log.2024-06-18.02”</em></p>
-
-<p>I got :</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">2024-06-18T00:04:58.750212Z 2831474 <span class="o">[</span>Note] Aborted connection 2831474 to db: <span class="s1">'xxxxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Unknown error<span class="o">)</span>
-2024-06-18T00:12:00.798173Z 2831498 <span class="o">[</span>Note] Aborted connection 2831498 to db: <span class="s1">'xxxx'</span> user: <span class="s1">'xxxx'</span> host: <span class="s1">'10.xx.xx.xx'</span> <span class="o">(</span>Got an error writing communication packets<span class="o">)</span>
-<span class="nt">-----------------------</span> END OF LOG <span class="nt">----------------------</span></code></pre></figure>
-
-<p>Up to here I generally have an idea of what is going on and can locate the person “xxxx” who was running something at the time CPU 100%.</p>
-
-<ul>
-  <li>MySQL Client Tool to list, identiry and terminate long-running queries</li>
-</ul>
-
-<p>It is time to log in to the RDS endpoint to see what is happening and which queries might cause the CPU usage. Here we need login via MySQL “root” to be able to see all other users’ running processes. Then pay attention to the high “Time” and “State” values indicating all the stuck processes, then we kill them and restart the RDS instance</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">mysql <span class="nt">-u</span> root <span class="nt">-p</span> <span class="nt">-h</span> rds_endpoint
-SHOW PROCESSLIST<span class="p">;</span>
-KILL &lt;process_id&gt;<span class="p">;</span></code></pre></figure>
-
-<p><img src="/assets/mysqlcpu4.png" alt="image tooltip here" /></p>
-
-<p>Then I go <em>AWS RDS console - Actions - Reboot</em> the RDS instance.</p>
-
-<ul>
-  <li>Now the CPU usage started to drop and back to normal after terminating the stuck processes and DB instance reboot.</li>
-</ul>
-
-<p><img src="/assets/mysqlcpu3.png" alt="image tooltip here" /></p>
-
-<p>Done.</p>
-
-<p><b> Conclusion</b></p>
-
-<p>Even the issue had been fixed, I was still thinking how to better monitor RDS resource usage. I think we need:</p>
-
-<ul>
-  <li>
-    <p>A “CloudWatch Alarm” to set “CPUUtilization” metric threshold to 80%, then specify the period (e.g., 5 minutes) and the number of periods (e.g., 2 out of 3) that the metric must breach the threshold to trigger the alarm.</p>
-  </li>
-  <li>
-    <p>Create “SNS topic” with team Email for the alarm to send a notification</p>
-  </li>
-  <li>
-    <p>Enable “RDS Performance Insights”, this can monitor the load on the database, identify the source of bottlenecks, and understand how the DB is performing, especially during troubleshooting.</p>
-  </li>
-  <li>
-    <p>Enable “Enhanced Monitoring” and select the monitoring interval (e.g., 1 minute), which provides real-time metrics for the operating system that the DB instance runs on, this helps for immediate investigation on OS level</p>
-  </li>
-  <li>
-    <p>Enable “Slow Query Log” for regularly analysing slow query logs and performance insights to optimize RDS database queries, identify queries that take a long time to execute, use tools like EXPLAIN to understand query performance, add appropriate indexes, and then ultimately rewrite queries for better performance.</p>
-  </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The Incident]]></summary></entry></feed>
+<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Why go serverless]]></summary></entry></feed>
