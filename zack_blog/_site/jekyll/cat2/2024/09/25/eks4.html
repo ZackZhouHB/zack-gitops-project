@@ -49,7 +49,7 @@
   <div class="post-content e-content" itemprop="articleBody">
     <p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
 
-<p>Here I will demo Zackblog as deployment in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.</p>
+<p>Here I will demo a mysql as database and a wordpress deployment as backend in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.</p>
 
 <ul>
   <li>Create demo resources</li>
@@ -57,115 +57,170 @@
 
 <figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># vim cf-demo.yaml to create demo namespace,  configmap, secret and deployment</span>
 
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ConfigMap</span>
-<span class="na">metadata</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">app-config</span>
- <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
-<span class="na">data</span><span class="pi">:</span>
- <span class="na">ENVIRONMENT</span><span class="pi">:</span> <span class="s2">"</span><span class="s">production"</span>
- <span class="na">FEATURE_FLAG</span><span class="pi">:</span> <span class="s2">"</span><span class="s">true"</span>
-<span class="nn">---</span>
+<span class="s">root@asb:~/cf# cat secret.yaml</span> 
 <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
 <span class="na">kind</span><span class="pi">:</span> <span class="s">Secret</span>
 <span class="na">metadata</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">db-secret</span>
- <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">mysql-root-secret</span>
 <span class="na">type</span><span class="pi">:</span> <span class="s">Opaque</span>
 <span class="na">data</span><span class="pi">:</span>
- <span class="na">DB_PASSWORD</span><span class="pi">:</span> <span class="s">bXlTdXBlclNlY3JldFBhc3N3b3Jk</span> <span class="c1"># base64 encoded password</span>
+  <span class="na">MYSQL_ROOT_PASSWORD</span><span class="pi">:</span> <span class="s">c2VjdXJlcGFzc3dvcmQ=</span>  <span class="c1"># Base64 for "securepassword"</span>
+
+<span class="s">root@asb:~/cf# cat mysql.yaml</span> 
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">mysql-service</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="m">3306</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">app</span><span class="pi">:</span> <span class="s">mysql</span>
 <span class="nn">---</span>
 <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
 <span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
 <span class="na">metadata</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-app</span>
- <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">mysql</span>
 <span class="na">spec</span><span class="pi">:</span>
- <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
- <span class="na">selector</span><span class="pi">:</span>
- <span class="na">matchLabels</span><span class="pi">:</span>
- <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app</span>
- <span class="na">template</span><span class="pi">:</span>
- <span class="na">metadata</span><span class="pi">:</span>
- <span class="na">labels</span><span class="pi">:</span>
- <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app</span>
- <span class="na">spec</span><span class="pi">:</span>
- <span class="na">containers</span><span class="pi">:</span>
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-app</span>
- <span class="na">image</span><span class="pi">:</span> <span class="s">zackz001/gitops-jekyll:latest</span> 
- <span class="na">env</span><span class="pi">:</span>
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">ENVIRONMENT</span>
- <span class="na">valueFrom</span><span class="pi">:</span>
- <span class="na">configMapKeyRef</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">app-config</span>
- <span class="na">key</span><span class="pi">:</span> <span class="s">ENVIRONMENT</span>
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">FEATURE_FLAG</span>
- <span class="na">valueFrom</span><span class="pi">:</span>
- <span class="na">configMapKeyRef</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">app-config</span>
- <span class="na">key</span><span class="pi">:</span> <span class="s">FEATURE_FLAG</span>
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">DB_PASSWORD</span>
- <span class="na">valueFrom</span><span class="pi">:</span>
- <span class="na">secretKeyRef</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">db-secret</span>
- <span class="na">key</span><span class="pi">:</span> <span class="s">DB_PASSWORD</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">app</span><span class="pi">:</span> <span class="s">mysql</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">app</span><span class="pi">:</span> <span class="s">mysql</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">mysql</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">mysql:5.7</span>
+        <span class="na">env</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_ROOT_PASSWORD</span>
+          <span class="na">valueFrom</span><span class="pi">:</span>
+            <span class="na">secretKeyRef</span><span class="pi">:</span>
+              <span class="na">name</span><span class="pi">:</span> <span class="s">mysql-root-secret</span>
+              <span class="na">key</span><span class="pi">:</span> <span class="s">MYSQL_ROOT_PASSWORD</span>
+
+<span class="s">root@asb:~/cf# cat wordpress.yaml</span> 
+
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ConfigMap</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-config</span>
+<span class="na">data</span><span class="pi">:</span>
+  <span class="na">WORDPRESS_DB_HOST</span><span class="pi">:</span> <span class="s2">"</span><span class="s">mysql-service:3306"</span>
+  <span class="na">WORDPRESS_DB_NAME</span><span class="pi">:</span> <span class="s2">"</span><span class="s">wordpress"</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Secret</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-secret</span>
+<span class="na">type</span><span class="pi">:</span> <span class="s">Opaque</span>
+<span class="na">data</span><span class="pi">:</span>
+  <span class="na">WORDPRESS_DB_USER</span><span class="pi">:</span> <span class="s">d29yZHByZXNz</span>  <span class="c1"># Base64 for "wordpress"</span>
+  <span class="na">WORDPRESS_DB_PASSWORD</span><span class="pi">:</span> <span class="s">c2VjdXJlcGFzc3dvcmQ=</span>  <span class="c1"># Base64 for "securepassword"</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">app</span><span class="pi">:</span> <span class="s">wordpress</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">app</span><span class="pi">:</span> <span class="s">wordpress</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">wordpress:latest</span>
+        <span class="na">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">80</span>
+        <span class="na">env</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_HOST</span>
+          <span class="na">valueFrom</span><span class="pi">:</span>
+            <span class="na">configMapKeyRef</span><span class="pi">:</span>
+              <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-config</span>
+              <span class="na">key</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_HOST</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_NAME</span>
+          <span class="na">valueFrom</span><span class="pi">:</span>
+            <span class="na">configMapKeyRef</span><span class="pi">:</span>
+              <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-config</span>
+              <span class="na">key</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_NAME</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_USER</span>
+          <span class="na">valueFrom</span><span class="pi">:</span>
+            <span class="na">secretKeyRef</span><span class="pi">:</span>
+              <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-secret</span>
+              <span class="na">key</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_USER</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_PASSWORD</span>
+          <span class="na">valueFrom</span><span class="pi">:</span>
+            <span class="na">secretKeyRef</span><span class="pi">:</span>
+              <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-secret</span>
+              <span class="na">key</span><span class="pi">:</span> <span class="s">WORDPRESS_DB_PASSWORD</span>
 <span class="nn">---</span>
 <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
 <span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
 <span class="na">metadata</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">zackblog-service</span>
- <span class="na">namespace</span><span class="pi">:</span> <span class="s">config-secret-demo</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">wordpress-service</span>
 <span class="na">spec</span><span class="pi">:</span>
- <span class="na">selector</span><span class="pi">:</span>
- <span class="na">app</span><span class="pi">:</span> <span class="s">zackblog-app  </span>
- <span class="na">ports</span><span class="pi">:</span>
- <span class="pi">-</span> <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
- <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
- <span class="na">targetPort</span><span class="pi">:</span> <span class="m">80</span>
- <span class="na">nodePort</span><span class="pi">:</span> <span class="m">30501</span>
- <span class="na">type</span><span class="pi">:</span> <span class="s">NodePort</span>
-<span class="nn">---</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Namespace</span>
-<span class="na">metadata</span><span class="pi">:</span>
- <span class="na">name</span><span class="pi">:</span> <span class="s">config-secret-demo</span></code></pre></figure>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">app</span><span class="pi">:</span> <span class="s">wordpress</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+      <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
+      <span class="na">targetPort</span><span class="pi">:</span> <span class="m">80</span>
+  <span class="na">type</span><span class="pi">:</span> <span class="s">LoadBalancer</span>  <span class="c1"># Or NodePort if LoadBalancer is not available</span></code></pre></figure>
 
 <ul>
   <li>Apply and verify the Configuration and Secrets in the Pod</li>
 </ul>
 
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:/home/ubuntu# kubectl apply <span class="nt">-f</span> cf-demo.yaml 
-configmap/app-config created
-secret/db-secret created
-deployment.apps/zackblog-app created
-namespace/config-secret-demo created
-service/zackblog-service created
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:~/cf# kubectl create ns cf-test
+root@asb:~/cf# kubectl apply <span class="nt">-f</span> <span class="nb">.</span> <span class="nt">-n</span> cf-test
 
+configmap/wordpress-config created
+secret/wordpress-secret created
+deployment.apps/wordpress created
+service/wordpress-service created
+secret/mysql-root-secret created
+service/mysql-service created
+deployment.apps/mysql created
 
-root@asb:/home/ubuntu# kubectl get all <span class="nt">-n</span> config-secret-demo 
-NAME                               READY   STATUS    RESTARTS   AGE
-pod/zackblog-app-948b6859c-492dm   1/1     Running   0          7s
+root@asb:~/cf# kubectl get all <span class="nt">-n</span> cf-test 
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/mysql-fdff667f8-xzblb        1/1     Running   0          6s
+pod/wordpress-6dff4575b9-sgn8t   1/1     Running   0          12m
 
-NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-service/zackblog-service   LoadBalancer   10.107.57.144   &lt;none&gt;        80:30501/TCP   83s
+NAME                        TYPE           CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/mysql-service       ClusterIP      10.106.191.27   &lt;none&gt;        3306/TCP       6s
+service/wordpress-service   LoadBalancer   10.97.169.213   pending       80:31208/TCP   12m
 
-NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/zackblog-app   1/1     1            1           2m49s
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mysql       1/1     1            1           6s
+deployment.apps/wordpress   1/1     1            1           12m
 
-NAME                                      DESIRED   CURRENT   READY   AGE
-replicaset.apps/zackblog-app-67d8bbdd9c   0         0         0       2m49s
-replicaset.apps/zackblog-app-948b6859c    1         1         1       7s
-
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/mysql-fdff667f8        1         1         1       6s
+replicaset.apps/wordpress-6dff4575b9   1         1         1       12m
 
 <span class="c"># Kubectl exec into pod to verify the configmap and secret</span>
 
-root@asb:/home/ubuntu# kubectl <span class="nb">exec</span> <span class="nt">-it</span> zackblog-app-948b6859c-492dm <span class="nt">-n</span> config-secret-demo <span class="nt">--</span> /bin/sh
-/usr/share/nginx/html <span class="c"># echo $ENVIRONMENT</span>
-production
-/usr/share/nginx/html <span class="c"># echo $FEATURE_FLAG</span>
-<span class="nb">true</span>
-/usr/share/nginx/html <span class="c"># echo $DB_PASSWORD</span>
-mySuperSecretPassword</code></pre></figure>
+root@asb:~/cf# kubectl logs wordpress-6dff4575b9-sgn8t <span class="nt">-n</span> cf-test 
+WordPress not found <span class="k">in</span> /var/www/html - copying now...
+Complete! WordPress has been successfully copied to /var/www/html
+No <span class="s1">'wp-config.php'</span> found <span class="k">in</span> /var/www/html, but <span class="s1">'WORDPRESS_...'</span> variables supplied<span class="p">;</span> copying <span class="s1">'wp-config-docker.php'</span> <span class="o">(</span>WORDPRESS_DB_HOST WORDPRESS_DB_NAME WORDPRESS_DB_PASSWORD WORDPRESS_DB_USER WORDPRESS_SERVICE_PORT WORDPRESS_SERVICE_PORT_80_TCP WORDPRESS_SERVICE_PORT_80_TCP_ADDR WORDPRESS_SERVICE_PORT_80_TCP_PORT WORDPRESS_SERVICE_PORT_80_TCP_PROTO WORDPRESS_SERVICE_SERVICE_HOST WORDPRESS_SERVICE_SERVICE_PORT<span class="o">)</span>
+AH00558: apache2: Could not reliably determine the server<span class="s1">'s fully qualified domain name, using 192.168.48.245. Set the '</span>ServerName<span class="s1">' directive globally to suppress this message
+AH00558: apache2: Could not reliably determine the server'</span>s fully qualified domain name, using 192.168.48.245. Set the <span class="s1">'ServerName'</span> directive globally to suppress this message
+<span class="o">[</span>Wed Nov 06 23:39:29.456836 2024] <span class="o">[</span>mpm_prefork:notice] <span class="o">[</span>pid 1:tid 1] AH00163: Apache/2.4.62 <span class="o">(</span>Debian<span class="o">)</span> PHP/8.2.25 configured <span class="nt">--</span> resuming normal operations
+<span class="o">[</span>Wed Nov 06 23:39:29.456923 2024] <span class="o">[</span>core:notice] <span class="o">[</span>pid 1:tid 1] AH00094: Command line: <span class="s1">'apache2 -D FOREGROUND'</span>
+
+root@asb:~/cf# kubectl <span class="nb">exec</span> <span class="nt">-it</span> wordpress-6dff4575b9-sgn8t <span class="nt">-n</span> cf-test <span class="nt">--</span> <span class="nb">env</span> | <span class="nb">grep </span>WORDPRESS_DB
+<span class="nv">WORDPRESS_DB_NAME</span><span class="o">=</span>wordpress
+<span class="nv">WORDPRESS_DB_USER</span><span class="o">=</span>wordpress
+<span class="nv">WORDPRESS_DB_PASSWORD</span><span class="o">=</span>securepassword
+<span class="nv">WORDPRESS_DB_HOST</span><span class="o">=</span>mysql-service:3306</code></pre></figure>
 
 <p><b>IRSA with AWS Secret Manager to ensure security best practices in EKS </b></p>
 
