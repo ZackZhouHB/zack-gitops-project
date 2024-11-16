@@ -1,4 +1,526 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-15T10:27:22+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-16T21:23:19+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+
+<p>Recently I got a task from the Company’s app team, to install agent on EC2 instances across serveral AWS accounts and enable connection via AWS private link to a target AWS account where hosts the management server. To achieve the task here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and install and configre AWS private link using terraform.</p>
+
+<p><b>Automate agent installation via SSM Run Command</b>:</p>
+
+<p>Here I need a shell script to :</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Identify Running Instances</code>: Detect all running Linux and Windows EC2 instances in the specified AWS account.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Tag Instances Based on SSM Availability</code>: Check if the SSM agent is available for each instance and assign tags to reflect the SSM status (ssm-linux, no-ssm-linux, ssm-windows, no-ssm-windows).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Create SSM Command Documents</code>:</p>
+  </li>
+</ul>
+
+<p>For Linux: Install Agent by running a shell script.</p>
+
+<p>For Windows: Run a testing command to retrieve the Windows OS version.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Execute Commands via SSM</code>: Run the corresponding commands on Linux and Windows instances that have SSM agents available to install the agent to cover both windows and linux.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#!/bin/bash</span>
+
+<span class="c"># Define the tag key and new values</span>
+<span class="nv">TAG_KEY</span><span class="o">=</span><span class="s2">"dtagent"</span>
+<span class="nv">REGION</span><span class="o">=</span><span class="s2">"ap-southeast-2"</span>
+
+<span class="c"># Step 1: Get a list of all running Linux and Windows instance IDs</span>
+
+<span class="c"># Get Linux instance IDs</span>
+<span class="nv">LINUX_INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="se">\</span>
+  <span class="nt">--filters</span> <span class="s2">"Name=platform-details,Values=Linux/UNIX"</span> <span class="s2">"Name=instance-state-name,Values=running"</span> <span class="se">\</span>
+  <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="se">\</span>
+  <span class="nt">--output</span> text<span class="si">)</span>
+
+<span class="c"># Get Windows instance IDs</span>
+<span class="nv">WINDOWS_INSTANCE_IDS</span><span class="o">=</span><span class="si">$(</span>aws ec2 describe-instances <span class="se">\</span>
+  <span class="nt">--filters</span> <span class="s2">"Name=platform-details,Values=Windows"</span> <span class="s2">"Name=instance-state-name,Values=running"</span> <span class="se">\</span>
+  <span class="nt">--query</span> <span class="s2">"Reservations[*].Instances[*].InstanceId"</span> <span class="se">\</span>
+  <span class="nt">--output</span> text<span class="si">)</span>
+
+<span class="c"># Step 2: Check for SSM agent availability and tag instances accordingly</span>
+
+<span class="c"># Function to check SSM availability and assign tags</span>
+tag_instance_based_on_ssm<span class="o">()</span> <span class="o">{</span>
+  <span class="nb">local </span><span class="nv">INSTANCE_ID</span><span class="o">=</span><span class="nv">$1</span>
+  <span class="nb">local </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="nv">$2</span>
+
+  <span class="c"># Check if the instance is managed by SSM</span>
+  <span class="nv">SSM_STATUS</span><span class="o">=</span><span class="si">$(</span>aws ssm describe-instance-information <span class="se">\</span>
+    <span class="nt">--filters</span> <span class="s2">"Key=InstanceIds,Values=</span><span class="nv">$INSTANCE_ID</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">--query</span> <span class="s2">"InstanceInformationList[*].PingStatus"</span> <span class="se">\</span>
+    <span class="nt">--output</span> text<span class="si">)</span>
+
+  <span class="c"># Determine tag value based on SSM status and platform</span>
+  <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$PLATFORM</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"Linux"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$SSM_STATUS</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"Online"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+      </span><span class="nv">TAG_VALUE</span><span class="o">=</span><span class="s2">"ssm-linux"</span>
+    <span class="k">else
+      </span><span class="nv">TAG_VALUE</span><span class="o">=</span><span class="s2">"no-ssm-linux"</span>
+    <span class="k">fi
+  elif</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$PLATFORM</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"Windows"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$SSM_STATUS</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"Online"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+      </span><span class="nv">TAG_VALUE</span><span class="o">=</span><span class="s2">"ssm-windows"</span>
+    <span class="k">else
+      </span><span class="nv">TAG_VALUE</span><span class="o">=</span><span class="s2">"no-ssm-windows"</span>
+    <span class="k">fi
+  fi</span>
+
+  <span class="c"># Apply the determined tag to the instance</span>
+  aws ec2 create-tags <span class="nt">--resources</span> <span class="s2">"</span><span class="nv">$INSTANCE_ID</span><span class="s2">"</span> <span class="nt">--tags</span> <span class="nv">Key</span><span class="o">=</span><span class="nv">$TAG_KEY</span>,Value<span class="o">=</span><span class="nv">$TAG_VALUE</span>
+<span class="o">}</span>
+
+<span class="c"># Tag Linux instances based on SSM availability</span>
+<span class="k">for </span>INSTANCE_ID <span class="k">in</span> <span class="nv">$LINUX_INSTANCE_IDS</span><span class="p">;</span> <span class="k">do
+  </span>tag_instance_based_on_ssm <span class="s2">"</span><span class="nv">$INSTANCE_ID</span><span class="s2">"</span> <span class="s2">"Linux"</span>
+<span class="k">done</span>
+
+<span class="c"># Tag Windows instances based on SSM availability</span>
+<span class="k">for </span>INSTANCE_ID <span class="k">in</span> <span class="nv">$WINDOWS_INSTANCE_IDS</span><span class="p">;</span> <span class="k">do
+  </span>tag_instance_based_on_ssm <span class="s2">"</span><span class="nv">$INSTANCE_ID</span><span class="s2">"</span> <span class="s2">"Windows"</span>
+<span class="k">done
+
+</span><span class="nb">echo</span> <span class="s2">"Tagging complete. Instances have been tagged with SSM availability status."</span>
+
+<span class="nb">sleep </span>10
+
+<span class="c"># Step 3: Create JSON files for SSM command documents (Linux and Windows)</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh"> &gt; linux_dtcommand.json
+{
+  "schemaVersion": "2.2",
+  "description": "Dynatrace oneagent installation command for Linux via SSM",
+  "mainSteps": [
+    {
+      "action": "aws:runShellScript",
+      "name": "LinuxDTCommand",
+      "inputs": {
+        "runCommand": [
+          "curl -o /tmp/dtssm.sh https://raw.githubusercontent.com/ZackZhouHB/zack-gitops-project/refs/heads/editing/Python_scripts/testssm.sh",
+          "chmod +x /tmp/dtssm.sh",
+          "/tmp/dtssm.sh"
+        ]
+      }
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="nb">cat</span> <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh"> &gt; windows_dtcommand.json
+{
+  "schemaVersion": "2.2",
+  "description": "Fetch Windows OS version via SSM",
+  "mainSteps": [
+    {
+      "action": "aws:runPowerShellScript",
+      "name": "WindowsOSVersionCheck",
+      "inputs": {
+        "runCommand": [
+          "(Get-ItemProperty -Path 'HKLM:</span><span class="se">\\\\</span><span class="sh">SOFTWARE</span><span class="se">\\\\</span><span class="sh">Microsoft</span><span class="se">\\\\</span><span class="sh">Windows NT</span><span class="se">\\\\</span><span class="sh">CurrentVersion').ProductName"        ]
+      }
+    }
+  ]
+}
+</span><span class="no">EOF
+
+
+</span><span class="c"># Step 4: Create the SSM documents</span>
+aws ssm create-document <span class="se">\</span>
+  <span class="nt">--name</span> <span class="s2">"LinuxDTCommand"</span> <span class="se">\</span>
+  <span class="nt">--document-type</span> <span class="s2">"Command"</span> <span class="se">\</span>
+  <span class="nt">--content</span> file://linux_dtcommand.json
+
+aws ssm create-document <span class="se">\</span>
+  <span class="nt">--name</span> <span class="s2">"WindowsDTCommand"</span> <span class="se">\</span>
+  <span class="nt">--document-type</span> <span class="s2">"Command"</span> <span class="se">\</span>
+  <span class="nt">--content</span> file://windows_dtcommand.json
+
+<span class="c"># Step 5: Send the SSM command to Linux instances with "ssm-linux" tag</span>
+aws ssm send-command <span class="se">\</span>
+  <span class="nt">--document-name</span> <span class="s2">"LinuxDTCommand"</span> <span class="se">\</span>
+  <span class="nt">--targets</span> <span class="s2">"Key=tag:</span><span class="nv">$TAG_KEY</span><span class="s2">,Values=ssm-linux"</span> <span class="se">\</span>
+  <span class="nt">--comment</span> <span class="s2">"Execute Dynatrace oneagent installation on all Linux instances with SSM"</span> <span class="se">\</span>
+  <span class="nt">--max-concurrency</span> <span class="s2">"50"</span> <span class="se">\</span>
+  <span class="nt">--max-errors</span> <span class="s2">"0"</span> <span class="se">\</span>
+  <span class="nt">--region</span> <span class="nv">$REGION</span>
+
+<span class="c"># Step 6: Send the SSM command to Windows instances with "ssm-windows" tag</span>
+aws ssm send-command <span class="se">\</span>
+  <span class="nt">--document-name</span> <span class="s2">"WindowsDTCommand"</span> <span class="se">\</span>
+  <span class="nt">--targets</span> <span class="s2">"Key=tag:</span><span class="nv">$TAG_KEY</span><span class="s2">,Values=ssm-windows"</span> <span class="se">\</span>
+  <span class="nt">--comment</span> <span class="s2">"Execute Dynatrace oneagent installation on all Windows instances with SSM"</span> <span class="se">\</span>
+  <span class="nt">--max-concurrency</span> <span class="s2">"50"</span> <span class="se">\</span>
+  <span class="nt">--max-errors</span> <span class="s2">"0"</span> <span class="se">\</span>
+  <span class="nt">--region</span> <span class="nv">$REGION</span>
+
+<span class="nb">echo</span> <span class="s2">"Commands sent to instances with SSM agent available."</span></code></pre></figure>
+
+<p>The result can be verified via EC2 console for the tags, together in AWS SSM console for the commands execution status.</p>
+
+<p><b> Cross account AWS private link setup</b></p>
+
+<p>Here I will use both of my own AWS account <code class="language-plaintext highlighter-rouge">zack</code> and <code class="language-plaintext highlighter-rouge">joe</code>, to set up and verify a PrivateLink connection:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Provider Account</code> (Zack): Hosting a service (Python HTTP server on port 9080) running on an EC2 instance behind a Network Load Balancer (NLB).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Consumer Account</code> (Joe): Accessing the service securely through a VPC Endpoint without exposing the service to the internet.</p>
+  </li>
+</ul>
+
+<p><b> Run a simple Python HTTP server on port 9080 in the provider account (Zack)</b></p>
+
+<p>In Provider Account (Zack):</p>
+
+<ul>
+  <li>SSH into Zackblog EC2 running a docker Python HTTP service on port 9080.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ip-172-31-26-78:/var/snap/amazon-ssm-agent/9881# docker pull python:3
+
+root@ip-172-31-26-78:/var/snap/amazon-ssm-agent/9881# docker run <span class="nt">-d</span> <span class="nt">-p</span> 9080:9080 <span class="nt">--name</span> test-container python:3 python
+
+root@ip-172-31-26-78:/var/snap/amazon-ssm-agent/9881# docker ps
+CONTAINER ID   IMAGE      COMMAND                  CREATED             STATUS             PORTS                                       NAMES
+6e0dabbd7d5b   python:3   <span class="s2">"python -m http.serv…"</span>   About an hour ago   Up About an hour   0.0.0.0:9080-&gt;9080/tcp, :::9080-&gt;9080/tcp   test-container
+
+root@ip-172-31-26-78:/var/snap/amazon-ssm-agent/9881# curl localhost:9080
+&lt;<span class="o">!</span>DOCTYPE HTML&gt;
+&lt;html <span class="nv">lang</span><span class="o">=</span><span class="s2">"en"</span><span class="o">&gt;</span>
+&lt;<span class="nb">head</span><span class="o">&gt;</span>
+&lt;meta <span class="nv">charset</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="o">&gt;</span>
+&lt;title&gt;Directory listing <span class="k">for</span> /&lt;/title&gt;
+&lt;/head&gt;</code></pre></figure>
+
+<ul>
+  <li>Create An NLB with Security group forwards traffic to TCP 9080 port on the EC2 instance.</li>
+</ul>
+
+<p><img src="/assets/ssm13.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Register instance as target group, Create VPC Endpoint Service expose the NLB to consumer accounts.</li>
+</ul>
+
+<p><img src="/assets/ssm14.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Manual approve when get connection request from consumer account.</li>
+</ul>
+
+<p><img src="/assets/ssm11.png" alt="image tooltip here" /></p>
+
+<p>In Consumer Account (Joe):</p>
+
+<ul>
+  <li>Create a VPC Interface Endpoint requests and connects to the provider’s endpoint service.</li>
+</ul>
+
+<p><img src="/assets/ssm12.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Create a testing EC2 with 9080 allowed from security group, run curl private DNS name with 9080 port to verify the private link.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">ubuntu@ip-172-31-54-206:~<span class="nv">$ </span>curl http://vpce-0961b67b61820a01e-6kvjc4rs.vpce-svc-056bd4182a8904985.ap-southeast-2.vpce.amazonaws.com:9080
+&lt;<span class="o">!</span>DOCTYPE HTML&gt;
+&lt;html <span class="nv">lang</span><span class="o">=</span><span class="s2">"en"</span><span class="o">&gt;</span>
+&lt;<span class="nb">head</span><span class="o">&gt;</span>
+&lt;meta <span class="nv">charset</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="o">&gt;</span>
+&lt;title&gt;Directory listing <span class="k">for</span> /&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Directory listing <span class="k">for</span> /&lt;/h1&gt;</code></pre></figure>
+
+<p>Here it can be seen the Traffic from consumer EC2 Ubuntu instances is routed through the endpoint to the NLB and then to the service in the provider account.</p>
+
+<ul>
+  <li>create above resource so it can be reusable across more AWS accounts.</li>
+</ul>
+
+<p>First in provider account, create NLB, Security group for NLB to allow 9080, Target group to register Zackblog ec2, Listener, VPC endpoint service.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf for provider account</span>
+
+<span class="c"># Provider Account Configuration</span>
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+  profile <span class="o">=</span> <span class="s2">"zack"</span> <span class="c"># AWS account profile for provider</span>
+  region  <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+<span class="c"># Fetch Existing VPC and Subnet</span>
+data <span class="s2">"aws_vpc"</span> <span class="s2">"default"</span> <span class="o">{</span>
+  default <span class="o">=</span> <span class="nb">true</span>
+<span class="o">}</span>
+
+data <span class="s2">"aws_subnet"</span> <span class="s2">"subnet1"</span> <span class="o">{</span>
+  <span class="nb">id</span> <span class="o">=</span> <span class="s2">"subnet-0ssssssssss69a"</span> 
+<span class="o">}</span>
+
+data <span class="s2">"aws_subnet"</span> <span class="s2">"subnet2"</span> <span class="o">{</span>
+  <span class="nb">id</span> <span class="o">=</span> <span class="s2">"subnet-073ssssssssss46db"</span> 
+<span class="o">}</span>
+
+data <span class="s2">"aws_subnet"</span> <span class="s2">"subnet3"</span> <span class="o">{</span>
+  <span class="nb">id</span> <span class="o">=</span> <span class="s2">"subnet-09sssssss129"</span> <span class="c"># </span>
+<span class="o">}</span>
+
+<span class="c"># Fetch Existing Security Group for EC2 Instance</span>
+data <span class="s2">"aws_security_group"</span> <span class="s2">"ec2_sg"</span> <span class="o">{</span>
+  <span class="nb">id</span> <span class="o">=</span> <span class="s2">"sg-01ssssssss7c"</span> <span class="c"># Security Group ID of Zackblog EC2 instance</span>
+<span class="o">}</span>
+
+
+<span class="c"># Create Security Group for NLB</span>
+resource <span class="s2">"aws_security_group"</span> <span class="s2">"nlb_sg"</span> <span class="o">{</span>
+  name        <span class="o">=</span> <span class="s2">"nlb-private-link-sg"</span>
+  vpc_id      <span class="o">=</span> data.aws_vpc.default.id
+  description <span class="o">=</span> <span class="s2">"Allow traffic to NLB from consumer accounts"</span>
+
+  egress <span class="o">{</span>
+    from_port   <span class="o">=</span> 0
+    to_port     <span class="o">=</span> 0
+    protocol    <span class="o">=</span> <span class="s2">"-1"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+  <span class="o">}</span>
+
+  ingress <span class="o">{</span>
+    from_port   <span class="o">=</span> 9080
+    to_port     <span class="o">=</span> 9080
+    protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"172.31.48.0/20"</span><span class="o">]</span> <span class="c"># Updated to match consumer's new CIDR</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Allow NLB to Access EC2 on Port 9080</span>
+resource <span class="s2">"aws_security_group_rule"</span> <span class="s2">"ec2_inbound_from_nlb"</span> <span class="o">{</span>
+  <span class="nb">type</span>                     <span class="o">=</span> <span class="s2">"ingress"</span>
+  security_group_id        <span class="o">=</span> data.aws_security_group.ec2_sg.id <span class="c"># Existing EC2 SG</span>
+  from_port                <span class="o">=</span> 9080
+  to_port                  <span class="o">=</span> 9080
+  protocol                 <span class="o">=</span> <span class="s2">"tcp"</span>
+  source_security_group_id <span class="o">=</span> aws_security_group.nlb_sg.id <span class="c"># Allow traffic from NLB SG</span>
+<span class="o">}</span>
+
+
+<span class="c"># Create NLB</span>
+resource <span class="s2">"aws_lb"</span> <span class="s2">"nlb"</span> <span class="o">{</span>
+  name               <span class="o">=</span> <span class="s2">"private-link-nlb"</span>
+  internal           <span class="o">=</span> <span class="nb">true
+  </span>load_balancer_type <span class="o">=</span> <span class="s2">"network"</span>
+  subnets            <span class="o">=</span> <span class="o">[</span>
+    data.aws_subnet.subnet1.id,
+    data.aws_subnet.subnet2.id,
+    data.aws_subnet.subnet3.id
+  <span class="o">]</span>
+  security_groups    <span class="o">=</span> <span class="o">[</span>aws_security_group.nlb_sg.id]
+<span class="o">}</span>
+
+<span class="c"># Create NLB Target Group</span>
+resource <span class="s2">"aws_lb_target_group"</span> <span class="s2">"tg"</span> <span class="o">{</span>
+  name        <span class="o">=</span> <span class="s2">"private-link-tg"</span>
+  port        <span class="o">=</span> 9080
+  protocol    <span class="o">=</span> <span class="s2">"TCP"</span>
+  vpc_id      <span class="o">=</span> data.aws_vpc.default.id
+  target_type <span class="o">=</span> <span class="s2">"instance"</span>
+<span class="o">}</span>
+
+<span class="c"># Attach EC2 Instance to Target Group</span>
+resource <span class="s2">"aws_lb_target_group_attachment"</span> <span class="s2">"tg_attachment"</span> <span class="o">{</span>
+  target_group_arn <span class="o">=</span> aws_lb_target_group.tg.arn
+  target_id        <span class="o">=</span> <span class="s2">"i-076sssssssscf2"</span> <span class="c"># Zackblog instance ID</span>
+  port             <span class="o">=</span> 9080
+<span class="o">}</span>
+
+<span class="c"># Add Listener for NLB</span>
+resource <span class="s2">"aws_lb_listener"</span> <span class="s2">"nlb_listener"</span> <span class="o">{</span>
+  load_balancer_arn <span class="o">=</span> aws_lb.nlb.arn  <span class="c"># Reference the NLB created in your Terraform configuration</span>
+  port              <span class="o">=</span> 9080           <span class="c"># Listener port</span>
+  protocol          <span class="o">=</span> <span class="s2">"TCP"</span>          <span class="c"># Protocol for the listener</span>
+
+  default_action <span class="o">{</span>
+    <span class="nb">type</span>             <span class="o">=</span> <span class="s2">"forward"</span>
+    target_group_arn <span class="o">=</span> aws_lb_target_group.tg.arn  <span class="c"># Reference the target group created in your Terraform configuration</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Create Endpoint Service</span>
+resource <span class="s2">"aws_vpc_endpoint_service"</span> <span class="s2">"private_link_service"</span> <span class="o">{</span>
+  acceptance_required <span class="o">=</span> <span class="nb">true
+  </span>network_load_balancer_arns <span class="o">=</span> <span class="o">[</span>
+    aws_lb.nlb.arn,
+  <span class="o">]</span>
+  allowed_principals <span class="o">=</span> <span class="o">[</span>
+    <span class="s2">"arn:aws:iam::8ssssssssss5:root"</span> <span class="c"># Replace with account joe's ID</span>
+  <span class="o">]</span>
+  private_dns_name <span class="o">=</span> <span class="s2">"zzservice.internal"</span> <span class="c"># Provide a custom private DNS name</span>
+<span class="o">}</span>
+
+output <span class="s2">"endpoint_service_name"</span> <span class="o">{</span>
+  value       <span class="o">=</span> aws_vpc_endpoint_service.private_link_service.service_name
+  description <span class="o">=</span> <span class="s2">"The name of the VPC Endpoint Service to share with the consumer account"</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Then in comsumer account, create interface endpoint, security group for Interface Endpoint, a testing ubuntu EC2 in a new non-overlapping subnet.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># main.tf for joe account as comsumer</span>
+
+<span class="c"># Consumer Account Configuration</span>
+provider <span class="s2">"aws"</span> <span class="o">{</span>
+  profile <span class="o">=</span> <span class="s2">"joe"</span> <span class="c"># AWS account profile for consumer</span>
+  region  <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
+<span class="o">}</span>
+
+<span class="c"># Fetch Existing VPC and Subnet</span>
+data <span class="s2">"aws_vpc"</span> <span class="s2">"default"</span> <span class="o">{</span>
+  default <span class="o">=</span> <span class="nb">true</span>
+<span class="o">}</span>
+
+<span class="c"># Create a new non-overlapping subnet in account Joe</span>
+resource <span class="s2">"aws_subnet"</span> <span class="s2">"new_consumer_subnet"</span> <span class="o">{</span>
+  vpc_id                  <span class="o">=</span> data.aws_vpc.default.id
+  cidr_block              <span class="o">=</span> <span class="s2">"172.31.48.0/20"</span>     <span class="c"># Updated CIDR to avoid overlap</span>
+  availability_zone       <span class="o">=</span> <span class="s2">"ap-southeast-2c"</span> <span class="c"># Same AZ as the testing EC2 instance</span>
+  map_public_ip_on_launch <span class="o">=</span> <span class="nb">false</span>             <span class="c"># Optional: Prevent public IP assignment</span>
+  tags <span class="o">=</span> <span class="o">{</span>
+    Name <span class="o">=</span> <span class="s2">"Consumer-New-PrivateLink-Subnet"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Create Security Group for Interface Endpoint</span>
+resource <span class="s2">"aws_security_group"</span> <span class="s2">"endpoint_sg"</span> <span class="o">{</span>
+  name        <span class="o">=</span> <span class="s2">"private-link-endpoint-sg"</span>
+  vpc_id      <span class="o">=</span> data.aws_vpc.default.id
+  description <span class="o">=</span> <span class="s2">"Allow traffic to the interface endpoint"</span>
+
+  ingress <span class="o">{</span>
+    from_port   <span class="o">=</span> 9080
+    to_port     <span class="o">=</span> 9080
+    protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"172.31.48.0/20"</span><span class="o">]</span> <span class="c"># Updated to match new consumer CIDR</span>
+  <span class="o">}</span>
+
+  egress <span class="o">{</span>
+    from_port   <span class="o">=</span> 0
+    to_port     <span class="o">=</span> 0
+    protocol    <span class="o">=</span> <span class="s2">"-1"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+resource <span class="s2">"aws_vpc_endpoint"</span> <span class="s2">"interface_endpoint"</span> <span class="o">{</span>
+  vpc_id             <span class="o">=</span> data.aws_vpc.default.id
+  service_name       <span class="o">=</span> <span class="s2">"com.amazonaws.vpce.ap-southeast-2.vpce-svc-0ssssssssss5"</span>
+  subnet_ids         <span class="o">=</span> <span class="o">[</span>aws_subnet.new_consumer_subnet.id]
+  security_group_ids <span class="o">=</span> <span class="o">[</span>aws_security_group.endpoint_sg.id]
+  private_dns_enabled <span class="o">=</span> <span class="nb">false</span> <span class="c"># Temporarily disable for accept connection from provider account then change to true</span>
+  vpc_endpoint_type  <span class="o">=</span> <span class="s2">"Interface"</span>
+<span class="o">}</span>
+
+<span class="c"># Replace the null resource with a manual acceptance process (preferred)</span>
+output <span class="s2">"accept_endpoint_instructions"</span> <span class="o">{</span>
+  value <span class="o">=</span> <span class="o">&lt;&lt;</span><span class="no">EOT</span><span class="sh">
+  To accept the VPC endpoint in the provider account, run:
+  aws ec2 accept-vpc-endpoint-connections </span><span class="se">\</span><span class="sh">
+    --vpc-endpoint-service-id &lt;SERVICE_ID_FROM_PROVIDER&gt; </span><span class="se">\</span><span class="sh">
+    --vpc-endpoint-ids &lt;ENDPOINT_ID&gt;
+</span><span class="no">  EOT
+</span><span class="o">}</span>
+
+<span class="c"># Dynamically Fetch the Subnet</span>
+data <span class="s2">"aws_subnet"</span> <span class="s2">"new_consumer_subnet"</span> <span class="o">{</span>
+  filter <span class="o">{</span>
+    name   <span class="o">=</span> <span class="s2">"cidr-block"</span>
+    values <span class="o">=</span> <span class="o">[</span><span class="s2">"172.31.48.0/20"</span><span class="o">]</span> <span class="c"># Replace with the CIDR block of the desired subnet</span>
+  <span class="o">}</span>
+
+  filter <span class="o">{</span>
+    name   <span class="o">=</span> <span class="s2">"vpc-id"</span>
+    values <span class="o">=</span> <span class="o">[</span>data.aws_vpc.default.id]
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Create Security Group for Testing</span>
+resource <span class="s2">"aws_security_group"</span> <span class="s2">"testing_sg"</span> <span class="o">{</span>
+  name        <span class="o">=</span> <span class="s2">"testing-private-link-sg"</span>
+  vpc_id      <span class="o">=</span> data.aws_vpc.default.id
+  description <span class="o">=</span> <span class="s2">"Security group for testing EC2 instance"</span>
+
+  ingress <span class="o">{</span>
+    from_port   <span class="o">=</span> 22
+    to_port     <span class="o">=</span> 22
+    protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span> <span class="c"># Allow SSH from everywhere (change for production use)</span>
+  <span class="o">}</span>
+
+  ingress <span class="o">{</span>
+    from_port   <span class="o">=</span> 9080
+    to_port     <span class="o">=</span> 9080
+    protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"172.31.0.0/16"</span><span class="o">]</span> <span class="c"># Allow traffic to PrivateLink endpoint within VPC</span>
+  <span class="o">}</span>
+
+  egress <span class="o">{</span>
+    from_port   <span class="o">=</span> 0
+    to_port     <span class="o">=</span> 0
+    protocol    <span class="o">=</span> <span class="s2">"-1"</span>
+    cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># Launch EC2 Instance in 172.31.48.0/20 Subnet</span>
+resource <span class="s2">"aws_instance"</span> <span class="s2">"testing_ec2"</span> <span class="o">{</span>
+  ami                  <span class="o">=</span> <span class="s2">"ami-040e71e7b8391cae4"</span> <span class="c"># Replace with a valid Amazon Linux 2 AMI for ap-southeast-2</span>
+  instance_type        <span class="o">=</span> <span class="s2">"t2.micro"</span>
+  subnet_id            <span class="o">=</span> data.aws_subnet.new_consumer_subnet.id
+  vpc_security_group_ids <span class="o">=</span> <span class="o">[</span>aws_security_group.testing_sg.id] <span class="c"># Use the correct attribute for SGs with subnets</span>
+
+  associate_public_ip_address <span class="o">=</span> <span class="nb">true</span> <span class="c"># Assign a public IP address</span>
+
+  key_name <span class="o">=</span> <span class="s2">"xxxxx1"</span> 
+
+  tags <span class="o">=</span> <span class="o">{</span>
+    Name <span class="o">=</span> <span class="s2">"PrivateLink-Testing-EC2"</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Finally, ssh into the new EC2 instance and run the following command to test the PrivateLink endpoint.</p>
+
+<p><b> Conclusion</b></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Traffic Flow</code></li>
+</ul>
+
+<p>Consumer EC2 → PrivateLink Endpoint:</p>
+
+<p>Consumer EC2 uses the private DNS name to send requests to the endpoint.
+The VPC interface endpoint forwards traffic securely to the NLB in the provider account.</p>
+
+<p>NLB → EC2 Instance:
+The NLB routes traffic from the VPC endpoint to the EC2 instance based on the target group configuration.</p>
+
+<p>EC2 Instance → Service:
+The EC2 instance processes the request and responds back via the same path.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">What We Accomplished</code></li>
+</ul>
+
+<p>Used Terraform to automate resource creation for NLB, target group, VPC endpoint service, and consumer endpoint.</p>
+
+<p>Successfully accessed the Python HTTP server from the consumer EC2 instance using the private DNS name via PrivateLink.</p>
+
+<p>Verified connectivity from consumer EC2 to provider service.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -3275,222 +3797,4 @@ Last login: Sun Jul 14 20:48:42 2024 from 11.0.1.1
 
 <p>Now we install Redhat IdM server and can enrol client hosts, set up AD trust, ssh and authenticate with both idm and AD users. IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.</p>
 
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=freeipa&amp;f=8">FreeIPA:FreeIPA trust AD</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity Management]]></summary></entry><entry><title type="html">Serverless with AWS Fargate</title><link href="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html" rel="alternate" type="text/html" title="Serverless with AWS Fargate" /><published>2024-07-10T10:15:29+10:00</published><updated>2024-07-10T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/10/aws-fargate.html"><![CDATA[<p><b>Why go serverless</b></p>
-
-<p>Some of the company’s applications recently moved from Rancher to Fargate, which is understandable as the cloud resource and traffic will be very intensive only during a certain period (HSC exam), hence AWS serverless with Fargate can be a better option for such business mode so rest of the year without exam we can save cost significantly.</p>
-
-<p><b>Hosting our blog on Fargate? Why not!</b></p>
-
-<p>In the past, I used to try different methods to host this blog:</p>
-
-<ul>
-  <li><a href="https://zackz.site/jekyll/cat2/2023/11/02/about-this-project.html">EC2 with docker</a></li>
-  <li><a href="https://zackz.site/jekyll/cat2/2023/11/07/ArgoCD.html">K8s with ArgoCD</a></li>
-  <li><a href="https://zackz.site/jekyll/cat2/2024/04/30/serverless.html">S3 with static website</a></li>
-  <li><a href="https://zackz.site/jekyll/cat2/2024/05/12/Helm.html">Customize Helm Chart for Zack’ Blog</a></li>
-</ul>
-
-<p>Here I will use AWS Fargate, together with AWS ECR, Docker, Terraform and Github Action workflow to move this blog to AWS serverless compute for containers.</p>
-
-<ul>
-  <li>Terraform Provisioning</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Provider Configuration  "provider.tf"</span>
-provider <span class="s2">"aws"</span> <span class="o">{</span>
- region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
-<span class="o">}</span>
-
-<span class="c"># Create an ECR Repository "ecr.tf"</span>
-resource <span class="s2">"aws_ecr_repository"</span> <span class="s2">"zackblog_repo"</span> <span class="o">{</span>
- name <span class="o">=</span> <span class="s2">"zackblog-repo"</span>
-<span class="o">}</span>
-
-<span class="c"># Fargate Task Definition  "task_definition.tf"</span>
-resource <span class="s2">"aws_ecs_task_definition"</span> <span class="s2">"zackblog_task"</span> <span class="o">{</span>
- family                   <span class="o">=</span> <span class="s2">"zackblog-task"</span>
- network_mode             <span class="o">=</span> <span class="s2">"awsvpc"</span>
- requires_compatibilities <span class="o">=</span> <span class="o">[</span><span class="s2">"FARGATE"</span><span class="o">]</span>
- cpu                      <span class="o">=</span> <span class="s2">"256"</span>
- memory                   <span class="o">=</span> <span class="s2">"512"</span>
-
- container_definitions <span class="o">=</span> jsonencode<span class="o">([</span>
- <span class="o">{</span>
- name      <span class="o">=</span> <span class="s2">"zackblog-container"</span>,
- image     <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">aws_ecr_repository</span><span class="p">.zackblog_repo.repository_url</span><span class="k">}</span><span class="s2">:latest"</span>,
- essential <span class="o">=</span> <span class="nb">true</span>,
- portMappings <span class="o">=</span> <span class="o">[</span>
- <span class="o">{</span>
- containerPort <span class="o">=</span> 80,
- hostPort      <span class="o">=</span> 80,
- protocol      <span class="o">=</span> <span class="s2">"tcp"</span>
- <span class="o">}</span>
- <span class="o">]</span>
- <span class="o">}</span>
- <span class="o">])</span>
-<span class="o">}</span>
-
-<span class="c"># Create an ECS Cluster "cluster.tf"</span>
-resource <span class="s2">"aws_ecs_cluster"</span> <span class="s2">"zackblog_cluster"</span> <span class="o">{</span>
- name <span class="o">=</span> <span class="s2">"zackblog-cluster"</span>
-<span class="o">}</span>
-
-<span class="c"># Configure Networking to Use Default VPC - save cost haha</span>
-<span class="c"># use the data block to fetch existing resources</span>
-data <span class="s2">"aws_vpc"</span> <span class="s2">"default"</span> <span class="o">{</span>
- default <span class="o">=</span> <span class="nb">true</span>
-<span class="o">}</span>
-
-data <span class="s2">"aws_subnet"</span> <span class="s2">"default"</span> <span class="o">{</span>
- filter <span class="o">{</span>
- name   <span class="o">=</span> <span class="s2">"vpc-id"</span>
- values <span class="o">=</span> <span class="o">[</span>data.aws_vpc.default.id]
- <span class="o">}</span>
-<span class="o">}</span>
-
-resource <span class="s2">"aws_security_group"</span> <span class="s2">"zackblog_sg"</span> <span class="o">{</span>
- name_prefix <span class="o">=</span> <span class="s2">"zackblog-sg"</span>
- vpc_id      <span class="o">=</span> data.aws_vpc.default.id
-
- ingress <span class="o">{</span>
- from_port   <span class="o">=</span> 80
- to_port     <span class="o">=</span> 80
- protocol    <span class="o">=</span> <span class="s2">"tcp"</span>
- cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
- <span class="o">}</span>
-
- egress <span class="o">{</span>
- from_port   <span class="o">=</span> 0
- to_port     <span class="o">=</span> 0
- protocol    <span class="o">=</span> <span class="s2">"-1"</span>
- cidr_blocks <span class="o">=</span> <span class="o">[</span><span class="s2">"0.0.0.0/0"</span><span class="o">]</span>
- <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># Define the ECS Service "service.tf"</span>
-resource <span class="s2">"aws_ecs_service"</span> <span class="s2">"zackblog_service"</span> <span class="o">{</span>
- name            <span class="o">=</span> <span class="s2">"zackblog-service"</span>
- cluster         <span class="o">=</span> aws_ecs_cluster.zackblog_cluster.id
- task_definition <span class="o">=</span> aws_ecs_task_definition.zackblog_task.arn
- desired_count   <span class="o">=</span> 1
- launch_type     <span class="o">=</span> <span class="s2">"FARGATE"</span>
-
- network_configuration <span class="o">{</span>
- subnets         <span class="o">=</span> <span class="o">[</span><span class="k">for </span>subnet <span class="k">in </span>data.aws_subnet.default : subnet.id]
- security_groups <span class="o">=</span> <span class="o">[</span>aws_security_group.zackblog_sg.id]
- assign_public_ip <span class="o">=</span> <span class="nb">true</span>
- <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># Configure Load Balancer and attach to Fargate service "load_balancer.tf"</span>
-resource <span class="s2">"aws_lb"</span> <span class="s2">"zackblog_lb"</span> <span class="o">{</span>
- name               <span class="o">=</span> <span class="s2">"zackblog-lb"</span>
- internal           <span class="o">=</span> <span class="nb">false
- </span>load_balancer_type <span class="o">=</span> <span class="s2">"application"</span>
- security_groups    <span class="o">=</span> <span class="o">[</span>aws_security_group.zackblog_sg.id]
- subnets            <span class="o">=</span> <span class="o">[</span><span class="k">for </span>subnet <span class="k">in </span>data.aws_subnet.default : subnet.id]
-<span class="o">}</span>
-
-resource <span class="s2">"aws_lb_target_group"</span> <span class="s2">"zackblog_tg"</span> <span class="o">{</span>
- name     <span class="o">=</span> <span class="s2">"zackblog-tg"</span>
- port     <span class="o">=</span> 80
- protocol <span class="o">=</span> <span class="s2">"HTTP"</span>
- vpc_id   <span class="o">=</span> data.aws_vpc.default.id
-<span class="o">}</span>
-
-resource <span class="s2">"aws_lb_listener"</span> <span class="s2">"zackblog_listener"</span> <span class="o">{</span>
- load_balancer_arn <span class="o">=</span> aws_lb.zackblog_lb.arn
- port              <span class="o">=</span> 80
- protocol          <span class="o">=</span> <span class="s2">"HTTP"</span>
-
- default_action <span class="o">{</span>
- <span class="nb">type</span>             <span class="o">=</span> <span class="s2">"forward"</span>
- target_group_arn <span class="o">=</span> aws_lb_target_group.zackblog_tg.arn
- <span class="o">}</span>
-<span class="o">}</span>
-
-resource <span class="s2">"aws_lb_target_group_attachment"</span> <span class="s2">"zackblog_tg_attachment"</span> <span class="o">{</span>
- target_group_arn <span class="o">=</span> aws_lb_target_group.zackblog_tg.arn
- target_id        <span class="o">=</span> aws_ecs_service.zackblog_service.id
- port             <span class="o">=</span> 80
-<span class="o">}</span></code></pre></figure>
-
-<ul>
-  <li>Github Action Workflow fo CICD</li>
-</ul>
-
-<p>1.First we need to create Github Secret to contain dockerhub and aws credentials and some other vars:</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">AWS_ACCESS_KEY_ID
-
-AWS_SECRET_ACCESS_KEY
-
-AWS_REGION
-
-<span class="c"># xxx.dkr.ecr.ap-southeast-2.amazonaws.com</span>
-ECR_REGISTRY  
-
-<span class="c"># zackblog-repo</span>
-ECR_REPOSITORY  
-
-<span class="c"># zackblog-cluster</span>
-ECS_CLUSTER 
-
-<span class="c"># zackblog-service</span>
-ECS_SERVICE </code></pre></figure>
-
-<p>2.Then define the workflow to create /.github/workflows/zackblog-fargate.yaml, in this configure Github runner, it will :</p>
-
-<p>Log in to Amazon ECR</p>
-
-<p>Build and push Docker Image to the ECR repository</p>
-
-<p>Deploy to ECS by updating the ECS service to use the new image by forcing a new deployment</p>
-
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">name</span><span class="pi">:</span> <span class="s">Deploy to AWS Fargate</span>
-
-<span class="na">on</span><span class="pi">:</span>
- <span class="na">push</span><span class="pi">:</span>
- <span class="na">branches</span><span class="pi">:</span>
- <span class="pi">-</span> <span class="s">editing  # not main branch</span>
-
-<span class="na">jobs</span><span class="pi">:</span>
- <span class="na">deploy</span><span class="pi">:</span>
- <span class="na">runs-on</span><span class="pi">:</span> <span class="s">ubuntu-latest</span>
-
- <span class="na">steps</span><span class="pi">:</span>
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Checkout code</span>
- <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/checkout@v3</span>
-
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Set up Docker Buildx</span>
- <span class="na">uses</span><span class="pi">:</span> <span class="s">docker/setup-buildx-action@v2</span>
-
- <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Log in to Amazon ECR</span>
- <span class="na">env</span><span class="pi">:</span>
- <span class="na">AWS_REGION</span><span class="pi">:</span> <span class="s">${{ secrets.AWS_REGION }}</span>
- <span class="na">run</span><span class="pi">:</span> <span class="pi">|</span>
- <span class="s">aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}</span>
-
- <span class="s">- name: Build and push Docker image</span>
- <span class="s">env:</span>
- <span class="s">IMAGE_TAG: ${{ github.sha }}</span>
- <span class="s">ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}</span>
- <span class="s">ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}</span>
- <span class="s">run: |</span>
- <span class="s">docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .</span>
- <span class="s">docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG</span>
-
- <span class="s">- name: Deploy to ECS</span>
- <span class="s">env:</span>
- <span class="s">AWS_REGION: ${{ secrets.AWS_REGION }}</span>
- <span class="s">ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}</span>
- <span class="s">ECS_SERVICE: ${{ secrets.ECS_SERVICE }}</span>
- <span class="s">ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}</span>
- <span class="s">ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}</span>
- <span class="s">IMAGE_TAG: ${{ github.sha }}</span>
- <span class="s">run: |</span>
- <span class="s">aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_REGION</span></code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we have a seamless incurvature as a code together with CICD pipeline to ensure that the “Zack’s Blog” can be moved to AWS serverless container service Fargate, every time I update the blog by committing changes to “zack-gitops-project” editing branch, a new Docker image will be built, pushed to ECR, and the AWS Fargate service is automatically updated.  </p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Why go serverless]]></summary></entry></feed>
+<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=freeipa&amp;f=8">FreeIPA:FreeIPA trust AD</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity Management]]></summary></entry></feed>
