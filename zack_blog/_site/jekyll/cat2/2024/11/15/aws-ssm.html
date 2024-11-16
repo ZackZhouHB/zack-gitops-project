@@ -293,7 +293,7 @@ root@ip-172-31-26-78:/var/snap/amazon-ssm-agent/9881# curl localhost:9080
 <p>Here it can be seen the Traffic from consumer EC2 Ubuntu instances is routed through the endpoint to the NLB and then to the service in the provider account.</p>
 
 <ul>
-  <li>create above resource so it can be reusable across more AWS accounts.</li>
+  <li>Using Terraform to create above resource so it can be easliy descroyed for lab puepose and can be reusable across more AWS accounts.</li>
 </ul>
 
 <p>First in provider account, create NLB, Security group for NLB to allow 9080, Target group to register Zackblog ec2, Listener, VPC endpoint service.</p>

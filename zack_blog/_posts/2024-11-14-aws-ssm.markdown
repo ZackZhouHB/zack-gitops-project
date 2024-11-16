@@ -234,7 +234,7 @@ ubuntu@ip-172-31-54-206:~$ curl http://vpce-0961b67b61820a01e-6kvjc4rs.vpce-svc-
 
 Here it can be seen the Traffic from consumer EC2 Ubuntu instances is routed through the endpoint to the NLB and then to the service in the provider account.
 
-- create above resource so it can be reusable across more AWS accounts.
+- Using Terraform to create above resource so it can be easliy descroyed for lab puepose and can be reusable across more AWS accounts.
 
 First in provider account, create NLB, Security group for NLB to allow 9080, Target group to register Zackblog ec2, Listener, VPC endpoint service.
 
