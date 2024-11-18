@@ -1,0 +1,145 @@
+---
+layout: post
+title:  "EKS - Prometheus metrics debugging"
+date:   2024-09-29 11:15:29 +1100
+categories: jekyll Cat2
+---
+<b>AWS Managed Prometheus & Grafana vs kube-prometheus-stack on EKS</b>
+
+`AWS Managed Prometheus & Grafana` is the "plug-and-play" choice for production workloads requiring minimal management, while on the other hand install helm `kube-prometheus-stack` offers maximum control but requires more effort to maintain and scale effectively.
+
+Hence for cost control and full customization, I got to install `kube-prometheus-stack` on my local lab cluster.
+
+<b>Understand Prometheus Pull-based Monitoring Flow</b>
+
+- `Expose Metrics`: Applications expose metrics in Prometheus format.
+
+- `Discover Targets`:
+
+Kubernetes-native targets: Discovered via the Kubernetes API.
+
+Non-cloud-native targets: Defined statically or exposed through exporters.
+
+- `Scrape Metrics`: Prometheus scrapes metrics periodically from /metrics endpoints.
+
+- `Store Metrics`: Metrics are stored in Prometheus's time-series database.
+
+- `Visualize Metrics`: Grafana (in kube-prometheus-stack) is often used to query and visualize metrics.
+
+<b>Prometheus metrics issue</b>
+
+Then I found Prometheus was unable to scrape metrics from several Kubernetes components (etcd, kube-controller-manager, kube-scheduler, and kube-proxy). These targets were marked as DOWN in the Prometheus UI with errors such as: Connection refused.
+
+![image tooltip here](/assets/eks72.png)
+
+
+![image tooltip here](/assets/eks73.png)
+<b>Troubleshooting Steps</b>
+
+As per Prometheus monitoring flow, let's start with troubleshooting.
+
+
+- Step 1: check Prometheus service, pod and ServiceMonitor
+{% highlight shell %}
+root@asb:/home/ubuntu# kubectl  get svc -n kube-system
+NAME                                                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                        AGE
+kube-dns                                             ClusterIP   10.96.0.10     <none>        53/UDP,53/TCP,9153/TCP         63d
+metrics-server                                       ClusterIP   10.110.18.85   <none>        443/TCP                        61d
+prometheus-stack-kube-prom-coredns                   ClusterIP   None           <none>        9153/TCP                       60d
+prometheus-stack-kube-prom-kube-controller-manager   ClusterIP   None           <none>        10257/TCP                      60d
+prometheus-stack-kube-prom-kube-etcd                 ClusterIP   None           <none>        2381/TCP                       60d
+prometheus-stack-kube-prom-kube-proxy                ClusterIP   None           <none>        10249/TCP                      60d
+prometheus-stack-kube-prom-kube-scheduler            ClusterIP   None           <none>        10259/TCP                      60d
+prometheus-stack-kube-prom-kubelet                   ClusterIP   None           <none>        10250/TCP,10255/TCP,4194/TCP   60d
+root@asb:/home/ubuntu# kubectl  get po -n kube-system
+NAME                                       READY   STATUS    RESTARTS        AGE
+calico-kube-controllers-84b7b7fdbb-klzpf   1/1     Running   10 (42m ago)    39d
+calico-node-bzf6d                          1/1     Running   20 (113m ago)   63d
+calico-node-ggw7r                          1/1     Running   21 (112m ago)   63d
+calico-node-t8jfn                          1/1     Running   20 (112m ago)   63d
+coredns-5d5dd8cb46-pwsvt                   1/1     Running   1 (113m ago)    25h
+coredns-5d5dd8cb46-vthsr                   1/1     Running   9 (112m ago)    39d
+etcd-asb-mst                               1/1     Running   0               41m
+kube-apiserver-asb-mst                     1/1     Running   19 (41m ago)    39d
+kube-controller-manager-asb-mst            1/1     Running   0               41m
+kube-proxy-956zq                           1/1     Running   0               28m
+kube-proxy-9fcd4                           1/1     Running   0               28m
+kube-proxy-tcnql                           1/1     Running   0               28m
+kube-scheduler-asb-mst                     1/1     Running   0               41m
+metrics-server-7766f59c77-xbxxr            1/1     Running   1 (112m ago)    25h
+root@asb:/home/ubuntu# kubectl  get servicemonitors.monitoring.coreos.com -n monitoring 
+NAME                                                 AGE
+prometheus-stack-grafana                             60d
+prometheus-stack-kube-prom-alertmanager              60d
+prometheus-stack-kube-prom-apiserver                 60d
+prometheus-stack-kube-prom-coredns                   60d
+prometheus-stack-kube-prom-kube-controller-manager   60d
+prometheus-stack-kube-prom-kube-etcd                 60d
+prometheus-stack-kube-prom-kube-proxy                60d
+prometheus-stack-kube-prom-kube-scheduler            60d
+prometheus-stack-kube-prom-kubelet                   60d
+prometheus-stack-kube-prom-operator                  60d
+prometheus-stack-kube-prom-prometheus                60d
+prometheus-stack-kube-state-metrics                  60d
+prometheus-stack-prometheus-node-exporter            60d
+{% endhighlight %}
+
+- Step 2: Checked Prometheus ServiceMonitor configurations to ensure they matched the service labels, ports, and namespaces. Check `Service Labels and Selectors` vs `Pod Labels` vs `ServiceMonitor Selector`.
+
+- Step 3: Verify Metrics Exposure
+
+Port-forwarded ETCD service and tested metrics endpoint using `wget` to see if ETCD metrics were being exposed. then verify /metrics was accessible locally within the pods but not externally.
+{% highlight shell %}
+kubectl port-forward -n kube-system svc/prometheus-stack-kube-prom-kube-etcd 2381:2381
+curl http://localhost:2381/metrics
+{% endhighlight %}
+
+See that API `/metrics` was accessible with a list of retrieves, then I need to create debug pod to test metrics endpoint
+{% highlight shell %}
+kubectl run -it --rm debug-pod --image=busybox --restart=Never -- sh
+
+/ # wget http://11.0.1.231:2381/metrics
+Connecting to 11.0.1.231:2381 (11.0.1.231:2381)
+wget: server returned error: HTTP/1.1 503 Service Unavailable
+{% endhighlight %}
+
+The 503 Service Unavailable error indicates that the service is reachable, but it’s not properly routing requests to the etcd pod. This suggests a potential issue with the service configuration or the etcd pod itself
+
+Step 4: Inspect ETCD configuration via /etc/kubernetes/manifests/etcd.yaml
+
+The etcd pod must be configured to expose metrics on port 2381. Check the etcd deployment or static pod configuration file (often in /etc/kubernetes/manifests/ for static pods on control plane nodes). 
+
+The `--listen-metrics-urls` flag include the :2381 endpoint is `--listen-metrics-urls=http://127.0.0.1:2381`
+
+- Step 4: Identify the Actual Issues
+
+Determined that the root issue was the bind addresses and configuration of metrics endpoints, ETCD, kube-controller-manager, kube-scheduler and kube-proxy Metrics were bound to 127.0.0.1, preventing external access.
+
+- Step 5: Implement Fixes
+
+Backup and modified each ETCD, kube-controller-manager and kube-scheduler manifests to bind metrics to `0.0.0.0` instead of `127.0.0.1`, Updated ConfigMap for kube-proxy, edited the kube-proxy ConfigMap to set `metricsBindAddress: "0.0.0.0:10249"`
+{% highlight shell %}
+# vim /etc/kubernetes/manifests/etcd.yaml
+
+--listen-metrics-urls=http://0.0.0.0:2381
+
+# Updated ConfigMap and restart kube-proxy:
+kubectl edit cm kube-proxy -n kube-system
+kubectl rollout restart ds kube-proxy -n kube-system
+{% endhighlight %}
+
+Confirmed that Prometheus targets were UP after the fixes.
+
+![image tooltip here](/assets/eks71.png)
+
+<b>Conclusion</b>
+
+Common Prometheus Metrics debug steps:
+
+- check Prometheus pod, service and servicemonitor status
+
+- check labels (servicemonitor label vs service label vs po label)
+
+- check and test metrics API endpoint within Prometheus pod (e.g. /metrics)
+
+This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.

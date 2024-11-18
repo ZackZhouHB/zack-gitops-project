@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>EKS - Prometheus metrics debugging | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="EKS - Prometheus metrics debugging" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS" />
+<meta property="og:description" content="AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-29T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="EKS - Prometheus metrics debugging" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-09-29T10:15:29+10:00","datePublished":"2024-09-29T10:15:29+10:00","description":"AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS","headline":"EKS - Prometheus metrics debugging","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html"},"url":"http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">EKS - Prometheus metrics debugging</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-09-29T10:15:29+10:00" itemprop="datePublished">Sep 29, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS</b></p>
+
+<p><code class="language-plaintext highlighter-rouge">AWS Managed Prometheus &amp; Grafana</code> is the “plug-and-play” choice for production workloads requiring minimal management, while on the other hand install helm <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> offers maximum control but requires more effort to maintain and scale effectively.</p>
+
+<p>Hence for cost control and full customization, I got to install <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> on my local lab cluster.</p>
+
+<p><b>Understand Prometheus Pull-based Monitoring Flow</b></p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Expose Metrics</code>: Applications expose metrics in Prometheus format.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Discover Targets</code>:</p>
+  </li>
+</ul>
+
+<p>Kubernetes-native targets: Discovered via the Kubernetes API.</p>
+
+<p>Non-cloud-native targets: Defined statically or exposed through exporters.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Scrape Metrics</code>: Prometheus scrapes metrics periodically from /metrics endpoints.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Store Metrics</code>: Metrics are stored in Prometheus’s time-series database.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Visualize Metrics</code>: Grafana (in kube-prometheus-stack) is often used to query and visualize metrics.</p>
+  </li>
+</ul>
+
+<p><b>Prometheus metrics issue</b></p>
+
+<p>Then I found Prometheus was unable to scrape metrics from several Kubernetes components (etcd, kube-controller-manager, kube-scheduler, and kube-proxy). These targets were marked as DOWN in the Prometheus UI with errors such as: Connection refused.</p>
+
+<p><img src="/assets/eks72.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/eks73.png" alt="image tooltip here" />
+<b>Troubleshooting Steps</b></p>
+
+<p>As per Prometheus monitoring flow, let’s start with troubleshooting.</p>
+
+<ul>
+  <li>Step 1: check Prometheus service, pod and ServiceMonitor</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:/home/ubuntu# kubectl  get svc <span class="nt">-n</span> kube-system
+NAME                                                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                        AGE
+kube-dns                                             ClusterIP   10.96.0.10     &lt;none&gt;        53/UDP,53/TCP,9153/TCP         63d
+metrics-server                                       ClusterIP   10.110.18.85   &lt;none&gt;        443/TCP                        61d
+prometheus-stack-kube-prom-coredns                   ClusterIP   None           &lt;none&gt;        9153/TCP                       60d
+prometheus-stack-kube-prom-kube-controller-manager   ClusterIP   None           &lt;none&gt;        10257/TCP                      60d
+prometheus-stack-kube-prom-kube-etcd                 ClusterIP   None           &lt;none&gt;        2381/TCP                       60d
+prometheus-stack-kube-prom-kube-proxy                ClusterIP   None           &lt;none&gt;        10249/TCP                      60d
+prometheus-stack-kube-prom-kube-scheduler            ClusterIP   None           &lt;none&gt;        10259/TCP                      60d
+prometheus-stack-kube-prom-kubelet                   ClusterIP   None           &lt;none&gt;        10250/TCP,10255/TCP,4194/TCP   60d
+root@asb:/home/ubuntu# kubectl  get po <span class="nt">-n</span> kube-system
+NAME                                       READY   STATUS    RESTARTS        AGE
+calico-kube-controllers-84b7b7fdbb-klzpf   1/1     Running   10 <span class="o">(</span>42m ago<span class="o">)</span>    39d
+calico-node-bzf6d                          1/1     Running   20 <span class="o">(</span>113m ago<span class="o">)</span>   63d
+calico-node-ggw7r                          1/1     Running   21 <span class="o">(</span>112m ago<span class="o">)</span>   63d
+calico-node-t8jfn                          1/1     Running   20 <span class="o">(</span>112m ago<span class="o">)</span>   63d
+coredns-5d5dd8cb46-pwsvt                   1/1     Running   1 <span class="o">(</span>113m ago<span class="o">)</span>    25h
+coredns-5d5dd8cb46-vthsr                   1/1     Running   9 <span class="o">(</span>112m ago<span class="o">)</span>    39d
+etcd-asb-mst                               1/1     Running   0               41m
+kube-apiserver-asb-mst                     1/1     Running   19 <span class="o">(</span>41m ago<span class="o">)</span>    39d
+kube-controller-manager-asb-mst            1/1     Running   0               41m
+kube-proxy-956zq                           1/1     Running   0               28m
+kube-proxy-9fcd4                           1/1     Running   0               28m
+kube-proxy-tcnql                           1/1     Running   0               28m
+kube-scheduler-asb-mst                     1/1     Running   0               41m
+metrics-server-7766f59c77-xbxxr            1/1     Running   1 <span class="o">(</span>112m ago<span class="o">)</span>    25h
+root@asb:/home/ubuntu# kubectl  get servicemonitors.monitoring.coreos.com <span class="nt">-n</span> monitoring 
+NAME                                                 AGE
+prometheus-stack-grafana                             60d
+prometheus-stack-kube-prom-alertmanager              60d
+prometheus-stack-kube-prom-apiserver                 60d
+prometheus-stack-kube-prom-coredns                   60d
+prometheus-stack-kube-prom-kube-controller-manager   60d
+prometheus-stack-kube-prom-kube-etcd                 60d
+prometheus-stack-kube-prom-kube-proxy                60d
+prometheus-stack-kube-prom-kube-scheduler            60d
+prometheus-stack-kube-prom-kubelet                   60d
+prometheus-stack-kube-prom-operator                  60d
+prometheus-stack-kube-prom-prometheus                60d
+prometheus-stack-kube-state-metrics                  60d
+prometheus-stack-prometheus-node-exporter            60d</code></pre></figure>
+
+<ul>
+  <li>
+    <p>Step 2: Checked Prometheus ServiceMonitor configurations to ensure they matched the service labels, ports, and namespaces. Check <code class="language-plaintext highlighter-rouge">Service Labels and Selectors</code> vs <code class="language-plaintext highlighter-rouge">Pod Labels</code> vs <code class="language-plaintext highlighter-rouge">ServiceMonitor Selector</code>.</p>
+  </li>
+  <li>
+    <p>Step 3: Verify Metrics Exposure</p>
+  </li>
+</ul>
+
+<p>Port-forwarded ETCD service and tested metrics endpoint using <code class="language-plaintext highlighter-rouge">wget</code> to see if ETCD metrics were being exposed. then verify /metrics was accessible locally within the pods but not externally.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl port-forward <span class="nt">-n</span> kube-system svc/prometheus-stack-kube-prom-kube-etcd 2381:2381
+curl http://localhost:2381/metrics</code></pre></figure>
+
+<p>See that API <code class="language-plaintext highlighter-rouge">/metrics</code> was accessible with a list of retrieves, then I need to create debug pod to test metrics endpoint</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl run <span class="nt">-it</span> <span class="nt">--rm</span> debug-pod <span class="nt">--image</span><span class="o">=</span>busybox <span class="nt">--restart</span><span class="o">=</span>Never <span class="nt">--</span> sh
+
+/ <span class="c"># wget http://11.0.1.231:2381/metrics</span>
+Connecting to 11.0.1.231:2381 <span class="o">(</span>11.0.1.231:2381<span class="o">)</span>
+wget: server returned error: HTTP/1.1 503 Service Unavailable</code></pre></figure>
+
+<p>The 503 Service Unavailable error indicates that the service is reachable, but it’s not properly routing requests to the etcd pod. This suggests a potential issue with the service configuration or the etcd pod itself</p>
+
+<p>Step 4: Inspect ETCD configuration via /etc/kubernetes/manifests/etcd.yaml</p>
+
+<p>The etcd pod must be configured to expose metrics on port 2381. Check the etcd deployment or static pod configuration file (often in /etc/kubernetes/manifests/ for static pods on control plane nodes).</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">--listen-metrics-urls</code> flag include the :2381 endpoint is <code class="language-plaintext highlighter-rouge">--listen-metrics-urls=http://127.0.0.1:2381</code></p>
+
+<ul>
+  <li>Step 4: Identify the Actual Issues</li>
+</ul>
+
+<p>Determined that the root issue was the bind addresses and configuration of metrics endpoints, ETCD, kube-controller-manager, kube-scheduler and kube-proxy Metrics were bound to 127.0.0.1, preventing external access.</p>
+
+<ul>
+  <li>Step 5: Implement Fixes</li>
+</ul>
+
+<p>Backup and modified each ETCD, kube-controller-manager and kube-scheduler manifests to bind metrics to <code class="language-plaintext highlighter-rouge">0.0.0.0</code> instead of <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, Updated ConfigMap for kube-proxy, edited the kube-proxy ConfigMap to set <code class="language-plaintext highlighter-rouge">metricsBindAddress: "0.0.0.0:10249"</code></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim /etc/kubernetes/manifests/etcd.yaml</span>
+
+<span class="nt">--listen-metrics-urls</span><span class="o">=</span>http://0.0.0.0:2381
+
+<span class="c"># Updated ConfigMap and restart kube-proxy:</span>
+kubectl edit cm kube-proxy <span class="nt">-n</span> kube-system
+kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</code></pre></figure>
+
+<p>Confirmed that Prometheus targets were UP after the fixes.</p>
+
+<p><img src="/assets/eks71.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Common Prometheus Metrics debug steps:</p>
+
+<ul>
+  <li>
+    <p>check Prometheus pod, service and servicemonitor status</p>
+  </li>
+  <li>
+    <p>check labels (servicemonitor label vs service label vs po label)</p>
+  </li>
+  <li>
+    <p>check and test metrics API endpoint within Prometheus pod (e.g. /metrics)</p>
+  </li>
+</ul>
+
+<p>This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/09/29/eks6.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

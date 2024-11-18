@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-16T21:35:10+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-18T11:08:46+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently I got a task from the Company’s app team, to install agent on EC2 instances across serveral AWS accounts and enable connection via AWS private link to a target AWS account where hosts the management server. To achieve the task here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and install and configre AWS private link using terraform.</p>
 
@@ -1193,7 +1193,167 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Prometheus metrics debugging</title><link href="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html" rel="alternate" type="text/html" title="EKS - Prometheus metrics debugging" /><published>2024-09-29T10:15:29+10:00</published><updated>2024-09-29T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/29/eks6</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html"><![CDATA[<p><b>AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS</b></p>
+
+<p><code class="language-plaintext highlighter-rouge">AWS Managed Prometheus &amp; Grafana</code> is the “plug-and-play” choice for production workloads requiring minimal management, while on the other hand install helm <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> offers maximum control but requires more effort to maintain and scale effectively.</p>
+
+<p>Hence for cost control and full customization, I got to install <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> on my local lab cluster.</p>
+
+<p><b>Understand Prometheus Pull-based Monitoring Flow</b></p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Expose Metrics</code>: Applications expose metrics in Prometheus format.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Discover Targets</code>:</p>
+  </li>
+</ul>
+
+<p>Kubernetes-native targets: Discovered via the Kubernetes API.</p>
+
+<p>Non-cloud-native targets: Defined statically or exposed through exporters.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Scrape Metrics</code>: Prometheus scrapes metrics periodically from /metrics endpoints.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Store Metrics</code>: Metrics are stored in Prometheus’s time-series database.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Visualize Metrics</code>: Grafana (in kube-prometheus-stack) is often used to query and visualize metrics.</p>
+  </li>
+</ul>
+
+<p><b>Prometheus metrics issue</b></p>
+
+<p>Then I found Prometheus was unable to scrape metrics from several Kubernetes components (etcd, kube-controller-manager, kube-scheduler, and kube-proxy). These targets were marked as DOWN in the Prometheus UI with errors such as: Connection refused.</p>
+
+<p><img src="/assets/eks72.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/eks73.png" alt="image tooltip here" />
+<b>Troubleshooting Steps</b></p>
+
+<p>As per Prometheus monitoring flow, let’s start with troubleshooting.</p>
+
+<ul>
+  <li>Step 1: check Prometheus service, pod and ServiceMonitor</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:/home/ubuntu# kubectl  get svc <span class="nt">-n</span> kube-system
+NAME                                                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                        AGE
+kube-dns                                             ClusterIP   10.96.0.10     &lt;none&gt;        53/UDP,53/TCP,9153/TCP         63d
+metrics-server                                       ClusterIP   10.110.18.85   &lt;none&gt;        443/TCP                        61d
+prometheus-stack-kube-prom-coredns                   ClusterIP   None           &lt;none&gt;        9153/TCP                       60d
+prometheus-stack-kube-prom-kube-controller-manager   ClusterIP   None           &lt;none&gt;        10257/TCP                      60d
+prometheus-stack-kube-prom-kube-etcd                 ClusterIP   None           &lt;none&gt;        2381/TCP                       60d
+prometheus-stack-kube-prom-kube-proxy                ClusterIP   None           &lt;none&gt;        10249/TCP                      60d
+prometheus-stack-kube-prom-kube-scheduler            ClusterIP   None           &lt;none&gt;        10259/TCP                      60d
+prometheus-stack-kube-prom-kubelet                   ClusterIP   None           &lt;none&gt;        10250/TCP,10255/TCP,4194/TCP   60d
+root@asb:/home/ubuntu# kubectl  get po <span class="nt">-n</span> kube-system
+NAME                                       READY   STATUS    RESTARTS        AGE
+calico-kube-controllers-84b7b7fdbb-klzpf   1/1     Running   10 <span class="o">(</span>42m ago<span class="o">)</span>    39d
+calico-node-bzf6d                          1/1     Running   20 <span class="o">(</span>113m ago<span class="o">)</span>   63d
+calico-node-ggw7r                          1/1     Running   21 <span class="o">(</span>112m ago<span class="o">)</span>   63d
+calico-node-t8jfn                          1/1     Running   20 <span class="o">(</span>112m ago<span class="o">)</span>   63d
+coredns-5d5dd8cb46-pwsvt                   1/1     Running   1 <span class="o">(</span>113m ago<span class="o">)</span>    25h
+coredns-5d5dd8cb46-vthsr                   1/1     Running   9 <span class="o">(</span>112m ago<span class="o">)</span>    39d
+etcd-asb-mst                               1/1     Running   0               41m
+kube-apiserver-asb-mst                     1/1     Running   19 <span class="o">(</span>41m ago<span class="o">)</span>    39d
+kube-controller-manager-asb-mst            1/1     Running   0               41m
+kube-proxy-956zq                           1/1     Running   0               28m
+kube-proxy-9fcd4                           1/1     Running   0               28m
+kube-proxy-tcnql                           1/1     Running   0               28m
+kube-scheduler-asb-mst                     1/1     Running   0               41m
+metrics-server-7766f59c77-xbxxr            1/1     Running   1 <span class="o">(</span>112m ago<span class="o">)</span>    25h
+root@asb:/home/ubuntu# kubectl  get servicemonitors.monitoring.coreos.com <span class="nt">-n</span> monitoring 
+NAME                                                 AGE
+prometheus-stack-grafana                             60d
+prometheus-stack-kube-prom-alertmanager              60d
+prometheus-stack-kube-prom-apiserver                 60d
+prometheus-stack-kube-prom-coredns                   60d
+prometheus-stack-kube-prom-kube-controller-manager   60d
+prometheus-stack-kube-prom-kube-etcd                 60d
+prometheus-stack-kube-prom-kube-proxy                60d
+prometheus-stack-kube-prom-kube-scheduler            60d
+prometheus-stack-kube-prom-kubelet                   60d
+prometheus-stack-kube-prom-operator                  60d
+prometheus-stack-kube-prom-prometheus                60d
+prometheus-stack-kube-state-metrics                  60d
+prometheus-stack-prometheus-node-exporter            60d</code></pre></figure>
+
+<ul>
+  <li>
+    <p>Step 2: Checked Prometheus ServiceMonitor configurations to ensure they matched the service labels, ports, and namespaces. Check <code class="language-plaintext highlighter-rouge">Service Labels and Selectors</code> vs <code class="language-plaintext highlighter-rouge">Pod Labels</code> vs <code class="language-plaintext highlighter-rouge">ServiceMonitor Selector</code>.</p>
+  </li>
+  <li>
+    <p>Step 3: Verify Metrics Exposure</p>
+  </li>
+</ul>
+
+<p>Port-forwarded ETCD service and tested metrics endpoint using <code class="language-plaintext highlighter-rouge">wget</code> to see if ETCD metrics were being exposed. then verify /metrics was accessible locally within the pods but not externally.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl port-forward <span class="nt">-n</span> kube-system svc/prometheus-stack-kube-prom-kube-etcd 2381:2381
+curl http://localhost:2381/metrics</code></pre></figure>
+
+<p>See that API <code class="language-plaintext highlighter-rouge">/metrics</code> was accessible with a list of retrieves, then I need to create debug pod to test metrics endpoint</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl run <span class="nt">-it</span> <span class="nt">--rm</span> debug-pod <span class="nt">--image</span><span class="o">=</span>busybox <span class="nt">--restart</span><span class="o">=</span>Never <span class="nt">--</span> sh
+
+/ <span class="c"># wget http://11.0.1.231:2381/metrics</span>
+Connecting to 11.0.1.231:2381 <span class="o">(</span>11.0.1.231:2381<span class="o">)</span>
+wget: server returned error: HTTP/1.1 503 Service Unavailable</code></pre></figure>
+
+<p>The 503 Service Unavailable error indicates that the service is reachable, but it’s not properly routing requests to the etcd pod. This suggests a potential issue with the service configuration or the etcd pod itself</p>
+
+<p>Step 4: Inspect ETCD configuration via /etc/kubernetes/manifests/etcd.yaml</p>
+
+<p>The etcd pod must be configured to expose metrics on port 2381. Check the etcd deployment or static pod configuration file (often in /etc/kubernetes/manifests/ for static pods on control plane nodes).</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">--listen-metrics-urls</code> flag include the :2381 endpoint is <code class="language-plaintext highlighter-rouge">--listen-metrics-urls=http://127.0.0.1:2381</code></p>
+
+<ul>
+  <li>Step 4: Identify the Actual Issues</li>
+</ul>
+
+<p>Determined that the root issue was the bind addresses and configuration of metrics endpoints, ETCD, kube-controller-manager, kube-scheduler and kube-proxy Metrics were bound to 127.0.0.1, preventing external access.</p>
+
+<ul>
+  <li>Step 5: Implement Fixes</li>
+</ul>
+
+<p>Backup and modified each ETCD, kube-controller-manager and kube-scheduler manifests to bind metrics to <code class="language-plaintext highlighter-rouge">0.0.0.0</code> instead of <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, Updated ConfigMap for kube-proxy, edited the kube-proxy ConfigMap to set <code class="language-plaintext highlighter-rouge">metricsBindAddress: "0.0.0.0:10249"</code></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim /etc/kubernetes/manifests/etcd.yaml</span>
+
+<span class="nt">--listen-metrics-urls</span><span class="o">=</span>http://0.0.0.0:2381
+
+<span class="c"># Updated ConfigMap and restart kube-proxy:</span>
+kubectl edit cm kube-proxy <span class="nt">-n</span> kube-system
+kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</code></pre></figure>
+
+<p>Confirmed that Prometheus targets were UP after the fixes.</p>
+
+<p><img src="/assets/eks71.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Common Prometheus Metrics debug steps:</p>
+
+<ul>
+  <li>
+    <p>check Prometheus pod, service and servicemonitor status</p>
+  </li>
+  <li>
+    <p>check labels (servicemonitor label vs service label vs po label)</p>
+  </li>
+  <li>
+    <p>check and test metrics API endpoint within Prometheus pod (e.g. /metrics)</p>
+  </li>
+</ul>
+
+<p>This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
 
 <p>Here I will demo a mysql as database and a wordpress deployment as backend in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.</p>
 
@@ -3452,349 +3612,4 @@ pipeline {
 
 <p><img src="/assets/jenkins1.png" alt="image tooltip here" /></p>
 
-<p>Next, I will create a CD pipeline to integrate with Ansible, AWS, and Terraform to deploy the blog onto AWS EC2, ECS, and EKS.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins recap]]></summary></entry><entry><title type="html">RedHat Identity Management (IdM) with AD Intergration</title><link href="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html" rel="alternate" type="text/html" title="RedHat Identity Management (IdM) with AD Intergration" /><published>2024-07-13T10:15:29+10:00</published><updated>2024-07-13T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/07/13/Redhatidm.html"><![CDATA[<p><b> About Linux Identity Management </b></p>
-
-<p>When a company faces challenge to manage its Linux environments across local and public cloud, RedHat Identity management can be the solution to achieve:</p>
-
-<ul>
-  <li>
-    <p>With Local AD and Azure AD (AAD) Integration</p>
-  </li>
-  <li>
-    <p>With AWS SSO Integration as externel identity provider</p>
-  </li>
-  <li>
-    <p>LDAP, Kerberos and NTP</p>
-  </li>
-  <li>
-    <p>A web-based management front-end running on Apache</p>
-  </li>
-</ul>
-
-<p><b> A Typical AD User Authentication Flow End-to-End: </b></p>
-
-<p>User Creation and Management:</p>
-
-<ul>
-  <li>
-    <p>Azure AD / Local AD: Users are created in the Azure Active Directory or local Active Directory.</p>
-  </li>
-  <li>
-    <p>Synchronization to RedHat IdM: The users are synchronized from AD to RedHat IdM using the two-way trust established between AD and IdM.</p>
-  </li>
-</ul>
-
-<p>Accessing EC2 Instances via SSH:</p>
-
-<ul>
-  <li>User Sync to RedHat IdM: Users synchronized to RedHat IdM are assigned roles and permissions, including SSH access to specific EC2 instances.</li>
-</ul>
-
-<p>Host-Based Access Control (HBAC):</p>
-
-<ul>
-  <li>
-    <p>HBAC Rules: RedHat IdM enforces HBAC rules to control which users can access specific EC2 instances.</p>
-  </li>
-  <li>
-    <p>SSH Access Control: When a user attempts to SSH into an EC2 instance, RedHat IdM verifies the user’s identity and permissions, allowing or denying access based on the defined HBAC rules.</p>
-  </li>
-</ul>
-
-<p><b> The design:</b></p>
-
-<p>For Idm on AWS, configure the security groups to allow ports required by IdM. IdM desires below to be open:</p>
-
-<p>HTTP/HTTPS — 80, 443 — TCP</p>
-
-<p>LDAP/LDAPS — 389, 636 — TCP</p>
-
-<p>Kerberos — 88, 464 — Both TCP and UDP</p>
-
-<p>DNS — 53 — Both TCP and UDP</p>
-
-<p>NTP — 123 — UDP</p>
-
-<p>Here I am going to:</p>
-
-<ul>
-  <li>
-    <p>install and configure a local freeIPA server</p>
-  </li>
-  <li>
-    <p>enroll 2 Linux client machines (both CentOS and Ubuntu)</p>
-  </li>
-  <li>
-    <p>Setup a local AD,</p>
-  </li>
-  <li>
-    <p>build a 2 way trust between idm and AD</p>
-  </li>
-  <li>
-    <p>Validate IDM and AD user to ssh into idm client machines.</p>
-  </li>
-</ul>
-
-<p><b> Prerequisites: </b></p>
-
-<ul>
-  <li>
-    <p>Windows AD Domain <b> ad.zack.world</b> and Idm Domain <b> ipa.zack.world</b></p>
-  </li>
-  <li>
-    <p>Windows AD: 11.0.1.181 dc01.ad.zack.world (win server 2019)</p>
-  </li>
-  <li>
-    <p>Windows client1: 11.0.1.182 win-client.ad.zack.world (win server 2019)</p>
-  </li>
-  <li>
-    <p>idm Server: 11.0.1.180 server1.ipa.zack.world (CentOS 9)</p>
-  </li>
-  <li>
-    <p>idm Client2: 11.0.1.184 ubt-client02.ipa.zack.world (Ubuntu 24.04)</p>
-  </li>
-  <li>
-    <p>idm Client3: 11.0.1.185 idm-client3-centos7.ipa.zack.world (CentOS 9)</p>
-  </li>
-</ul>
-
-<p><b> FreeIPA Installation </b></p>
-
-<p>On freeIPA Server server1.ipa.zack.world 11.0.1.180 (CentOS 9):</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># set hostname, IP and DNS</span>
-hostnamectl set-hostname server1.ipa.zack.world
-
-<span class="c"># add 3 hosts to /etc/hosts</span>
-<span class="nb">echo </span>11.0.1.180 server1.ipa.zack.world  ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.184 ubt-client02.ipa.zack.world ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.185  idm-client3-centos7.ipa.zack.world  ipa <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.181  dc01.ad.zack.world ipa <span class="o">&gt;&gt;</span> /etc/hosts
-
-<span class="c"># install ipa-server</span>
-dnf <span class="nt">-y</span> <span class="nb">install </span>freeipa-server freeipa-server-dns freeipa-client
-
-<span class="c"># Configure ipa-server and DNS, here set ipa console and domain admin password</span>
-ipa-server-install <span class="nt">--setup-dns</span>
-
-<span class="c"># confirm or change NetBIOS domain name</span>
-NetBIOS domain name <span class="o">[</span>IPA]: IPA01
-
-The ipa-server-install <span class="nb">command </span>was successful.
-
-<span class="c"># Configure firewall rules and services</span>
-firewall-cmd <span class="nt">--add-service</span><span class="o">={</span>freeipa-ldap,freeipa-ldaps,dns,ntp<span class="o">}</span>
-firewall-cmd <span class="nt">--runtime-to-permanent</span>
-firewall-cmd <span class="nt">--reload</span> 
-
-<span class="c"># check ipastatus</span>
-<span class="o">[</span>root@freeipa ~]# ipactl status
-Directory Service: RUNNING
-krb5kdc Service: RUNNING
-kadmin Service: RUNNING
-httpd Service: RUNNING
-ipa-custodia Service: RUNNING
-ntpd Service: RUNNING
-pki-tomcatd Service: RUNNING
-ipa-otpd Service: RUNNING
-ipa: INFO: The ipactl <span class="nb">command </span>was successful
-
-<span class="c"># Obtain a Kerberos ticket for the Kerberos admin user and Verify the ticket</span>
-kinit admin
-klist
-
-Ticket cache: KEYRING:persistent:0:0
-Default principal: admin@ZACKZ.OONLINE
-
-Valid starting     Expires            Service principal
-07/13/24 22:17:29  07/14/24 22:02:43  HTTP/server1.ipa.zack.world@IPA.ZACK.WORLD
-
-<span class="c"># check content of /etc/resolv.conf</span>
-<span class="nb">cat</span> /etc/resolv.conf
-search ipa.zack.world
-nameserver 127.0.0.1
-
-<span class="c"># Configure default login shell to Bash and Create User tina</span>
-ipa config-mod <span class="nt">--defaultshell</span><span class="o">=</span>/bin/bash
-ipa user-add tina <span class="nt">--first</span><span class="o">=</span>tina <span class="nt">--last</span><span class="o">=</span>qi <span class="nt">--password</span></code></pre></figure>
-
-<p><img src="/assets/idm3.png" alt="image tooltip here" /></p>
-
-<p><b> Idm client Enrollment </b></p>
-
-<p>Now the idm web portal should be accessible, by adding “11.0.1.180 server1.ipa.zack.world” into local “c:/wondows/system32/drivers/etc/hosts.</p>
-
-<p>Then enrol both centos and Ubuntu IDM client machines</p>
-
-<ul>
-  <li>On FreeIPA Server, add DNS entry for FreeIPA Client machines</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># ipa dnsrecord-add [domain name] [record name] [record type] [record]</span>
-ipa dnsrecord-add ipa.zack.world idm-client3-centos7 <span class="nt">--a-rec</span> 11.0.1.185
-ipa dnsrecord-add ipa.zack.world ubt-client02 <span class="nt">--a-rec</span> 11.0.1.184
-
-- <span class="nb">set </span>IP, <span class="nb">hostname</span>, DNS on idm client
-<span class="c"># set idm server ID as client DNS</span>
-nmcli connection modify ens33 ipv4.dns 11.0.1.180
-nmcli connection up ens33
-
-<span class="c"># Install FreeIPA Client packages.</span>
-dnf <span class="nt">-y</span> <span class="nb">install </span>freeipa-client
-
-<span class="c"># enrol client to idm server with domain name</span>
-ipa-client-install <span class="nt">--server</span><span class="o">=</span>server1.ipa.zack.world <span class="nt">--domain</span> ipa.zack.world
-
-Enrolled <span class="k">in </span>IPA realm IPA.ZACK.WORLD
-Configuring ipa.zack.world as NIS domain.
-Client configuration complete.
-The ipa-client-install <span class="nb">command </span>was successful
-
-<span class="c"># set create home directory at initial login</span>
-authselect enable-feature with-mkhomedir
-systemctl <span class="nb">enable</span> <span class="nt">--now</span> oddjobd
-
-<span class="c"># same as Ubuntu client</span>
-<span class="nb">echo </span>11.0.1.180 server1.ipa.zack.world server1 <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.184 ubt-client02.ipa.zack.world ubt-client02 <span class="o">&gt;&gt;</span> /etc/hosts
-<span class="nb">echo </span>11.0.1.185 idm-client3-centos7.ipa.zack.world idm-client3-centos7 <span class="o">&gt;&gt;</span> /etc/hosts
-
-<span class="c"># Edit host file and install client, then enrol into idm server domain</span>
-apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install </span>freeipa-client oddjob-mkhomedir <span class="nt">-y</span>
-ipa-client-install <span class="nt">--server</span><span class="o">=</span>server1.ipa.zack.world <span class="nt">--domain</span> ipa.zack.world
-
-Client configuration complete.
-The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
-
-<p><img src="/assets/idm2.png" alt="image tooltip here" /></p>
-
-<p><b> Setup idm and AD trust</b></p>
-
-<p>On Windows DC, setup AD</p>
-
-<ul>
-  <li>
-    <p>install ADDC role and feature</p>
-  </li>
-  <li>
-    <p>create forest “ad.zack.world”</p>
-  </li>
-  <li>
-    <p>promote to primary DC</p>
-  </li>
-  <li>
-    <p>test AD to join Windows client machine to domain</p>
-  </li>
-  <li>
-    <p>create AD user joez@ad.zack.world</p>
-  </li>
-  <li>
-    <p>add idm domain to Windows AD zones</p>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># dnscmd 127.0.0.1 /ZoneAdd [FreeIPA domain name] /Secondary [FreeIPA IP address]</span>
-C:<span class="se">\U</span>sers<span class="se">\A</span>dministrator&gt;dnscmd 127.0.0.1 /ZoneAdd ipa.zack.world /Secondary 11.0.1.180
-DNS Server 127.0.0.1 created zone ipa.zack.world:
-
-Command completed successfully.
-
-<span class="c"># Verify both AD and Idm DNS resolution, then setup trust</span>
-dig SRV _ldap._tcp.ipa.zack.world
-dig SRV _ldap._tcp.ad.zack.world</code></pre></figure>
-
-<p><img src="/assets/idm1.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>Install required packages then setup trust on FreeIPA Server</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Install packages</span>
-dnf <span class="nt">-y</span> <span class="nb">install </span>ipa-server-trust-ad
-<span class="c"># setup ad trust</span>
-ipa-adtrust-install
-
-<span class="c"># FreeIPA admin password</span>
-admin password:
-<span class="o">=============================================================================</span>
-Setup <span class="nb">complete</span>
-
-<span class="c"># add firewall service and ports for ad trust</span>
-firewall-cmd <span class="nt">--add-service</span><span class="o">=</span>freeipa-trust
-
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>135/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>138/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>139/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>445/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>1024-1300/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>3268/tcp
-<span class="c"># Open UDP ports</span>
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>138/udp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>139/udp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>389/udp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>445/udp
-<span class="c"># Open TCP ports</span>
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>80/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>443/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>389/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>636/tcp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>88/tcp
-<span class="nb">sudo </span>firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>464/tcp
-<span class="nb">sudo </span>firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>53/tcp
-<span class="c"># Open UDP ports</span>
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>88/udp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>464/udp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>53/udp
-firewall-cmd <span class="nt">--permanent</span> <span class="nt">--add-port</span><span class="o">=</span>123/udp
-
-firewall-cmd <span class="nt">--reload</span>
-
-<span class="c"># Configure DNS Setting on FreeIPA Server</span>
-<span class="c"># ipa dnsforwardzone-add [AD domain name] --forwarder=[AD IP address] --forward-policy=only</span>
-ipa dnsforwardzone-add ad.zack.world <span class="nt">--forwarder</span><span class="o">=</span>11.0.1.181 <span class="nt">--forward-policy</span><span class="o">=</span>only
-<span class="c"># ipa dnszone-mod [IPA domain name] --allow-transfer=[AD IP address]</span>
-ipa dnszone-mod ipa.zack.world <span class="nt">--allow-transfer</span><span class="o">=</span>11.0.1.181
-
-<span class="c"># ipa trust-add --type=ad [AD domain name] --admin Administrator --password</span>
-ipa trust-add <span class="nt">--two-way</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--type</span><span class="o">=</span>ad ad.zack.world <span class="nt">--admin</span> Administrator <span class="nt">--password</span>
-Active Directory domain administrator<span class="s1">'s password:
------------------------------------------------------
-Added Active Directory trust for realm "ad.zack.world"
------------------------------------------------------
- Realm name: ad.zack.world
- Domain NetBIOS name: AD01
- Domain Security Identifier: S-1-5-21-726412840-3773945212-2352305327
- Trust direction: Two-way trust
- Trust type: Active Directory domain
- Trust status: Established and verified
-
-# set  home directory at initial login
-authselect enable-feature with-mkhomedir
-systemctl enable --now oddjobd</span></code></pre></figure>
-
-<p><img src="/assets/idm4.png" alt="image tooltip here" /></p>
-
-<p><b> Validation of both idm clients with idm and AD user</b></p>
-
-<ul>
-  <li>Validate ssh into ubuntu client with AD user “joez@ad.zack.world”</li>
-</ul>
-
-<p><img src="/assets/idm6.png" alt="image tooltip here" /></p>
-
-<p>Validate ssh into Centos client with idm user “tina”</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">login as: tina
-Keyboard-interactive authentication prompts from server:
-| Password:
-End of keyboard-interactive prompts from server
-Last login: Sun Jul 14 20:48:42 2024 from 11.0.1.1
-<span class="o">[</span>tina@idm-client3-centos7 ~]<span class="nv">$ </span><span class="nb">id
-</span><span class="nv">uid</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1240000004<span class="o">(</span>tina<span class="o">)</span> 
-<span class="nv">context</span><span class="o">=</span>unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre></figure>
-
-<p><b> Conclusion</b></p>
-
-<p>Now we install Redhat IdM server and can enrol client hosts, set up AD trust, ssh and authenticate with both idm and AD users. IdM using Kerberos for authentication, together with user group, policy, HBAC and Sudo roles, provides a flexible and robust authentication framework that supports multiple authentication mechanisms, enabling organizations to authenticate users securely across their Linux and Unix environments.</p>
-
-<p>More info can be found via <a href="https://freeipa.readthedocs.io/en/latest/workshop.html">Freeipa workshop</a>, <a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=freeipa&amp;f=8">FreeIPA:FreeIPA trust AD</a>, <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/managing_idm_users_groups_hosts_and_access_control_rules/index">Red Hat product documentation</a>, <a href="https://chamathb.wordpress.com/2019/06/21/setting-up-rhel-idm-with-integrated-dns-on-aws/">Redhat Idm on AWS with DNS forwarder</a>, <a href="https://www.reddit.com/r/redhat/comments/6ixtoe/idmfreeipa_dns_forwarding/">idmfreeipa DNS forwarder configurations on AWS</a>, and <a href="https://redhat.com/en/blog/automating-red-hat-identity-management-installation">Automating Red Hat Identity Management installation with Ansible</a>.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About Linux Identity Management]]></summary></entry></feed>
+<p>Next, I will create a CD pipeline to integrate with Ansible, AWS, and Terraform to deploy the blog onto AWS EC2, ECS, and EKS.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins recap]]></summary></entry></feed>
