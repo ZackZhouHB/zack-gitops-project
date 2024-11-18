@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-18T11:08:46+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-18T14:30:37+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently I got a task from the Company’s app team, to install agent on EC2 instances across serveral AWS accounts and enable connection via AWS private link to a target AWS account where hosts the management server. To achieve the task here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and install and configre AWS private link using terraform.</p>
 
@@ -1193,7 +1193,7 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Prometheus metrics debugging</title><link href="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html" rel="alternate" type="text/html" title="EKS - Prometheus metrics debugging" /><published>2024-09-29T10:15:29+10:00</published><updated>2024-09-29T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/29/eks6</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html"><![CDATA[<p><b>AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS</b></p>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Prometheus Metrics</title><link href="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html" rel="alternate" type="text/html" title="EKS - Prometheus Metrics" /><published>2024-09-29T10:15:29+10:00</published><updated>2024-09-29T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/29/eks6</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html"><![CDATA[<p><b>AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS</b></p>
 
 <p><code class="language-plaintext highlighter-rouge">AWS Managed Prometheus &amp; Grafana</code> is the “plug-and-play” choice for production workloads requiring minimal management, while on the other hand install helm <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> offers maximum control but requires more effort to maintain and scale effectively.</p>
 
@@ -1353,7 +1353,113 @@ kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</co
   </li>
 </ul>
 
-<p>This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
+<p>This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.</p>
+
+<p><b>Export Redis Metrics</b></p>
+
+<p>Here I will run another practice to install Redis and Redis exporter, then use Prometheus to scrape its metrics and visualize in Grafana.</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># Redis and Redis exporter deployment </span>
+
+<span class="s">root@asb:~# cat k8s-redis-and-exporter-deployment.yaml</span> 
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Namespace</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">redis</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">redis</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">redis</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">annotations</span><span class="pi">:</span>
+        <span class="na">prometheus.io/scrape</span><span class="pi">:</span> <span class="s2">"</span><span class="s">true"</span>
+        <span class="na">prometheus.io/port</span><span class="pi">:</span> <span class="s2">"</span><span class="s">9121"</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">redis</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">redis:4</span>
+        <span class="na">resources</span><span class="pi">:</span>
+          <span class="na">requests</span><span class="pi">:</span>
+            <span class="na">cpu</span><span class="pi">:</span> <span class="s">100m</span>
+            <span class="na">memory</span><span class="pi">:</span> <span class="s">100Mi</span>
+        <span class="na">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">6379</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">redis-exporter</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">oliver006/redis_exporter:latest</span>
+        <span class="na">securityContext</span><span class="pi">:</span>
+          <span class="na">runAsUser</span><span class="pi">:</span> <span class="m">59000</span>
+          <span class="na">runAsGroup</span><span class="pi">:</span> <span class="m">59000</span>
+          <span class="na">allowPrivilegeEscalation</span><span class="pi">:</span> <span class="kc">false</span>
+          <span class="na">capabilities</span><span class="pi">:</span>
+            <span class="na">drop</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">ALL</span>
+        <span class="na">resources</span><span class="pi">:</span>
+          <span class="na">requests</span><span class="pi">:</span>
+            <span class="na">cpu</span><span class="pi">:</span> <span class="s">100m</span>
+            <span class="na">memory</span><span class="pi">:</span> <span class="s">100Mi</span>
+        <span class="na">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">9121</span>
+
+<span class="c1"># redis service and servicemonitor</span>
+<span class="s">root@asb:~# cat k8s-redis-and-exporter-svc-svcmonitor.yaml</span> 
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">redis</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">redis-metrics</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
+  <span class="na">ports</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">http-metrics</span>
+    <span class="na">port</span><span class="pi">:</span> <span class="m">9121</span>
+    <span class="na">targetPort</span><span class="pi">:</span> <span class="m">9121</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">monitoring.coreos.com/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ServiceMonitor</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">redis-monitor</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">monitoring</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
+    <span class="na">release</span><span class="pi">:</span> <span class="s">prometheus-stack</span>  <span class="c1"># important to match with kube-monitoring-stack</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
+  <span class="na">namespaceSelector</span><span class="pi">:</span>
+    <span class="na">matchNames</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">redis</span>
+  <span class="na">endpoints</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="s">http-metrics</span>
+      <span class="na">interval</span><span class="pi">:</span> <span class="s">30s</span>
+
+<span class="s">kubectl apply -f k8s-redis-and-exporter-deployment.yaml</span> 
+<span class="s">namespace/redis created</span>
+<span class="s">deployment.apps/redis created</span>
+
+<span class="s">kubectl apply -f k8s-redis-and-exporter-svc-svcmonitor.yaml</span> 
+<span class="s">service/redis-metrics created</span>
+<span class="s">servicemonitor.monitoring.coreos.com/redis-monitor created</span></code></pre></figure>
+
+<p>Head over to Prometheus Targets, we can see the metrics is being scraped from the Redis exporter.
+<img src="/assets/eks75.png" alt="image tooltip here" /></p>
+
+<p>Head over to Grafana, then import the dashboard 763 
+<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
 
 <p>Here I will demo a mysql as database and a wordpress deployment as backend in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.</p>
 

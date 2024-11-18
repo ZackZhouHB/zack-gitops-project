@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "EKS - Prometheus metrics debugging"
+title:  "EKS - Prometheus Metrics"
 date:   2024-09-29 11:15:29 +1100
 categories: jekyll Cat2
 ---
@@ -143,3 +143,112 @@ Common Prometheus Metrics debug steps:
 - check and test metrics API endpoint within Prometheus pod (e.g. /metrics)
 
 This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.
+
+<b>Export Redis Metrics</b>
+
+Here I will run another practice to install Redis and Redis exporter, then use Prometheus to scrape its metrics and visualize in Grafana.
+
+{% highlight yaml %}
+# Redis and Redis exporter deployment 
+
+root@asb:~# cat k8s-redis-and-exporter-deployment.yaml 
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:4
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 6379
+      - name: redis-exporter
+        image: oliver006/redis_exporter:latest
+        securityContext:
+          runAsUser: 59000
+          runAsGroup: 59000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 9121
+
+# redis service and servicemonitor
+root@asb:~# cat k8s-redis-and-exporter-svc-svcmonitor.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: redis
+  name: redis-metrics
+  labels:
+    app: redis
+spec:
+  selector:
+    app: redis
+  ports:
+  - name: http-metrics
+    port: 9121
+    targetPort: 9121
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis-monitor
+  namespace: monitoring
+  labels:
+    app: redis
+    release: prometheus-stack  # important to match with kube-monitoring-stack
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  namespaceSelector:
+    matchNames:
+      - redis
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+
+kubectl apply -f k8s-redis-and-exporter-deployment.yaml 
+namespace/redis created
+deployment.apps/redis created
+
+kubectl apply -f k8s-redis-and-exporter-svc-svcmonitor.yaml 
+service/redis-metrics created
+servicemonitor.monitoring.coreos.com/redis-monitor created
+{% endhighlight %}
+
+Head over to Prometheus Targets, we can see the metrics is being scraped from the Redis exporter.
+![image tooltip here](/assets/eks75.png)
+
+
+Head over to Grafana, then import the dashboard 763 
+![image tooltip here](/assets/eks74.png)
