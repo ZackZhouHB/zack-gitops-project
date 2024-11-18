@@ -1,0 +1,25 @@
+---
+layout: post
+title:  "EKS - Cluster Upgrade"
+date:   2024-09-24 11:15:29 +1100
+categories: jekyll Cat2
+---
+<b>Kubernetes Release Cycles vs Amazon EKS Release Calendar & Support Window</b>
+
+<b>Upgrade Strategy: in-place vs Blue-Green</b>
+
+<b>EKS in-place Upgrade Workflow</b>
+
+<b>Preparation: EKS Upgrade Insights and EKS Upgrade Checklist</b>
+
+<b>Control Plane Upgrade</b>
+
+<b>Upgrading EKS Addons</b>
+
+<b>In-Place Managed Node group Upgrade</b>
+
+<b>Upgrading Karpenter managed nodes</b>
+
+<b>Upgrading EKS Self-managed Nodes</b>
+
+<b>Upgrading AWS Fargate Nodes</b>

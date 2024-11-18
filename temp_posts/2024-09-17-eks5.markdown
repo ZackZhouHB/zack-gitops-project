@@ -6,319 +6,114 @@ categories: jekyll Cat2
 ---
 <b>Karpenter vs Cluster AutoscalereA!~~~~~~</b>
 
-Here I will demo a mysql as database and a wordpress deployment as backend in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.
+Install Karpenter
 
-- Create demo resources
-{% highlight yaml %}
-# vim cf-demo.yaml to create demo namespace,  configmap, secret and deployment
+Basic NodePool
+Scaling Application
+Limit Resources
+Disruption
+Drift
+RightSizing
 
-root@asb:~/cf# cat secret.yaml 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mysql-root-secret
-type: Opaque
-data:
-  MYSQL_ROOT_PASSWORD: c2VjdXJlcGFzc3dvcmQ=  # Base64 for "securepassword"
+Multi NodePools
+Team Based NodePool
+Weighting NodePool
 
-root@asb:~/cf# cat mysql.yaml 
-apiVersion: v1
-kind: Service
-metadata:
-  name: mysql-service
-spec:
-  ports:
-    - port: 3306
-  selector:
-    app: mysql
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mysql
-spec:
-  selector:
-    matchLabels:
-      app: mysql
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-      - name: mysql
-        image: mysql:5.7
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-root-secret
-              key: MYSQL_ROOT_PASSWORD
+Cost Optimization
 
-root@asb:~/cf# cat wordpress.yaml 
+Consolidation
+Single Node Consolidation
+Multi Node Consolidation
+Using Spot Instance
+Spot to Spot Consolidation
+Using Graviton
+On-Demand & Spot Ratio Split
 
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: wordpress-config
-data:
-  WORDPRESS_DB_HOST: "mysql-service:3306"
-  WORDPRESS_DB_NAME: "wordpress"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: wordpress-secret
-type: Opaque
-data:
-  WORDPRESS_DB_USER: d29yZHByZXNz  # Base64 for "wordpress"
-  WORDPRESS_DB_PASSWORD: c2VjdXJlcGFzc3dvcmQ=  # Base64 for "securepassword"
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: wordpress
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: wordpress
-  template:
-    metadata:
-      labels:
-        app: wordpress
-    spec:
-      containers:
-      - name: wordpress
-        image: wordpress:latest
-        ports:
-        - containerPort: 80
-        env:
-        - name: WORDPRESS_DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: wordpress-config
-              key: WORDPRESS_DB_HOST
-        - name: WORDPRESS_DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: wordpress-config
-              key: WORDPRESS_DB_NAME
-        - name: WORDPRESS_DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: wordpress-secret
-              key: WORDPRESS_DB_USER
-        - name: WORDPRESS_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: wordpress-secret
-              key: WORDPRESS_DB_PASSWORD
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: wordpress-service
-spec:
-  selector:
-    app: wordpress
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer  # Or NodePort if LoadBalancer is not available
+Scheduling Constraints
+Node Affinity
+Taints and Toleration
+Topology Spread
+Pod Affinity
+Persistence Volume Topology
+Pod Disruption Budget
+Disruption Control
+NodePool Disruption Budgets
+Instance type and AZ
+Multi-Arch
 
-{% endhighlight %}
+Control Pod Density
+Static Pod Density
+Dynamic Pod Density
+Restrict Instance Type
 
-- Apply and verify the Configuration and Secrets in the Pod
+EC2 Node Class
+EC2 Node Classes
+Custom AMI
+Node Volumes
+Observability
 
-{% highlight shell %}
+Migrating from Cluster Autoscaler
+Install Cluster AutoScaler (CAS)
+AutoScaling using Cluster AutoScaler (CAS)
+Migrate from CAS to Karpenter
 
-root@asb:~/cf# kubectl create ns cf-test
-root@asb:~/cf# kubectl apply -f . -n cf-test
 
-configmap/wordpress-config created
-secret/wordpress-secret created
-deployment.apps/wordpress created
-service/wordpress-service created
-secret/mysql-root-secret created
-service/mysql-service created
-deployment.apps/mysql created
+Step 1: Installation and Basic Setup
+Set up a Kubernetes cluster using AWS EKS.
+Configure IAM roles for service accounts.
+Install Karpenter using Helm or a YAML manifest.
 
-root@asb:~/cf# kubectl get all -n cf-test 
-NAME                             READY   STATUS    RESTARTS   AGE
-pod/mysql-fdff667f8-xzblb        1/1     Running   0          6s
-pod/wordpress-6dff4575b9-sgn8t   1/1     Running   0          12m
 
-NAME                        TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
-service/mysql-service       ClusterIP      10.106.191.27   <none>        3306/TCP       6s
-service/wordpress-service   LoadBalancer   10.97.169.213   pending       80:31208/TCP   12m
+Define and deploy a NodePool using Provisioner.
+Test node provisioning by deploying a simple workload (e.g., Nginx).
 
-NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/mysql       1/1     1            1           6s
-deployment.apps/wordpress   1/1     1            1           12m
 
-NAME                                   DESIRED   CURRENT   READY   AGE
-replicaset.apps/mysql-fdff667f8        1         1         1       6s
-replicaset.apps/wordpress-6dff4575b9   1         1         1       12m
+Step 2: Scaling and Resource Management
+Scaling Application
+Ensures understanding of auto-scaling mechanisms based on workload demands.
+Limit Resources
+Configures resource limits and requests for applications.
 
-# Kubectl exec into pod to verify the configmap and secret
+Hands-On Steps:
+Deploy a scaling application (e.g., a horizontal pod autoscaler).
+Define resource limits and requests in the deployment YAML.
+Observe Karpenter scaling behavior:
 
-root@asb:~/cf# kubectl logs wordpress-6dff4575b9-sgn8t -n cf-test 
-WordPress not found in /var/www/html - copying now...
-Complete! WordPress has been successfully copied to /var/www/html
-No 'wp-config.php' found in /var/www/html, but 'WORDPRESS_...' variables supplied; copying 'wp-config-docker.php' (WORDPRESS_DB_HOST WORDPRESS_DB_NAME WORDPRESS_DB_PASSWORD WORDPRESS_DB_USER WORDPRESS_SERVICE_PORT WORDPRESS_SERVICE_PORT_80_TCP WORDPRESS_SERVICE_PORT_80_TCP_ADDR WORDPRESS_SERVICE_PORT_80_TCP_PORT WORDPRESS_SERVICE_PORT_80_TCP_PROTO WORDPRESS_SERVICE_SERVICE_HOST WORDPRESS_SERVICE_SERVICE_PORT)
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 192.168.48.245. Set the 'ServerName' directive globally to suppress this message
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 192.168.48.245. Set the 'ServerName' directive globally to suppress this message
-[Wed Nov 06 23:39:29.456836 2024] [mpm_prefork:notice] [pid 1:tid 1] AH00163: Apache/2.4.62 (Debian) PHP/8.2.25 configured -- resuming normal operations
-[Wed Nov 06 23:39:29.456923 2024] [core:notice] [pid 1:tid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
 
-root@asb:~/cf# kubectl exec -it wordpress-6dff4575b9-sgn8t -n cf-test -- env | grep WORDPRESS_DB
-WORDPRESS_DB_NAME=wordpress
-WORDPRESS_DB_USER=wordpress
-WORDPRESS_DB_PASSWORD=securepassword
-WORDPRESS_DB_HOST=mysql-service:3306
+Step 3: Disruption and Drift Management
+Disruption: Focuses on maintaining application availability during scaling or updates.
+Drift: Ensures nodes are reconciled with the desired state.
 
-{% endhighlight %}
+Hands-On Steps:
+Configure Pod Disruption Budgets (PDBs).
+Simulate disruption scenarios (e.g., delete a node).
+Observe Karpenter's ability to recover workloads.
 
-<b>IRSA with AWS Secret Manager to ensure security best practices in EKS </b>
+Step 4: Cost Optimization
+Consolidation
+Optimizes resource usage by consolidating workloads onto fewer nodes.
+Using Spot Instances
+Leverages AWS spot instances for cost reduction.
+On-Demand & Spot Ratio Split
+Balances cost efficiency and availability.
 
-Some best practices for using secrets in AWS EKS include:
+Hands-On Steps:
+Deploy a Provisioner with spot instance configuration.
+Create a workload that triggers the use of both on-demand and spot instances.
+Test consolidation by simulating reduced workloads.
 
-- `Avoid Storing Secrets in Kubernetes`: Instead of storing sensitive information in Kubernetes Secrets, use AWS Secrets Manager to store secrets securely.
+Step 5: Scheduling Constraints
+Node Affinity, Taints and Tolerations, Topology Spread, Pod Affinity
+Improves workload placement and resource utilization.
 
-- `Use IAM Roles for Authorization`: Rely on IAM roles and policies to control access to secrets in AWS Secrets Manager, ensuring that only authorized pods can retrieve specific secrets.
+Hands-On Steps:
+Configure nodeAffinity and taints in the workload YAML.
+Define topology spread constraints to ensure even distribution.
+Observe the impact of scheduling constraints on node provisioning.
 
-- `Retrieve Secrets at Runtime`: Configure your application to retrieve secrets directly from AWS Secrets Manager at runtime, using an SDK or API, rather than storing secrets as environment variables.
+Step 6: Observability
+Observability
+Ensures visibility into cluster and node behavior.
+Hands-On Steps:
+Integrate monitoring tools like [eks-node-viewer](https://github.com/awslabs/eks-node-viewer).
 
-- `Automate Secret Rotation`: Set up AWS Secrets Manager to rotate secrets automatically, reducing the risk of stale or compromised credentials.
-
-Here I will run a Step-by-Step Guide to Using AWS Secrets Manager with Kubernetes in EKS so the application can retrieve secrets at Runtime from AWS Secret Manager with  IRSA (Identity and Access Management Roles for Service Accounts).
-
-- set up AWS Secrets Manager and create a secret, then create a IAM policy attach to IAM role, use EKS OIDC provider together with namespace and service account, so our deployment with an IAM role will have access to the secret in AWS.
-
-{% highlight shell %}
-
-# Create a new AWS Secrets Manager secret
-aws secretsmanager create-secret \
- --name prod/myapp/db \
- --description "Secret for database credentials" \
- --secret-string '{"DB_USER": "mydatabaseuser", "DB_PASSWORD": "mypassword"}'
-
-# create an IAM policy named ReadProdMyAppDBSecret with read-only access to the prod/myapp/db secret
-aws iam create-policy \
- --policy-name ReadProdMyAppDBSecret \
- --policy-document '{
- "Version": "2012-10-17",
- "Statement": [
- {
- "Effect": "Allow",
- "Action": "secretsmanager:GetSecretValue",
- "Resource": "arn:aws:secretsmanager:$REGION:$ACCOUNT_ID:secret:prod/myapp/db*"
- }
- ]
- }'
-
-# get EKS OIDC provider  
-aws eks describe-cluster --name zack-eks-cluster --query "cluster.identity.oidc.issuer" --output text
-
-# create the trust policy file, use EKS OIDC provider together with namespace and service account
-# vim trust-policy.json
-{
- "Version": "2012-10-17",
- "Statement": [
- {
- "Effect": "Allow",
- "Principal": {
- "Federated": "arn:aws:iam::$ACCOUNT_ID:oidc-provider/oidc.eks.$REGION.amazonaws.com/id/zack-eks-cluster"
-},
- "Action": "sts:AssumeRoleWithWebIdentity",
- "Condition": {
- "StringEquals": {
- "arn:aws:iam::$ACCOUNT_ID:oidc-provider/oidc.eks.$REGION.amazonaws.com/id/zack-eks-cluster:sub": "system:serviceaccount:ns-zack-irsa-demo:sa-zack-irsa-demo"
- }
- }
- }
- ]
-}
-
-# create the IAM role with the trust policy
-aws iam create-role \
- --role-name EKSSecretsAccessRole \
- --assume-role-policy-document file://trust-policy.json
-
-# Attach the Policy to the Role
-aws iam attach-role-policy \
- --role-name EKSSecretsAccessRole \
- --policy-arn arn:aws:iam:#ACCOUNT_ID:policy/ReadProdMyAppDBSecret
-{% endhighlight %}
-
-- Create namespace and service account in EKS and annotate it with above IAM role ARN
-
-{% highlight yaml %}
-# create service account "sa-zack-irsa-demo" in namespace "ns-zack-irsa-demo" with annotation of IAM role ARN:
-
-apiVersion: v1
-kind: ServiceAccount
-metadata:
- name: sa-zack-irsa-demo
- namespace: ns-zack-irsa-demo
- annotations:
- eks.amazonaws.com/role-arn: arn:aws:iam::$ACCOUNT_ID:role/EKSSecretsAccessRole
-{% endhighlight %}
-
-- Create Zackblog Deployment to use the service account created above, so that pods launched by the Deployment will inherit permissions to access the secret
-{% highlight yaml %}
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: zackblog-app
- namespace: ns-zack-irsa-demo
-spec:
- replicas: 1
- selector:
- matchLabels:
- app: zackblog-app
- template:
- metadata:
- labels:
- app: zackblog-app
- spec:
- serviceAccountName: sa-zack-irsa-demo  # Use the custom service account
- containers:
- - name: zackblog-app
- image: zackz001/gitops-jekyll:latest
-{% endhighlight %}
-
-- Modify Application Code to Retrieve Secrets at Runtime, bellow python with boto3 can retrieve the `DB_USER` and `DB_PASSWORD` fields from the secret in AWS Secrets Manager
-
-{% highlight python %}
-import boto3
-import json
-
-def get_secret():
- secret_name = "prod/myapp/db"
- region_name = "ap-southeast-2"
-
- client = boto3.client("secretsmanager", region_name=region_name)
-
- response = client.get_secret_value(SecretId=secret_name)
- secret = json.loads(response["SecretString"])
-    
- db_user = secret["DB_USER"]
- db_password = secret["DB_PASSWORD"]
-
- return db_user, db_password
-{% endhighlight %}
-
-<b>Conclusion</b>
-
-This setup with EKS and IAM role with Service Account (IRSA), which combines AWS Secrets Manager, IAM roles, and Kubernetes Service Accounts, provides a secure and scalable way to manage sensitive information in Kubernetes on EKS. 
-
-More to be considered to ensure EKS security best practices:
-    
-- `Enable Encryption`: AWS Secrets Manager secrets are encrypted by default
-
-- `Limit IAM Permissions`: Follow the principle of least privilege by restricting IAM permissions to only the required secrets.
-
-- `Audit and Monitor Access`: Use AWS CloudTrail to monitor access to secrets for security and auditing purposes.
