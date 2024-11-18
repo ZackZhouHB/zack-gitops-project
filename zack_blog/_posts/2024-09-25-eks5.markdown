@@ -1,0 +1,228 @@
+---
+layout: post
+title:  "EKS - Get Started with Karpenter"
+date:   2024-09-25 11:15:29 +1100
+categories: jekyll Cat2
+---
+<b>Karpenter vs Cluster Autoscaler</b>
+
+`Karpenter` is more modern, flexible, and cost-efficient, making it a better choice for dynamic, complex, or large-scale workloads on EKS.
+
+`Cluster Autoscaler` is simpler and integrates seamlessly with AWS Managed Node Groups, making it suitable for basic scaling needs.
+
+Transitioning to Karpenter from Cluster Autoscaler is a logical step when EKS cluster demands evolve toward more complex scaling with diverse workloads, cost optimization, fine-grained control over node provisioning 
+Install Karpenter
+
+<b>What Karpenter can do</b>
+
+Basic and Advanced Node Management
+- Scaling Applications
+- NodePools 
+- EC2 Node Class
+
+Cost Optimization
+- Single/Multi-Node Consolidation: Rebalance workloads to reduce node count
+- On-Demand & Spot Split: Mix on-demand and spot instances to balance cost and reliability
+
+Scheduling Constraints
+- Node and Pods Affinity & Taints
+- Pod Disruption Budget
+- Disruption Control
+- Instance Type & AZ
+
+<b>Get Started with Karpenter</b>
+
+To start with Karpenter, I will use bellow script to run few steps:
+
+- Step 1: Installation and Basic Setup
+
+Here I will set up a Kubernetes cluster using AWS EKS, configure IAM roles for service accounts to enable IRSA, install Karpenter using Helm, install eks monitoring tools [eks-node-viewer](https://github.com/awslabs/eks-node-viewer) to observe Karpenter scaling.
+
+![image tooltip here](/assets/eks81.png)
+
+- Step 2: Scaling and Resource Management
+
+Then I will define EC2 Node Class and Node pool, deploy a sample Application, change the replicas to observe Karpenter scaling behavior via eks-node-viewer. Karpenter will detect the pending pods to decide which instance tpye to launch to fit the workload.
+
+{% highlight shell %}
+{"level":"INFO","time":"2024-11-18T12:39:19.332Z","logger":"controller","message":"disrupting nodeclaim(s) via delete, terminating 1 nodes (0 pods) ip-192-168-156-150.ap-southeast-2.compute.internal/c6a.large/on-demand","commit":"a2875e3","controller":"disruption","namespace":"","name":"","reconcileID":"ec9527bb-ab80-4d55-b9fb-24b9083cf1e4","command-id":"bf26fc67-52d3-410a-a6fd-96b00f229c5b","reason":"empty"}
+{"level":"INFO","time":"2024-11-18T12:39:19.666Z","logger":"controller","message":"tainted node","commit":"a2875e3","controller":"node.termination","controllerGroup":"","controllerKind":"Node","Node":{"name":"ip-192-168-156-150.ap-southeast-2.compute.internal"},"namespace":"","name":"ip-192-168-156-150.ap-southeast-2.compute.internal","reconcileID":"95e576e4-b326-4870-b7e5-b64f8a013c9d","taint.Key":"karpenter.sh/disrupted","taint.Value":"","taint.Effect":"NoSchedule"}
+{% endhighlight %}
+
+![image tooltip here](/assets/eks82.png)
+
+- Step 3: Clean up the resources
+Karpenter will detect the scale down from Application deployment, scheduled to terminate unnecessary nodes for the EKS cluster. Then I will remove all the resources created in this example. 
+
+{% highlight shell %}
+{"level":"INFO","time":"2024-11-18T12:35:16.493Z","logger":"controller","message":"tainted node","commit":"a2875e3","controller":"node.termination","controllerGroup":"","controllerKind":"Node","Node":{"name":"ip-192-168-71-167.ap-southeast-2.compute.internal"},"namespace":"","name":"ip-192-168-71-167.ap-southeast-2.compute.internal","reconcileID":"cc1624d0-2014-4d44-92e9-c5ee1ddb316d","taint.Key":"karpenter.sh/disrupted","taint.Value":"","taint.Effect":"NoSchedule"}
+{"level":"INFO","time":"2024-11-18T12:35:49.254Z","logger":"controller","message":"deleted node","commit":"a2875e3","controller":"node.termination","controllerGroup":"","controllerKind":"Node","Node":{"name":"ip-192-168-71-167.ap-southeast-2.compute.internal"},"namespace":"","name":"ip-192-168-71-167.ap-southeast-2.compute.internal","reconcileID":"a3ef7364-5aaf-4e68-8280-c08d0b1012cc"}
+{"level":"INFO","time":"2024-11-18T12:35:49.497Z","logger":"controller","message":"deleted nodeclaim","commit":"a2875e3","controller":"nodeclaim.termination","controllerGroup":"karpenter.sh","controllerKind":"NodeClaim","NodeClaim":{"name":"default-drbmq"},"namespace":"","name":"default-drbmq","reconcileID":"0e20cb98-389d-4143-8177-5ec9c777c227","Node":{"name":"ip-192-168-71-167.ap-southeast-2.compute.internal"},"provider-id":"aws:///ap-southeast-2a/i-062db9708bac9d0dd"}
+{% endhighlight %}
+
+![image tooltip here](/assets/eks83.png)
+
+
+{% highlight shell %}
+#!/bin/bash
+
+# Setup environment
+mkdir eslf-karpenter && cd eslf-karpenter
+export KARPENTER_NAMESPACE="kube-system"
+export KARPENTER_VERSION="1.0.8"
+export K8S_VERSION="1.31"
+export AWS_PARTITION="aws"
+export CLUSTER_NAME="${USER}-karpenter-demo"
+export AWS_DEFAULT_REGION="ap-southeast-2"
+
+# Fetch AWS Account and AMI information
+export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+export TEMPOUT="$(mktemp)"
+export ARM_AMI_ID="$(aws ssm get-parameter --name /aws/service/eks/optimized-ami/${K8S_VERSION}/amazon-linux-2-arm64/recommended/image_id --query Parameter.Value --output text)"
+export AMD_AMI_ID="$(aws ssm get-parameter --name /aws/service/eks/optimized-ami/${K8S_VERSION}/amazon-linux-2/recommended/image_id --query Parameter.Value --output text)"
+export GPU_AMI_ID="$(aws ssm get-parameter --name /aws/service/eks/optimized-ami/${K8S_VERSION}/amazon-linux-2-gpu/recommended/image_id --query Parameter.Value --output text)"
+
+# Deploy CloudFormation stack
+curl -fsSL https://raw.githubusercontent.com/aws/karpenter-provider-aws/v"${KARPENTER_VERSION}"/website/content/en/preview/getting-started/getting-started-with-karpenter/cloudformation.yaml > "${TEMPOUT}"
+aws cloudformation deploy \
+  --stack-name "Karpenter-${CLUSTER_NAME}" \
+  --template-file "${TEMPOUT}" \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides "ClusterName=${CLUSTER_NAME}"
+
+# Create EKS Cluster with eksctl
+eksctl create cluster -f - <<EOF
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: ${CLUSTER_NAME}
+  region: ${AWS_DEFAULT_REGION}
+  version: "${K8S_VERSION}"
+  tags:
+    karpenter.sh/discovery: ${CLUSTER_NAME}
+...
+EOF
+
+# Fetch cluster endpoint and IAM role ARN
+export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name "${CLUSTER_NAME}" --query "cluster.endpoint" --output text)"
+export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter"
+
+# Install Karpenter with Helm
+helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter \
+  --version "${KARPENTER_VERSION}" \
+  --namespace "${KARPENTER_NAMESPACE}" --create-namespace \
+  --set "settings.clusterName=${CLUSTER_NAME}" \
+  --set "settings.interruptionQueue=${CLUSTER_NAME}" \
+  --set controller.resources.requests.cpu=1 \
+  --set controller.resources.requests.memory=1Gi \
+  --set controller.resources.limits.cpu=1 \
+  --set controller.resources.limits.memory=1Gi \
+  --wait
+
+# Install eks-node-viewer
+wget -O eks-node-viewer https://github.com/awslabs/eks-node-viewer/releases/download/v0.6.0/eks-node-viewer_Linux_x86_64
+chmod +x eks-node-viewer
+sudo mv -v eks-node-viewer /usr/local/bin
+eks-node-viewer
+
+# Create NodePool and EC2NodeClass
+cat <<EOF | envsubst | kubectl apply -f -
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+...
+EOF
+
+# Create a deployment
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inflate
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: inflate
+  template:
+    metadata:
+      labels:
+        app: inflate
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      containers:
+      - name: inflate
+        image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
+        resources:
+          requests:
+            cpu: 1
+        securityContext:
+          allowPrivilegeEscalation: false
+EOF
+
+
+# Test scaling behavior
+kubectl scale deployment inflate --replicas 15
+kubectl logs -f -n "${KARPENTER_NAMESPACE}" -l app.kubernetes.io/name=karpenter -c controller
+
+# Cleanup resources
+kubectl delete deployment inflate
+helm uninstall karpenter --namespace "${KARPENTER_NAMESPACE}"
+aws cloudformation delete-stack --stack-name "Karpenter-${CLUSTER_NAME}"
+eksctl delete cluster --name "${CLUSTER_NAME}"
+
+{% endhighlight %}
+
+<b>More Karpenter can do</b>
+
+`Disruption and Drift Management`
+
+Disruption: Focuses on maintaining application availability during scaling or updates.
+
+Drift: Ensures nodes are reconciled with the desired state.
+
+`Cost Optimization`
+
+Optimizes resource usage by consolidating workloads onto fewer nodes.
+
+Using Spot Instances to Leverages AWS spot instances for cost reduction., On-Demand & Spot Ratio Split
+
+
+`Scheduling Constraints`
+
+Leverage with Node Affinity, Taints and Tolerations, Topology Spread, Pod Affinity to improves workload placement and resource utilization.
+
+
+I will see in next post to explore some Hands-On Steps for more Karpenter features:
+
+Configure Pod Disruption Budgets (PDBs).
+
+Simulate disruption scenarios (e.g., delete a node).
+
+Observe Karpenter's ability to recover workloads.
+
+
+Deploy a Provisioner with spot instance configuration.
+
+Create a workload that triggers the use of both on-demand and spot instances.
+
+Test consolidation by simulating reduced workloads.
+
+
+Configure nodeAffinity and taints in the workload YAML.
+
+Define topology spread constraints to ensure even distribution.
+
+Observe the impact of scheduling constraints on node provisioning.

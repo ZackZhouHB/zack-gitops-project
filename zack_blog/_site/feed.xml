@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-18T23:32:02+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-19T10:01:13+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently I got a task from the Company’s app team, to install agent on EC2 instances across serveral AWS accounts and enable connection via AWS private link to a target AWS account where hosts the management server. To achieve the task here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and install and configre AWS private link using terraform.</p>
 
@@ -1459,7 +1459,228 @@ kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</co
 <img src="/assets/eks75.png" alt="image tooltip here" /></p>
 
 <p>Head over to Grafana, then import the dashboard 763 
-<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
+<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Get Started with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html" rel="alternate" type="text/html" title="EKS - Get Started with Karpenter" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html"><![CDATA[<p><b>Karpenter vs Cluster Autoscaler</b></p>
+
+<p><code class="language-plaintext highlighter-rouge">Karpenter</code> is more modern, flexible, and cost-efficient, making it a better choice for dynamic, complex, or large-scale workloads on EKS.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Cluster Autoscaler</code> is simpler and integrates seamlessly with AWS Managed Node Groups, making it suitable for basic scaling needs.</p>
+
+<p>Transitioning to Karpenter from Cluster Autoscaler is a logical step when EKS cluster demands evolve toward more complex scaling with diverse workloads, cost optimization, fine-grained control over node provisioning 
+Install Karpenter</p>
+
+<p><b>What Karpenter can do</b></p>
+
+<p>Basic and Advanced Node Management</p>
+<ul>
+  <li>Scaling Applications</li>
+  <li>NodePools</li>
+  <li>EC2 Node Class</li>
+</ul>
+
+<p>Cost Optimization</p>
+<ul>
+  <li>Single/Multi-Node Consolidation: Rebalance workloads to reduce node count</li>
+  <li>On-Demand &amp; Spot Split: Mix on-demand and spot instances to balance cost and reliability</li>
+</ul>
+
+<p>Scheduling Constraints</p>
+<ul>
+  <li>Node and Pods Affinity &amp; Taints</li>
+  <li>Pod Disruption Budget</li>
+  <li>Disruption Control</li>
+  <li>Instance Type &amp; AZ</li>
+</ul>
+
+<p><b>Get Started with Karpenter</b></p>
+
+<p>To start with Karpenter, I will use bellow script to run few steps:</p>
+
+<ul>
+  <li>Step 1: Installation and Basic Setup</li>
+</ul>
+
+<p>Here I will set up a Kubernetes cluster using AWS EKS, configure IAM roles for service accounts to enable IRSA, install Karpenter using Helm, install eks monitoring tools <a href="https://github.com/awslabs/eks-node-viewer">eks-node-viewer</a> to observe Karpenter scaling.</p>
+
+<p><img src="/assets/eks81.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 2: Scaling and Resource Management</li>
+</ul>
+
+<p>Then I will define EC2 Node Class and Node pool, deploy a sample Application, change the replicas to observe Karpenter scaling behavior via eks-node-viewer. Karpenter will detect the pending pods to decide which instance tpye to launch to fit the workload.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:39:19.332Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"disrupting nodeclaim(s) via delete, terminating 1 nodes (0 pods) ip-192-168-156-150.ap-southeast-2.compute.internal/c6a.large/on-demand"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"disruption"</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">""</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"ec9527bb-ab80-4d55-b9fb-24b9083cf1e4"</span>,<span class="s2">"command-id"</span>:<span class="s2">"bf26fc67-52d3-410a-a6fd-96b00f229c5b"</span>,<span class="s2">"reason"</span>:<span class="s2">"empty"</span><span class="o">}</span>
+<span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:39:19.666Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"tainted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-156-150.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-156-150.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"95e576e4-b326-4870-b7e5-b64f8a013c9d"</span>,<span class="s2">"taint.Key"</span>:<span class="s2">"karpenter.sh/disrupted"</span>,<span class="s2">"taint.Value"</span>:<span class="s2">""</span>,<span class="s2">"taint.Effect"</span>:<span class="s2">"NoSchedule"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/eks82.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 3: Clean up the resources
+Karpenter will detect the scale down from Application deployment, scheduled to terminate unnecessary nodes for the EKS cluster. Then I will remove all the resources created in this example.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:16.493Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"tainted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"cc1624d0-2014-4d44-92e9-c5ee1ddb316d"</span>,<span class="s2">"taint.Key"</span>:<span class="s2">"karpenter.sh/disrupted"</span>,<span class="s2">"taint.Value"</span>:<span class="s2">""</span>,<span class="s2">"taint.Effect"</span>:<span class="s2">"NoSchedule"</span><span class="o">}</span>
+<span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:49.254Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"deleted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"a3ef7364-5aaf-4e68-8280-c08d0b1012cc"</span><span class="o">}</span>
+<span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:49.497Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"deleted nodeclaim"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"nodeclaim.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">"karpenter.sh"</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"NodeClaim"</span>,<span class="s2">"NodeClaim"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"default-drbmq"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"default-drbmq"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"0e20cb98-389d-4143-8177-5ec9c777c227"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"provider-id"</span>:<span class="s2">"aws:///ap-southeast-2a/i-062db9708bac9d0dd"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/eks83.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#!/bin/bash</span>
+
+<span class="c"># Setup environment</span>
+<span class="nb">mkdir </span>eslf-karpenter <span class="o">&amp;&amp;</span> <span class="nb">cd </span>eslf-karpenter
+<span class="nb">export </span><span class="nv">KARPENTER_NAMESPACE</span><span class="o">=</span><span class="s2">"kube-system"</span>
+<span class="nb">export </span><span class="nv">KARPENTER_VERSION</span><span class="o">=</span><span class="s2">"1.0.8"</span>
+<span class="nb">export </span><span class="nv">K8S_VERSION</span><span class="o">=</span><span class="s2">"1.31"</span>
+<span class="nb">export </span><span class="nv">AWS_PARTITION</span><span class="o">=</span><span class="s2">"aws"</span>
+<span class="nb">export </span><span class="nv">CLUSTER_NAME</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">USER</span><span class="k">}</span><span class="s2">-karpenter-demo"</span>
+<span class="nb">export </span><span class="nv">AWS_DEFAULT_REGION</span><span class="o">=</span><span class="s2">"ap-southeast-2"</span>
+
+<span class="c"># Fetch AWS Account and AMI information</span>
+<span class="nb">export </span><span class="nv">AWS_ACCOUNT_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws sts get-caller-identity <span class="nt">--query</span> Account <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">TEMPOUT</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">mktemp</span><span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">ARM_AMI_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws ssm get-parameter <span class="nt">--name</span> /aws/service/eks/optimized-ami/<span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span>/amazon-linux-2-arm64/recommended/image_id <span class="nt">--query</span> Parameter.Value <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">AMD_AMI_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws ssm get-parameter <span class="nt">--name</span> /aws/service/eks/optimized-ami/<span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span>/amazon-linux-2/recommended/image_id <span class="nt">--query</span> Parameter.Value <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">GPU_AMI_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws ssm get-parameter <span class="nt">--name</span> /aws/service/eks/optimized-ami/<span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span>/amazon-linux-2-gpu/recommended/image_id <span class="nt">--query</span> Parameter.Value <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+
+<span class="c"># Deploy CloudFormation stack</span>
+curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/aws/karpenter-provider-aws/v<span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_VERSION</span><span class="k">}</span><span class="s2">"</span>/website/content/en/preview/getting-started/getting-started-with-karpenter/cloudformation.yaml <span class="o">&gt;</span> <span class="s2">"</span><span class="k">${</span><span class="nv">TEMPOUT</span><span class="k">}</span><span class="s2">"</span>
+aws cloudformation deploy <span class="se">\</span>
+  <span class="nt">--stack-name</span> <span class="s2">"Karpenter-</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--template-file</span> <span class="s2">"</span><span class="k">${</span><span class="nv">TEMPOUT</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--capabilities</span> CAPABILITY_NAMED_IAM <span class="se">\</span>
+  <span class="nt">--parameter-overrides</span> <span class="s2">"ClusterName=</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span>
+
+<span class="c"># Create EKS Cluster with eksctl</span>
+eksctl create cluster <span class="nt">-f</span> - <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: </span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="sh">
+  region: </span><span class="k">${</span><span class="nv">AWS_DEFAULT_REGION</span><span class="k">}</span><span class="sh">
+  version: "</span><span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span><span class="sh">"
+  tags:
+    karpenter.sh/discovery: </span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="sh">
+...
+</span><span class="no">EOF
+
+</span><span class="c"># Fetch cluster endpoint and IAM role ARN</span>
+<span class="nb">export </span><span class="nv">CLUSTER_ENDPOINT</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws eks describe-cluster <span class="nt">--name</span> <span class="s2">"</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="nt">--query</span> <span class="s2">"cluster.endpoint"</span> <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">KARPENTER_IAM_ROLE_ARN</span><span class="o">=</span><span class="s2">"arn:</span><span class="k">${</span><span class="nv">AWS_PARTITION</span><span class="k">}</span><span class="s2">:iam::</span><span class="k">${</span><span class="nv">AWS_ACCOUNT_ID</span><span class="k">}</span><span class="s2">:role/</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">-karpenter"</span>
+
+<span class="c"># Install Karpenter with Helm</span>
+helm upgrade <span class="nt">--install</span> karpenter oci://public.ecr.aws/karpenter/karpenter <span class="se">\</span>
+  <span class="nt">--version</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_VERSION</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--namespace</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="k">}</span><span class="s2">"</span> <span class="nt">--create-namespace</span> <span class="se">\</span>
+  <span class="nt">--set</span> <span class="s2">"settings.clusterName=</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--set</span> <span class="s2">"settings.interruptionQueue=</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.requests.cpu<span class="o">=</span>1 <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.requests.memory<span class="o">=</span>1Gi <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.limits.cpu<span class="o">=</span>1 <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.limits.memory<span class="o">=</span>1Gi <span class="se">\</span>
+  <span class="nt">--wait</span>
+
+<span class="c"># Install eks-node-viewer</span>
+wget <span class="nt">-O</span> eks-node-viewer https://github.com/awslabs/eks-node-viewer/releases/download/v0.6.0/eks-node-viewer_Linux_x86_64
+<span class="nb">chmod</span> +x eks-node-viewer
+<span class="nb">sudo mv</span> <span class="nt">-v</span> eks-node-viewer /usr/local/bin
+eks-node-viewer
+
+<span class="c"># Create NodePool and EC2NodeClass</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh"> | envsubst | kubectl apply -f -
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+...
+</span><span class="no">EOF
+
+</span><span class="c"># Create a deployment</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh"> | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inflate
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: inflate
+  template:
+    metadata:
+      labels:
+        app: inflate
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      containers:
+      - name: inflate
+        image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
+        resources:
+          requests:
+            cpu: 1
+        securityContext:
+          allowPrivilegeEscalation: false
+</span><span class="no">EOF
+
+
+</span><span class="c"># Test scaling behavior</span>
+kubectl scale deployment inflate <span class="nt">--replicas</span> 15
+kubectl logs <span class="nt">-f</span> <span class="nt">-n</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="k">}</span><span class="s2">"</span> <span class="nt">-l</span> app.kubernetes.io/name<span class="o">=</span>karpenter <span class="nt">-c</span> controller
+
+<span class="c"># Cleanup resources</span>
+kubectl delete deployment inflate
+helm uninstall karpenter <span class="nt">--namespace</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="k">}</span><span class="s2">"</span>
+aws cloudformation delete-stack <span class="nt">--stack-name</span> <span class="s2">"Karpenter-</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span>
+eksctl delete cluster <span class="nt">--name</span> <span class="s2">"</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span></code></pre></figure>
+
+<p><b>More Karpenter can do</b></p>
+
+<p><code class="language-plaintext highlighter-rouge">Disruption and Drift Management</code></p>
+
+<p>Disruption: Focuses on maintaining application availability during scaling or updates.</p>
+
+<p>Drift: Ensures nodes are reconciled with the desired state.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Cost Optimization</code></p>
+
+<p>Optimizes resource usage by consolidating workloads onto fewer nodes.</p>
+
+<p>Using Spot Instances to Leverages AWS spot instances for cost reduction., On-Demand &amp; Spot Ratio Split</p>
+
+<p><code class="language-plaintext highlighter-rouge">Scheduling Constraints</code></p>
+
+<p>Leverage with Node Affinity, Taints and Tolerations, Topology Spread, Pod Affinity to improves workload placement and resource utilization.</p>
+
+<p>I will see in next post to explore some Hands-On Steps for more Karpenter features:</p>
+
+<p>Configure Pod Disruption Budgets (PDBs).</p>
+
+<p>Simulate disruption scenarios (e.g., delete a node).</p>
+
+<p>Observe Karpenter’s ability to recover workloads.</p>
+
+<p>Deploy a Provisioner with spot instance configuration.</p>
+
+<p>Create a workload that triggers the use of both on-demand and spot instances.</p>
+
+<p>Test consolidation by simulating reduced workloads.</p>
+
+<p>Configure nodeAffinity and taints in the workload YAML.</p>
+
+<p>Define topology spread constraints to ensure even distribution.</p>
+
+<p>Observe the impact of scheduling constraints on node provisioning.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Karpenter vs Cluster Autoscaler]]></summary></entry><entry><title type="html">EKS - Enable IAM role for Service Accounts (IRSA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/19/eks4.html" rel="alternate" type="text/html" title="EKS - Enable IAM role for Service Accounts (IRSA)" /><published>2024-09-19T10:15:29+10:00</published><updated>2024-09-19T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/19/eks4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/19/eks4.html"><![CDATA[<p><b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b></p>
 
 <p>Here I will demo a mysql as database and a wordpress deployment as backend in EKS to reference ConfigMap and Secret via environment variables during run time by reading the environment-specific configuration (like environment names or feature flags) from a ConfigMap and sensitive information (like a database password) from a Secret.</p>
 
@@ -3221,501 +3442,4 @@ Securely manages sensitive data using AWS Secrets Manager, HashiCorp Vault, or J
     <p><b>Real-World Automation: </b>
 Solves complex problems and improves efficiency, reducing build times and increasing deployment reliability.</p>
   </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins CD Pipeline Design]]></summary></entry><entry><title type="html">Jenkins - Universal CI Pipeline with Ansible &amp;amp; Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html" rel="alternate" type="text/html" title="Jenkins - Universal CI Pipeline with Ansible &amp;amp; Terraform" /><published>2024-08-02T10:15:29+10:00</published><updated>2024-08-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html"><![CDATA[<p><b>Jenkins recap</b></p>
-
-<p>It has been some time since I adapted CI/CD pipelines from Jenkins to AWS CodePipeline and GitHub Actions workflows. Now, it’s time to recap and improve some of my previous Jenkins practices.</p>
-
-<ul>
-  <li>Universal Jenkins Docker image design</li>
-</ul>
-
-<p>This time, instead of installing Jenkins on a server, I prefer to containerize a universal Jenkins Docker image with the necessary packages installed, so it provides consistency and reproducibility, portability, and easy updates and rollbacks.</p>
-
-<ol>
-  <li>Docker CLI</li>
-  <li>Terraform</li>
-  <li>Kubectl</li>
-  <li>Trivy</li>
-  <li>AWS CLI</li>
-  <li>Ansible </li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Dockerfile</span>
-
-FROM jenkins/jenkins:lts
-
-USER root
-
-<span class="c"># Install necessary packages, Docker CLI, Terraform, Kubectl, Trivy, AWS CLI, and Ansible</span>
-RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="se">\</span>
-        curl <span class="se">\</span>
-        wget <span class="se">\</span>
-        unzip <span class="se">\</span>
-        gnupg2 <span class="se">\</span>
-        apt-transport-https <span class="se">\</span>
-        lsb-release <span class="se">\</span>
-        ca-certificates <span class="se">\</span>
-        software-properties-common <span class="se">\</span>
-        python3 <span class="se">\</span>
-        python3-venv <span class="se">\</span>
-        python3-pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Docker CLI</span>
-    curl <span class="nt">-fsSL</span> https://download.docker.com/linux/debian/gpg | apt-key add - <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">echo</span> <span class="s2">"deb [arch=amd64] https://download.docker.com/linux/debian </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> stable"</span> <span class="o">&gt;</span> /etc/apt/sources.list.d/docker.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get <span class="nb">install</span> <span class="nt">-y</span> docker-ce-cli <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Terraform</span>
-    wget <span class="nt">-O-</span> https://apt.releases.hashicorp.com/gpg | gpg <span class="nt">--dearmor</span> <span class="o">&gt;</span> /usr/share/keyrings/hashicorp-archive-keyring.gpg <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">echo</span> <span class="s2">"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> main"</span> <span class="o">&gt;</span> /etc/apt/sources.list.d/hashicorp.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apt-get <span class="nb">install</span> <span class="nt">-y</span> terraform <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Kubectl</span>
-    curl <span class="nt">-LO</span> <span class="s2">"https://dl.k8s.io/release/</span><span class="si">$(</span>curl <span class="nt">-L</span> <span class="nt">-s</span> https://dl.k8s.io/release/stable.txt<span class="si">)</span><span class="s2">/bin/linux/amd64/kubectl"</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">chmod</span> +x kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">mv </span>kubectl /usr/local/bin/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install Trivy</span>
-    wget https://github.com/aquasecurity/trivy/releases/download/v0.56.0/trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    dpkg <span class="nt">-i</span> trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">rm </span>trivy_0.56.0_Linux-64bit.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Install AWS CLI</span>
-    curl <span class="s2">"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"</span> <span class="nt">-o</span> <span class="s2">"awscliv2.zip"</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    unzip awscliv2.zip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    ./aws/install <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">rm</span> <span class="nt">-rf</span> awscliv2.zip aws/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Create a virtual environment for Python and Ansible</span>
-    python3 <span class="nt">-m</span> venv /opt/ansible_venv <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    /opt/ansible_venv/bin/pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    /opt/ansible_venv/bin/pip <span class="nb">install </span>ansible <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Create symlinks to make Ansible easily accessible</span>
-    <span class="nb">ln</span> <span class="nt">-s</span> /opt/ansible_venv/bin/ansible /usr/local/bin/ansible <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">ln</span> <span class="nt">-s</span> /opt/ansible_venv/bin/ansible-playbook /usr/local/bin/ansible-playbook <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-    <span class="c"># Clean up</span>
-    apt-get clean <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    <span class="nb">rm</span> <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
-
-USER jenkins</code></pre></figure>
-
-<p>Build and run this universal Jenkins image to mount Jenkins home directory and Docker socket from the host to the container, also add Docker group to the container so Jenkins can run Docker commands inside the container without needing root privileges.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">docker build <span class="nt">-t</span> jenkins-all <span class="nb">.</span>
-
-docker run <span class="nt">-d</span> <span class="nt">--name</span> jenkins <span class="nt">-p</span> 8080:8080 <span class="nt">-p</span> 50000:50000 <span class="se">\</span>
-<span class="nt">-v</span> /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
-<span class="nt">-v</span> /var/jenkins_home:/var/jenkins_home <span class="se">\</span>
-<span class="nt">--group-add</span> <span class="si">$(</span>getent group docker | <span class="nb">cut</span> <span class="nt">-d</span>: <span class="nt">-f3</span><span class="si">)</span> <span class="se">\ </span>
-jenkins-all</code></pre></figure>
-
-<ul>
-  <li>Universal Jenkins CI pipeline design</li>
-</ul>
-
-<p>After installing a list of plugins and configuring all credentials and the GitHub webhook, the CI pipeline is designed bellow and can be triggered by a Git push event and will run automatically:</p>
-
-<ol>
-  <li>Enable multi-language artifact build support.</li>
-  <li>Integrate testing of Java versions.</li>
-  <li>Enable security checks for static code analysis and Docker image scanning.</li>
-  <li>Implement advanced Jenkins pipeline structuring using <b>try-catch</b>, <b>if-else</b>, <b>timeouts</b>,<b>environment variables</b>,<b>post actions</b> and <b>error handling</b>.</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#  Jenkinsfile</span>
-
-// Define the detectJavaVersion <span class="k">function </span>outside of the pipeline block
-def detectJavaVersion<span class="o">()</span> <span class="o">{</span>
-    def javaVersionOutput <span class="o">=</span> sh<span class="o">(</span>script: <span class="s1">'java -version 2&gt;&amp;1'</span>, returnStatus: <span class="nb">false</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
-    def javaVersionMatch <span class="o">=</span> javaVersionOutput <span class="o">=</span>~ /openjdk version <span class="s2">"(</span><span class="se">\d</span><span class="s2">+</span><span class="se">\.\d</span><span class="s2">+)/
-
-    if (javaVersionMatch) {
-        def javaVersion = javaVersionMatch[0][1]
-
-        if (javaVersion.startsWith("</span>1.8<span class="s2">")) {
-            return '8'
-        } else if (javaVersion.startsWith("</span>11<span class="s2">")) {
-            return '11'
-        } else if (javaVersion.startsWith("</span>17<span class="s2">")) {
-            return '17'
-        } else {
-            error("</span>Unsupported Java version detected: <span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span><span class="s2">")
-        }
-    } else {
-        error("</span>Java version information not found <span class="k">in </span>output.<span class="s2">")
-    }
-}
-
-pipeline {
-    agent any
-    environment {
-        REGISTRY_URL = 'https://index.docker.io/v1/'
-        IMAGE_NAME = "</span>zackz001/jenkins<span class="s2">"
-        IMAGE_TAG = "</span><span class="k">${</span><span class="nv">env</span><span class="p">.BUILD_NUMBER</span><span class="k">}</span><span class="s2">"
-        LATEST_TAG = "</span>latest<span class="s2">"
-        TRIVY_OUTPUT = "</span>trivy-report.txt<span class="s2">"
-        EMAIL_RECIPIENT = "</span>zhbsoftboy1@gmail.com<span class="s2">"
-        GIT_REPO_URL = 'https://github.com/ZackZhouHB/zack-gitops-project.git'  // Git repository URL
-        GIT_BRANCH = 'jenkins'  // Git branch
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub' // Docker Hub credentials
-        SONAR_TOKEN = 'sonar'  // Fetch Sonar token securely
-        SNYK_INSTALLATION = 'snyk' // Replace with your Snyk installation
-        SNYK_TOKEN = 'snyktoken'  // Fetch Snyk token securely
-    }
-    stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }   
-        stage('Checkout Code') {
-            steps {
-                git branch: "</span><span class="k">${</span><span class="nv">GIT_BRANCH</span><span class="k">}</span><span class="s2">",
-                    credentialsId: 'gittoken',
-                    url: "</span><span class="k">${</span><span class="nv">GIT_REPO_URL</span><span class="k">}</span><span class="s2">"
-            }   
-        }
-        stage('Detect and Set Java') {
-            steps {
-                script {
-                    try {
-                        def javaVersion = detectJavaVersion()  // Detect the Java version, e.g., "</span>17<span class="s2">"
-                        def javaToolName = "</span>Java_<span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span><span class="s2">"  // Expected tool name
-
-                        // Try to set the Java version; fallback if the specific version isn't found
-                        try {
-                            tool name: javaToolName, type: 'jdk'
-                            echo "</span>Using Java version <span class="k">${</span><span class="nv">javaVersion</span><span class="k">}</span>.<span class="s2">"
-                        } catch (Exception toolError) {
-                            echo "</span>No JDK named <span class="k">${</span><span class="nv">javaToolName</span><span class="k">}</span> found. Using default JDK.<span class="s2">"
-                        }
-
-                        // Verify Java version, regardless of whether the specific version was found
-                        sh 'java --version'
-
-                    } catch (Exception e) {
-                        echo "</span>Error during Java version detection: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"
-                        // Continue pipeline even if Java detection fails
-                    }
-                }
-            }
-        }
-        // for Code Security Analysis and Fixes
-        stage('snyk_analysis') {
-            steps {
-                script {
-                    echo 'Running Snyk security analysis...'
-                    timeout(time: 5, unit: 'MINUTES') {  // Adjust the timeout value as necessary
-                        try {
-                            snykSecurity(
-                                snykInstallation: SNYK_INSTALLATION,
-                                snykTokenId: SNYK_TOKEN,
-                                failOnIssues: false,
-                                monitorProjectOnBuild: true,
-                                additionalArguments: '--severity-threshold=low'
-                            )
-                       } catch (Exception e) {
-                            currentBuild.result = 'FAILURE'
-                            error("</span>Error during snyk_analysis: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Language-specific build and test stages
-        stage('Frontend Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('package.json')) {
-                            sh 'npm install --force'
-                            sh 'npm test'
-                        } else {
-                            echo 'No package.json found, skipping Frontend build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Frontend build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Java Spring Boot Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('pom.xml')) {
-                            sh 'mvn clean package'
-                            sh 'mvn test'
-                        } else {
-                            echo 'No pom.xml found, skipping Java Spring Boot build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Java Spring Boot build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('.NET Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('YourSolution.sln')) {
-                            sh 'dotnet build'
-                            sh 'dotnet test'
-                        } else {
-                            echo 'No YourSolution.sln found, skipping .NET build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during .NET build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('PHP Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('composer.json')) {
-                            sh 'composer install'
-                            sh 'phpunit'
-                        } else {
-                            echo 'No composer.json found, skipping PHP build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during PHP build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('iOS Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('YourProject.xcodeproj')) {
-                            xcodebuild(buildDir: 'build', scheme: 'YourScheme')
-                        } else {
-                            echo 'No YourProject.xcodeproj found, skipping iOS build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during iOS build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Android Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('build.gradle')) {
-                            sh './gradlew build'
-                            sh './gradlew test'
-                        } else {
-                            echo 'No build.gradle found, skipping Android build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Android build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Ruby on Rails Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('Gemfile.lock')) {
-                            sh 'bundle install'
-                            sh 'bundle exec rake db:migrate'
-                            sh 'bundle exec rails test'
-                        } else {
-                            echo 'No Gemfile.lock found, skipping Ruby on Rails build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Ruby on Rails build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Flask Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('app.py')) {
-                            sh 'pip install -r requirements.txt'
-                            sh 'python -m unittest discover'
-                        } else {
-                            echo 'No app.py found, skipping Flask build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Flask build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Django Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('manage.py')) {
-                            sh 'pip install -r requirements.txt'
-                            sh 'python manage.py migrate'
-                            sh 'python manage.py test'
-                        } else {
-                            echo 'No manage.py found, skipping Django build and test.'
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Django build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Rust Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('Cargo.toml')) {
-                            env.RUST_BACKTRACE = 'full'
-                            sh 'cargo build'
-                            sh 'cargo test'
-                        } else {
-                            echo "</span>No Cargo.toml file found. Skipping Rust build and test.<span class="s2">"
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Rust build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-
-        stage('Ruby Sinatra Build and Test') {
-            steps {
-                script {
-                    try {
-                        if (fileExists('app.rb')) {
-                            sh 'gem install bundler'
-                            sh 'bundle install'
-                            sh 'bundle exec rake test'
-                        } else {
-                            echo "</span>No app.rb file found. Skipping Ruby Sinatra build and test.<span class="s2">"
-                        }
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error("</span>Error during Ruby Sinatra build and <span class="nb">test</span>: <span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">")
-                    }
-                }
-            }
-        }
-        // Build ZackBlog docker image 
-        stage('Check and Build Docker Image') {
-            steps {
-                script {
-                    try {
-                        // Check if Docker is available
-                        sh 'docker --version'
-                        echo "</span>Docker is installed. Proceeding to build the Docker image...<span class="s2">"
-                        
-                        // Build the Docker image from the 'zack_blog' folder
-                        dockerImage = docker.build("</span><span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">", "</span>zack_blog/<span class="s2">")
-                    } catch (Exception e) {
-                        // Handle the error if Docker is not available
-                        error("</span>Docker is not installed or accessible. Cannot proceed with the build.<span class="s2">")
-                    }
-                }
-            }
-        }
-        // Scan docker image with Trivy
-        stage('Docker Image Scan') {
-            steps {
-                // Use Trivy to scan the built Docker image
-                sh "</span>trivy image <span class="nt">--severity</span> HIGH,CRITICAL <span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span> <span class="o">&gt;</span> <span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">"
-            }
-        }
-        //Push to Dockerhub
-        stage('Push Docker Image to DockerHub') {
-            steps {
-                script {
-                    docker.withRegistry("</span><span class="k">${</span><span class="nv">REGISTRY_URL</span><span class="k">}</span><span class="s2">", "</span><span class="k">${</span><span class="nv">DOCKERHUB_CREDENTIALS_ID</span><span class="k">}</span><span class="s2">") {
-                        dockerImage.push("</span><span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">")
-                        dockerImage.push("</span><span class="k">${</span><span class="nv">LATEST_TAG</span><span class="k">}</span><span class="s2">") // Push 'latest' tag
-                    }
-                }
-            }
-        }
-        //Output image scan result
-        stage('Display Trivy Scan Results') {
-            steps {
-                script {
-                    // Display the contents of the Trivy report
-                    def scanReport = readFile("</span><span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">")
-                    echo "</span>Trivy Scan Report:<span class="se">\n</span><span class="k">${</span><span class="nv">scanReport</span><span class="k">}</span><span class="s2">"
-                }
-            }
-        }
-        // Additional stages like Docker build, image scan, etc.
-    }
-    // Post Build Emailing 
-    post {
-        success {
-            script {
-                def scanReport = readFile("</span><span class="k">${</span><span class="nv">TRIVY_OUTPUT</span><span class="k">}</span><span class="s2">")
-                emailext(
-                    to: "</span><span class="k">${</span><span class="nv">EMAIL_RECIPIENT</span><span class="k">}</span><span class="s2">",
-                    subject: "</span>CI Pipeline Success: Build <span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">",
-                    body: """</span>
-                    The pipeline has successfully completed.
-
-                    Docker image <span class="k">${</span><span class="nv">IMAGE_NAME</span><span class="k">}</span>:<span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span> has been built and pushed to DockerHub.
-
-                    Trivy Scan Report:
-                    <span class="k">${</span><span class="nv">scanReport</span><span class="k">}</span>
-                    <span class="s2">"""
-                )
-            }
-        }
-        failure {
-            emailext(
-                to: "</span><span class="k">${</span><span class="nv">EMAIL_RECIPIENT</span><span class="k">}</span><span class="s2">",
-                subject: "</span>CI Pipeline Failed: Build <span class="k">${</span><span class="nv">IMAGE_TAG</span><span class="k">}</span><span class="s2">",
-                body: """</span>
-                The pipeline has failed at some stage.
-
-                Please check the Jenkins console logs <span class="k">for </span>more details.
-                <span class="s2">"""
-            )
-        }
-    }
-}</span></code></pre></figure>
-
-<ul>
-  <li>Pipeline test and debug</li>
-</ul>
-
-<p>After thorough testing and validation, the CI pipeline finally works like a charm.</p>
-
-<p><img src="/assets/jenkins1.png" alt="image tooltip here" /></p>
-
-<p>Next, I will create a CD pipeline to integrate with Ansible, AWS, and Terraform to deploy the blog onto AWS EC2, ECS, and EKS.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins recap]]></summary></entry></feed>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins CD Pipeline Design]]></summary></entry></feed>

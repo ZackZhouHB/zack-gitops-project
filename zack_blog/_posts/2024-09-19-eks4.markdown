@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "EKS - Enable IAM role for Service Accounts (IRSA)"
-date:   2024-09-25 11:15:29 +1100
+date:   2024-09-19 11:15:29 +1100
 categories: jekyll Cat2
 ---
 <b>EKS ConfigMap and Secret Demo without AWS Secret Manager</b>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>EKS - Get Started with Karpenter | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="EKS - Get Started with Karpenter" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Karpenter vs Cluster Autoscaler" />
+<meta property="og:description" content="Karpenter vs Cluster Autoscaler" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-25T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="EKS - Get Started with Karpenter" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-09-25T10:15:29+10:00","datePublished":"2024-09-25T10:15:29+10:00","description":"Karpenter vs Cluster Autoscaler","headline":"EKS - Get Started with Karpenter","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html"},"url":"http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">EKS - Get Started with Karpenter</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-09-25T10:15:29+10:00" itemprop="datePublished">Sep 25, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Karpenter vs Cluster Autoscaler</b></p>
+
+<p><code class="language-plaintext highlighter-rouge">Karpenter</code> is more modern, flexible, and cost-efficient, making it a better choice for dynamic, complex, or large-scale workloads on EKS.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Cluster Autoscaler</code> is simpler and integrates seamlessly with AWS Managed Node Groups, making it suitable for basic scaling needs.</p>
+
+<p>Transitioning to Karpenter from Cluster Autoscaler is a logical step when EKS cluster demands evolve toward more complex scaling with diverse workloads, cost optimization, fine-grained control over node provisioning 
+Install Karpenter</p>
+
+<p><b>What Karpenter can do</b></p>
+
+<p>Basic and Advanced Node Management</p>
+<ul>
+  <li>Scaling Applications</li>
+  <li>NodePools</li>
+  <li>EC2 Node Class</li>
+</ul>
+
+<p>Cost Optimization</p>
+<ul>
+  <li>Single/Multi-Node Consolidation: Rebalance workloads to reduce node count</li>
+  <li>On-Demand &amp; Spot Split: Mix on-demand and spot instances to balance cost and reliability</li>
+</ul>
+
+<p>Scheduling Constraints</p>
+<ul>
+  <li>Node and Pods Affinity &amp; Taints</li>
+  <li>Pod Disruption Budget</li>
+  <li>Disruption Control</li>
+  <li>Instance Type &amp; AZ</li>
+</ul>
+
+<p><b>Get Started with Karpenter</b></p>
+
+<p>To start with Karpenter, I will use bellow script to run few steps:</p>
+
+<ul>
+  <li>Step 1: Installation and Basic Setup</li>
+</ul>
+
+<p>Here I will set up a Kubernetes cluster using AWS EKS, configure IAM roles for service accounts to enable IRSA, install Karpenter using Helm, install eks monitoring tools <a href="https://github.com/awslabs/eks-node-viewer">eks-node-viewer</a> to observe Karpenter scaling.</p>
+
+<p><img src="/assets/eks81.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 2: Scaling and Resource Management</li>
+</ul>
+
+<p>Then I will define EC2 Node Class and Node pool, deploy a sample Application, change the replicas to observe Karpenter scaling behavior via eks-node-viewer. Karpenter will detect the pending pods to decide which instance tpye to launch to fit the workload.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:39:19.332Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"disrupting nodeclaim(s) via delete, terminating 1 nodes (0 pods) ip-192-168-156-150.ap-southeast-2.compute.internal/c6a.large/on-demand"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"disruption"</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">""</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"ec9527bb-ab80-4d55-b9fb-24b9083cf1e4"</span>,<span class="s2">"command-id"</span>:<span class="s2">"bf26fc67-52d3-410a-a6fd-96b00f229c5b"</span>,<span class="s2">"reason"</span>:<span class="s2">"empty"</span><span class="o">}</span>
+<span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:39:19.666Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"tainted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-156-150.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-156-150.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"95e576e4-b326-4870-b7e5-b64f8a013c9d"</span>,<span class="s2">"taint.Key"</span>:<span class="s2">"karpenter.sh/disrupted"</span>,<span class="s2">"taint.Value"</span>:<span class="s2">""</span>,<span class="s2">"taint.Effect"</span>:<span class="s2">"NoSchedule"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/eks82.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Step 3: Clean up the resources
+Karpenter will detect the scale down from Application deployment, scheduled to terminate unnecessary nodes for the EKS cluster. Then I will remove all the resources created in this example.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:16.493Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"tainted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"cc1624d0-2014-4d44-92e9-c5ee1ddb316d"</span>,<span class="s2">"taint.Key"</span>:<span class="s2">"karpenter.sh/disrupted"</span>,<span class="s2">"taint.Value"</span>:<span class="s2">""</span>,<span class="s2">"taint.Effect"</span>:<span class="s2">"NoSchedule"</span><span class="o">}</span>
+<span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:49.254Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"deleted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"a3ef7364-5aaf-4e68-8280-c08d0b1012cc"</span><span class="o">}</span>
+<span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:49.497Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"deleted nodeclaim"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"nodeclaim.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">"karpenter.sh"</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"NodeClaim"</span>,<span class="s2">"NodeClaim"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"default-drbmq"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"default-drbmq"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"0e20cb98-389d-4143-8177-5ec9c777c227"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"provider-id"</span>:<span class="s2">"aws:///ap-southeast-2a/i-062db9708bac9d0dd"</span><span class="o">}</span></code></pre></figure>
+
+<p><img src="/assets/eks83.png" alt="image tooltip here" /></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#!/bin/bash</span>
+
+<span class="c"># Setup environment</span>
+<span class="nb">mkdir </span>eslf-karpenter <span class="o">&amp;&amp;</span> <span class="nb">cd </span>eslf-karpenter
+<span class="nb">export </span><span class="nv">KARPENTER_NAMESPACE</span><span class="o">=</span><span class="s2">"kube-system"</span>
+<span class="nb">export </span><span class="nv">KARPENTER_VERSION</span><span class="o">=</span><span class="s2">"1.0.8"</span>
+<span class="nb">export </span><span class="nv">K8S_VERSION</span><span class="o">=</span><span class="s2">"1.31"</span>
+<span class="nb">export </span><span class="nv">AWS_PARTITION</span><span class="o">=</span><span class="s2">"aws"</span>
+<span class="nb">export </span><span class="nv">CLUSTER_NAME</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">USER</span><span class="k">}</span><span class="s2">-karpenter-demo"</span>
+<span class="nb">export </span><span class="nv">AWS_DEFAULT_REGION</span><span class="o">=</span><span class="s2">"ap-southeast-2"</span>
+
+<span class="c"># Fetch AWS Account and AMI information</span>
+<span class="nb">export </span><span class="nv">AWS_ACCOUNT_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws sts get-caller-identity <span class="nt">--query</span> Account <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">TEMPOUT</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">mktemp</span><span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">ARM_AMI_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws ssm get-parameter <span class="nt">--name</span> /aws/service/eks/optimized-ami/<span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span>/amazon-linux-2-arm64/recommended/image_id <span class="nt">--query</span> Parameter.Value <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">AMD_AMI_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws ssm get-parameter <span class="nt">--name</span> /aws/service/eks/optimized-ami/<span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span>/amazon-linux-2/recommended/image_id <span class="nt">--query</span> Parameter.Value <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">GPU_AMI_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws ssm get-parameter <span class="nt">--name</span> /aws/service/eks/optimized-ami/<span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span>/amazon-linux-2-gpu/recommended/image_id <span class="nt">--query</span> Parameter.Value <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+
+<span class="c"># Deploy CloudFormation stack</span>
+curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/aws/karpenter-provider-aws/v<span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_VERSION</span><span class="k">}</span><span class="s2">"</span>/website/content/en/preview/getting-started/getting-started-with-karpenter/cloudformation.yaml <span class="o">&gt;</span> <span class="s2">"</span><span class="k">${</span><span class="nv">TEMPOUT</span><span class="k">}</span><span class="s2">"</span>
+aws cloudformation deploy <span class="se">\</span>
+  <span class="nt">--stack-name</span> <span class="s2">"Karpenter-</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--template-file</span> <span class="s2">"</span><span class="k">${</span><span class="nv">TEMPOUT</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--capabilities</span> CAPABILITY_NAMED_IAM <span class="se">\</span>
+  <span class="nt">--parameter-overrides</span> <span class="s2">"ClusterName=</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span>
+
+<span class="c"># Create EKS Cluster with eksctl</span>
+eksctl create cluster <span class="nt">-f</span> - <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: </span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="sh">
+  region: </span><span class="k">${</span><span class="nv">AWS_DEFAULT_REGION</span><span class="k">}</span><span class="sh">
+  version: "</span><span class="k">${</span><span class="nv">K8S_VERSION</span><span class="k">}</span><span class="sh">"
+  tags:
+    karpenter.sh/discovery: </span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="sh">
+...
+</span><span class="no">EOF
+
+</span><span class="c"># Fetch cluster endpoint and IAM role ARN</span>
+<span class="nb">export </span><span class="nv">CLUSTER_ENDPOINT</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>aws eks describe-cluster <span class="nt">--name</span> <span class="s2">"</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="nt">--query</span> <span class="s2">"cluster.endpoint"</span> <span class="nt">--output</span> text<span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">KARPENTER_IAM_ROLE_ARN</span><span class="o">=</span><span class="s2">"arn:</span><span class="k">${</span><span class="nv">AWS_PARTITION</span><span class="k">}</span><span class="s2">:iam::</span><span class="k">${</span><span class="nv">AWS_ACCOUNT_ID</span><span class="k">}</span><span class="s2">:role/</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">-karpenter"</span>
+
+<span class="c"># Install Karpenter with Helm</span>
+helm upgrade <span class="nt">--install</span> karpenter oci://public.ecr.aws/karpenter/karpenter <span class="se">\</span>
+  <span class="nt">--version</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_VERSION</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--namespace</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="k">}</span><span class="s2">"</span> <span class="nt">--create-namespace</span> <span class="se">\</span>
+  <span class="nt">--set</span> <span class="s2">"settings.clusterName=</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--set</span> <span class="s2">"settings.interruptionQueue=</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.requests.cpu<span class="o">=</span>1 <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.requests.memory<span class="o">=</span>1Gi <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.limits.cpu<span class="o">=</span>1 <span class="se">\</span>
+  <span class="nt">--set</span> controller.resources.limits.memory<span class="o">=</span>1Gi <span class="se">\</span>
+  <span class="nt">--wait</span>
+
+<span class="c"># Install eks-node-viewer</span>
+wget <span class="nt">-O</span> eks-node-viewer https://github.com/awslabs/eks-node-viewer/releases/download/v0.6.0/eks-node-viewer_Linux_x86_64
+<span class="nb">chmod</span> +x eks-node-viewer
+<span class="nb">sudo mv</span> <span class="nt">-v</span> eks-node-viewer /usr/local/bin
+eks-node-viewer
+
+<span class="c"># Create NodePool and EC2NodeClass</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh"> | envsubst | kubectl apply -f -
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+...
+</span><span class="no">EOF
+
+</span><span class="c"># Create a deployment</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh"> | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inflate
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: inflate
+  template:
+    metadata:
+      labels:
+        app: inflate
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      containers:
+      - name: inflate
+        image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
+        resources:
+          requests:
+            cpu: 1
+        securityContext:
+          allowPrivilegeEscalation: false
+</span><span class="no">EOF
+
+
+</span><span class="c"># Test scaling behavior</span>
+kubectl scale deployment inflate <span class="nt">--replicas</span> 15
+kubectl logs <span class="nt">-f</span> <span class="nt">-n</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="k">}</span><span class="s2">"</span> <span class="nt">-l</span> app.kubernetes.io/name<span class="o">=</span>karpenter <span class="nt">-c</span> controller
+
+<span class="c"># Cleanup resources</span>
+kubectl delete deployment inflate
+helm uninstall karpenter <span class="nt">--namespace</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="k">}</span><span class="s2">"</span>
+aws cloudformation delete-stack <span class="nt">--stack-name</span> <span class="s2">"Karpenter-</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span>
+eksctl delete cluster <span class="nt">--name</span> <span class="s2">"</span><span class="k">${</span><span class="nv">CLUSTER_NAME</span><span class="k">}</span><span class="s2">"</span></code></pre></figure>
+
+<p><b>More Karpenter can do</b></p>
+
+<p><code class="language-plaintext highlighter-rouge">Disruption and Drift Management</code></p>
+
+<p>Disruption: Focuses on maintaining application availability during scaling or updates.</p>
+
+<p>Drift: Ensures nodes are reconciled with the desired state.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Cost Optimization</code></p>
+
+<p>Optimizes resource usage by consolidating workloads onto fewer nodes.</p>
+
+<p>Using Spot Instances to Leverages AWS spot instances for cost reduction., On-Demand &amp; Spot Ratio Split</p>
+
+<p><code class="language-plaintext highlighter-rouge">Scheduling Constraints</code></p>
+
+<p>Leverage with Node Affinity, Taints and Tolerations, Topology Spread, Pod Affinity to improves workload placement and resource utilization.</p>
+
+<p>I will see in next post to explore some Hands-On Steps for more Karpenter features:</p>
+
+<p>Configure Pod Disruption Budgets (PDBs).</p>
+
+<p>Simulate disruption scenarios (e.g., delete a node).</p>
+
+<p>Observe Karpenter’s ability to recover workloads.</p>
+
+<p>Deploy a Provisioner with spot instance configuration.</p>
+
+<p>Create a workload that triggers the use of both on-demand and spot instances.</p>
+
+<p>Test consolidation by simulating reduced workloads.</p>
+
+<p>Configure nodeAffinity and taints in the workload YAML.</p>
+
+<p>Define topology spread constraints to ensure even distribution.</p>
+
+<p>Observe the impact of scheduling constraints on node provisioning.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/09/25/eks5.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
