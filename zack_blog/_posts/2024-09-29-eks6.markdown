@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "EKS - Prometheus Metrics"
+title:  "EKS - Debug Prometheus Metrics"
 date:   2024-09-29 11:15:29 +1100
 categories: jekyll Cat2
 ---
