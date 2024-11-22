@@ -1,0 +1,216 @@
+---
+layout: post
+title:  "EKS - Cluster Upgrade"
+date:   2024-09-27 11:15:29 +1100
+categories: jekyll Cat2
+---
+<b>Kubernetes Release vs EKS EOL</b>
+
+A Kubernetes version encompasses both the control plane and the data plane. While AWS manages and upgrades the control plane, we (cluster owner/customer) holds the responsibility for initiating upgrade for both cluster control plane as well as the data plane. When we initiate a cluster upgrade, AWS manages upgrading the control plane and we are still responsible for initiating the upgrades of the data plane, this includes worker nodes provisioned via Self Managed node groups, Managed Node Groups, Fargate & other add-ons . If worker nodes are provisioned via Karpenter Controller, we can can take advantage of Drift  or Disruption Controller  features (spec.expireAfter) for automatic node recycling and upgrade. 
+
+![image tooltip here](/assets/eks65.png)
+![image tooltip here](/assets/eks66.png)
+
+<b>Upgrade Strategy: in-place vs Blue-Green</b>
+
+Considerations when choosing a EKS upgrade strategy:
+
+`Downtime tolerance`: Consider the acceptable level of downtime for applications and services during the upgrade process.
+
+`Upgrade complexity`: Evaluate the complexity of application architecture, dependencies, and stateful components.
+
+`Kubernetes version gap`: Assess the gap between current Kubernetes version and the target version, as well as the compatibility of applications and add-ons.
+
+`Resource constraints`: Consider the available infrastructure resources and budget for maintaining multiple clusters during the upgrade process. A Canary strategy which is similar to blue/green except scale out the new cluster while scaling in the old cluster while ramp up workloads would minimize this.
+
+`Team expertise`: Evaluate team's expertise and familiarity with managing multiple clusters and implementing traffic shifting strategies.
+
+<b>EKS in-place Upgrade Workflow</b>
+
+Here I will follow bellow phases to run an in-place EKS cluster upgrade:
+
+`Preparation Phase`:
+
+- Verify EKS Upgrade Insights and Checklist
+
+![image tooltip here](/assets/eks67.png)
+
+- Backup Cluster with [Velero](https://zackz.site/jekyll/cat2/2024/09/15/eks3.html).
+
+- Verify compatibility of workloads with [Kubernetes 1.31](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md)
+
+`Execution Phases`:
+
+- Upgrade the Control Plane.
+
+{% highlight shell %}
+root@zackz:~# export AWS_REGION=ap-southeast-2
+root@zackz:~# export EKS_CLUSTER_NAME=ex-karpenter
+root@zackz:~# aws eks update-cluster-version --region ${AWS_REGION} --name $EKS_CLUSTER_NAME  --kubernetes-version 1.31
+{
+    "update": {
+        "id": "2c23dcc6-a8e0-337a-bf2a-c97de842a756",
+        "status": "InProgress",
+        "type": "VersionUpdate",
+        "params": [
+            {
+                "type": "Version",
+                "value": "1.31"
+            },
+            {
+                "type": "PlatformVersion",
+                "value": "eks.12"
+            }
+        ],
+        "createdAt": "2024-11-22T12:51:13.370000+11:00",
+        "errors": []
+    }
+}
+
+root@zackz:~# aws eks describe-cluster --name $EKS_CLUSTER_NAME --query "cluster.{Name:name,Version:version}" --output table
+-----------------------------
+|      DescribeCluster      |
++---------------+-----------+
+|     Name      |  Version  |
++---------------+-----------+
+|  ex-karpenter |  1.31     |
++---------------+-----------+
+
+{% endhighlight %}
+
+- Upgrade EKS Addons
+![image tooltip here](/assets/eks68.png)
+
+{% highlight shell %}
+root@zackz:~# eksctl get addon --cluster $EKS_CLUSTER_NAME
+2024-11-22 13:06:07 [ℹ]  Kubernetes version "1.31" in use by cluster "ex-karpenter"
+2024-11-22 13:06:07 [ℹ]  getting all addons
+2024-11-22 13:06:09 [ℹ]  to see issues for an addon run `eksctl get addon --name <addon-name> --cluster <cluster-name>`
+NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE                                                             CONFIGURATION VALUES     POD IDENTITY ASSOCIATION ROLES
+coredns                 v1.11.1-eksbuild.8      ACTIVE  0               v1.11.3-eksbuild.2,v1.11.3-eksbuild.1,v1.11.1-eksbuild.13,v1.11.1-eksbuild.11
+eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
+kube-proxy              v1.30.6-eksbuild.3      ACTIVE  0               v1.31.2-eksbuild.3,v1.31.2-eksbuild.2,v1.31.1-eksbuild.2,v1.31.0-eksbuild.5,v1.31.0-eksbuild.2
+vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0
+root@zackz:~# aws eks update-addon \
+  --cluster-name $EKS_CLUSTER_NAME \
+  --addon-name coredns \
+  --addon-version v1.11.3-eksbuild.2
+{
+    "update": {
+        "id": "79ccd9e1-004e-3cc7-89bb-c7dc8b286281",
+        "status": "InProgress",
+        "type": "AddonUpdate",
+        "params": [
+            {
+                "type": "AddonVersion",
+                "value": "v1.11.3-eksbuild.2"
+            }
+        ],
+        "createdAt": "2024-11-22T13:08:18.368000+11:00",
+        "errors": []
+    }
+}
+root@zackz:~# aws eks update-addon \
+  --cluster-name $EKS_CLUSTER_NAME \
+  --addon-name kube-proxy \
+  --addon-version v1.31.2-eksbuild.3
+{
+    "update": {
+        "id": "63288184-13f9-3d5b-8c63-9ecf5414bc82",
+        "status": "InProgress",
+        "type": "AddonUpdate",
+        "params": [
+            {
+                "type": "AddonVersion",
+                "value": "v1.31.2-eksbuild.3"
+            }
+        ],
+        "createdAt": "2024-11-22T13:08:29.617000+11:00",
+        "errors": []
+    }
+}
+
+# after add-on upgrade
+
+root@zackz:~# eksctl get addon --cluster $EKS_CLUSTER_NAME
+2024-11-22 13:10:15 [ℹ]  Kubernetes version "1.31" in use by cluster "ex-karpenter"
+2024-11-22 13:10:15 [ℹ]  getting all addons
+2024-11-22 13:10:16 [ℹ]  to see issues for an addon run `eksctl get addon --name <addon-name> --cluster <cluster-name>`
+NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE        CONFIGURATION VALUES    POD IDENTITY ASSOCIATION ROLES
+coredns                 v1.11.3-eksbuild.2      ACTIVE  0
+eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
+kube-proxy              v1.31.2-eksbuild.3      ACTIVE  0
+vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0
+
+{% endhighlight %}
+
+- Upgrade Managed Node Groups or Self-Managed Nodes.
+
+When we initiate a managed node group update in EKS, the process automatically completes four phases:
+
+`Setup Phase`: Creates a new launch template version, updates the Auto Scaling group, and determines the max nodes to upgrade in parallel (default 1, up to 100).
+
+`Scale Up Phase`: Increases the Auto Scaling group size, ensures new nodes are ready, marks old nodes unschedulable, and excludes them from load balancers.
+
+`Upgrade Phase`: Randomly selects nodes to upgrade, drains pods, cordons nodes, terminates old nodes, and repeats until all nodes use the new configuration.
+
+`Scale Down Phase`: Reduces Auto Scaling group size back to its original values.
+
+{% highlight shell %}
+root@zackz:~# aws eks describe-cluster --name $EKS_CLUSTER_NAME --query "cluster.version" --output text
+1.31
+
+root@zackz:~# kubectl get node
+NAME                                             STATUS   ROLES    AGE   VERSION
+ip-10-0-11-33.ap-southeast-2.compute.internal    Ready    <none>   62m   v1.30.6-eks-94953ac
+ip-10-0-16-112.ap-southeast-2.compute.internal   Ready    <none>   61m   v1.30.6-eks-94953ac
+root@zackz:~# aws eks list-nodegroups --cluster-name $EKS_CLUSTER_NAME
+{
+    "nodegroups": [
+        "karpenter-2024112200002335730000001f"
+    ]
+}
+
+root@zackz:~# eksctl upgrade nodegroup --name=karpenter-2024112200002335730000001f --cluster=$EKS_CLUSTER_NAME --kubernetes-version=1.31
+2024-11-22 13:16:35 [ℹ]  upgrade of nodegroup "karpenter-2024112200002335730000001f" in progress
+2024-11-22 13:16:35 [ℹ]  waiting for upgrade of nodegroup "karpenter-2024112200002335730000001f" to complete
+2024-11-22 13:25:40 [ℹ]  nodegroup successfully upgraded
+
+root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get node
+NAME                                            STATUS   ROLES    AGE     VERSION
+ip-10-0-2-232.ap-southeast-2.compute.internal   Ready    <none>   5m28s   v1.31.2-eks-94953ac
+ip-10-0-24-55.ap-southeast-2.compute.internal   Ready    <none>   5m26s   v1.31.2-eks-94953ac
+
+root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get po -A
+NAMESPACE     NAME                           READY   STATUS    RESTARTS   AGE
+kube-system   aws-node-58bcm                 2/2     Running   0          8m11s
+kube-system   aws-node-xq7lj                 2/2     Running   0          8m13s
+kube-system   coredns-864f654d7c-49ch8       1/1     Running   0          4m40s
+kube-system   coredns-864f654d7c-trk6h       1/1     Running   0          7m44s
+kube-system   eks-pod-identity-agent-5788x   1/1     Running   0          8m11s
+kube-system   eks-pod-identity-agent-fbq9q   1/1     Running   0          8m13s
+kube-system   karpenter-5f6bbf8cdc-gx6mn     1/1     Running   0          4m40s
+kube-system   karpenter-5f6bbf8cdc-nh4fb     1/1     Running   0          7m43s
+kube-system   kube-proxy-9798b               1/1     Running   0          8m13s
+kube-system   kube-proxy-dnfgt               1/1     Running   0          8m11s
+
+{% endhighlight %}
+
+- Upgrade AWS Fargate Nodes.
+
+For upgrading AWS Fargate nodes, we can re-start the K8s deployments so that the new pods will automatically get scheduled on the latest Kubernetes Version.
+
+
+<b>Conclosion</b>
+
+By following the above upgrade approach to move an EKS cluster from Kubernetes 1.30 to 1.31, what we havce achieved:
+
+- Seamless Control Plane Upgrade: Ensures the Kubernetes API server and control plane components are updated to 1.31 without disrupting workloads.
+
+- Add-On Compatibility: Updates critical EKS add-ons (e.g., CoreDNS, kube-proxy, VPC CNI) to ensure compatibility and leverage new features in Kubernetes 1.31.
+
+- Managed Node Group Updates: Automatically updates node groups to use the latest AMIs, applying new Kubernetes features, security patches, and optimized configurations while minimizing disruption.
+
+- Workload Continuity: Ensures workloads remain available during the upgrade with controlled pod evictions, proper cordoning, and scaling mechanisms.
+
+![image tooltip here](/assets/eks69.png)

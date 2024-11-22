@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Lightweight Pre-Trained Models"
+title:  "MLOps - Deploy Pre-Trained Model on AWS EKS"
 date:   2024-10-03 11:15:29 +1100
 categories: jekyll Cat2
 ---

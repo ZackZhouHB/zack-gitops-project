@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>EKS - Cluster Upgrade | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="EKS - Cluster Upgrade" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Kubernetes Release vs EKS EOL" />
+<meta property="og:description" content="Kubernetes Release vs EKS EOL" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-27T10:15:29+10:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="EKS - Cluster Upgrade" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-09-27T10:15:29+10:00","datePublished":"2024-09-27T10:15:29+10:00","description":"Kubernetes Release vs EKS EOL","headline":"EKS - Cluster Upgrade","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html"},"url":"http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">EKS - Cluster Upgrade</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2024-09-27T10:15:29+10:00" itemprop="datePublished">Sep 27, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Kubernetes Release vs EKS EOL</b></p>
+
+<p>A Kubernetes version encompasses both the control plane and the data plane. While AWS manages and upgrades the control plane, we (cluster owner/customer) holds the responsibility for initiating upgrade for both cluster control plane as well as the data plane. When we initiate a cluster upgrade, AWS manages upgrading the control plane and we are still responsible for initiating the upgrades of the data plane, this includes worker nodes provisioned via Self Managed node groups, Managed Node Groups, Fargate &amp; other add-ons . If worker nodes are provisioned via Karpenter Controller, we can can take advantage of Drift  or Disruption Controller  features (spec.expireAfter) for automatic node recycling and upgrade.</p>
+
+<p><img src="/assets/eks65.png" alt="image tooltip here" />
+<img src="/assets/eks66.png" alt="image tooltip here" /></p>
+
+<p><b>Upgrade Strategy: in-place vs Blue-Green</b></p>
+
+<p>Considerations when choosing a EKS upgrade strategy:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Downtime tolerance</code>: Consider the acceptable level of downtime for applications and services during the upgrade process.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Upgrade complexity</code>: Evaluate the complexity of application architecture, dependencies, and stateful components.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Kubernetes version gap</code>: Assess the gap between current Kubernetes version and the target version, as well as the compatibility of applications and add-ons.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Resource constraints</code>: Consider the available infrastructure resources and budget for maintaining multiple clusters during the upgrade process. A Canary strategy which is similar to blue/green except scale out the new cluster while scaling in the old cluster while ramp up workloads would minimize this.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Team expertise</code>: Evaluate team’s expertise and familiarity with managing multiple clusters and implementing traffic shifting strategies.</p>
+
+<p><b>EKS in-place Upgrade Workflow</b></p>
+
+<p>Here I will follow bellow phases to run an in-place EKS cluster upgrade:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Preparation Phase</code>:</p>
+
+<ul>
+  <li>Verify EKS Upgrade Insights and Checklist</li>
+</ul>
+
+<p><img src="/assets/eks67.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>
+    <p>Backup Cluster with <a href="https://zackz.site/jekyll/cat2/2024/09/15/eks3.html">Velero</a>.</p>
+  </li>
+  <li>
+    <p>Verify compatibility of workloads with <a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md">Kubernetes 1.31</a></p>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Execution Phases</code>:</p>
+
+<ul>
+  <li>Upgrade the Control Plane.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# <span class="nb">export </span><span class="nv">AWS_REGION</span><span class="o">=</span>ap-southeast-2
+root@zackz:~# <span class="nb">export </span><span class="nv">EKS_CLUSTER_NAME</span><span class="o">=</span>ex-karpenter
+root@zackz:~# aws eks update-cluster-version <span class="nt">--region</span> <span class="k">${</span><span class="nv">AWS_REGION</span><span class="k">}</span> <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span>  <span class="nt">--kubernetes-version</span> 1.31
+<span class="o">{</span>
+    <span class="s2">"update"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"2c23dcc6-a8e0-337a-bf2a-c97de842a756"</span>,
+        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"VersionUpdate"</span>,
+        <span class="s2">"params"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"Version"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"1.31"</span>
+            <span class="o">}</span>,
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"PlatformVersion"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"eks.12"</span>
+            <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T12:51:13.370000+11:00"</span>,
+        <span class="s2">"errors"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--query</span> <span class="s2">"cluster.{Name:name,Version:version}"</span> <span class="nt">--output</span> table
+<span class="nt">-----------------------------</span>
+|      DescribeCluster      |
++---------------+-----------+
+|     Name      |  Version  |
++---------------+-----------+
+|  ex-karpenter |  1.31     |
++---------------+-----------+</code></pre></figure>
+
+<ul>
+  <li>Upgrade EKS Addons
+<img src="/assets/eks68.png" alt="image tooltip here" /></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
+2024-11-22 13:06:07 <span class="o">[</span>ℹ]  Kubernetes version <span class="s2">"1.31"</span> <span class="k">in </span>use by cluster <span class="s2">"ex-karpenter"</span>
+2024-11-22 13:06:07 <span class="o">[</span>ℹ]  getting all addons
+2024-11-22 13:06:09 <span class="o">[</span>ℹ]  to see issues <span class="k">for </span>an addon run <span class="sb">`</span>eksctl get addon <span class="nt">--name</span> &lt;addon-name&gt; <span class="nt">--cluster</span> &lt;cluster-name&gt;<span class="sb">`</span>
+NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE                                                             CONFIGURATION VALUES     POD IDENTITY ASSOCIATION ROLES
+coredns                 v1.11.1-eksbuild.8      ACTIVE  0               v1.11.3-eksbuild.2,v1.11.3-eksbuild.1,v1.11.1-eksbuild.13,v1.11.1-eksbuild.11
+eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
+kube-proxy              v1.30.6-eksbuild.3      ACTIVE  0               v1.31.2-eksbuild.3,v1.31.2-eksbuild.2,v1.31.1-eksbuild.2,v1.31.0-eksbuild.5,v1.31.0-eksbuild.2
+vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0
+root@zackz:~# aws eks update-addon <span class="se">\</span>
+  <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="se">\</span>
+  <span class="nt">--addon-name</span> coredns <span class="se">\</span>
+  <span class="nt">--addon-version</span> v1.11.3-eksbuild.2
+<span class="o">{</span>
+    <span class="s2">"update"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"79ccd9e1-004e-3cc7-89bb-c7dc8b286281"</span>,
+        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"AddonUpdate"</span>,
+        <span class="s2">"params"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"AddonVersion"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"v1.11.3-eksbuild.2"</span>
+            <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T13:08:18.368000+11:00"</span>,
+        <span class="s2">"errors"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+root@zackz:~# aws eks update-addon <span class="se">\</span>
+  <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="se">\</span>
+  <span class="nt">--addon-name</span> kube-proxy <span class="se">\</span>
+  <span class="nt">--addon-version</span> v1.31.2-eksbuild.3
+<span class="o">{</span>
+    <span class="s2">"update"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"63288184-13f9-3d5b-8c63-9ecf5414bc82"</span>,
+        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"AddonUpdate"</span>,
+        <span class="s2">"params"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"AddonVersion"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"v1.31.2-eksbuild.3"</span>
+            <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T13:08:29.617000+11:00"</span>,
+        <span class="s2">"errors"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># after add-on upgrade</span>
+
+root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
+2024-11-22 13:10:15 <span class="o">[</span>ℹ]  Kubernetes version <span class="s2">"1.31"</span> <span class="k">in </span>use by cluster <span class="s2">"ex-karpenter"</span>
+2024-11-22 13:10:15 <span class="o">[</span>ℹ]  getting all addons
+2024-11-22 13:10:16 <span class="o">[</span>ℹ]  to see issues <span class="k">for </span>an addon run <span class="sb">`</span>eksctl get addon <span class="nt">--name</span> &lt;addon-name&gt; <span class="nt">--cluster</span> &lt;cluster-name&gt;<span class="sb">`</span>
+NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE        CONFIGURATION VALUES    POD IDENTITY ASSOCIATION ROLES
+coredns                 v1.11.3-eksbuild.2      ACTIVE  0
+eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
+kube-proxy              v1.31.2-eksbuild.3      ACTIVE  0
+vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0</code></pre></figure>
+
+<ul>
+  <li>Upgrade Managed Node Groups or Self-Managed Nodes.</li>
+</ul>
+
+<p>When we initiate a managed node group update in EKS, the process automatically completes four phases:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Setup Phase</code>: Creates a new launch template version, updates the Auto Scaling group, and determines the max nodes to upgrade in parallel (default 1, up to 100).</p>
+
+<p><code class="language-plaintext highlighter-rouge">Scale Up Phase</code>: Increases the Auto Scaling group size, ensures new nodes are ready, marks old nodes unschedulable, and excludes them from load balancers.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Upgrade Phase</code>: Randomly selects nodes to upgrade, drains pods, cordons nodes, terminates old nodes, and repeats until all nodes use the new configuration.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Scale Down Phase</code>: Reduces Auto Scaling group size back to its original values.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--query</span> <span class="s2">"cluster.version"</span> <span class="nt">--output</span> text
+1.31
+
+root@zackz:~# kubectl get node
+NAME                                             STATUS   ROLES    AGE   VERSION
+ip-10-0-11-33.ap-southeast-2.compute.internal    Ready    &lt;none&gt;   62m   v1.30.6-eks-94953ac
+ip-10-0-16-112.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   61m   v1.30.6-eks-94953ac
+root@zackz:~# aws eks list-nodegroups <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span>
+<span class="o">{</span>
+    <span class="s2">"nodegroups"</span>: <span class="o">[</span>
+        <span class="s2">"karpenter-2024112200002335730000001f"</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+
+root@zackz:~# eksctl upgrade nodegroup <span class="nt">--name</span><span class="o">=</span>karpenter-2024112200002335730000001f <span class="nt">--cluster</span><span class="o">=</span><span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--kubernetes-version</span><span class="o">=</span>1.31
+2024-11-22 13:16:35 <span class="o">[</span>ℹ]  upgrade of nodegroup <span class="s2">"karpenter-2024112200002335730000001f"</span> <span class="k">in </span>progress
+2024-11-22 13:16:35 <span class="o">[</span>ℹ]  waiting <span class="k">for </span>upgrade of nodegroup <span class="s2">"karpenter-2024112200002335730000001f"</span> to <span class="nb">complete
+</span>2024-11-22 13:25:40 <span class="o">[</span>ℹ]  nodegroup successfully upgraded
+
+root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get node
+NAME                                            STATUS   ROLES    AGE     VERSION
+ip-10-0-2-232.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   5m28s   v1.31.2-eks-94953ac
+ip-10-0-24-55.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   5m26s   v1.31.2-eks-94953ac
+
+root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get po <span class="nt">-A</span>
+NAMESPACE     NAME                           READY   STATUS    RESTARTS   AGE
+kube-system   aws-node-58bcm                 2/2     Running   0          8m11s
+kube-system   aws-node-xq7lj                 2/2     Running   0          8m13s
+kube-system   coredns-864f654d7c-49ch8       1/1     Running   0          4m40s
+kube-system   coredns-864f654d7c-trk6h       1/1     Running   0          7m44s
+kube-system   eks-pod-identity-agent-5788x   1/1     Running   0          8m11s
+kube-system   eks-pod-identity-agent-fbq9q   1/1     Running   0          8m13s
+kube-system   karpenter-5f6bbf8cdc-gx6mn     1/1     Running   0          4m40s
+kube-system   karpenter-5f6bbf8cdc-nh4fb     1/1     Running   0          7m43s
+kube-system   kube-proxy-9798b               1/1     Running   0          8m13s
+kube-system   kube-proxy-dnfgt               1/1     Running   0          8m11s</code></pre></figure>
+
+<ul>
+  <li>Upgrade AWS Fargate Nodes.</li>
+</ul>
+
+<p>For upgrading AWS Fargate nodes, we can re-start the K8s deployments so that the new pods will automatically get scheduled on the latest Kubernetes Version.</p>
+
+<p><b>Conclosion</b></p>
+
+<p>By following the above upgrade approach to move an EKS cluster from Kubernetes 1.30 to 1.31, what we havce achieved:</p>
+
+<ul>
+  <li>
+    <p>Seamless Control Plane Upgrade: Ensures the Kubernetes API server and control plane components are updated to 1.31 without disrupting workloads.</p>
+  </li>
+  <li>
+    <p>Add-On Compatibility: Updates critical EKS add-ons (e.g., CoreDNS, kube-proxy, VPC CNI) to ensure compatibility and leverage new features in Kubernetes 1.31.</p>
+  </li>
+  <li>
+    <p>Managed Node Group Updates: Automatically updates node groups to use the latest AMIs, applying new Kubernetes features, security patches, and optimized configurations while minimizing disruption.</p>
+  </li>
+  <li>
+    <p>Workload Continuity: Ensures workloads remain available during the upgrade with controlled pod evictions, proper cordoning, and scaling mechanisms.</p>
+  </li>
+</ul>
+
+<p><img src="/assets/eks69.png" alt="image tooltip here" /></p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2024/09/27/eks7.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

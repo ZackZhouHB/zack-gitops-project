@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-19T10:01:13+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-22T13:37:19+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently I got a task from the Company’s app team, to install agent on EC2 instances across serveral AWS accounts and enable connection via AWS private link to a target AWS account where hosts the management server. To achieve the task here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and install and configre AWS private link using terraform.</p>
 
@@ -1459,7 +1459,228 @@ kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</co
 <img src="/assets/eks75.png" alt="image tooltip here" /></p>
 
 <p>Head over to Grafana, then import the dashboard 763 
-<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Get Started with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html" rel="alternate" type="text/html" title="EKS - Get Started with Karpenter" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html"><![CDATA[<p><b>Karpenter vs Cluster Autoscaler</b></p>
+<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Cluster Upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html" rel="alternate" type="text/html" title="EKS - Cluster Upgrade" /><published>2024-09-27T10:15:29+10:00</published><updated>2024-09-27T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/27/eks7</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html"><![CDATA[<p><b>Kubernetes Release vs EKS EOL</b></p>
+
+<p>A Kubernetes version encompasses both the control plane and the data plane. While AWS manages and upgrades the control plane, we (cluster owner/customer) holds the responsibility for initiating upgrade for both cluster control plane as well as the data plane. When we initiate a cluster upgrade, AWS manages upgrading the control plane and we are still responsible for initiating the upgrades of the data plane, this includes worker nodes provisioned via Self Managed node groups, Managed Node Groups, Fargate &amp; other add-ons . If worker nodes are provisioned via Karpenter Controller, we can can take advantage of Drift  or Disruption Controller  features (spec.expireAfter) for automatic node recycling and upgrade.</p>
+
+<p><img src="/assets/eks65.png" alt="image tooltip here" />
+<img src="/assets/eks66.png" alt="image tooltip here" /></p>
+
+<p><b>Upgrade Strategy: in-place vs Blue-Green</b></p>
+
+<p>Considerations when choosing a EKS upgrade strategy:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Downtime tolerance</code>: Consider the acceptable level of downtime for applications and services during the upgrade process.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Upgrade complexity</code>: Evaluate the complexity of application architecture, dependencies, and stateful components.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Kubernetes version gap</code>: Assess the gap between current Kubernetes version and the target version, as well as the compatibility of applications and add-ons.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Resource constraints</code>: Consider the available infrastructure resources and budget for maintaining multiple clusters during the upgrade process. A Canary strategy which is similar to blue/green except scale out the new cluster while scaling in the old cluster while ramp up workloads would minimize this.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Team expertise</code>: Evaluate team’s expertise and familiarity with managing multiple clusters and implementing traffic shifting strategies.</p>
+
+<p><b>EKS in-place Upgrade Workflow</b></p>
+
+<p>Here I will follow bellow phases to run an in-place EKS cluster upgrade:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Preparation Phase</code>:</p>
+
+<ul>
+  <li>Verify EKS Upgrade Insights and Checklist</li>
+</ul>
+
+<p><img src="/assets/eks67.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>
+    <p>Backup Cluster with <a href="https://zackz.site/jekyll/cat2/2024/09/15/eks3.html">Velero</a>.</p>
+  </li>
+  <li>
+    <p>Verify compatibility of workloads with <a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md">Kubernetes 1.31</a></p>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Execution Phases</code>:</p>
+
+<ul>
+  <li>Upgrade the Control Plane.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# <span class="nb">export </span><span class="nv">AWS_REGION</span><span class="o">=</span>ap-southeast-2
+root@zackz:~# <span class="nb">export </span><span class="nv">EKS_CLUSTER_NAME</span><span class="o">=</span>ex-karpenter
+root@zackz:~# aws eks update-cluster-version <span class="nt">--region</span> <span class="k">${</span><span class="nv">AWS_REGION</span><span class="k">}</span> <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span>  <span class="nt">--kubernetes-version</span> 1.31
+<span class="o">{</span>
+    <span class="s2">"update"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"2c23dcc6-a8e0-337a-bf2a-c97de842a756"</span>,
+        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"VersionUpdate"</span>,
+        <span class="s2">"params"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"Version"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"1.31"</span>
+            <span class="o">}</span>,
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"PlatformVersion"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"eks.12"</span>
+            <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T12:51:13.370000+11:00"</span>,
+        <span class="s2">"errors"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--query</span> <span class="s2">"cluster.{Name:name,Version:version}"</span> <span class="nt">--output</span> table
+<span class="nt">-----------------------------</span>
+|      DescribeCluster      |
++---------------+-----------+
+|     Name      |  Version  |
++---------------+-----------+
+|  ex-karpenter |  1.31     |
++---------------+-----------+</code></pre></figure>
+
+<ul>
+  <li>Upgrade EKS Addons
+<img src="/assets/eks68.png" alt="image tooltip here" /></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
+2024-11-22 13:06:07 <span class="o">[</span>ℹ]  Kubernetes version <span class="s2">"1.31"</span> <span class="k">in </span>use by cluster <span class="s2">"ex-karpenter"</span>
+2024-11-22 13:06:07 <span class="o">[</span>ℹ]  getting all addons
+2024-11-22 13:06:09 <span class="o">[</span>ℹ]  to see issues <span class="k">for </span>an addon run <span class="sb">`</span>eksctl get addon <span class="nt">--name</span> &lt;addon-name&gt; <span class="nt">--cluster</span> &lt;cluster-name&gt;<span class="sb">`</span>
+NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE                                                             CONFIGURATION VALUES     POD IDENTITY ASSOCIATION ROLES
+coredns                 v1.11.1-eksbuild.8      ACTIVE  0               v1.11.3-eksbuild.2,v1.11.3-eksbuild.1,v1.11.1-eksbuild.13,v1.11.1-eksbuild.11
+eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
+kube-proxy              v1.30.6-eksbuild.3      ACTIVE  0               v1.31.2-eksbuild.3,v1.31.2-eksbuild.2,v1.31.1-eksbuild.2,v1.31.0-eksbuild.5,v1.31.0-eksbuild.2
+vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0
+root@zackz:~# aws eks update-addon <span class="se">\</span>
+  <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="se">\</span>
+  <span class="nt">--addon-name</span> coredns <span class="se">\</span>
+  <span class="nt">--addon-version</span> v1.11.3-eksbuild.2
+<span class="o">{</span>
+    <span class="s2">"update"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"79ccd9e1-004e-3cc7-89bb-c7dc8b286281"</span>,
+        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"AddonUpdate"</span>,
+        <span class="s2">"params"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"AddonVersion"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"v1.11.3-eksbuild.2"</span>
+            <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T13:08:18.368000+11:00"</span>,
+        <span class="s2">"errors"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+root@zackz:~# aws eks update-addon <span class="se">\</span>
+  <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="se">\</span>
+  <span class="nt">--addon-name</span> kube-proxy <span class="se">\</span>
+  <span class="nt">--addon-version</span> v1.31.2-eksbuild.3
+<span class="o">{</span>
+    <span class="s2">"update"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"63288184-13f9-3d5b-8c63-9ecf5414bc82"</span>,
+        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"AddonUpdate"</span>,
+        <span class="s2">"params"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"type"</span>: <span class="s2">"AddonVersion"</span>,
+                <span class="s2">"value"</span>: <span class="s2">"v1.31.2-eksbuild.3"</span>
+            <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T13:08:29.617000+11:00"</span>,
+        <span class="s2">"errors"</span>: <span class="o">[]</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c"># after add-on upgrade</span>
+
+root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
+2024-11-22 13:10:15 <span class="o">[</span>ℹ]  Kubernetes version <span class="s2">"1.31"</span> <span class="k">in </span>use by cluster <span class="s2">"ex-karpenter"</span>
+2024-11-22 13:10:15 <span class="o">[</span>ℹ]  getting all addons
+2024-11-22 13:10:16 <span class="o">[</span>ℹ]  to see issues <span class="k">for </span>an addon run <span class="sb">`</span>eksctl get addon <span class="nt">--name</span> &lt;addon-name&gt; <span class="nt">--cluster</span> &lt;cluster-name&gt;<span class="sb">`</span>
+NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE        CONFIGURATION VALUES    POD IDENTITY ASSOCIATION ROLES
+coredns                 v1.11.3-eksbuild.2      ACTIVE  0
+eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
+kube-proxy              v1.31.2-eksbuild.3      ACTIVE  0
+vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0</code></pre></figure>
+
+<ul>
+  <li>Upgrade Managed Node Groups or Self-Managed Nodes.</li>
+</ul>
+
+<p>When we initiate a managed node group update in EKS, the process automatically completes four phases:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Setup Phase</code>: Creates a new launch template version, updates the Auto Scaling group, and determines the max nodes to upgrade in parallel (default 1, up to 100).</p>
+
+<p><code class="language-plaintext highlighter-rouge">Scale Up Phase</code>: Increases the Auto Scaling group size, ensures new nodes are ready, marks old nodes unschedulable, and excludes them from load balancers.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Upgrade Phase</code>: Randomly selects nodes to upgrade, drains pods, cordons nodes, terminates old nodes, and repeats until all nodes use the new configuration.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Scale Down Phase</code>: Reduces Auto Scaling group size back to its original values.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--query</span> <span class="s2">"cluster.version"</span> <span class="nt">--output</span> text
+1.31
+
+root@zackz:~# kubectl get node
+NAME                                             STATUS   ROLES    AGE   VERSION
+ip-10-0-11-33.ap-southeast-2.compute.internal    Ready    &lt;none&gt;   62m   v1.30.6-eks-94953ac
+ip-10-0-16-112.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   61m   v1.30.6-eks-94953ac
+root@zackz:~# aws eks list-nodegroups <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span>
+<span class="o">{</span>
+    <span class="s2">"nodegroups"</span>: <span class="o">[</span>
+        <span class="s2">"karpenter-2024112200002335730000001f"</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+
+root@zackz:~# eksctl upgrade nodegroup <span class="nt">--name</span><span class="o">=</span>karpenter-2024112200002335730000001f <span class="nt">--cluster</span><span class="o">=</span><span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--kubernetes-version</span><span class="o">=</span>1.31
+2024-11-22 13:16:35 <span class="o">[</span>ℹ]  upgrade of nodegroup <span class="s2">"karpenter-2024112200002335730000001f"</span> <span class="k">in </span>progress
+2024-11-22 13:16:35 <span class="o">[</span>ℹ]  waiting <span class="k">for </span>upgrade of nodegroup <span class="s2">"karpenter-2024112200002335730000001f"</span> to <span class="nb">complete
+</span>2024-11-22 13:25:40 <span class="o">[</span>ℹ]  nodegroup successfully upgraded
+
+root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get node
+NAME                                            STATUS   ROLES    AGE     VERSION
+ip-10-0-2-232.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   5m28s   v1.31.2-eks-94953ac
+ip-10-0-24-55.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   5m26s   v1.31.2-eks-94953ac
+
+root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get po <span class="nt">-A</span>
+NAMESPACE     NAME                           READY   STATUS    RESTARTS   AGE
+kube-system   aws-node-58bcm                 2/2     Running   0          8m11s
+kube-system   aws-node-xq7lj                 2/2     Running   0          8m13s
+kube-system   coredns-864f654d7c-49ch8       1/1     Running   0          4m40s
+kube-system   coredns-864f654d7c-trk6h       1/1     Running   0          7m44s
+kube-system   eks-pod-identity-agent-5788x   1/1     Running   0          8m11s
+kube-system   eks-pod-identity-agent-fbq9q   1/1     Running   0          8m13s
+kube-system   karpenter-5f6bbf8cdc-gx6mn     1/1     Running   0          4m40s
+kube-system   karpenter-5f6bbf8cdc-nh4fb     1/1     Running   0          7m43s
+kube-system   kube-proxy-9798b               1/1     Running   0          8m13s
+kube-system   kube-proxy-dnfgt               1/1     Running   0          8m11s</code></pre></figure>
+
+<ul>
+  <li>Upgrade AWS Fargate Nodes.</li>
+</ul>
+
+<p>For upgrading AWS Fargate nodes, we can re-start the K8s deployments so that the new pods will automatically get scheduled on the latest Kubernetes Version.</p>
+
+<p><b>Conclosion</b></p>
+
+<p>By following the above upgrade approach to move an EKS cluster from Kubernetes 1.30 to 1.31, what we havce achieved:</p>
+
+<ul>
+  <li>
+    <p>Seamless Control Plane Upgrade: Ensures the Kubernetes API server and control plane components are updated to 1.31 without disrupting workloads.</p>
+  </li>
+  <li>
+    <p>Add-On Compatibility: Updates critical EKS add-ons (e.g., CoreDNS, kube-proxy, VPC CNI) to ensure compatibility and leverage new features in Kubernetes 1.31.</p>
+  </li>
+  <li>
+    <p>Managed Node Group Updates: Automatically updates node groups to use the latest AMIs, applying new Kubernetes features, security patches, and optimized configurations while minimizing disruption.</p>
+  </li>
+  <li>
+    <p>Workload Continuity: Ensures workloads remain available during the upgrade with controlled pod evictions, proper cordoning, and scaling mechanisms.</p>
+  </li>
+</ul>
+
+<p><img src="/assets/eks69.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Kubernetes Release vs EKS EOL]]></summary></entry><entry><title type="html">EKS - Get Started with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html" rel="alternate" type="text/html" title="EKS - Get Started with Karpenter" /><published>2024-09-25T10:15:29+10:00</published><updated>2024-09-25T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/25/eks5</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/25/eks5.html"><![CDATA[<p><b>Karpenter vs Cluster Autoscaler</b></p>
 
 <p><code class="language-plaintext highlighter-rouge">Karpenter</code> is more modern, flexible, and cost-efficient, making it a better choice for dynamic, complex, or large-scale workloads on EKS.</p>
 
@@ -2807,639 +3028,4 @@ It simulated moving the existing pods to other nodes. Once it determined that th
 
 <p><b> Conclusion: </b></p>
 
-<p>By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS]]></summary></entry><entry><title type="html">Jenkins - Multi-Destination CD pipeline with Terraform</title><link href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" rel="alternate" type="text/html" title="Jenkins - Multi-Destination CD pipeline with Terraform" /><published>2024-08-15T10:15:29+10:00</published><updated>2024-08-15T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"><![CDATA[<p><b>Jenkins CD Pipeline Design</b></p>
-
-<p>In last post, I was able to create a Jenkins Universal CI Pipeline to create blog docker image and push to DockerHub:</p>
-
-<p><a href="https://zackz.site/jekyll/cat2/2024/08/02/Jenkins-redo1-copy.html">Jenkins - Universal CI Pipeline with Ansible &amp; Terraform</a></p>
-
-<p>Now it is time to design the continuous deployment pipeline with Ansible and Terrofrm for infrustructure provision and application configration and deployment.</p>
-
-<ul>
-  <li>Continuous Deployment Consideration</li>
-</ul>
-
-<p>Continuous deployment will be more terraform focused. Starting Jenkins CD pipeline with single EC2 instance deployment for Blog website.  The pipeline can be reusable for multiple destinations in later design (EC2, ECS, EKS). At the moment, this EC2 deployment can be achieved via bellow folder structure:</p>
-
-<ol>
-  <li>Jenkins CD pipeline with muti-stage</li>
-  <li>Terraform to provision AWS EC2</li>
-  <li>Ansible to configure docker and deploy blog</li>
-  <li>Validate Web Blog Access:</li>
-  <li>Delete Terraform Resources</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Tree</span>
-terraform-ec2# tree
-<span class="nb">.</span>
-├── Jenkinsfile  <span class="c"># the CD pipeline file </span>
-├── deploy-docker-playbook.yml <span class="c"># the Ansible playbook for ec2 webblog deployment </span>
-├── hosts <span class="c"># the Ansible inventory file</span>
-├── main.tf <span class="c"># the terraform file to provison AWS EC2 </span>
-├── test-playbook.yaml <span class="c"># the playbook for Ansible testing and validation </span>
-└── variables.tf the terraform var file to provison AWS EC2 </code></pre></figure>
-
-<ul>
-  <li>The CD pipeline design</li>
-</ul>
-
-<p>This Jenkins CD (Continuous Deployment) pipeline covers the following task:</p>
-
-<ol>
-  <li>Jenkins Cred and Environment Setup</li>
-  <li>Check Installed Package Versions (AWSCli, Ansible, Terraform)</li>
-  <li>Validate Ansible and AWS credential</li>
-  <li>Run Terraform Initialization and Apply</li>
-  <li>Validate EC2 Readiness and then Deploy Docker Using Ansible</li>
-  <li>Validate Web Blog Access by extract EC2 public IP</li>
-  <li>Delete Terraform Resources</li>
-</ol>
-
-<p>Jenkinsfile</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#  Jenkinsfile</span>
-pipeline <span class="o">{</span>
-    agent any
-    environment <span class="o">{</span>
-        IMAGE_NAME <span class="o">=</span> <span class="s2">"zackz001/jenkins"</span>
-        IMAGE_TAG <span class="o">=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">env</span><span class="p">.BUILD_NUMBER</span><span class="k">}</span><span class="s2">"</span>
-        LATEST_TAG <span class="o">=</span> <span class="s2">"latest"</span>
-        EMAIL_RECIPIENT <span class="o">=</span> <span class="s2">"zhbsoftboy1@gmail.com"</span>
-        GIT_REPO_URL <span class="o">=</span> <span class="s1">'https://github.com/ZackZhouHB/zack-gitops-project.git'</span>  // Git repository URL
-        GIT_BRANCH <span class="o">=</span> <span class="s1">'jenkins-cd'</span>  // Git branch
-        DOCKERHUB_CREDENTIALS_ID <span class="o">=</span> <span class="s1">'dockerhub'</span> // Docker Hub credentials
-        REGION <span class="o">=</span> <span class="s1">'ap-southeast-2'</span>  // AWS region
-    <span class="o">}</span>
-    stages <span class="o">{</span>
-        stage<span class="o">(</span><span class="s1">'Clean Workspace'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                cleanWs<span class="o">()</span>
-            <span class="o">}</span>
-       <span class="o">}</span>
-        stage<span class="o">(</span><span class="s1">'Checkout Code'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                git branch: <span class="s2">"</span><span class="k">${</span><span class="nv">GIT_BRANCH</span><span class="k">}</span><span class="s2">"</span>,
-                    credentialsId: <span class="s1">'gittoken'</span>,
-                    url: <span class="s2">"</span><span class="k">${</span><span class="nv">GIT_REPO_URL</span><span class="k">}</span><span class="s2">"</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-        stage<span class="o">(</span><span class="s1">'Check Installed Package Versions'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                script <span class="o">{</span>
-                    try <span class="o">{</span>
-                        // Check Docker version
-                        sh <span class="s1">'''
-                            if command -v docker &gt;/dev/null 2&gt;&amp;1; then
-                                echo "Docker Version: $(docker --version)"
-                            else
-                                echo "Docker is not installed"
-                                exit 1
-                            fi
-                        '''</span>
-                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Error: Docker not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-
-                    try <span class="o">{</span>
-                        // Check Terraform version
-                        sh <span class="s1">'''
-                            if command -v terraform &gt;/dev/null 2&gt;&amp;1; then
-                                echo "Terraform Version: $(terraform -version)"
-                            else
-                                echo "Terraform is not installed"
-                                exit 1
-                            fi
-                        '''</span>
-                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Error: Terraform not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-
-                    try <span class="o">{</span>
-                        // Check Kubectl version
-                        sh <span class="s1">'''
-                            if command -v kubectl &gt;/dev/null 2&gt;&amp;1; then
-                                echo "Kubectl Version: $(kubectl version --client)"
-                            else
-                                echo "Kubectl is not installed"
-                                exit 1
-                            fi
-                        '''</span>
-                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Error: Kubectl not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-
-                    try <span class="o">{</span>
-                        // Check Trivy version
-                        sh <span class="s1">'''
-                            if command -v trivy &gt;/dev/null 2&gt;&amp;1; then
-                                echo "Trivy Version: $(trivy --version)"
-                            else
-                                echo "Trivy is not installed"
-                                exit 1
-                            fi
-                        '''</span>
-                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Error: Trivy not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-
-                    try <span class="o">{</span>
-                        // Check Ansible version
-                        sh <span class="s1">'''
-                            if command -v ansible &gt;/dev/null 2&gt;&amp;1; then
-                                echo "Ansible Version: $(ansible --version)"
-                            else
-                                echo "Ansible is not installed"
-                                exit 1
-                            fi
-                        '''</span>
-                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Error: Ansible not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-
-                    try <span class="o">{</span>
-                        // Check AWS CLI version
-                        sh <span class="s1">'''
-                            if command -v aws &gt;/dev/null 2&gt;&amp;1; then
-                                echo "AWS CLI Version: $(aws --version)"
-                            else
-                                echo "AWS CLI is not installed"
-                                exit 1
-                            fi
-                        '''</span>
-                    <span class="o">}</span> catch <span class="o">(</span>Exception e<span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Error: AWS CLI not found. </span><span class="k">${</span><span class="nv">e</span><span class="p">.message</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-        stage<span class="o">(</span><span class="s1">'Run a testing Ansible Playbook'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                script <span class="o">{</span>
-                    // Run the Ansible playbook using the hosts file from the repo
-                    sh <span class="s1">'''
-                        echo "Running Ansible playbook:"
-                        ansible-playbook -i "${WORKSPACE}/jenkins/terraform-ec2/hosts" "${WORKSPACE}/jenkins/terraform-ec2/test-playbook.yaml"
-                    '''</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-        stage<span class="o">(</span><span class="s1">'Verify AWS credential'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                withAWS<span class="o">(</span>credentials: <span class="s1">'aws'</span>, region: <span class="s1">'ap-southeast-2'</span><span class="o">)</span> <span class="o">{</span> // Replace with correct AWS credentials ID
-                    script <span class="o">{</span>
-                        // List all existing S3 buckets and output the result to the Jenkins console
-                        sh <span class="s1">'''
-                            echo "Listing all S3 buckets:"
-                            aws s3 ls
-                        '''</span>
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-        stage<span class="o">(</span><span class="s1">'Terraform Init and Apply'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
-                    sh <span class="s1">'''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        cd jenkins/terraform-ec2
-
-                        # Check if Terraform has been initialized
-                        if [ ! -d ".terraform" ]; then
-                            echo "Terraform not initialized. Running '</span>terraform init<span class="s1">'..."
-                            terraform init
-                        else
-                            echo "Terraform already initialized. Skipping '</span>terraform init<span class="s1">'."
-                        fi
-
-                        terraform apply -auto-approve -var "aws_region=${REGION}"
-                    '''</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-        // Stage to extract EC2 public IP
-        stage<span class="o">(</span><span class="s1">'Extract EC2 Public IP'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
-                    script <span class="o">{</span>
-                        def ec2Ip <span class="o">=</span> sh<span class="o">(</span>script: <span class="s1">'''
-                            cd jenkins/terraform-ec2
-                            terraform output -raw ec2_public_ip
-                        '''</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
-                        <span class="nb">echo</span> <span class="s2">"EC2 Public IP: </span><span class="k">${</span><span class="nv">ec2Ip</span><span class="k">}</span><span class="s2">"</span>
-                        // Set the environment variable <span class="k">for </span>the next stages explicitly
-                        env.EC2_PUBLIC_IP <span class="o">=</span> ec2Ip
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-
-        // <span class="k">**</span>Fix: Adding a small <span class="nb">sleep </span>to ensure <span class="nb">env </span>is populated<span class="k">**</span>
-        stage<span class="o">(</span><span class="s1">'Validate EC2 Public IP'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                script <span class="o">{</span>
-                    <span class="nb">sleep </span>2 // Ensure enough <span class="nb">time </span><span class="k">for </span>variable propagation
-                    <span class="k">if</span> <span class="o">(</span>env.EC2_PUBLIC_IP <span class="o">==</span> null <span class="o">||</span> env.EC2_PUBLIC_IP <span class="o">==</span> <span class="s2">""</span><span class="o">)</span> <span class="o">{</span>
-                        error <span class="s2">"EC2 Public IP is not available or failed to fetch."</span>
-                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"EC2 Public IP is successfully fetched: </span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-
-        // Wait <span class="k">for </span>EC2 Readiness <span class="o">(</span>SSH Validation<span class="o">)</span>
-        stage<span class="o">(</span><span class="s1">'Wait for EC2 Readiness'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                retry<span class="o">(</span>20<span class="o">)</span> <span class="o">{</span> // Retry up to 4 <span class="nb">times </span><span class="k">in case</span> EC2 is not immediately ready
-                    <span class="nb">sleep </span>2  // Wait <span class="k">for </span>a bit before checking readiness
-                    withCredentials<span class="o">([</span>sshUserPrivateKey<span class="o">(</span>credentialsId: <span class="s1">'sshkey'</span>, keyFileVariable: <span class="s1">'SSH_KEY'</span><span class="p">)</span><span class="o">])</span> <span class="o">{</span>
-                        script <span class="o">{</span>
-                            sh <span class="s2">"ssh -o StrictHostKeyChecking=no -i </span><span class="k">${</span><span class="nv">SSH_KEY</span><span class="k">}</span><span class="s2"> ubuntu@</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2"> 'echo EC2 is ready for deployment'"</span>
-                        <span class="o">}</span>
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-
-        // Deploy Docker using Ansible
-        stage<span class="o">(</span><span class="s1">'Deploy Docker with Ansible'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                withCredentials<span class="o">([</span>sshUserPrivateKey<span class="o">(</span>credentialsId: <span class="s1">'sshkey'</span>, keyFileVariable: <span class="s1">'SSH_KEY'</span><span class="o">)])</span> <span class="o">{</span>
-                    script <span class="o">{</span>
-                        sh <span class="s1">'''
-                            echo "Running Ansible Playbook for Docker Deployment..."
-                            ansible-playbook -i "${EC2_PUBLIC_IP}," "${WORKSPACE}/jenkins/terraform-ec2/deploy-docker-playbook.yml" \
-                            --user ubuntu \
-                            --private-key ${SSH_KEY} \
-                            --extra-vars "ansible_ssh_private_key_file=${SSH_KEY} ec2_ip=${EC2_PUBLIC_IP}"
-                        '''</span>
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-        // New stage: Validate web blog accessibility
-        stage<span class="o">(</span><span class="s1">'Validate Web Blog Access'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                script <span class="o">{</span>
-                    <span class="nb">echo</span> <span class="s2">"Validating web blog access via http://</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">..."</span>
-
-                    // Use curl to validate HTTP response from the web blog
-                    def response <span class="o">=</span> sh<span class="o">(</span>script: <span class="s2">"curl -o /dev/null -s -w '%{http_code}' http://</span><span class="k">${</span><span class="nv">env</span><span class="p">.EC2_PUBLIC_IP</span><span class="k">}</span><span class="s2">"</span>, returnStdout: <span class="nb">true</span><span class="o">)</span>.trim<span class="o">()</span>
-
-                    <span class="k">if</span> <span class="o">(</span>response <span class="o">==</span> <span class="s1">'200'</span><span class="o">)</span> <span class="o">{</span>
-                        <span class="nb">echo</span> <span class="s2">"Web blog is accessible and returned HTTP status code 200."</span>
-                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-                        error <span class="s2">"Web blog is not accessible. HTTP status code: </span><span class="k">${</span><span class="nv">response</span><span class="k">}</span><span class="s2">"</span>
-                    <span class="o">}</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span> 
-        stage<span class="o">(</span><span class="s1">'delete terraform resource'</span><span class="o">)</span> <span class="o">{</span>
-            steps <span class="o">{</span>
-                withCredentials<span class="o">([[</span><span class="nv">$class</span>: <span class="s1">'AmazonWebServicesCredentialsBinding'</span>, credentialsId: <span class="s1">'aws'</span><span class="o">]])</span> <span class="o">{</span>
-                    sh <span class="s1">'''
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        cd jenkins/terraform-ec2
-
-                        # Check if Terraform has been initialized
-                        if [ ! -d ".terraform" ]; then
-                            echo "Terraform not initialized. Running '</span>terraform init<span class="s1">'..."
-                            terraform init
-                        else
-                            echo "Terraform already initialized. Skipping '</span>terraform init<span class="s1">'."
-                        fi
-
-                        terraform destroy -auto-approve -var "aws_region=${REGION}"
-                    '''</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>                   
-    <span class="o">}</span>
-    post <span class="o">{</span>
-        success <span class="o">{</span>
-            <span class="nb">echo</span> <span class="s2">"Pipeline completed successfully."</span>
-        <span class="o">}</span>
-        failure <span class="o">{</span>
-            <span class="nb">echo</span> <span class="s2">"Pipeline failed."</span>
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">}</span></code></pre></figure>
-
-<p>Terraform main.tf</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Terraform main.tf</span>
-
-provider <span class="s2">"aws"</span> <span class="o">{</span>
-  region <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
-<span class="o">}</span>
-
-terraform <span class="o">{</span>
-  backend <span class="s2">"s3"</span> <span class="o">{</span>
-    bucket         <span class="o">=</span> <span class="s2">"zz-lambda-tag"</span>
-    key            <span class="o">=</span> <span class="s2">"terraform/state/terraform.tfstate"</span>
-    region         <span class="o">=</span> <span class="s2">"ap-southeast-2"</span>
-    encrypt        <span class="o">=</span> <span class="nb">true</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># Security Group Data</span>
-data <span class="s2">"aws_security_group"</span> <span class="s2">"existing_sg"</span> <span class="o">{</span>
-  filter <span class="o">{</span>
-    name   <span class="o">=</span> <span class="s2">"group-name"</span>
-    values <span class="o">=</span> <span class="o">[</span><span class="s2">"launch-wizard-1"</span><span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># Key Pair Data</span>
-data <span class="s2">"aws_key_pair"</span> <span class="s2">"existing_key"</span> <span class="o">{</span>
-  key_name <span class="o">=</span> <span class="s2">"zzzzzzzzzzzz"</span>
-<span class="o">}</span>
-
-<span class="c"># EC2 Instance Definition</span>
-resource <span class="s2">"aws_instance"</span> <span class="s2">"web"</span> <span class="o">{</span>
-  ami           <span class="o">=</span> <span class="s2">"ami-040e71e7b8391cae4"</span> <span class="c"># Choose AMI</span>
-  instance_type <span class="o">=</span> <span class="s2">"t2.micro"</span>
-  key_name      <span class="o">=</span> data.aws_key_pair.existing_key.key_name
-  security_groups <span class="o">=</span> <span class="o">[</span>
-    data.aws_security_group.existing_sg.name
-  <span class="o">]</span>
-
-  tags <span class="o">=</span> <span class="o">{</span>
-    Name <span class="o">=</span> <span class="s2">"Jenkins-EC2"</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># Output EC2 Public IP</span>
-output <span class="s2">"ec2_public_ip"</span> <span class="o">{</span>
-  value <span class="o">=</span> aws_instance.web.public_ip
-<span class="o">}</span></code></pre></figure>
-
-<p>Ansible Playbook deploy-docker-playbook.yml</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Ansible Playbook for EC2 web blog deployment</span>
-<span class="nt">---</span>
-- hosts: all
-  become: <span class="nb">yes
-  </span>tasks:
-  
-    - name: Check <span class="k">if </span>Docker is already installed
-      <span class="nb">command</span>: docker <span class="nt">--version</span>
-      register: docker_installed
-      ignore_errors: <span class="nb">yes
-      </span>changed_when: <span class="nb">false</span>
-
-    - name: Install required packages <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
-      apt:
-        name: 
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-        state: present
-        update_cache: <span class="nb">yes
-      </span>when: docker_installed.rc <span class="o">!=</span> 0
-
-    - name: Add Docker<span class="s1">'s official GPG key (if Docker is not installed)
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-      when: docker_installed.rc != 0
-
-    - name: Add Docker'</span>s official APT repository <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
-      apt_repository:
-        repo: deb <span class="o">[</span><span class="nb">arch</span><span class="o">=</span>amd64] https://download.docker.com/linux/ubuntu  stable
-        state: present
-      when: docker_installed.rc <span class="o">!=</span> 0
-
-    - name: Update APT cache <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
-      apt:
-        update_cache: <span class="nb">yes
-      </span>when: docker_installed.rc <span class="o">!=</span> 0
-
-    - name: Install Docker CE <span class="o">(</span><span class="k">if </span>Docker is not installed<span class="o">)</span>
-      apt:
-        name: docker-ce
-        state: present
-        update_cache: <span class="nb">yes
-      </span>when: docker_installed.rc <span class="o">!=</span> 0
-
-    - name: Start and <span class="nb">enable </span>Docker service
-      systemd:
-        name: docker
-        enabled: <span class="nb">yes
-        </span>state: started
-
-    - name: Stop all running containers
-      shell: docker stop <span class="si">$(</span>docker ps <span class="nt">-q</span><span class="si">)</span>
-      ignore_errors: <span class="nb">true
-      </span>register: stopped_containers
-
-    - name: Remove all stopped containers
-      shell: docker <span class="nb">rm</span> <span class="si">$(</span>docker ps <span class="nt">-a</span> <span class="nt">-q</span><span class="si">)</span>
-      when: stopped_containers.rc <span class="o">==</span> 0
-      ignore_errors: <span class="nb">true</span>
-
-    - name: Pull Docker image
-      docker_image:
-        name: zackz001/gitops-jekyll
-        tag: latest
-        <span class="nb">source</span>: pull
-
-    - name: Run Docker container
-      docker_container:
-        name: zackblog
-        image: zackz001/gitops-jekyll:latest
-        state: started
-        restart_policy: unless-stopped
-        published_ports:
-          - <span class="s2">"80:80"</span></code></pre></figure>
-
-<ul>
-  <li>Pipeline debug and testing</li>
-</ul>
-
-<p>After thorough testing and validation, the CD pipeline also works like a charm.</p>
-
-<p><img src="/assets/jenkins2.png" alt="image tooltip here" /></p>
-
-<p><b>Terraform Modularization for Multi-Destination Deployment</b></p>
-
-<p>The folder structure bellow is designed to organize Infrastructure as Code (IaC) using Terraform, breaking down the configuration into reusable modules for ECS, EKS, and EC2 deployments, along with different environments (production, stage, etc.). So The Jenkins reusable CD pipeline can manage multi-destination deployments based on this structure.</p>
-
-<ol>
-  <li>Single EC2 deployment</li>
-  <li>Single ECS deployment</li>
-  <li>Terraform ECS Module with multi-environment deployment (production and stage)</li>
-  <li>Terraform single EKS deployment</li>
-  <li>Terraform EKS Module with multi-environment deployment (production and stage)</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~/zack-gitops-project/jenkins# tree
-
-├── terraform-ec2
-│   ├── Jenkinsfile
-│   ├── deploy-docker-playbook.yml
-│   ├── hosts
-│   ├── main.tf
-│   ├── test-playbook.yaml
-│   └── variables.tf
-
-├── module-ecs-cluster
-│   ├── Jenkinsfile
-│   ├── main.tf
-│   ├── modules
-│   │   ├── alb
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── ecs_cluster
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── ecs_service
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── iam
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   ├── security_groups
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   └── variables.tf
-│   │   └── task_definition
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       └── variables.tf
-│   ├── outputs.tf
-│   ├── terraform.tfstate
-│   ├── terraform.tfstate.backup
-│   ├── terraform.tfvars
-│   └── variables.tf
-
-├── module-ecs-env
-│   ├── environments
-│   │   ├── production
-│   │   │   ├── Jenkinsfile
-│   │   │   ├── backend.tf
-│   │   │   ├── main.tf
-│   │   │   ├── outputs.tf
-│   │   │   ├── terraform.tfvars
-│   │   │   └── variables.tf
-│   │   └── stage
-│   │       ├── Jenkinsfile
-│   │       ├── backend.tf
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       ├── terraform.tfvars
-│   │       └── variables.tf
-│   └── modules
-│       ├── alb
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── ecs_cluster
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── ecs_service
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── iam
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       ├── security_groups
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       └── task_definition
-│           ├── main.tf
-│           ├── outputs.tf
-│           └── variables.tf
-
-└── terraform-eks
-    ├── Jenkinsfile
-    ├── argo-setup.sh
-    ├── backend.tf
-    ├── deployment.yaml
-    ├── iam.tf
-    ├── main.tf
-    ├── output.tf
-    ├── terraform.tfvars
-    └── variables.tf
-
-├── module-eks-env
-│   ├── environments
-│   │   ├── prod
-│   │   │   ├── backend.tf
-│   │   │   ├── main.tf
-│   │   │   ├── output.tf
-│   │   │   ├── provider.tf
-│   │   │   └── variables.tf
-│   │   └── stage
-│   │       ├── backend.tf
-│   │       ├── main.tf
-│   │       ├── output.tf
-│   │       ├── provider.tf
-│   │       └── variables.tf
-│   └── modules
-│       └── eks
-│           ├── main.tf
-│           ├── output.tf
-│           └── variables.tf</code></pre></figure>
-
-<p><img src="/assets/jenkins3.png" alt="image tooltip here" /></p>
-
-<p><b>Conclusion</b></p>
-
-<p>Using Terraform and Jenkins practices enables efficient management of complex, multi-environment, and multi-service deployments, which are crucial for cloud-native CI/CD processes to achieve:</p>
-
-<ol>
-  <li>
-    <p>Version Control: Allows tracking and managing infrastructure changes across different environments.</p>
-  </li>
-  <li>
-    <p>Multi-Destination Deployment with Jenkins: Enables dynamic deployments to different environments (e.g., production, stage) by passing environment-specific parameters in the pipeline.</p>
-  </li>
-  <li>
-    <p>Environment Separation: Each environment (production, stage) has its own Terraform configuration, ensuring proper isolation and customization.</p>
-  </li>
-  <li>
-    <p>Terraform Modules Reusability: Reusable modules for infrastructure components (ECS, EKS, etc.) reduce code duplication and simplify updates.</p>
-  </li>
-  <li>
-    <p>Multi-Environment and Multi-Component Deployment: Jenkins pipelines can deploy multiple services and environments concurrently by leveraging modular infrastructure and dynamic inputs.</p>
-  </li>
-</ol>
-
-<p><b>Jenkins Recap Summary</b></p>
-
-<p>Over this recap for Jenkins, I believe I had achieved :</p>
-
-<ul>
-  <li>
-    <p><b>Multi-Stage, Multi-Environment Pipelines: </b>
-These handle conditional execution using when blocks, try-catch for error handling, and post sections for notifications and cleanup.</p>
-  </li>
-  <li>
-    <p><b>Integration with IaC Tools: </b>
-Seamlessly provisions AWS resources using Terraform or CloudFormation within the pipeline.</p>
-  </li>
-  <li>
-    <p><b>Security and Compliance: </b>
-Integrates tools like Snyk, Trivy, and SonarQube to perform vulnerability scanning and code quality checks during the build.</p>
-  </li>
-  <li>
-    <p><b>Secret Management: </b>
-Securely manages sensitive data using AWS Secrets Manager, HashiCorp Vault, or Jenkins credentials plugin.</p>
-  </li>
-  <li>
-    <p><b>Real-World Automation: </b>
-Solves complex problems and improves efficiency, reducing build times and increasing deployment reliability.</p>
-  </li>
-</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Jenkins CD Pipeline Design]]></summary></entry></feed>
+<p>By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS]]></summary></entry></feed>
