@@ -1,0 +1,33 @@
+---
+layout: post
+title:  "MLOps - Move local Ollama and Open WebUI to EKS"
+date:   2025-01-19 11:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue Local MLOPS Project </b>
+
+
+
+`Ollama` is a desktop application designed to run and interact with large language models (LLMs) locally on a machine. It provides an easy interface for downloading, managing, and using various LLMs, ensuring privacy and local execution.
+
+
+<b>Get Started</b>
+
+Since I already have WSL, Nvidia Drviers, CUDA, Python, Docker Desktop ready by following the previous MLOPS posts, In order to have the docker container can access GPU, I still need `nvidia-container-toolkit` to be installed
+
+{% highlight shell %}
+
+
+{% endhighlight %}
+
+
+
+
+![image tooltip here](/assets/mlops03-5.png)
+
+
+
+
+<b>Conclusion</b>
+

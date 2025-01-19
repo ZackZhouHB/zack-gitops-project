@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stateless
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: stateless
+  template:
+    metadata:
+      labels:
+        app: stateless
+    spec:
+      nodeSelector:
+        intent: apps
+        karpenter.sh/capacity-type: spot
+      containers:
+      - image: public.ecr.aws/eks-distro/kubernetes/pause:v1.29.0-eks-1-29-latest
+        name: app
+        resources:
+          requests:
+            cpu: 512m
+            memory: 512Mi
