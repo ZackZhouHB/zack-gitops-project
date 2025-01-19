@@ -5,16 +5,113 @@ date:   2025-01-19 11:18:29 +1100
 categories: jekyll Cat2
 ---
 
-<b>Continue Local MLOPS Project </b>
+<b>Continue MLOPS project by moving to EKS</b>
+
+After those local deployment and EKS Karpenter practicem I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:
+
+- Key Components to Migrate:
 
 
+1. Ollama server with GPU support
 
-`Ollama` is a desktop application designed to run and interact with large language models (LLMs) locally on a machine. It provides an easy interface for downloading, managing, and using various LLMs, ensuring privacy and local execution.
+2. Open WebUI frontend
+
+3. Persistent storage for knowledge base
+
+4. Model storage and management
+
+- EKS-Specific Requirements:
+
+1. GPU-enabled node groups (which you already have set up with Karpenter)
+
+2. Persistent storage using EBS CSI driver (already configured in your EKS setup)
+
+3. Container optimization for Kubernetes environment
+
+
+- Implementation Steps:
+
+1. Containerization:
+
+   - Modify Ollama container for k8s compatibility
+
+   - Adapt Open WebUI container for k8s
+
+   - Create Kubernetes manifests (Deployments, Services, ConfigMaps)
+
+2. Storage:
+
+   - Use EBS for model persistence
+
+   - Set up PersistentVolumes for knowledge base data
+
+   - Configure volume mounts for both Ollama and WebUI
+
+3. GPU Access:
+
+   - Use node selectors/tolerations for GPU nodes
+
+   - Configure Karpenter to provision GPU instances
+
+   - Set up NVIDIA device plugin
+
+4. Networking:
+
+   - Internal Service for Ollama API
+
+   - LoadBalancer/Ingress for WebUI access
+
+   - Configure proper security groups
+
+Key Considerations:
+
+Resource Management:
+
+{% highlight yaml %}
+  requests:
+    nvidia.com/gpu: "1"
+  limits:
+    nvidia.com/gpu: "1"
+{% endhighlight %}
+
+Scaling Strategy:
+
+{% highlight yaml %}
+- Configure Karpenter for GPU node scaling
+- Set resource quotas for model management
+{% endhighlight %}
+
+
+Advantages of EKS Deployment:
+
+
+Better scalability through Karpenter
+
+Improved high availability
+
+Centralized management
+
+Easier integration with other AWS services
+
+Better monitoring and logging capabilities
+
+
+Potential Challenges:
+
+
+GPU resource management at scale
+
+Model synchronization across pods
+
+Storage performance optimization
+
+Network latency between components
+
 
 
 <b>Get Started</b>
 
-Since I already have WSL, Nvidia Drviers, CUDA, Python, Docker Desktop ready by following the previous MLOPS posts, In order to have the docker container can access GPU, I still need `nvidia-container-toolkit` to be installed
+
 
 {% highlight shell %}
 

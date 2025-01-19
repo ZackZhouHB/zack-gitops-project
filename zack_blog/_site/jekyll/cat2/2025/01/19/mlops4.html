@@ -7,8 +7,8 @@
 <meta name="generator" content="Jekyll v4.3.2" />
 <meta property="og:title" content="MLOps - Move local Ollama and Open WebUI to EKS" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Continue Local MLOPS Project" />
-<meta property="og:description" content="Continue Local MLOPS Project" />
+<meta name="description" content="Continue MLOPS project by moving to EKS" />
+<meta property="og:description" content="Continue MLOPS project by moving to EKS" />
 <link rel="canonical" href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html" />
 <meta property="og:url" content="http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="MLOps - Move local Ollama and Open WebUI to EKS" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-01-19T11:18:29+11:00","datePublished":"2025-01-19T11:18:29+11:00","description":"Continue Local MLOPS Project","headline":"MLOps - Move local Ollama and Open WebUI to EKS","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html"},"url":"http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-01-19T11:18:29+11:00","datePublished":"2025-01-19T11:18:29+11:00","description":"Continue MLOPS project by moving to EKS","headline":"MLOps - Move local Ollama and Open WebUI to EKS","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html"},"url":"http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -47,13 +47,149 @@
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p><b>Continue Local MLOPS Project </b></p>
+    <p><b>Continue MLOPS project by moving to EKS</b></p>
 
-<p><code class="language-plaintext highlighter-rouge">Ollama</code> is a desktop application designed to run and interact with large language models (LLMs) locally on a machine. It provides an easy interface for downloading, managing, and using various LLMs, ensuring privacy and local execution.</p>
+<p>After those local deployment and EKS Karpenter practicem I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:</p>
+
+<ul>
+  <li>Key Components to Migrate:</li>
+</ul>
+
+<ol>
+  <li>
+    <p>Ollama server with GPU support</p>
+  </li>
+  <li>
+    <p>Open WebUI frontend</p>
+  </li>
+  <li>
+    <p>Persistent storage for knowledge base</p>
+  </li>
+  <li>
+    <p>Model storage and management</p>
+  </li>
+</ol>
+
+<ul>
+  <li>EKS-Specific Requirements:</li>
+</ul>
+
+<ol>
+  <li>
+    <p>GPU-enabled node groups (which you already have set up with Karpenter)</p>
+  </li>
+  <li>
+    <p>Persistent storage using EBS CSI driver (already configured in your EKS setup)</p>
+  </li>
+  <li>
+    <p>Container optimization for Kubernetes environment</p>
+  </li>
+</ol>
+
+<ul>
+  <li>Implementation Steps:</li>
+</ul>
+
+<ol>
+  <li>
+    <p>Containerization:</p>
+
+    <ul>
+      <li>
+        <p>Modify Ollama container for k8s compatibility</p>
+      </li>
+      <li>
+        <p>Adapt Open WebUI container for k8s</p>
+      </li>
+      <li>
+        <p>Create Kubernetes manifests (Deployments, Services, ConfigMaps)</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Storage:</p>
+
+    <ul>
+      <li>
+        <p>Use EBS for model persistence</p>
+      </li>
+      <li>
+        <p>Set up PersistentVolumes for knowledge base data</p>
+      </li>
+      <li>
+        <p>Configure volume mounts for both Ollama and WebUI</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>GPU Access:</p>
+
+    <ul>
+      <li>
+        <p>Use node selectors/tolerations for GPU nodes</p>
+      </li>
+      <li>
+        <p>Configure Karpenter to provision GPU instances</p>
+      </li>
+      <li>
+        <p>Set up NVIDIA device plugin</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Networking:</p>
+
+    <ul>
+      <li>
+        <p>Internal Service for Ollama API</p>
+      </li>
+      <li>
+        <p>LoadBalancer/Ingress for WebUI access</p>
+      </li>
+      <li>
+        <p>Configure proper security groups</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>Key Considerations:</p>
+
+<p>Resource Management:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml">  <span class="na">requests</span><span class="pi">:</span>
+    <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span>
+  <span class="na">limits</span><span class="pi">:</span>
+    <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span></code></pre></figure>
+
+<p>Scaling Strategy:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="pi">-</span> <span class="s">Configure Karpenter for GPU node scaling</span>
+<span class="pi">-</span> <span class="s">Set resource quotas for model management</span></code></pre></figure>
+
+<p>Advantages of EKS Deployment:</p>
+
+<p>Better scalability through Karpenter</p>
+
+<p>Improved high availability</p>
+
+<p>Centralized management</p>
+
+<p>Easier integration with other AWS services</p>
+
+<p>Better monitoring and logging capabilities</p>
+
+<p>Potential Challenges:</p>
+
+<p>GPU resource management at scale</p>
+
+<p>Model synchronization across pods</p>
+
+<p>Storage performance optimization</p>
+
+<p>Network latency between components</p>
 
 <p><b>Get Started</b></p>
-
-<p>Since I already have WSL, Nvidia Drviers, CUDA, Python, Docker Desktop ready by following the previous MLOPS posts, In order to have the docker container can access GPU, I still need <code class="language-plaintext highlighter-rouge">nvidia-container-toolkit</code> to be installed</p>
 
 <p><img src="/assets/mlops03-5.png" alt="image tooltip here" /></p>
 

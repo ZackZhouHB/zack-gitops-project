@@ -239,18 +239,18 @@ Start a dialogue and choose `llama3:8b` model, use the knowledge base collection
 
 <b>Conclusion</b>
 
-Now I have successfully built a local Knowledge Base (KB) using Ollama and Open WebUI. Here's a very brief summary:
+Now I have successfully built a local Knowledge Base (KB) using Ollama and Open WebUI. Here's a brief summary of what I achieved:
 
-- What I Did and Achieved:
+- Set up GPU-enabled Docker/WSL environment.
 
-Set up GPU-enabled Docker/WSL environment.
+- Installed Ollama to run LLMs locally as a server.
 
-Installed Ollama to run LLMs locally as a server.
+- Installed Open WebUI for a web-based interface to interact with LLMs.
 
-Installed Open WebUI for a web-based interface to interact with LLMs.
+- Configured the system to enable Retrieval Augmented Generation (RAG) with Docker volumes for persistence.
 
-Configured the system to enable Retrieval Augmented Generation (RAG) with Docker volumes for persistence.
+- Created a local RAG system capable of querying knowledge from aged tech docs and Zack blog posts.
 
-Created a local RAG system capable of querying knowledge from aged tech docs and Zack blog posts.
+- Demonstrated effective model comparisons and knowledge-based querying through a user-friendly web interface.
 
-Demonstrated effective model comparisons and knowledge-based querying through a user-friendly web interface.
+Next step I will seek for cloud deployment to leverage with cloud GPU and scaling capability to deploy and further automate the implementation.
