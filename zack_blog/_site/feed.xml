@@ -1,4 +1,267 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-11-22T13:37:19+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-20T09:18:09+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Build a local KB with Ollama and Open WebUI</title><link href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html" rel="alternate" type="text/html" title="MLOps - Build a local KB with Ollama and Open WebUI" /><published>2025-01-19T11:15:29+11:00</published><updated>2025-01-19T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/19/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html"><![CDATA[<p><b>Continue Local MLOPS Project </b></p>
+
+<p>In this post, I want to build a local Knowledge Base using WSL, Docker, Ollama and Open WebUI.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Ollama</code> is a desktop application designed to run and interact with large language models (LLMs) locally on a machine. It provides an easy interface for downloading, managing, and using various LLMs, ensuring privacy and local execution.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Open WebUI</code> is a web-based user interface for interacting with AI models. It is often used in conjunction with locally hosted or remote LLMs, providing a customizable and user-friendly platform to input queries and manage model interactions.</p>
+
+<p>Here is what I am going to build:</p>
+
+<ul>
+  <li>
+    <p>A local RAG (Retrieval Augmented Generation) system</p>
+  </li>
+  <li>
+    <p>Using Ollama as the LLM server</p>
+  </li>
+  <li>
+    <p>Open WebUI as the frontend interface</p>
+  </li>
+  <li>
+    <p>Running everything through Docker/WSL</p>
+  </li>
+  <li>
+    <p>Build Knowledge base from some aged tech docs and Zack blogs</p>
+  </li>
+  <li>
+    <p>Query KB from the web interface with prompt</p>
+  </li>
+</ul>
+
+<p><b>Get Started</b></p>
+
+<p>Since I already have WSL, Nvidia Drviers, CUDA, Python, Docker Desktop ready by following the previous MLOPS posts, In order to have the docker container can access GPU, I still need <code class="language-plaintext highlighter-rouge">nvidia-container-toolkit</code> to be installed</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># a script to install nvidia-container-toolkit</span>
+
+<span class="c"># Add NVIDIA GPG key and repository</span>
+<span class="nv">distribution</span><span class="o">=</span><span class="si">$(</span><span class="nb">.</span> /etc/os-release<span class="p">;</span><span class="nb">echo</span> <span class="nv">$ID$VERSION_ID</span><span class="si">)</span>
+curl <span class="nt">-fsSL</span> https://nvidia.github.io/libnvidia-container/gpgkey | <span class="nb">sudo </span>gpg <span class="nt">--dearmor</span> <span class="nt">-o</span> /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl <span class="nt">-s</span> <span class="nt">-L</span> https://nvidia.github.io/libnvidia-container/<span class="nv">$distribution</span>/libnvidia-container.list | <span class="se">\</span>
+    <span class="nb">sed</span> <span class="s1">'s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g'</span> | <span class="se">\</span>
+    <span class="nb">sudo tee</span> /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+<span class="c"># Install the toolkit</span>
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install</span> <span class="nt">-y</span> nvidia-container-toolkit
+<span class="nb">sudo </span>nvidia-ctk runtime configure <span class="nt">--runtime</span><span class="o">=</span>docker
+<span class="nb">sudo </span>systemctl restart docker
+
+<span class="c"># verity docker container can access GPU</span>
+
+docker run <span class="nt">--rm</span> <span class="nt">--gpus</span> all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi
+Sun Jan 19 21:31:15 2025
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.02              Driver Version: 560.94         CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|<span class="o">=========================================</span>+<span class="o">========================</span>+<span class="o">======================</span>|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  |   00000000:01:00.0  On |                  N/A |
+|  0%   52C    P8             17W /  186W |    1847MiB /   8192MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|<span class="o">=========================================================================================</span>|
+|    0   N/A  N/A        27      G   /Xwayland                                   N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                   N/A      |
++-----------------------------------------------------------------------------------------+</code></pre></figure>
+
+<p><b>Install Ollama and Open WebUI</b></p>
+
+<ul>
+  <li>Follow <code class="language-plaintext highlighter-rouge">Ollama</code> website, run bellow script to install Ollama server.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Install and run Ollama</span>
+
+root@zackz:/mnt/f/ml-local# curl <span class="nt">-fsSL</span> https://ollama.com/install.sh | sh
+<span class="o">&gt;&gt;&gt;</span> Installing ollama to /usr/local
+<span class="o">&gt;&gt;&gt;</span> Downloading Linux amd64 bundle
+<span class="c">######################################################################## 100.0%</span>
+<span class="o">&gt;&gt;&gt;</span> Creating ollama user...
+<span class="o">&gt;&gt;&gt;</span> Adding ollama user to render group...
+<span class="o">&gt;&gt;&gt;</span> Adding ollama user to video group...
+<span class="o">&gt;&gt;&gt;</span> Adding current user to ollama group...
+<span class="o">&gt;&gt;&gt;</span> Creating ollama systemd service...
+<span class="o">&gt;&gt;&gt;</span> Enabling and starting ollama service...
+Created symlink /etc/systemd/system/default.target.wants/ollama.service → /etc/systemd/system/ollama.service.
+<span class="o">&gt;&gt;&gt;</span> Nvidia GPU detected.
+<span class="o">&gt;&gt;&gt;</span> The Ollama API is now available at 127.0.0.1:11434.
+<span class="o">&gt;&gt;&gt;</span> Install complete. Run <span class="s2">"ollama"</span> from the <span class="nb">command </span>line.
+
+<span class="c"># verify ollama installed</span>
+root@zackz:/mnt/f/ml-local# ollama
+Usage:
+  ollama <span class="o">[</span>flags]
+  ollama <span class="o">[</span><span class="nb">command</span><span class="o">]</span>
+
+Available Commands:
+  serve       Start ollama
+  create      Create a model from a Modelfile
+  show        Show information <span class="k">for </span>a model
+  run         Run a model
+  stop        Stop a running model
+  pull        Pull a model from a registry
+  push        Push a model to a registry
+  list        List models
+  ps          List running models
+  <span class="nb">cp          </span>Copy a model
+  <span class="nb">rm          </span>Remove a model
+  <span class="nb">help        </span>Help about any <span class="nb">command
+
+</span>Flags:
+  <span class="nt">-h</span>, <span class="nt">--help</span>      <span class="nb">help </span><span class="k">for </span>ollama
+  <span class="nt">-v</span>, <span class="nt">--version</span>   Show version information
+
+Use <span class="s2">"ollama [command] --help"</span> <span class="k">for </span>more information about a command.
+
+<span class="c"># pull and run ollama models</span>
+root@zackz:/mnt/f/ml-local# ollama run mistral
+pulling manifest
+pulling ff82381e2bea... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏ 4.1 GB
+pulling 43070e2d4e53... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏  11 KB
+pulling 491dfa501e59... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏  801 B
+pulling ed11eda7790d... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏   30 B
+pulling 42347cd80dc8... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏  485 B
+verifying sha256 digest
+writing manifest
+success
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">who </span>is the australia open men<span class="s1">'s single champain in year 2020
+ The Australia Open Men'</span>s Singles champion <span class="k">for </span>the year 2020 was Novak Djokovic from Serbia. He defeated Dominic Thiem of Austria <span class="k">in </span>a thrilling
+five-set final. It was Djokovic<span class="s1">'s record-extending eighth Australian Open title and his 17th Grand Slam singles championship overall. The
+tournament took place from January 20 to February 2, 2020, at Melbourne Park in Melbourne, Australia.
+
+&gt;&gt;&gt; Send a message (/? for help)
+
+# list running models
+root@zackz:/mnt/f/ml-local# ollama list
+NAME              ID              SIZE      MODIFIED
+llama3:8b         365c0bd3c000    4.7 GB    6 minutes ago
+qwen:7b           2091ee8c8d8f    4.5 GB    14 minutes ago
+mistral:latest    f974a74358d6    4.1 GB    28 minutes ago</span></code></pre></figure>
+
+<ul>
+  <li>Follow <code class="language-plaintext highlighter-rouge">Open WebUI</code> Github, install Open WebUI using docker, by confituring ollama API URL and docker persistent volume, Open WebUI will show the models running within Ollama, all the configuration and dialogue history data also can be persist after server and application restart.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># create persistent volume for webui-data, run docker </span>
+
+root@zackz:/mnt/f/ml-local# <span class="nb">mkdir</span> <span class="nt">-p</span> webui-data
+root@zackz:~# docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">-p</span> 3000:8080 <span class="se">\</span>
+  <span class="nt">--add-host</span><span class="o">=</span>host.docker.internal:host-gateway <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">OLLAMA_API_BASE_URL</span><span class="o">=</span>http://host.docker.internal:11434/api <span class="se">\</span>
+  <span class="nt">--name</span> open-webui <span class="se">\</span>
+  <span class="nt">--restart</span> always <span class="se">\</span>
+  ghcr.io/open-webui/open-webui:main
+
+<span class="c"># verify container status</span>
+root@zackz:/mnt/f/ml-local# docker ps
+CONTAINER ID   IMAGE                                  COMMAND           CREATED         STATUS                   PORTS                    NAMES
+5e7e2e63a4e1   ghcr.io/open-webui/open-webui:main   <span class="s2">"bash start.sh"</span>   4 minutes ago   Up 4 minutes <span class="o">(</span>healthy<span class="o">)</span>   0.0.0.0:3000-&gt;8080/tcp   open-webui
+
+<span class="c"># verify from open-webui log</span>
+root@zackz:/mnt/f/ml-local#  docker logs open-webui
+
+  ___                    __        __   _     _   _ ___
+ / _ <span class="se">\ </span>_ __   ___ _ __   <span class="se">\ \ </span>     / /__| |__ | | | |_ _|
+| | | | <span class="s1">'_ \ / _ \ '</span>_ <span class="se">\ </span>  <span class="se">\ \ </span>/<span class="se">\ </span>/ / _ <span class="se">\ </span><span class="s1">'_ \| | | || |
+| |_| | |_) |  __/ | | |   \ V  V /  __/ |_) | |_| || |
+ \___/| .__/ \___|_| |_|    \_/\_/ \___|_.__/ \___/|___|
+      |_|
+
+
+v0.5.4 - building the best open-source AI user interface.
+
+https://github.com/open-webui/open-webui
+
+Fetching 30 files: 100%|██████████| 30/30 [01:21&lt;00:00,  2.73s/it]
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     172.17.0.1:59432 - "GET /static/splash.png HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59432 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59430 - "GET /static/favicon.png HTTP/1.1" 200 OK
+INFO:     ('</span>172.17.0.1<span class="s1">', 59438) - "WebSocket /ws/socket.io/?EIO=4&amp;transport=websocket" [accepted]
+INFO:     connection open</span></code></pre></figure>
+
+<ul>
+  <li>Open web browser and navigate to <code class="language-plaintext highlighter-rouge">http://localhost:3000/</code> to access Open WebUI. First time access, you will be prompted to create a new admin account.</li>
+</ul>
+
+<p><img src="/assets/mlops03-1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Check modules available from frontend webui:</li>
+</ul>
+
+<p><img src="/assets/mlops03-2.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Start a dialogue to compare 3 modles <code class="language-plaintext highlighter-rouge">qwen:7b</code>, <code class="language-plaintext highlighter-rouge">llama3:8b</code> and <code class="language-plaintext highlighter-rouge">mistral</code>, obviouly <code class="language-plaintext highlighter-rouge">llama3:8b</code> is better then the other 2 models.</li>
+</ul>
+
+<p><img src="/assets/mlops03-3.png" alt="image tooltip here" /></p>
+
+<p><b>Build knowledge base collections</b></p>
+
+<p>Building knowledge base collections in Open WebUI typically involves organizing, indexing, and embedding relevant data so that it can be queried effectively by the LLM.</p>
+
+<ul>
+  <li>Prepare Source Data</li>
+</ul>
+
+<p>I have some aged Linux, VMware and Windows admin docs in my computer with Microsoft word format, I will use them to build some testing knowledge base collections, then I will upload the recent Zack bolg posts withas Markdown format as well, so from the dialogue it can be easier indexing and retrieval.</p>
+
+<p><img src="/assets/mlops03-4.png" alt="image tooltip here" /></p>
+
+<p><img src="/assets/mlops03-5.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Enable Retrieval Features and Test Knowledge Base
+Configure Open WebUI to use the knowledge base during interactions. This involve enabling a retrieval-augmented generation (RAG) feature or linking the embeddings to the model.</li>
+</ul>
+
+<p>Using <code class="language-plaintext highlighter-rouge">#</code> in the beginning of the prompt to enable RAG feature, choose the knowledge collection from the collections we built earlier.</p>
+
+<p><img src="/assets/mlops03-8.png" alt="image tooltip here" /></p>
+
+<p>Start a dialogue and choose <code class="language-plaintext highlighter-rouge">llama3:8b</code> model, use the knowledge base collections <code class="language-plaintext highlighter-rouge">zacl blog 2024</code> as reference to provide answer to summarize the posts I created 2024:</p>
+
+<p><img src="/assets/mlops03-6.png" alt="image tooltip here" />
+<img src="/assets/mlops03-7.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Now I have successfully built a local Knowledge Base (KB) using Ollama and Open WebUI. Here’s a very brief summary:</p>
+
+<ul>
+  <li>What I Did:</li>
+</ul>
+
+<p>Set up GPU-enabled Docker/WSL environment.</p>
+
+<p>Installed Ollama to run LLMs locally as a server.</p>
+
+<p>Installed Open WebUI for a web-based interface to interact with LLMs.</p>
+
+<p>Configured the system to enable Retrieval Augmented Generation (RAG) with Docker volumes for persistence.</p>
+
+<ul>
+  <li>What YoIu Achieved:</li>
+</ul>
+
+<p>Created a local RAG system capable of querying knowledge from aged tech docs and Zack blog posts.</p>
+
+<p>Demonstrated effective model comparisons and knowledge-based querying through a user-friendly web interface.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Continue Local MLOPS Project]]></summary></entry><entry><title type="html">AWS Private Link and Cross-account Package deployment</title><link href="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html" rel="alternate" type="text/html" title="AWS Private Link and Cross-account Package deployment" /><published>2024-11-15T11:15:29+11:00</published><updated>2024-11-15T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/11/15/aws-ssm.html"><![CDATA[<p><b>The task</b></p>
 
 <p>Recently I got a task from the Company’s app team, to install agent on EC2 instances across serveral AWS accounts and enable connection via AWS private link to a target AWS account where hosts the management server. To achieve the task here I will see how to use AWS Systems Manager for software distribution and installation for multiple AWS accounts and install and configre AWS private link using terraform.</p>
 
@@ -520,7 +783,7 @@ The EC2 instance processes the request and responds back via the same path.</p>
 
 <p>Successfully accessed the Python HTTP server from the consumer EC2 instance using the private DNS name via PrivateLink.</p>
 
-<p>Verified connectivity from consumer EC2 to provider service.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2.html"><![CDATA[<p><b>MLOPS Project </b></p>
+<p>Verified connectivity from consumer EC2 to provider service.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[The task]]></summary></entry><entry><title type="html">MLOps - A Machine Learning Project</title><link href="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2-copy.html" rel="alternate" type="text/html" title="MLOps - A Machine Learning Project" /><published>2024-10-02T10:15:29+10:00</published><updated>2024-10-02T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/10/02/mlops2%20copy</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/10/02/mlops2-copy.html"><![CDATA[<p><b>MLOPS Project </b></p>
 
 <p>In the last post <a href="https://zackz.site/jekyll/cat2/2024/10/01/mlops1.html">MLOPS - Lab Setup</a>, I was able to set the local ML lab env, and run validation in Jupyter Notebook to test the CODA device and performance on local PC.</p>
 
@@ -2756,276 +3019,4 @@ test-pod-labeled   1/1 Running     0          24s</code></pre></figure>
 
 <p><b>Conclusion</b></p>
 
-<p>In this post, we dive into the process of enhancing the security of an AWS EKS cluster by implementing and validating two critical security tools: Kube-bench and OPA Gatekeeper to get some hands-on to achieve a secure EKS environment by ensuring compliance with best practices and enforcing security policies at runtime.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About kube-bench and OPA Gatekeeper]]></summary></entry><entry><title type="html">EKS - Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)</title><link href="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html" rel="alternate" type="text/html" title="EKS - Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)" /><published>2024-09-12T10:15:29+10:00</published><updated>2024-09-12T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/12/eks1</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/12/eks1.html"><![CDATA[<p><b>Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS </b></p>
-
-<p>In last post, I was able to deploy EKS cluster via Jenkins and Terraform:</p>
-
-<ul>
-  <li><a href="https://zackz.site/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html">Jenkins - Multi-Destnation Continuse Deployment with Terraform</a></li>
-</ul>
-
-<p>This post walks through the process of setting up an Autoscaler and Horizontal Pod Autoscaler (HPA) in an Amazon EKS cluster. We will explore how to dynamically scale the number of nodes in EKS cluster and how to autoscale K8S pods based on CPU utilization using HPA.</p>
-
-<p>Prerequisites:</p>
-
-<ul>
-  <li>Use the <code class="language-plaintext highlighter-rouge">AWS CLI</code> to update kubeconfig so that kubectl can communicate with the EKS cluster</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>aws eks <span class="nt">--region</span> ap-southeast-2 update-kubeconfig <span class="nt">--name</span> module-eks-cluster
-Updated context arn:aws:eks:ap-southeast-2:851725491342:cluster/module-eks-cluster <span class="k">in </span>C:<span class="se">\U</span>sers<span class="se">\z</span>ack<span class="se">\.</span>kube<span class="se">\c</span>onfig
-
-Verify that the nodes are ready:
-<span class="nv">$ </span>kubectl.exe get node
-NAME                                              STATUS   ROLES    AGE     VERSION
-ip-172-31-37-57.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   2m40s   v1.31.0-eks-a737599</code></pre></figure>
-
-<ul>
-  <li>Deploy the <code class="language-plaintext highlighter-rouge">Cluster Autoscaler</code> from the official Kubernetes Autoscaler GitHub repository, The Cluster Autoscaler automatically adjusts the number of nodes in eks cluster based on the resource requirements of the workloads.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl.exe apply <span class="nt">-f</span> https://raw.githubusercontent.com/kubernetes/autoscaler/refs/heads/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-one-asg.yaml
-serviceaccount/cluster-autoscaler created
-clusterrole.rbac.authorization.k8s.io/cluster-autoscaler created
-role.rbac.authorization.k8s.io/cluster-autoscaler created
-clusterrolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
-rolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
-deployment.apps/cluster-autoscaler created</code></pre></figure>
-
-<ul>
-  <li>Modify the Autoscaler Parameters to tuning Scale-Up and Down Behavior.</li>
-</ul>
-
-<p>Customized Autoscaler parameters to add arguments to control the scaling behavior, such as the <code class="language-plaintext highlighter-rouge">minimum and maximum node counts</code>, the <code class="language-plaintext highlighter-rouge">time between scale-down events</code>, <code class="language-plaintext highlighter-rouge">stabilization window</code> and <code class="language-plaintext highlighter-rouge">cooldown period</code>.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl <span class="nt">-n</span> kube-system edit deployment.apps/cluster-autoscaler
-deployment.apps/cluster-autoscaler edited
-
-      labels:
-        app: cluster-autoscaler
-    spec:
-      containers:
-      - <span class="nb">command</span>:
-        - ./cluster-autoscaler
-        - <span class="nt">--cluster-name</span><span class="o">=</span>module-eks-cluster
-        - <span class="nt">--v</span><span class="o">=</span>4
-        - <span class="nt">--stderrthreshold</span><span class="o">=</span>info
-        - <span class="nt">--cloud-provider</span><span class="o">=</span>aws
-        - <span class="nt">--skip-nodes-with-local-storage</span><span class="o">=</span><span class="nb">false</span>
-        - <span class="nt">--balance-similar-node-groups</span>
-        - <span class="nt">--skip-nodes-with-system-pods</span><span class="o">=</span><span class="nb">false</span>
-        - <span class="nt">--scale-down-unneeded-time</span><span class="o">=</span>1m
-        - <span class="nt">--scale-down-delay-after-add</span><span class="o">=</span>1m
-        - <span class="nt">--nodes</span><span class="o">=</span>1:3:eks-module-eks-cluster-node-group-5ec93604-4bdc-a740-1fcc-707afc8431b</code></pre></figure>
-
-<p><b>HPA testing based on Pod CPU utilization metric </b></p>
-
-<ul>
-  <li>Now, let’s deploy zackweb and set up an <code class="language-plaintext highlighter-rouge">Horizontal Pod Autoscaler (HPA)</code> to scale the number of pods based on CPU utilization.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span><span class="nb">cat </span>deployment.yaml
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: zackblog
-spec:
-  replicas: 1  <span class="c"># Start with 1 replica</span>
-  selector:
-    matchLabels:
-      app: zackblog
-  template:
-    metadata:
-      labels:
-        app: zackblog
-    spec:
-      containers:
-      - name: zackblog
-        image: zackz001/gitops-jekyll:latest
-        resources:
-          requests:
-            cpu: <span class="s2">"500m"</span>  <span class="c"># 0.5 vCPU</span>
-            memory: <span class="s2">"512Mi"</span>  <span class="c"># 0.5 GiB</span>
-          limits:
-            cpu: <span class="s2">"1"</span>  <span class="c"># 1 vCPU</span>
-            memory: <span class="s2">"1Gi"</span>  <span class="c"># 1 GiB</span>
-<span class="nt">---</span>
-apiVersion: v1
-kind: Service
-metadata:
-  name: zackblog
-spec:
-  selector:
-    app: zackblog  <span class="c"># This must match the labels in the Deployment</span>
-  ports:
-    - protocol: TCP
-      port: 80        <span class="c"># Port that the service will expose</span>
-      targetPort: 80 <span class="c"># Port that the container listens on</span>
-  <span class="nb">type</span>: LoadBalancer
-
-kubectl.exe apply <span class="nt">-f</span> deployment.yaml
-deployment.apps/zackblog created
-service/zackblog created</code></pre></figure>
-
-<ul>
-  <li>Set Resource Requests and Limits, and Configure Horizontal Pod Autoscaler (HPA) to automatically scale the deployment based on CPU usage</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl <span class="nb">set </span>resources deployment zackblog <span class="nt">--limits</span><span class="o">=</span><span class="nv">cpu</span><span class="o">=</span>200m,memory<span class="o">=</span>200Mi <span class="nt">--requests</span><span class="o">=</span><span class="nv">cpu</span><span class="o">=</span>100m,memory<span class="o">=</span>100Mi
-deployment.apps/zackblog resource requirements updated
-
-kubectl autoscale deployment zackblog <span class="nt">--cpu-percent</span><span class="o">=</span>50 <span class="nt">--min</span><span class="o">=</span>1 <span class="nt">--max</span><span class="o">=</span>3
-
-<span class="nv">$ </span>kubectl get hpa zackblog
-NAME       REFERENCE             TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
-zackblog   Deployment/zackblog   cpu: &lt;unknown&gt;/50%   1         3         1          18s</code></pre></figure>
-
-<ul>
-  <li>Generate CPU Load to Test the HPA</li>
-</ul>
-
-<p>To test the HPA, we need to generate CPU load by runing a busybox container to repeatedly request the zackblog service.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl run <span class="nt">-i</span> <span class="nt">--tty</span> load-generator <span class="nt">--image</span><span class="o">=</span>busybox /bin/sh
-<span class="c"># Inside the busybox shell, run this:</span>
-<span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do </span>wget <span class="nt">-q</span> <span class="nt">-O-</span> http://zackblog <span class="o">&gt;</span> /dev/null<span class="p">;</span> <span class="nb">sleep </span>0.5<span class="p">;</span> <span class="k">done</span></code></pre></figure>
-
-<ul>
-  <li>Monitor the HPA and Scaling Events, As CPU utilization increases, the HPA will automatically scale the number of pods:</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl.exe get po
-NAME                       READY   STATUS             RESTARTS      AGE
-load-generator             1/1     Running            0             2m6s
-zackblog-95f746486-wlmgx   1/1     Running            0             6m20s
-
-kubectl get hpa zackblog <span class="nt">-w</span>
-NAME       REFERENCE             TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
-zackblog   Deployment/zackblog   cpu: 0%/50%   1         10        1          12m
-zackblog   Deployment/zackblog   cpu: 92%/50%  1         10        2          5m
-zackblog   Deployment/zackblog   cpu: 52%/50%  1         10        3          2m
-
-kubectl get hpa zackblog <span class="nt">-w</span>
-zackblog   Deployment/zackblog   cpu: 37%/50%   1         10        3          27m
-zackblog   Deployment/zackblog   cpu: 38%/50%   1         10        3          27m
-zackblog   Deployment/zackblog   cpu: 6%/50%    1         10        3          27m
-zackblog   Deployment/zackblog   cpu: 0%/50%    1         10        3          27m
-zackblog   Deployment/zackblog   cpu: 0%/50%    1         10        1          28m</code></pre></figure>
-
-<p>It can be seen that pods got  scaled up to 3 when CPU utilization reached 92% and scaled down to 1 when CPU utilization dropped below 50%.</p>
-
-<p><b>Testing EKS Cluster Autoscaler by changing deployment replicas: </b></p>
-
-<p><code class="language-plaintext highlighter-rouge">EKS Cluster Autoscaler</code> comes with scale-in and scale-out policies, which define when nodes should be added or removed. The Cluster Autoscaler adds nodes when there aren’t enough resources to schedule pending pods and removes nodes when they are underutilized.</p>
-
-<ul>
-  <li>Change the resource limitation for zackblog deployment for EKS node autoscaler testing, Set zackweb deployment with requests cpu 500m. As the EKS node group with a t3.small instance type (2c2g), which means one node can only handle one pod, so to make the Autoscaler testing easier to achieve.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>vim deployment.yaml
-
-        resources:
-          requests:
-            cpu: <span class="s2">"500m"</span>  <span class="c"># 0.5 vCPU</span>
-            memory: <span class="s2">"512Mi"</span>  <span class="c"># 0.5 GiB</span>
-          limits:
-            cpu: <span class="s2">"1"</span>  <span class="c"># 1 vCPU</span>
-            memory: <span class="s2">"1Gi"</span>  <span class="c"># 1 GiB</span></code></pre></figure>
-
-<ul>
-  <li>Gracefully increase the number of deployment replicas to 2, to test EKS node scale up</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl scale deployment zackblog <span class="nt">--replicas</span><span class="o">=</span>2
-deployment.apps/zackblog scaled
-
-<span class="nv">$ </span>kubectl.exe get po
-NAME                        READY   STATUS             RESTARTS      AGE
-load-generator              1/1     Running            0             7m39s
-zackblog-7f67584fbd-47jvt   1/1     Running            0             31s
-zackblog-7f67584fbd-9gtfn   0/1     Pending            0             6s
-
-<span class="nv">$ </span>kubectl.exe describe po zackblog-7f67584fbd-9gtfn
-
-Events:
-  Type     Reason            Age   From                Message
-  <span class="nt">----</span>     <span class="nt">------</span>            <span class="nt">----</span>  <span class="nt">----</span>                <span class="nt">-------</span>
-  Warning  FailedScheduling  18s   default-scheduler   0/1 nodes are available: 1 Insufficient memory. preemption: 0/1 nodes are available: 1 No preemption victims found <span class="k">for </span>incoming pod.
-  Normal   TriggeredScaleUp  9s    cluster-autoscaler  pod triggered scale-up: <span class="o">[{</span>eks-module-eks-cluster-node-group-5ec93604-4bdc-a740-1fcc-707afc8431b3 1-&gt;2 <span class="o">(</span>max: 3<span class="o">)}]</span>
-
-<span class="nv">$ </span>kubectl.exe get node
-NAME                                               STATUS   ROLES    AGE   VERSION
-ip-172-31-15-152.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   31s   v1.31.0-eks-a737599
-ip-172-31-37-57.ap-southeast-2.compute.internal    Ready    &lt;none&gt;   37m   v1.31.0-eks-a737599
-
-<span class="nv">$ </span>kubectl.exe get po
-NAME                        READY   STATUS             RESTARTS        AGE
-load-generator              1/1     Running            0               9m14s
-zackblog-7f67584fbd-47jvt   1/1     Running            0               2m6s
-zackblog-7f67584fbd-9gtfn   1/1     Running            0               101s</code></pre></figure>
-
-<p>It can be seen that pod <code class="language-plaintext highlighter-rouge">zackblog-7f67584fbd-9gtfn</code> was in pending state due to waiting for node to be scale-up, once we have 2 nodes in EKS cluster, that pod can be scheduled and run.</p>
-
-<ul>
-  <li>Increase the number of deployment replicas to 3, to trigger EKS node scale up again</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl scale deployment zackblog <span class="nt">--replicas</span><span class="o">=</span>3
-deployment.apps/zackblog scaled
-
-<span class="nv">$ </span>kubectl.exe get po
-NAME                        READY   STATUS             RESTARTS        AGE
-load-generator              1/1     Running            0               9m44s
-zackblog-7f67584fbd-47jvt   1/1     Running            0               2m36s
-zackblog-7f67584fbd-9gtfn   1/1     Running            0               2m11s
-zackblog-7f67584fbd-f5s9d   1/1     Running            0               3s
-
-
-<span class="nv">$ </span>kubectl.exe get po <span class="nt">-o</span> wide
-NAME                        READY   STATUS    RESTARTS   AGE     IP              NODE                                               NOMINATED NODE   READINESS GATES
-zackblog-7f67584fbd-47jvt   1/1     Running   0          5m58s   172.31.37.227   ip-172-31-37-57.ap-southeast-2.compute.internal    &lt;none&gt;           &lt;none&gt;
-zackblog-7f67584fbd-9gtfn   1/1     Running   0          5m33s   172.31.5.139    ip-172-31-15-152.ap-southeast-2.compute.internal   &lt;none&gt;           &lt;none&gt;
-zackblog-7f67584fbd-vzcx4   1/1     Running   0          2m3s    172.31.18.111   ip-172-31-20-24.ap-southeast-2.compute.internal    &lt;none&gt;           &lt;none&gt;</code></pre></figure>
-
-<p>Now EKS scale up to 3 nodes to handle the replica increase again.</p>
-
-<ul>
-  <li>Change the number of deployment replicas down to 1, to trigger EKS node scale down, and monitor by autoscaler log file to see the scale down behavior:</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nv">$ </span>kubectl scale deployment zackblog <span class="nt">--replicas</span><span class="o">=</span>1
-
-<span class="nv">$ </span>kubectl <span class="nt">-n</span> kube-system logs <span class="nt">-f</span> deployment/cluster-autoscaler
-
-I1008 12:53:22.686377       1 static_autoscaler.go:598] Starting scale down
-I1008 12:53:22.686430       1 nodes.go:123] ip-172-31-15-152.ap-southeast-2.compute.internal was unneeded <span class="k">for </span>40.253885622s
-I1008 12:53:22.686452       1 nodes.go:123] ip-172-31-37-57.ap-southeast-2.compute.internal was unneeded <span class="k">for </span>1m0.362059191s
-I1008 12:53:22.686502       1 cluster.go:153] ip-172-31-37-57.ap-southeast-2.compute.internal <span class="k">for </span>removal
-I1008 12:53:22.686644       1 hinting_simulator.go:77] Pod kube-system/cluster-autoscaler-5767f77d77-xgfjq can be moved to ip-172-31-20-24.ap-southeast-2.compute.internal
-I1008 12:53:22.686717       1 hinting_simulator.go:77] Pod kube-system/coredns-7575495454-9n6kd can be moved to ip-172-31-15-152.ap-southeast-2.compute.internal
-I1008 12:53:22.686832       1 hinting_simulator.go:77] Pod kube-system/coredns-7575495454-dxzdc can be moved to ip-172-31-15-152.ap-southeast-2.compute.internal
-I1008 12:53:22.686875       1 cluster.go:176] node ip-172-31-37-57.ap-southeast-2.compute.internal may be removed
-I1008 12:53:22.705270       1 delete.go:103] Successfully added ToBeDeletedTaint on node ip-172-31-37-57.ap-southeast-2.compute.internal
-I1008 12:53:22.705367       1 actuator.go:212] Scale-down: removing node ip-172-31-37-57.ap-southeast-2.compute.internal, utilization: <span class="o">{</span>0.23316062176165803 0.49755477462428627 0 memory 0.49755477462428627<span class="o">}</span>, pods to reschedule: cluster-autoscaler-5767f77d77-xgfjq,coredns-7575495454-9n6kd,coredns-7575495454-dxzdc
-
-<span class="nv">$ </span>kubectl.exe get node
-NAME                                               STATUS                        ROLES    AGE     VERSION
-ip-172-31-15-152.ap-southeast-2.compute.internal   NotReady,SchedulingDisabled   &lt;none&gt;   9m10s   v1.31.0-eks-a737599
-ip-172-31-20-24.ap-southeast-2.compute.internal    Ready                         &lt;none&gt;   6m59s   v1.31.0-eks-a737599
-ip-172-31-37-57.ap-southeast-2.compute.internal    Ready,SchedulingDisabled      &lt;none&gt;   45m     v1.31.0-eks-a737599
-
-<span class="nv">$ </span>kubectl.exe get node
-NAME                                              STATUS   ROLES    AGE     VERSION
-ip-172-31-20-24.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   7m58s   v1.31.0-eks-a737599</code></pre></figure>
-
-<p>It can be seen that Cluster Autoscaler identified nodes that were underutilized or idle and marked them as “unneeded.”
-It simulated moving the existing pods to other nodes. Once it determined that the pods could be rescheduled, it marked the node for deletion (using a ToBeDeletedTaint), preventing new workloads from being scheduled. Finally, the node was removed from the cluster, and the pods were successfully rescheduled on other nodes.</p>
-
-<p>This behavior ensures that the cluster’s resources are used efficiently, scaling down when there is no workload, thereby reducing costs.</p>
-
-<p><img src="/assets/eks1.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion: </b></p>
-
-<p>By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS]]></summary></entry></feed>
+<p>In this post, we dive into the process of enhancing the security of an AWS EKS cluster by implementing and validating two critical security tools: Kube-bench and OPA Gatekeeper to get some hands-on to achieve a secure EKS environment by ensuring compliance with best practices and enforcing security policies at runtime.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[About kube-bench and OPA Gatekeeper]]></summary></entry></feed>
