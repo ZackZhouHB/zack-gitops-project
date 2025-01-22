@@ -49,7 +49,31 @@
   <div class="post-content e-content" itemprop="articleBody">
     <p><b>Continue MLOPS project by moving to EKS</b></p>
 
-<p>After those local deployment and EKS Karpenter practicem I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:</p>
+<p>After those local deployment and EKS Karpenter practice I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:</p>
+
+<p>a comprehensive guide for deploying ML workloads on EKS with Karpenter. This guide will cover the following aspects:</p>
+
+<p>The infrastructure is set up in phases:</p>
+
+<p>EKS cluster setup with Terraform
+Karpenter configuration for GPU instance management
+Monitoring stack with Prometheus and Grafana
+ML job templates and storage configuration</p>
+
+<p>Key features implemented:</p>
+
+<p>Automatic GPU node provisioning
+Spot instance support for cost optimization
+GPU metrics monitoring
+Storage for model artifacts
+Job templates for ML workloads</p>
+
+<p>Next steps to get started:</p>
+
+<p>Set up the EKS cluster using the Terraform code provided
+Install and configure Karpenter
+Deploy the monitoring stack
+Test with a simple GPU job</p>
 
 <ul>
   <li>Key Components to Migrate:</li>
