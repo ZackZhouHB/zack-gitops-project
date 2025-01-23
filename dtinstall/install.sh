@@ -3,8 +3,8 @@
 set -e
 
 echo "Installing htop..."
-sudo apt-get update -qq
-sudo apt-get install -y -qq htop
+sudo apt update 
+sudo apt install -y -qq htop
 
 # Verify
 if command -v htop >/dev/null; then
