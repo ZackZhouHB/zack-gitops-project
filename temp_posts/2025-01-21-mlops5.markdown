@@ -1,0 +1,156 @@
+---
+layout: post
+title:  "MLOps - Move local Ollama and Open WebUI to EKS"
+date:   2025-01-21 11:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue MLOPS project by moving to EKS</b>
+
+After those local deployment and EKS Karpenter practice I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:
+
+a comprehensive guide for deploying ML workloads on EKS with Karpenter. This guide will cover the following aspects:
+
+The infrastructure is set up in phases:
+
+EKS cluster setup with Terraform
+Karpenter configuration for GPU instance management
+Monitoring stack with Prometheus and Grafana
+ML job templates and storage configuration
+
+
+Key features implemented:
+
+Automatic GPU node provisioning
+Spot instance support for cost optimization
+GPU metrics monitoring
+Storage for model artifacts
+Job templates for ML workloads
+
+
+Next steps to get started:
+
+Set up the EKS cluster using the Terraform code provided
+Install and configure Karpenter
+Deploy the monitoring stack
+Test with a simple GPU job
+
+- Key Components to Migrate:
+
+
+1. Ollama server with GPU support
+
+2. Open WebUI frontend
+
+3. Persistent storage for knowledge base
+
+4. Model storage and management
+
+- EKS-Specific Requirements:
+
+1. GPU-enabled node groups (which you already have set up with Karpenter)
+
+2. Persistent storage using EBS CSI driver (already configured in your EKS setup)
+
+3. Container optimization for Kubernetes environment
+
+
+- Implementation Steps:
+
+1. Containerization:
+
+   - Modify Ollama container for k8s compatibility
+
+   - Adapt Open WebUI container for k8s
+
+   - Create Kubernetes manifests (Deployments, Services, ConfigMaps)
+
+2. Storage:
+
+   - Use EBS for model persistence
+
+   - Set up PersistentVolumes for knowledge base data
+
+   - Configure volume mounts for both Ollama and WebUI
+
+3. GPU Access:
+
+   - Use node selectors/tolerations for GPU nodes
+
+   - Configure Karpenter to provision GPU instances
+
+   - Set up NVIDIA device plugin
+
+4. Networking:
+
+   - Internal Service for Ollama API
+
+   - LoadBalancer/Ingress for WebUI access
+
+   - Configure proper security groups
+
+Key Considerations:
+
+Resource Management:
+
+{% highlight yaml %}
+  requests:
+    nvidia.com/gpu: "1"
+  limits:
+    nvidia.com/gpu: "1"
+{% endhighlight %}
+
+Scaling Strategy:
+
+{% highlight yaml %}
+- Configure Karpenter for GPU node scaling
+- Set resource quotas for model management
+{% endhighlight %}
+
+
+Advantages of EKS Deployment:
+
+
+Better scalability through Karpenter
+
+Improved high availability
+
+Centralized management
+
+Easier integration with other AWS services
+
+Better monitoring and logging capabilities
+
+
+Potential Challenges:
+
+
+GPU resource management at scale
+
+Model synchronization across pods
+
+Storage performance optimization
+
+Network latency between components
+
+
+
+<b>Get Started</b>
+
+
+
+{% highlight shell %}
+
+
+{% endhighlight %}
+
+
+
+
+![image tooltip here](/assets/mlops03-5.png)
+
+
+
+
+<b>Conclusion</b>
+

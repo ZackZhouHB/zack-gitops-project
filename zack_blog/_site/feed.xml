@@ -1,174 +1,277 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-25T09:03:16+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Move local Ollama and Open WebUI to EKS</title><link href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html" rel="alternate" type="text/html" title="MLOps - Move local Ollama and Open WebUI to EKS" /><published>2025-01-19T11:18:29+11:00</published><updated>2025-01-19T11:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/19/mlops4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/19/mlops4.html"><![CDATA[<p><b>Continue MLOPS project by moving to EKS</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-25T11:32:26+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload to K8S</title><link href="http://localhost:4000/jekyll/cat2/2025/01/20/mlops4.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload to K8S" /><published>2025-01-20T11:18:29+11:00</published><updated>2025-01-20T11:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/20/mlops4</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/20/mlops4.html"><![CDATA[<p><strong>ML Project Lifecycle in the Real World</strong></p>
 
-<p>After those local deployment and EKS Karpenter practice I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:</p>
+<p>So far the local ML practice is just the beginning, in a real world production environment, ML projects typically follow a structured lifecycle and often deployed in scalable, cloud-based environments. Cloud Providers like AWS with Managed Kubernetes Services (EKS) to provides orchestration, scaling, and fault tolerance to handle ML workloads.</p>
 
-<p>a comprehensive guide for deploying ML workloads on EKS with Karpenter. This guide will cover the following aspects:</p>
-
-<p>The infrastructure is set up in phases:</p>
-
-<p>EKS cluster setup with Terraform
-Karpenter configuration for GPU instance management
-Monitoring stack with Prometheus and Grafana
-ML job templates and storage configuration</p>
-
-<p>Key features implemented:</p>
-
-<p>Automatic GPU node provisioning
-Spot instance support for cost optimization
-GPU metrics monitoring
-Storage for model artifacts
-Job templates for ML workloads</p>
-
-<p>Next steps to get started:</p>
-
-<p>Set up the EKS cluster using the Terraform code provided
-Install and configure Karpenter
-Deploy the monitoring stack
-Test with a simple GPU job</p>
+<p><strong>Path for delpoying MLOps workload in K8S</strong></p>
 
 <ul>
-  <li>Key Components to Migrate:</li>
+  <li>Transition from local ML practice to a K8S-based deployment (<strong>This post</strong>)</li>
+  <li>Start with MLOps tools like <strong>Kubeflow</strong>.</li>
+  <li>Shift from local to cloud platforms (AWS) to deploy ML workload on EKS.</li>
+  <li>Practice deploying models using REST APIs (local) and APT Gateway (AWS).</li>
+  <li>Try local data engineering (ETL pipelines, data lakes, etc.), then move to AWS data service and solution for ML workload.</li>
 </ul>
 
-<ol>
-  <li>
-    <p>Ollama server with GPU support</p>
-  </li>
-  <li>
-    <p>Open WebUI frontend</p>
-  </li>
-  <li>
-    <p>Persistent storage for knowledge base</p>
-  </li>
-  <li>
-    <p>Model storage and management</p>
-  </li>
-</ol>
+<p><strong>Setting up Minikube with GPU on WSL Ubuntu</strong></p>
 
 <ul>
-  <li>EKS-Specific Requirements:</li>
+  <li>First let’s create a Minikube cluster with GPU support on WSL Ubuntu. This will be the local K8S environment for testing and deploying ML workloads.</li>
 </ul>
 
-<ol>
-  <li>
-    <p>GPU-enabled node groups (which you already have set up with Karpenter)</p>
-  </li>
-  <li>
-    <p>Persistent storage using EBS CSI driver (already configured in your EKS setup)</p>
-  </li>
-  <li>
-    <p>Container optimization for Kubernetes environment</p>
-  </li>
-</ol>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Install Minikube</span>
+<span class="nb">sudo </span>apt-get update
+curl <span class="nt">-LO</span> https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+<span class="nb">sudo install </span>minikube-linux-amd64 /usr/local/bin/minikube
+
+<span class="c"># Start Minikube with the Docker driver and GPU support</span>
+minikube start <span class="nt">--driver</span> docker <span class="nt">--container-runtime</span> docker <span class="nt">--gpus</span> all <span class="nt">--force</span> <span class="nt">--cpus</span><span class="o">=</span>8 <span class="nt">--memory</span><span class="o">=</span>16g <span class="nt">--addons</span><span class="o">=</span>nvidia-gpu-device-plugin
+
+<span class="c"># Verify Minikube addon with Nvidia GPU</span>
+root@zackz:/mnt/f/ml-local/local-minikube/complex# minikube addons list | <span class="nb">grep </span>NVIDIA
+| nvidia-device-plugin        | minikube | enabled ✅   | 3rd party <span class="o">(</span>NVIDIA<span class="o">)</span>             |
+| nvidia-driver-installer     | minikube | disabled     | 3rd party <span class="o">(</span>NVIDIA<span class="o">)</span>             |
+| nvidia-gpu-device-plugin    | minikube | disabled     | 3rd party <span class="o">(</span>NVIDIA<span class="o">)</span>             |
+
+<span class="c"># Verify Minikube node</span>
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl get node
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   34m   v1.32.0
+
+<span class="c"># Verify Minikube node GPU capacity</span>
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl describe node <span class="si">$(</span>kubectl get nodes <span class="nt">-o</span> name | <span class="nb">cut</span> <span class="nt">-d</span><span class="s1">'/'</span> <span class="nt">-f2</span><span class="si">)</span> | <span class="nb">grep</span> <span class="nt">-A</span> 10 <span class="s2">"Capacity"</span>
+Capacity:
+  cpu:                20
+  ephemeral-storage:  1055762868Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             49238360Ki
+  nvidia.com/gpu:     1
+  pods:               110
+Allocatable:
+  cpu:                20
+  ephemeral-storage:  1055762868Ki</code></pre></figure>
 
 <ul>
-  <li>Implementation Steps:</li>
+  <li>Nest step, once the K8S is ready, let’s run a GPU pod to test if a K8S pod can access GPU.</li>
 </ul>
 
-<ol>
-  <li>
-    <p>Containerization:</p>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim gpu-stes.yaml</span>
 
-    <ul>
-      <li>
-        <p>Modify Ollama container for k8s compatibility</p>
-      </li>
-      <li>
-        <p>Adapt Open WebUI container for k8s</p>
-      </li>
-      <li>
-        <p>Create Kubernetes manifests (Deployments, Services, ConfigMaps)</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>Storage:</p>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-pod
+spec:
+  containers:
+  - name: cuda-container
+    image: nvidia/cuda:12.6.0-base-ubuntu22.04
+    resources:
+      limits:
+        nvidia.com/gpu: 1 <span class="c"># Request 1 GPU</span>
+    <span class="nb">command</span>: <span class="o">[</span><span class="s2">"nvidia-smi"</span><span class="o">]</span>
 
-    <ul>
-      <li>
-        <p>Use EBS for model persistence</p>
-      </li>
-      <li>
-        <p>Set up PersistentVolumes for knowledge base data</p>
-      </li>
-      <li>
-        <p>Configure volume mounts for both Ollama and WebUI</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>GPU Access:</p>
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl apply <span class="nt">-f</span> gpu-test.yaml
+pod/gpu-pod created
 
-    <ul>
-      <li>
-        <p>Use node selectors/tolerations for GPU nodes</p>
-      </li>
-      <li>
-        <p>Configure Karpenter to provision GPU instances</p>
-      </li>
-      <li>
-        <p>Set up NVIDIA device plugin</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>Networking:</p>
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl get po <span class="nt">-A</span>
+NAMESPACE     NAME                                   READY   STATUS      RESTARTS        AGE
+default       gpu-pod                                0/1     Completed   1 <span class="o">(</span>2s ago<span class="o">)</span>      3s
+kube-system   coredns-668d6bf9bc-2nwph               1/1     Running     0               3m1s
+kube-system   etcd-minikube                          1/1     Running     0               3m7s
+kube-system   kube-apiserver-minikube                1/1     Running     0               3m7s
+kube-system   kube-controller-manager-minikube       1/1     Running     0               3m6s
+kube-system   kube-proxy-vblkm                       1/1     Running     0               3m1s
+kube-system   kube-scheduler-minikube                1/1     Running     0               3m6s
+kube-system   nvidia-device-plugin-daemonset-72jwz   1/1     Running     0               3m1s
+kube-system   storage-provisioner                    1/1     Running     1 <span class="o">(</span>2m39s ago<span class="o">)</span>   3m5s
 
-    <ul>
-      <li>
-        <p>Internal Service for Ollama API</p>
-      </li>
-      <li>
-        <p>LoadBalancer/Ingress for WebUI access</p>
-      </li>
-      <li>
-        <p>Configure proper security groups</p>
-      </li>
-    </ul>
-  </li>
-</ol>
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl logs gpu-pod
+Fri Jan 24 22:55:29 2025
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.02              Driver Version: 560.94         CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|<span class="o">=========================================</span>+<span class="o">========================</span>+<span class="o">======================</span>|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  |   00000000:01:00.0  On |                  N/A |
+|  0%   53C    P8             17W /  186W |    1736MiB /   8192MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|<span class="o">=========================================================================================</span>|
+|    0   N/A  N/A        27      G   /Xwayland                                   N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                   N/A      |
++-----------------------------------------------------------------------------------------+</code></pre></figure>
 
-<p>Key Considerations:</p>
+<ul>
+  <li>Now let’s create a more complex GPU workload that trains a simple CNN on MNIST dataset, with a ResourceQuota and LimitRange to allocate the GPU in minikube, we will use the <code class="language-plaintext highlighter-rouge">tensorflow/tensorflow:2.14.0-gpu</code> to better support CUDA and NVIDIA drivers to complete the training job.</li>
+</ul>
 
-<p>Resource Management:</p>
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># MNIST-Training.yaml</span>
 
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml">  <span class="na">requests</span><span class="pi">:</span>
-    <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">mnist-gpu-training</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">gpu-workloads</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">app</span><span class="pi">:</span> <span class="s">mnist-gpu-training</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">app</span><span class="pi">:</span> <span class="s">mnist-gpu-training</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">tensorflow</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">tensorflow/tensorflow:2.14.0-gpu</span>
+        <span class="na">resources</span><span class="pi">:</span>
+          <span class="na">limits</span><span class="pi">:</span>
+            <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="m">1</span>
+            <span class="na">memory</span><span class="pi">:</span> <span class="s2">"</span><span class="s">8Gi"</span>
+          <span class="na">requests</span><span class="pi">:</span>
+            <span class="na">memory</span><span class="pi">:</span> <span class="s2">"</span><span class="s">4Gi"</span>
+        <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">python3"</span><span class="pi">]</span>
+        <span class="na">args</span><span class="pi">:</span> 
+          <span class="pi">-</span> <span class="s2">"</span><span class="s">-c"</span>
+          <span class="pi">-</span> <span class="pi">|</span>
+            <span class="s">import tensorflow as tf</span>
+            <span class="s">import time</span>
+            
+            <span class="s"># Load and preprocess MNIST data</span>
+            <span class="s">(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()</span>
+            <span class="s">x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.0</span>
+            <span class="s">x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.0</span>
+            
+            <span class="s"># Build CNN model</span>
+            <span class="s">model = tf.keras.Sequential([</span>
+                <span class="s">tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(28, 28, 1)),</span>
+                <span class="s">tf.keras.layers.MaxPooling2D(),</span>
+                <span class="s">tf.keras.layers.Conv2D(64, 3, activation='relu'),</span>
+                <span class="s">tf.keras.layers.MaxPooling2D(),</span>
+                <span class="s">tf.keras.layers.Flatten(),</span>
+                <span class="s">tf.keras.layers.Dense(128, activation='relu'),</span>
+                <span class="s">tf.keras.layers.Dense(10, activation='softmax')</span>
+            <span class="s">])</span>
+            
+            <span class="s"># Compile model</span>
+            <span class="s">model.compile(</span>
+                <span class="s">optimizer='adam',</span>
+                <span class="s">loss='sparse_categorical_crossentropy',</span>
+                <span class="s">metrics=['accuracy']</span>
+            <span class="s">)</span>
+            
+            <span class="s">print("Starting training...")</span>
+            <span class="s">start_time = time.time()</span>
+            
+            <span class="s"># Train model</span>
+            <span class="s">history = model.fit(</span>
+                <span class="s">x_train, y_train,</span>
+                <span class="s">epochs=5,</span>
+                <span class="s">validation_data=(x_test, y_test),</span>
+                <span class="s">batch_size=128</span>
+            <span class="s">)</span>
+            
+            <span class="s">end_time = time.time()</span>
+            <span class="s">print(f"\nTraining completed in {end_time - start_time:.2f} seconds")</span>
+            
+            <span class="s"># Evaluate model</span>
+            <span class="s">test_loss, test_accuracy = model.evaluate(x_test, y_test)</span>
+            <span class="s">print(f"\nTest accuracy: {test_accuracy:.4f}")</span>
+
+<span class="c1"># gpu-resources.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Namespace</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-workloads</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ResourceQuota</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-quota</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">gpu-workloads</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">hard</span><span class="pi">:</span>
+    <span class="na">requests.nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span>
+    <span class="na">limits.nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">LimitRange</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-limits</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">gpu-workloads</span>
+<span class="na">spec</span><span class="pi">:</span>
   <span class="na">limits</span><span class="pi">:</span>
-    <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span></code></pre></figure>
+  <span class="pi">-</span> <span class="na">type</span><span class="pi">:</span> <span class="s">Container</span>
+    <span class="na">defaultRequest</span><span class="pi">:</span>
+      <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span>
+    <span class="na">default</span><span class="pi">:</span>
+      <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span>
+    <span class="na">max</span><span class="pi">:</span>
+      <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1"</span></code></pre></figure>
 
-<p>Scaling Strategy:</p>
+<ul>
+  <li>Deploy the MNIST Training and resource quota into minikube</li>
+</ul>
 
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="pi">-</span> <span class="s">Configure Karpenter for GPU node scaling</span>
-<span class="pi">-</span> <span class="s">Set resource quotas for model management</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:/mnt/f/ml-local/local-minikube/complex# kubectl apply <span class="nt">-f</span> gpu-quota.yaml
+namespace/gpu-workloads created
+resourcequota/gpu-quota created
+limitrange/gpu-limits created
+root@zackz:/mnt/f/ml-local/local-minikube/complex# kubectl apply <span class="nt">-f</span> MNIST-Training.yaml
+deployment.apps/mnist-gpu-training created
 
-<p>Advantages of EKS Deployment:</p>
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl get po <span class="nt">-A</span> <span class="nt">-w</span>
+NAMESPACE       NAME                                   READY   STATUS              RESTARTS      AGE
+default         tensorflow-gpu-test-d445455dc-slsg4    0/1     ContainerCreating   0             2m59s
+kube-system     coredns-668d6bf9bc-2nwph               1/1     Running             0             25m
+kube-system     etcd-minikube                          1/1     Running             0             25m
+kube-system     kube-apiserver-minikube                1/1     Running             0             25m
+kube-system     kube-controller-manager-minikube       1/1     Running             0             25m
+kube-system     kube-proxy-vblkm                       1/1     Running             0             25m
+kube-system     kube-scheduler-minikube                1/1     Running             0             25m
+kube-system     nvidia-device-plugin-daemonset-72jwz   1/1     Running             0             25m
+kube-system     storage-provisioner                    1/1     Running             1 <span class="o">(</span>25m ago<span class="o">)</span>   25m
 
-<p>Better scalability through Karpenter</p>
+root@zackz:/mnt/f/ml-local/local-minikube/complex# kubectl logs <span class="nt">-n</span> gpu-workloads   mnist-gpu-training-778fb7bcf7-zsscr
+2025-01-24 23:18:15.642781: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions <span class="k">in </span>performance-critical operations.
+To <span class="nb">enable </span>the following instructions: AVX2 FMA, <span class="k">in </span>other operations, rebuild TensorFlow with the appropriate compiler flags.
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz
+11490434/11490434 <span class="o">[==============================]</span> - 2s 0us/step
+2025-01-24 23:18:19.429788: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1886] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 5558 MB memory:  -&gt; device: 0, name: NVIDIA GeForce RTX 3070 Ti, pci bus <span class="nb">id</span>: 0000:01:00.0, compute capability: 8.6
+Starting training...
+Epoch 1/5
+2025-01-24 23:18:20.175141: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:442] Loaded cuDNN version 8600
+2025-01-24 23:18:20.399678: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f25deb91fb0 initialized <span class="k">for </span>platform CUDA <span class="o">(</span>this does not guarantee that XLA will be used<span class="o">)</span><span class="nb">.</span> Devices:
+2025-01-24 23:18:20.399719: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device <span class="o">(</span>0<span class="o">)</span>: NVIDIA GeForce RTX 3070 Ti, Compute Capability 8.6
+2025-01-24 23:18:20.402577: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, <span class="nb">set env </span>var <span class="sb">`</span>MLIR_CRASH_REPRODUCER_DIRECTORY<span class="sb">`</span> to enable.
+2025-01-24 23:18:20.461905: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once <span class="k">for </span>the lifetime of the process.
+469/469 <span class="o">[==============================]</span> - 3s 4ms/step - loss: 0.2068 - accuracy: 0.9409 - val_loss: 0.0664 - val_accuracy: 0.9778
+Epoch 2/5
+469/469 <span class="o">[==============================]</span> - 2s 3ms/step - loss: 0.0555 - accuracy: 0.9828 - val_loss: 0.0476 - val_accuracy: 0.9849
+Epoch 3/5
+469/469 <span class="o">[==============================]</span> - 2s 3ms/step - loss: 0.0407 - accuracy: 0.9875 - val_loss: 0.0329 - val_accuracy: 0.9900
+Epoch 4/5
+469/469 <span class="o">[==============================]</span> - 2s 4ms/step - loss: 0.0304 - accuracy: 0.9905 - val_loss: 0.0385 - val_accuracy: 0.9883
+Epoch 5/5
+469/469 <span class="o">[==============================]</span> - 2s 4ms/step - loss: 0.0229 - accuracy: 0.9929 - val_loss: 0.0296 - val_accuracy: 0.9899
 
-<p>Improved high availability</p>
+Training completed <span class="k">in </span>9.94 seconds
+313/313 <span class="o">[==============================]</span> - 1s 2ms/step - loss: 0.0296 - accuracy: 0.9899
 
-<p>Centralized management</p>
+Test accuracy: 0.9899</code></pre></figure>
 
-<p>Easier integration with other AWS services</p>
+<p><strong>What we’ve achieved</strong></p>
 
-<p>Better monitoring and logging capabilities</p>
+<p>So here we are able to set up a Minikube with local GPU support, integrated NVIDIA GPU (RTX 3070 Ti), by validating CUDA with TensorFlow GPU integration, deploy a CNN (Convolutional Neural Network) training on MNIST with final test accuracy: 98.99%.</p>
 
-<p>Potential Challenges:</p>
-
-<p>GPU resource management at scale</p>
-
-<p>Model synchronization across pods</p>
-
-<p>Storage performance optimization</p>
-
-<p>Network latency between components</p>
-
-<p><b>Get Started</b></p>
-
-<p><img src="/assets/mlops03-5.png" alt="image tooltip here" /></p>
-
-<p><b>Conclusion</b></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Continue MLOPS project by moving to EKS]]></summary></entry><entry><title type="html">MLOps - Build a local KB with Ollama and Open WebUI</title><link href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html" rel="alternate" type="text/html" title="MLOps - Build a local KB with Ollama and Open WebUI" /><published>2025-01-19T11:15:29+11:00</published><updated>2025-01-19T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/19/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html"><![CDATA[<p><b>Continue Local MLOPS Project </b></p>
+<p>In next post I will explore how to manage Kubeflow for more complex machine learning senarios and enable Prometheus and Grafana for ML workload monitoring.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[ML Project Lifecycle in the Real World]]></summary></entry><entry><title type="html">MLOps - Build a local KB with Ollama and Open WebUI</title><link href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html" rel="alternate" type="text/html" title="MLOps - Build a local KB with Ollama and Open WebUI" /><published>2025-01-19T11:15:29+11:00</published><updated>2025-01-19T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/19/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html"><![CDATA[<p><b>Continue Local MLOPS Project </b></p>
 
 <p>In this post, I want to build a local Knowledge Base using WSL, Docker, Ollama and Open WebUI.</p>
 

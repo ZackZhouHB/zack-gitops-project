@@ -1,156 +1,287 @@
 ---
 layout: post
-title:  "MLOps - Move local Ollama and Open WebUI to EKS"
-date:   2025-01-19 11:18:29 +1100
+title:  "MLOps - Deploy ML workload to K8S"
+date:   2025-01-20 11:18:29 +1100
 categories: jekyll Cat2
 ---
 
-<b>Continue MLOPS project by moving to EKS</b>
+**ML Project Lifecycle in the Real World**
 
-After those local deployment and EKS Karpenter practice I am knee to migrate this local Ollama and Open WebUI setup to EKS and benefit from cloud GPU power and autoscalling capability. Here is how I could approach this:
+So far the local ML practice is just the beginning, in a real world production environment, ML projects typically follow a structured lifecycle and often deployed in scalable, cloud-based environments. Cloud Providers like AWS with Managed Kubernetes Services (EKS) to provides orchestration, scaling, and fault tolerance to handle ML workloads. 
 
-a comprehensive guide for deploying ML workloads on EKS with Karpenter. This guide will cover the following aspects:
+**Path for delpoying MLOps workload in K8S**
 
-The infrastructure is set up in phases:
+- Transition from local ML practice to a K8S-based deployment (**This post**)
+- Start with MLOps tools like **Kubeflow**.
+- Shift from local to cloud platforms (AWS) to deploy ML workload on EKS.
+- Practice deploying models using REST APIs (local) and APT Gateway (AWS).
+- Try local data engineering (ETL pipelines, data lakes, etc.), then move to AWS data service and solution for ML workload.
 
-EKS cluster setup with Terraform
-Karpenter configuration for GPU instance management
-Monitoring stack with Prometheus and Grafana
-ML job templates and storage configuration
+**Setting up Minikube with GPU on WSL Ubuntu**
 
+- First let's create a Minikube cluster with GPU support on WSL Ubuntu. This will be the local K8S environment for testing and deploying ML workloads.
+{% highlight shell %}
 
-Key features implemented:
+# Install Minikube
+sudo apt-get update
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
-Automatic GPU node provisioning
-Spot instance support for cost optimization
-GPU metrics monitoring
-Storage for model artifacts
-Job templates for ML workloads
+# Start Minikube with the Docker driver and GPU support
+minikube start --driver docker --container-runtime docker --gpus all --force --cpus=8 --memory=16g --addons=nvidia-gpu-device-plugin
 
+# Verify Minikube addon with Nvidia GPU
+root@zackz:/mnt/f/ml-local/local-minikube/complex# minikube addons list | grep NVIDIA
+| nvidia-device-plugin        | minikube | enabled ✅   | 3rd party (NVIDIA)             |
+| nvidia-driver-installer     | minikube | disabled     | 3rd party (NVIDIA)             |
+| nvidia-gpu-device-plugin    | minikube | disabled     | 3rd party (NVIDIA)             |
 
-Next steps to get started:
+# Verify Minikube node
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl get node
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   34m   v1.32.0
 
-Set up the EKS cluster using the Terraform code provided
-Install and configure Karpenter
-Deploy the monitoring stack
-Test with a simple GPU job
+# Verify Minikube node GPU capacity
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl describe node $(kubectl get nodes -o name | cut -d'/' -f2) | grep -A 10 "Capacity"
+Capacity:
+  cpu:                20
+  ephemeral-storage:  1055762868Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             49238360Ki
+  nvidia.com/gpu:     1
+  pods:               110
+Allocatable:
+  cpu:                20
+  ephemeral-storage:  1055762868Ki
 
-- Key Components to Migrate:
-
-
-1. Ollama server with GPU support
-
-2. Open WebUI frontend
-
-3. Persistent storage for knowledge base
-
-4. Model storage and management
-
-- EKS-Specific Requirements:
-
-1. GPU-enabled node groups (which you already have set up with Karpenter)
-
-2. Persistent storage using EBS CSI driver (already configured in your EKS setup)
-
-3. Container optimization for Kubernetes environment
-
-
-- Implementation Steps:
-
-1. Containerization:
-
-   - Modify Ollama container for k8s compatibility
-
-   - Adapt Open WebUI container for k8s
-
-   - Create Kubernetes manifests (Deployments, Services, ConfigMaps)
-
-2. Storage:
-
-   - Use EBS for model persistence
-
-   - Set up PersistentVolumes for knowledge base data
-
-   - Configure volume mounts for both Ollama and WebUI
-
-3. GPU Access:
-
-   - Use node selectors/tolerations for GPU nodes
-
-   - Configure Karpenter to provision GPU instances
-
-   - Set up NVIDIA device plugin
-
-4. Networking:
-
-   - Internal Service for Ollama API
-
-   - LoadBalancer/Ingress for WebUI access
-
-   - Configure proper security groups
-
-Key Considerations:
-
-Resource Management:
-
-{% highlight yaml %}
-  requests:
-    nvidia.com/gpu: "1"
-  limits:
-    nvidia.com/gpu: "1"
 {% endhighlight %}
 
-Scaling Strategy:
-
-{% highlight yaml %}
-- Configure Karpenter for GPU node scaling
-- Set resource quotas for model management
-{% endhighlight %}
-
-
-Advantages of EKS Deployment:
-
-
-Better scalability through Karpenter
-
-Improved high availability
-
-Centralized management
-
-Easier integration with other AWS services
-
-Better monitoring and logging capabilities
-
-
-Potential Challenges:
-
-
-GPU resource management at scale
-
-Model synchronization across pods
-
-Storage performance optimization
-
-Network latency between components
-
-
-
-<b>Get Started</b>
-
-
+- Nest step, once the K8S is ready, let's run a GPU pod to test if a K8S pod can access GPU.
 
 {% highlight shell %}
 
+# vim gpu-stes.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-pod
+spec:
+  containers:
+  - name: cuda-container
+    image: nvidia/cuda:12.6.0-base-ubuntu22.04
+    resources:
+      limits:
+        nvidia.com/gpu: 1 # Request 1 GPU
+    command: ["nvidia-smi"]
+
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl apply -f gpu-test.yaml
+pod/gpu-pod created
+
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl get po -A
+NAMESPACE     NAME                                   READY   STATUS      RESTARTS        AGE
+default       gpu-pod                                0/1     Completed   1 (2s ago)      3s
+kube-system   coredns-668d6bf9bc-2nwph               1/1     Running     0               3m1s
+kube-system   etcd-minikube                          1/1     Running     0               3m7s
+kube-system   kube-apiserver-minikube                1/1     Running     0               3m7s
+kube-system   kube-controller-manager-minikube       1/1     Running     0               3m6s
+kube-system   kube-proxy-vblkm                       1/1     Running     0               3m1s
+kube-system   kube-scheduler-minikube                1/1     Running     0               3m6s
+kube-system   nvidia-device-plugin-daemonset-72jwz   1/1     Running     0               3m1s
+kube-system   storage-provisioner                    1/1     Running     1 (2m39s ago)   3m5s
+
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl logs gpu-pod
+Fri Jan 24 22:55:29 2025
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.02              Driver Version: 560.94         CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  |   00000000:01:00.0  On |                  N/A |
+|  0%   53C    P8             17W /  186W |    1736MiB /   8192MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A        27      G   /Xwayland                                   N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                   N/A      |
++-----------------------------------------------------------------------------------------+
+
+{% endhighlight %}
+
+- Now let's create a more complex GPU workload that trains a simple CNN on MNIST dataset, with a ResourceQuota and LimitRange to allocate the GPU in minikube, we will use the `tensorflow/tensorflow:2.14.0-gpu` to better support CUDA and NVIDIA drivers to complete the training job.
+
+{% highlight yaml %}
+
+# MNIST-Training.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mnist-gpu-training
+  namespace: gpu-workloads
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mnist-gpu-training
+  template:
+    metadata:
+      labels:
+        app: mnist-gpu-training
+    spec:
+      containers:
+      - name: tensorflow
+        image: tensorflow/tensorflow:2.14.0-gpu
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: "8Gi"
+          requests:
+            memory: "4Gi"
+        command: ["python3"]
+        args: 
+          - "-c"
+          - |
+            import tensorflow as tf
+            import time
+            
+            # Load and preprocess MNIST data
+            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+            x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.0
+            x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.0
+            
+            # Build CNN model
+            model = tf.keras.Sequential([
+                tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(28, 28, 1)),
+                tf.keras.layers.MaxPooling2D(),
+                tf.keras.layers.Conv2D(64, 3, activation='relu'),
+                tf.keras.layers.MaxPooling2D(),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(128, activation='relu'),
+                tf.keras.layers.Dense(10, activation='softmax')
+            ])
+            
+            # Compile model
+            model.compile(
+                optimizer='adam',
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy']
+            )
+            
+            print("Starting training...")
+            start_time = time.time()
+            
+            # Train model
+            history = model.fit(
+                x_train, y_train,
+                epochs=5,
+                validation_data=(x_test, y_test),
+                batch_size=128
+            )
+            
+            end_time = time.time()
+            print(f"\nTraining completed in {end_time - start_time:.2f} seconds")
+            
+            # Evaluate model
+            test_loss, test_accuracy = model.evaluate(x_test, y_test)
+            print(f"\nTest accuracy: {test_accuracy:.4f}")
+
+# gpu-resources.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gpu-workloads
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota
+  namespace: gpu-workloads
+spec:
+  hard:
+    requests.nvidia.com/gpu: "1"
+    limits.nvidia.com/gpu: "1"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: gpu-limits
+  namespace: gpu-workloads
+spec:
+  limits:
+  - type: Container
+    defaultRequest:
+      nvidia.com/gpu: "1"
+    default:
+      nvidia.com/gpu: "1"
+    max:
+      nvidia.com/gpu: "1"
+{% endhighlight %}
+
+- Deploy the MNIST Training and resource quota into minikube
+
+{% highlight shell %}
+root@zackz:/mnt/f/ml-local/local-minikube/complex# kubectl apply -f gpu-quota.yaml
+namespace/gpu-workloads created
+resourcequota/gpu-quota created
+limitrange/gpu-limits created
+root@zackz:/mnt/f/ml-local/local-minikube/complex# kubectl apply -f MNIST-Training.yaml
+deployment.apps/mnist-gpu-training created
+
+root@zackz:/mnt/f/ml-local/local-minikube# kubectl get po -A -w
+NAMESPACE       NAME                                   READY   STATUS              RESTARTS      AGE
+default         tensorflow-gpu-test-d445455dc-slsg4    0/1     ContainerCreating   0             2m59s
+kube-system     coredns-668d6bf9bc-2nwph               1/1     Running             0             25m
+kube-system     etcd-minikube                          1/1     Running             0             25m
+kube-system     kube-apiserver-minikube                1/1     Running             0             25m
+kube-system     kube-controller-manager-minikube       1/1     Running             0             25m
+kube-system     kube-proxy-vblkm                       1/1     Running             0             25m
+kube-system     kube-scheduler-minikube                1/1     Running             0             25m
+kube-system     nvidia-device-plugin-daemonset-72jwz   1/1     Running             0             25m
+kube-system     storage-provisioner                    1/1     Running             1 (25m ago)   25m
+
+root@zackz:/mnt/f/ml-local/local-minikube/complex# kubectl logs -n gpu-workloads   mnist-gpu-training-778fb7bcf7-zsscr
+2025-01-24 23:18:15.642781: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz
+11490434/11490434 [==============================] - 2s 0us/step
+2025-01-24 23:18:19.429788: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1886] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 5558 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3070 Ti, pci bus id: 0000:01:00.0, compute capability: 8.6
+Starting training...
+Epoch 1/5
+2025-01-24 23:18:20.175141: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:442] Loaded cuDNN version 8600
+2025-01-24 23:18:20.399678: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f25deb91fb0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-01-24 23:18:20.399719: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 3070 Ti, Compute Capability 8.6
+2025-01-24 23:18:20.402577: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-01-24 23:18:20.461905: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+469/469 [==============================] - 3s 4ms/step - loss: 0.2068 - accuracy: 0.9409 - val_loss: 0.0664 - val_accuracy: 0.9778
+Epoch 2/5
+469/469 [==============================] - 2s 3ms/step - loss: 0.0555 - accuracy: 0.9828 - val_loss: 0.0476 - val_accuracy: 0.9849
+Epoch 3/5
+469/469 [==============================] - 2s 3ms/step - loss: 0.0407 - accuracy: 0.9875 - val_loss: 0.0329 - val_accuracy: 0.9900
+Epoch 4/5
+469/469 [==============================] - 2s 4ms/step - loss: 0.0304 - accuracy: 0.9905 - val_loss: 0.0385 - val_accuracy: 0.9883
+Epoch 5/5
+469/469 [==============================] - 2s 4ms/step - loss: 0.0229 - accuracy: 0.9929 - val_loss: 0.0296 - val_accuracy: 0.9899
+
+Training completed in 9.94 seconds
+313/313 [==============================] - 1s 2ms/step - loss: 0.0296 - accuracy: 0.9899
+
+Test accuracy: 0.9899
 
 {% endhighlight %}
 
 
+**What we've achieved**
 
+So here we are able to set up a Minikube with local GPU support, integrated NVIDIA GPU (RTX 3070 Ti), by validating CUDA with TensorFlow GPU integration, deploy a CNN (Convolutional Neural Network) training on MNIST with final test accuracy: 98.99%. 
 
-![image tooltip here](/assets/mlops03-5.png)
+In next post I will explore how to manage Kubeflow for more complex machine learning senarios and enable Prometheus and Grafana for ML workload monitoring.
 
-
-
-
-<b>Conclusion</b>
 
