@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Update the title here -->
+    <title>Zack's Super Pneumonia Classifier</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Update the heading here if you want it to match the title -->
+        <h1>Zack's Super Pneumonia Classifier</h1>
+        <form id="uploadForm">
+            <input type="file" id="imageUpload" accept="image/*" required>
+            <button type="submit">Upload and Predict</button>
+        </form>
+        <!-- Add an image element to display the uploaded image -->
+        <div id="imagePreview">
+            <img id="previewImage" src="#" alt="Uploaded Image" style="display: none; max-width: 100%; height: auto;">
+        </div>
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
