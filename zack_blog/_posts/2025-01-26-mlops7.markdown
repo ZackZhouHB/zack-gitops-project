@@ -311,6 +311,93 @@ Output:
 weighted avg       0.90      0.88      0.87        16
 ```
 
+<b>Result Analysis</b>
+
+-  Classification Report
+
+The classification report shows the following metrics:
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| 0     | 1.00      | 0.75   | 0.86     | 8       |
+| 1     | 0.80      | 1.00   | 0.89     | 8       |
+
+- **Accuracy**: 0.88 (88%)
+- **Macro Avg**: Precision = 0.90, Recall = 0.88, F1-Score = 0.87
+- **Weighted Avg**: Precision = 0.90, Recall = 0.88, F1-Score = 0.87
+
+---
+
+- The confusion matrix is:
+
+|                | Predicted 0 | Predicted 1 |
+|----------------|-------------|-------------|
+| **Actual 0**   | 6           | 2           |
+| **Actual 1**   | 0           | 8           |
+
+- **True Positives (TP)**: 8 (correctly predicted pneumonia)
+- **True Negatives (TN)**: 6 (correctly predicted normal)
+- **False Positives (FP)**: 2 (normal misclassified as pneumonia)
+- **False Negatives (FN)**: 0 (pneumonia misclassified as normal)
+
+---
+
+-  CloudWatch Logs indicate:
+
+- **Training Accuracy**: 0.743865 (74.39%) at epoch 13.
+- **Validation Accuracy**: 0.641447 (64.14%) at epoch 13.
+- **Early Stopping**: Triggered at epoch 13, indicating the model stopped improving.
+
+---
+
+- Real-Time Prediction
+
+- A test image (`val_normal0.jpeg`) was sent to the endpoint for prediction.
+- The output probabilities were `[0.8592441082997322, 0.14075589179992676]`, indicating a **high confidence (85.92%)** for class 0 (normal).
+
+---
+
+-  Batch Prediction
+
+- The model was evaluated on the validation dataset (16 images: 8 normal, 8 pneumonia).
+- Predictions:
+  - **Normal (Class 0)**: 6 correct, 2 misclassified as pneumonia.
+  - **Pneumonia (Class 1)**: 8 correct, 0 misclassified as normal.
+
+---
+
+- Best Training Job Hyperparameters use the following hyperparameters:
+
+| Name                        | Type        | Value                        |
+|-----------------------------|-------------|------------------------------|
+| `learning_rate`             | Continuous  | 0.09733936070761987          |
+| `mini_batch_size`           | Categorical | 32                           |
+| `optimizer`                 | Categorical | adam                         |
+| `_tuning_objective_metric`  | FreeText    | validation:accuracy          |
+| `augmentation_type`         | FreeText    | crop_color_transform         |
+| `early_stopping`            | FreeText    | True                         |
+| `early_stopping_min_epochs` | FreeText    | 8                            |
+| `early_stopping_patience`   | FreeText    | 5                            |
+| `early_stopping_tolerance`  | FreeText    | 0.0                          |
+| `epochs`                    | FreeText    | 15                           |
+| `image_shape`               | FreeText    | 3,224,224                    |
+| `lr_scheduler_factor`       | FreeText    | 0.1                          |
+| `lr_scheduler_step`         | FreeText    | 8,10,12                      |
+| `num_classes`               | FreeText    | 2                            |
+| `num_training_samples`      | FreeText    | 5216                         |
+| `use_pretrained_model`      | FreeText    | 1                            |
+
+-  Does the Model Meet Expectations?
+
+- **Accuracy**: 88% is good for a binary classification task.
+- **Precision**:
+  - Class 0 (Normal): 100% precision means no false positives for normal cases.
+  - Class 1 (Pneumonia): 80% precision means 20% of pneumonia predictions were false positives.
+- **Recall**:
+  - Class 0 (Normal): 75% recall means 25% of normal cases were missed.
+  - Class 1 (Pneumonia): 100% recall means all pneumonia cases were correctly identified.
+- **F1-Score**: Balanced F1-scores (0.86 for normal, 0.89 for pneumonia) indicate good performance.
+
 <b>Conclusion</b>
 
 Key takeaways:

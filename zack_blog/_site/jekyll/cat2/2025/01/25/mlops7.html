@@ -375,6 +375,237 @@ Use a more powerful instance (e.g., <code class="language-plaintext highlighter-
 <span class="n">weighted</span> <span class="n">avg</span>       <span class="mf">0.90</span>      <span class="mf">0.88</span>      <span class="mf">0.87</span>        <span class="mi">16</span>
 </code></pre></div></div>
 
+<p><b>Result Analysis</b></p>
+
+<ul>
+  <li>Classification Report</li>
+</ul>
+
+<p>The classification report shows the following metrics:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Class</th>
+      <th>Precision</th>
+      <th>Recall</th>
+      <th>F1-Score</th>
+      <th>Support</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1.00</td>
+      <td>0.75</td>
+      <td>0.86</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.80</td>
+      <td>1.00</td>
+      <td>0.89</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>Accuracy</strong>: 0.88 (88%)</li>
+  <li><strong>Macro Avg</strong>: Precision = 0.90, Recall = 0.88, F1-Score = 0.87</li>
+  <li><strong>Weighted Avg</strong>: Precision = 0.90, Recall = 0.88, F1-Score = 0.87</li>
+</ul>
+
+<hr />
+
+<ul>
+  <li>The confusion matrix is:</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Predicted 0</th>
+      <th>Predicted 1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Actual 0</strong></td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><strong>Actual 1</strong></td>
+      <td>0</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>True Positives (TP)</strong>: 8 (correctly predicted pneumonia)</li>
+  <li><strong>True Negatives (TN)</strong>: 6 (correctly predicted normal)</li>
+  <li><strong>False Positives (FP)</strong>: 2 (normal misclassified as pneumonia)</li>
+  <li><strong>False Negatives (FN)</strong>: 0 (pneumonia misclassified as normal)</li>
+</ul>
+
+<hr />
+
+<ul>
+  <li>
+    <p>CloudWatch Logs indicate:</p>
+  </li>
+  <li><strong>Training Accuracy</strong>: 0.743865 (74.39%) at epoch 13.</li>
+  <li><strong>Validation Accuracy</strong>: 0.641447 (64.14%) at epoch 13.</li>
+  <li><strong>Early Stopping</strong>: Triggered at epoch 13, indicating the model stopped improving.</li>
+</ul>
+
+<hr />
+
+<ul>
+  <li>
+    <p>Real-Time Prediction</p>
+  </li>
+  <li>A test image (<code class="language-plaintext highlighter-rouge">val_normal0.jpeg</code>) was sent to the endpoint for prediction.</li>
+  <li>The output probabilities were <code class="language-plaintext highlighter-rouge">[0.8592441082997322, 0.14075589179992676]</code>, indicating a <strong>high confidence (85.92%)</strong> for class 0 (normal).</li>
+</ul>
+
+<hr />
+
+<ul>
+  <li>
+    <p>Batch Prediction</p>
+  </li>
+  <li>The model was evaluated on the validation dataset (16 images: 8 normal, 8 pneumonia).</li>
+  <li>Predictions:
+    <ul>
+      <li><strong>Normal (Class 0)</strong>: 6 correct, 2 misclassified as pneumonia.</li>
+      <li><strong>Pneumonia (Class 1)</strong>: 8 correct, 0 misclassified as normal.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<ul>
+  <li>Best Training Job Hyperparameters use the following hyperparameters:</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">learning_rate</code></td>
+      <td>Continuous</td>
+      <td>0.09733936070761987</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mini_batch_size</code></td>
+      <td>Categorical</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">optimizer</code></td>
+      <td>Categorical</td>
+      <td>adam</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">_tuning_objective_metric</code></td>
+      <td>FreeText</td>
+      <td>validation:accuracy</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">augmentation_type</code></td>
+      <td>FreeText</td>
+      <td>crop_color_transform</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">early_stopping</code></td>
+      <td>FreeText</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">early_stopping_min_epochs</code></td>
+      <td>FreeText</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">early_stopping_patience</code></td>
+      <td>FreeText</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">early_stopping_tolerance</code></td>
+      <td>FreeText</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">epochs</code></td>
+      <td>FreeText</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">image_shape</code></td>
+      <td>FreeText</td>
+      <td>3,224,224</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">lr_scheduler_factor</code></td>
+      <td>FreeText</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">lr_scheduler_step</code></td>
+      <td>FreeText</td>
+      <td>8,10,12</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">num_classes</code></td>
+      <td>FreeText</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">num_training_samples</code></td>
+      <td>FreeText</td>
+      <td>5216</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">use_pretrained_model</code></td>
+      <td>FreeText</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>
+    <p>Does the Model Meet Expectations?</p>
+  </li>
+  <li><strong>Accuracy</strong>: 88% is good for a binary classification task.</li>
+  <li><strong>Precision</strong>:
+    <ul>
+      <li>Class 0 (Normal): 100% precision means no false positives for normal cases.</li>
+      <li>Class 1 (Pneumonia): 80% precision means 20% of pneumonia predictions were false positives.</li>
+    </ul>
+  </li>
+  <li><strong>Recall</strong>:
+    <ul>
+      <li>Class 0 (Normal): 75% recall means 25% of normal cases were missed.</li>
+      <li>Class 1 (Pneumonia): 100% recall means all pneumonia cases were correctly identified.</li>
+    </ul>
+  </li>
+  <li><strong>F1-Score</strong>: Balanced F1-scores (0.86 for normal, 0.89 for pneumonia) indicate good performance.</li>
+</ul>
+
 <p><b>Conclusion</b></p>
 
 <p>Key takeaways:</p>
