@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MLOps - Deploy Pneumonia Classifier Application with AWS Serverless | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MLOps - Deploy Pneumonia Classifier Application with AWS Serverless" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Continue Pneumonia Classifier by moving to AWS Serverless" />
+<meta property="og:description" content="Continue Pneumonia Classifier by moving to AWS Serverless" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-01-25T22:18:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MLOps - Deploy Pneumonia Classifier Application with AWS Serverless" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-01-25T22:18:29+11:00","datePublished":"2025-01-25T22:18:29+11:00","description":"Continue Pneumonia Classifier by moving to AWS Serverless","headline":"MLOps - Deploy Pneumonia Classifier Application with AWS Serverless","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html"},"url":"http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MLOps - Deploy Pneumonia Classifier Application with AWS Serverless </h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2025-01-25T22:18:29+11:00" itemprop="datePublished">Jan 25, 2025
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Continue Pneumonia Classifier by moving to AWS Serverless</b></p>
+
+<ul>
+  <li>Go AWS Serverless Deployment</li>
+</ul>
+
+<p>Deploying machine learning models in production requires additional considerations to address latency, scalability, cost-efficiency, and monitoring.</p>
+
+<p>A modern approach to hosting an ML application in AWS can be considered as a <code class="language-plaintext highlighter-rouge">serverless architecture</code>.</p>
+
+<p>This allow users to upload images via a S3 static web page and send to API Gateway. The API Gateway receives the HTTP POST request and forwards it to the Lambda function, which handles the image preprocessing, inference, and postprocessing logic. The Lambda function sends the image payload to the SageMaker endpoint, by calling the SageMaker endpoint using the SageMaker Runtime SDK (invoke_endpoint) which hosts my trained model, and then retrieves the prediction. The prediction result is sent back to the frontend for display.</p>
+
+<p>This approach leverages <code class="language-plaintext highlighter-rouge">S3</code>, <code class="language-plaintext highlighter-rouge">AWS Lambda</code>, <code class="language-plaintext highlighter-rouge">Amazon API Gateway</code>, and <code class="language-plaintext highlighter-rouge">Amazon SageMaker</code>, to leverage with Amazon SageMaker Managed endpoints (Real-Time Inference) that handle auto-scaling, security, and monitoring out-of-the-box.</p>
+
+<ul>
+  <li>Advantage with AWS Serverless</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Scalability</code>: API Gateway scales automatically to handle high concurrency. Lambda scales horizontally (serverless) and is invoked only when needed. SageMaker Endpoint supports auto-scaling to handle varying inference loads.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Low Latency</code>: Real-time inference is achieved with the SageMaker Endpoint.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Cost Optimized</code>: Lambda is a pay-per-use service, so we’re not paying for idle compute resources. SageMaker Endpoint supports multi-model endpoints and elastic inference for cost savings.</p>
+
+<p><code class="language-plaintext highlighter-rouge">AWS Serverless and fully managed services</code>: Fully managed services reduce operational overhead for model hosting and frontend and backend infrastructure.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Model flow</span>
+S3 <span class="o">(</span>Model Artifacts<span class="o">)</span> → SageMaker Model → Real-Time Endpoint <span class="o">(</span>GPU<span class="o">)</span> → Auto-Scaling + Model Monitor
+
+<span class="c"># Image and Inference flow</span>
+
+S3 Static web → Upload Image → API Gateway → Lambda <span class="o">(</span>Image Preprocessing<span class="o">)</span> → SageMaker Endpoint <span class="o">(</span>Real-Time Inference<span class="o">)</span> → API Gateway → S3 <span class="o">(</span>Result<span class="o">)</span>
+
+</code></pre></div></div>
+
+<p><b>Design of the Pneumonia Classifier Application with AWS Serverless</b></p>
+
+<p>Here are the components of the serverless application:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Frontend</code>: contain the static files for website hosted on S3, allowing users to upload images and display predictions.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Backend</code>: Yaml file to deploy API Gateway to trigger the Lambda function.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Lambda</code>: Define function to process the image and interact with the SageMaker endpoint.</p>
+
+<p><code class="language-plaintext highlighter-rouge">SageMaker</code>: Configuration for the serverless endpoint that hosts the ML model.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Folder Structure</span>
+root@zackz:/mnt/f/ml-local/local-cv/aws-deploy# tree
+<span class="nb">.</span>
+├── backend
+│   └── api-gateway-config.yaml
+├── frontend
+│   ├── assets
+│   │   ├── fonts
+│   │   └── images
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+└── sagemaker
+    └── endpoint-config.yaml
+
+</code></pre></div></div>
+
+<ul>
+  <li>Frondend: S3 Static Website Hosting</li>
+</ul>
+
+<p>Upload files into S3 bucket and enable Static Website Hosting, Specify <code class="language-plaintext highlighter-rouge">index.html</code> as the index document, Update Bucket Policy to Allow Public Access, verify the URL for access</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">{</span>
+    <span class="s2">"</span><span class="s">Version"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">2012-10-17"</span><span class="pi">,</span>
+    <span class="s2">"</span><span class="s">Statement"</span><span class="pi">:</span> <span class="pi">[</span>
+        <span class="pi">{</span>
+            <span class="s2">"</span><span class="s">Sid"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">PublicReadGetObject"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Effect"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Allow"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Principal"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Action"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">s3:GetObject"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Resource"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">arn:aws:s3:::sagemaker-frontend--zz-imageclassification/*"</span>
+        <span class="pi">}</span>
+    <span class="pi">]</span>
+<span class="pi">}</span>
+</code></pre></div></div>
+<p><img src="/assets/mlops09-1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Backend: API Gateway and Lambda Function</li>
+</ul>
+
+<p>This folder will contain a cloudformation yaml file to create for <code class="language-plaintext highlighter-rouge">API Gateway</code>, <code class="language-plaintext highlighter-rouge">Lambda function</code> and <code class="language-plaintext highlighter-rouge">Lambda Execution role</code>, Outputs the API Gateway URL.</p>
+
+<p>API Gateway resource will create a REST API (ImageClassificationAPI) with a /predict resource. Defines a POST method that integrates with the Lambda function, then deploys to a prod stage that Allows API Gateway to invoke the Lambda function</p>
+
+<p>Lambda defines the function (ImageClassificationLambda) that interacts with the SageMaker endpoint. Includes the Python code for handling the image upload and invoking the SageMaker endpoint.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># api-gateway-config.yaml</span>
+<span class="na">AWSTemplateFormatVersion</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2010-09-09'</span>
+<span class="na">Description</span><span class="pi">:</span> <span class="s">CloudFormation template for API Gateway and Lambda integration</span>
+
+<span class="na">Resources</span><span class="pi">:</span>
+  <span class="c1"># API Gateway</span>
+  <span class="na">ImageClassificationAPI</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::RestApi</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">Name</span><span class="pi">:</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">Description</span><span class="pi">:</span> <span class="s">API for image classification</span>
+
+  <span class="c1"># API Gateway Resource</span>
+  <span class="na">PredictResource</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::Resource</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">RestApiId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">ParentId</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">ImageClassificationAPI.RootResourceId</span>
+      <span class="na">PathPart</span><span class="pi">:</span> <span class="s">predict</span>
+
+  <span class="c1"># API Gateway Method (POST)</span>
+  <span class="na">PredictMethod</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::Method</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">RestApiId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">ResourceId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">PredictResource</span>
+      <span class="na">HttpMethod</span><span class="pi">:</span> <span class="s">POST</span>
+      <span class="na">AuthorizationType</span><span class="pi">:</span> <span class="s">NONE</span>
+      <span class="na">Integration</span><span class="pi">:</span>
+        <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS_PROXY</span>
+        <span class="na">IntegrationHttpMethod</span><span class="pi">:</span> <span class="s">POST</span>
+        <span class="na">Uri</span><span class="pi">:</span> <span class="kt">!Sub</span> <span class="s">arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ImageClassificationLambda.Arn}/invocations</span>
+
+  <span class="c1"># Lambda Function</span>
+  <span class="na">ImageClassificationLambda</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::Lambda::Function</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">Handler</span><span class="pi">:</span> <span class="s">app.lambda_handler</span>
+      <span class="na">Runtime</span><span class="pi">:</span> <span class="s">python3.9</span>
+      <span class="na">Role</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">LambdaExecutionRole.Arn</span>
+      <span class="na">Code</span><span class="pi">:</span>
+        <span class="na">ZipFile</span><span class="pi">:</span> <span class="pi">|</span>
+          <span class="s">import boto3</span>
+          <span class="s">import json</span>
+          <span class="s">import base64</span>
+
+          <span class="s">sagemaker = boto3.client('sagemaker-runtime')</span>
+
+          <span class="s">def lambda_handler(event, context):</span>
+              <span class="s">try:</span>
+                  <span class="s"># Decode the image from the request</span>
+                  <span class="s">body = json.loads(event['body'])</span>
+                  <span class="s">image_bytes = base64.b64decode(body['file'])</span>
+
+                  <span class="s"># Call SageMaker endpoint</span>
+                  <span class="s">response = sagemaker.invoke_endpoint(</span>
+                      <span class="s">EndpointName='zack-aws-sagemaker-endpoint',</span>
+                      <span class="s">ContentType='application/x-image',</span>
+                      <span class="s">Body=image_bytes</span>
+                  <span class="s">)</span>
+
+                  <span class="s"># Parse the prediction</span>
+                  <span class="s">prediction = json.loads(response['Body'].read().decode())</span>
+                  <span class="s">return {</span>
+                      <span class="s">'statusCode': 200,</span>
+                      <span class="s">'body': json.dumps({'prediction': prediction})</span>
+                  <span class="s">}</span>
+              <span class="s">except Exception as e:</span>
+                  <span class="s">return {</span>
+                      <span class="s">'statusCode': 500,</span>
+                      <span class="s">'body': json.dumps({'error': str(e)})</span>
+                  <span class="s">}</span>
+
+  <span class="c1"># Lambda Execution Role</span>
+  <span class="na">LambdaExecutionRole</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::IAM::Role</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">AssumeRolePolicyDocument</span><span class="pi">:</span>
+        <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+        <span class="na">Statement</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+            <span class="na">Principal</span><span class="pi">:</span>
+              <span class="na">Service</span><span class="pi">:</span> <span class="s">lambda.amazonaws.com</span>
+            <span class="na">Action</span><span class="pi">:</span> <span class="s">sts:AssumeRole</span>
+      <span class="na">Policies</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">PolicyName</span><span class="pi">:</span> <span class="s">LambdaSageMakerAccess</span>
+          <span class="na">PolicyDocument</span><span class="pi">:</span>
+            <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+            <span class="na">Statement</span><span class="pi">:</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">sagemaker:InvokeEndpoint</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogGroup</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogStream</span>
+                  <span class="pi">-</span> <span class="s">logs:PutLogEvents</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span>
+
+  <span class="c1"># API Gateway Deployment</span>
+  <span class="na">ApiGatewayDeployment</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::Deployment</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">RestApiId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">StageName</span><span class="pi">:</span> <span class="s">prod</span>
+
+  <span class="c1"># API Gateway Permission to Invoke Lambda</span>
+  <span class="na">ApiGatewayPermission</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::Lambda::Permission</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">Action</span><span class="pi">:</span> <span class="s">lambda:InvokeFunction</span>
+      <span class="na">FunctionName</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">ImageClassificationLambda.Arn</span>
+      <span class="na">Principal</span><span class="pi">:</span> <span class="s">apigateway.amazonaws.com</span>
+      <span class="na">SourceArn</span><span class="pi">:</span> <span class="kt">!Sub</span> <span class="s">arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ImageClassificationAPI}/*/POST/predict</span>
+
+<span class="na">Outputs</span><span class="pi">:</span>
+  <span class="na">ApiGatewayUrl</span><span class="pi">:</span>
+    <span class="na">Description</span><span class="pi">:</span> <span class="s">URL of the API Gateway</span>
+    <span class="na">Value</span><span class="pi">:</span> <span class="kt">!Sub</span> <span class="s">https://${ImageClassificationAPI}.execute-api.${AWS::Region}.amazonaws.com/prod</span>
+
+</code></pre></div></div>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># deploy backend</span>
+aws cloudformation create-stack <span class="se">\</span>
+  <span class="nt">--stack-name</span> image-classification-api <span class="se">\</span>
+  <span class="nt">--template-body</span> file://api-gateway-config.yaml <span class="se">\</span>
+  <span class="nt">--capabilities</span> CAPABILITY_NAMED_IAM <span class="se">\</span>
+  <span class="nt">--region</span> ap-southeast-2
+</code></pre></div></div>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># test the API</span>
+curl <span class="nt">-X</span> POST <span class="nt">-F</span> <span class="s2">"file=@data/chest_xray/val/val_normal0.jpeg"</span> https://i4s4znf7bb.execute-api.ap-southeast-2.amazonaws.com/prod/ImageClassificationAPI/predict
+
+Output:
+b<span class="s1">'[0.8592441082997322, 0.14075589179992676]'</span>
+
+</code></pre></div></div>
+<ul>
+  <li>Sagemaker Endpoint</li>
+</ul>
+
+<p>The cloudformation template covers <code class="language-plaintext highlighter-rouge">SageMaker Execution Role</code> which Grants the SageMaker service permissions to access S3 (for model artifacts) and CloudWatch (for logging), also includes the <code class="language-plaintext highlighter-rouge">SageMaker Model</code>, <code class="language-plaintext highlighter-rouge">serverless Endpoint</code> with a maximum concurrency of 5 and 2048 MB of memory, Outputs the SageMaker endpoint name.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">AWSTemplateFormatVersion</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2010-09-09'</span>
+<span class="na">Description</span><span class="pi">:</span> <span class="s">CloudFormation template for SageMaker serverless endpoint</span>
+
+<span class="na">Resources</span><span class="pi">:</span>
+  <span class="c1"># SageMaker Execution Role</span>
+  <span class="na">SageMakerExecutionRole</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::IAM::Role</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">AssumeRolePolicyDocument</span><span class="pi">:</span>
+        <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+        <span class="na">Statement</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+            <span class="na">Principal</span><span class="pi">:</span>
+              <span class="na">Service</span><span class="pi">:</span> <span class="s">sagemaker.amazonaws.com</span>
+            <span class="na">Action</span><span class="pi">:</span> <span class="s">sts:AssumeRole</span>
+      <span class="na">Policies</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">PolicyName</span><span class="pi">:</span> <span class="s">SageMakerAccess</span>
+          <span class="na">PolicyDocument</span><span class="pi">:</span>
+            <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+            <span class="na">Statement</span><span class="pi">:</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">s3:GetObject</span>
+                  <span class="pi">-</span> <span class="s">s3:PutObject</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s">arn:aws:s3:::sagemaker-bucket-851725491342/*</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogGroup</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogStream</span>
+                  <span class="pi">-</span> <span class="s">logs:PutLogEvents</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span>
+
+  <span class="c1"># SageMaker Model</span>
+  <span class="na">ImageClassificationModel</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::SageMaker::Model</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">ModelName</span><span class="pi">:</span> <span class="s">zack-aws-sagemaker-endpoint</span>
+      <span class="na">PrimaryContainer</span><span class="pi">:</span>
+        <span class="na">Image</span><span class="pi">:</span> <span class="s">algorithm_image</span>
+        <span class="na">ModelDataUrl</span><span class="pi">:</span> <span class="s">s3://sagemaker-bucket-851725491342/models/image_model/classifier-2025-01-26-02-58-03-001-a577816e/output/model.tar.gz</span>
+      <span class="na">ExecutionRoleArn</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">SageMakerExecutionRole.Arn</span>
+
+  <span class="c1"># SageMaker Endpoint Configuration</span>
+  <span class="na">ImageClassificationEndpointConfig</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::SageMaker::EndpointConfig</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">ProductionVariants</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">ModelName</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationModel</span>
+          <span class="na">VariantName</span><span class="pi">:</span> <span class="s">AllTraffic</span>
+          <span class="na">ServerlessConfig</span><span class="pi">:</span>
+            <span class="na">MaxConcurrency</span><span class="pi">:</span> <span class="m">5</span>
+            <span class="na">MemorySizeInMB</span><span class="pi">:</span> <span class="m">2048</span>
+
+  <span class="c1"># SageMaker Endpoint</span>
+  <span class="na">ImageClassificationEndpoint</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::SageMaker::Endpoint</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">EndpointConfigName</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationEndpointConfig</span>
+      <span class="na">EndpointName</span><span class="pi">:</span> <span class="s">ImageClassificationEndpoint</span>
+
+<span class="na">Outputs</span><span class="pi">:</span>
+  <span class="na">SageMakerEndpointName</span><span class="pi">:</span>
+    <span class="na">Description</span><span class="pi">:</span> <span class="s">Name of the SageMaker endpoint</span>
+    <span class="na">Value</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationEndpoint</span>
+</code></pre></div></div>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aws cloudformation create-stack <span class="se">\</span>
+  <span class="nt">--stack-name</span> sagemaker-endpoint <span class="se">\</span>
+  <span class="nt">--template-body</span> file://endpoint-config.yaml <span class="se">\</span>
+  <span class="nt">--capabilities</span> CAPABILITY_NAMED_IAM <span class="se">\</span>
+  <span class="nt">--region</span> ap-southeast-2
+</code></pre></div></div>
+
+<ul>
+  <li>Test and Validate</li>
+</ul>
+
+<p>Access the S3 static website URL, choose a image to verify the model prediction. Logs can be found via both cloudwatch Sagemaker endpornt and lambda logs.</p>
+
+<p><img src="/assets/mlops09-2.png" alt="image tooltip here" /></p>
+
+<p>API and Model prediction verified from Postman</p>
+
+<p><img src="/assets/mlops09-3.png" alt="image tooltip here" /></p>
+
+<p><b>Key Takeaways:</b></p>
+
+<ul>
+  <li>
+    <p>Move Pneumonia image classfication ML application from local docker to AWS serverless deployment.</p>
+  </li>
+  <li>
+    <p>Leverage with AWS API Gateway and Lambda to preprocess images and call the ML model.</p>
+  </li>
+  <li>
+    <p>Deployed the Pneumonia Classifier model with a SageMaker serverless endpoint for real-time inference.</p>
+  </li>
+  <li>
+    <p>Automated AWS resource provisioning with CloudFormation.</p>
+  </li>
+  <li>
+    <p>Tested end-to-end functionality, logging and monitored with CloudWatch.</p>
+  </li>
+</ul>
+
+
+  </div><a class="u-url" href="/jekyll/cat2/2025/01/25/mlops8.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

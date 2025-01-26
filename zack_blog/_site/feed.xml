@@ -1,4 +1,346 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-26T19:06:57+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Image Classifier with AWS SageMaker</title><link href="http://localhost:4000/jekyll/cat2/2025/01/25/mlops7.html" rel="alternate" type="text/html" title="MLOps - Image Classifier with AWS SageMaker" /><published>2025-01-25T19:18:29+11:00</published><updated>2025-01-25T19:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/25/mlops7</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/25/mlops7.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-27T00:08:25+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy Pneumonia Classifier Application with AWS Serverless</title><link href="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html" rel="alternate" type="text/html" title="MLOps - Deploy Pneumonia Classifier Application with AWS Serverless" /><published>2025-01-25T22:18:29+11:00</published><updated>2025-01-25T22:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/25/mlops8</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS Serverless</b></p>
+
+<ul>
+  <li>Go AWS Serverless Deployment</li>
+</ul>
+
+<p>Deploying machine learning models in production requires additional considerations to address latency, scalability, cost-efficiency, and monitoring.</p>
+
+<p>A modern approach to hosting an ML application in AWS can be considered as a <code class="language-plaintext highlighter-rouge">serverless architecture</code>.</p>
+
+<p>This allow users to upload images via a S3 static web page and send to API Gateway. The API Gateway receives the HTTP POST request and forwards it to the Lambda function, which handles the image preprocessing, inference, and postprocessing logic. The Lambda function sends the image payload to the SageMaker endpoint, by calling the SageMaker endpoint using the SageMaker Runtime SDK (invoke_endpoint) which hosts my trained model, and then retrieves the prediction. The prediction result is sent back to the frontend for display.</p>
+
+<p>This approach leverages <code class="language-plaintext highlighter-rouge">S3</code>, <code class="language-plaintext highlighter-rouge">AWS Lambda</code>, <code class="language-plaintext highlighter-rouge">Amazon API Gateway</code>, and <code class="language-plaintext highlighter-rouge">Amazon SageMaker</code>, to leverage with Amazon SageMaker Managed endpoints (Real-Time Inference) that handle auto-scaling, security, and monitoring out-of-the-box.</p>
+
+<ul>
+  <li>Advantage with AWS Serverless</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Scalability</code>: API Gateway scales automatically to handle high concurrency. Lambda scales horizontally (serverless) and is invoked only when needed. SageMaker Endpoint supports auto-scaling to handle varying inference loads.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Low Latency</code>: Real-time inference is achieved with the SageMaker Endpoint.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Cost Optimized</code>: Lambda is a pay-per-use service, so we’re not paying for idle compute resources. SageMaker Endpoint supports multi-model endpoints and elastic inference for cost savings.</p>
+
+<p><code class="language-plaintext highlighter-rouge">AWS Serverless and fully managed services</code>: Fully managed services reduce operational overhead for model hosting and frontend and backend infrastructure.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Model flow</span>
+S3 <span class="o">(</span>Model Artifacts<span class="o">)</span> → SageMaker Model → Real-Time Endpoint <span class="o">(</span>GPU<span class="o">)</span> → Auto-Scaling + Model Monitor
+
+<span class="c"># Image and Inference flow</span>
+
+S3 Static web → Upload Image → API Gateway → Lambda <span class="o">(</span>Image Preprocessing<span class="o">)</span> → SageMaker Endpoint <span class="o">(</span>Real-Time Inference<span class="o">)</span> → API Gateway → S3 <span class="o">(</span>Result<span class="o">)</span>
+
+</code></pre></div></div>
+
+<p><b>Design of the Pneumonia Classifier Application with AWS Serverless</b></p>
+
+<p>Here are the components of the serverless application:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Frontend</code>: contain the static files for website hosted on S3, allowing users to upload images and display predictions.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Backend</code>: Yaml file to deploy API Gateway to trigger the Lambda function.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Lambda</code>: Define function to process the image and interact with the SageMaker endpoint.</p>
+
+<p><code class="language-plaintext highlighter-rouge">SageMaker</code>: Configuration for the serverless endpoint that hosts the ML model.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Folder Structure</span>
+root@zackz:/mnt/f/ml-local/local-cv/aws-deploy# tree
+<span class="nb">.</span>
+├── backend
+│   └── api-gateway-config.yaml
+├── frontend
+│   ├── assets
+│   │   ├── fonts
+│   │   └── images
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+└── sagemaker
+    └── endpoint-config.yaml
+
+</code></pre></div></div>
+
+<ul>
+  <li>Frondend: S3 Static Website Hosting</li>
+</ul>
+
+<p>Upload files into S3 bucket and enable Static Website Hosting, Specify <code class="language-plaintext highlighter-rouge">index.html</code> as the index document, Update Bucket Policy to Allow Public Access, verify the URL for access</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">{</span>
+    <span class="s2">"</span><span class="s">Version"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">2012-10-17"</span><span class="pi">,</span>
+    <span class="s2">"</span><span class="s">Statement"</span><span class="pi">:</span> <span class="pi">[</span>
+        <span class="pi">{</span>
+            <span class="s2">"</span><span class="s">Sid"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">PublicReadGetObject"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Effect"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Allow"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Principal"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Action"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">s3:GetObject"</span><span class="pi">,</span>
+            <span class="s2">"</span><span class="s">Resource"</span><span class="pi">:</span> <span class="s2">"</span><span class="s">arn:aws:s3:::sagemaker-frontend--zz-imageclassification/*"</span>
+        <span class="pi">}</span>
+    <span class="pi">]</span>
+<span class="pi">}</span>
+</code></pre></div></div>
+<p><img src="/assets/mlops09-1.png" alt="image tooltip here" /></p>
+
+<ul>
+  <li>Backend: API Gateway and Lambda Function</li>
+</ul>
+
+<p>This folder will contain a cloudformation yaml file to create for <code class="language-plaintext highlighter-rouge">API Gateway</code>, <code class="language-plaintext highlighter-rouge">Lambda function</code> and <code class="language-plaintext highlighter-rouge">Lambda Execution role</code>, Outputs the API Gateway URL.</p>
+
+<p>API Gateway resource will create a REST API (ImageClassificationAPI) with a /predict resource. Defines a POST method that integrates with the Lambda function, then deploys to a prod stage that Allows API Gateway to invoke the Lambda function</p>
+
+<p>Lambda defines the function (ImageClassificationLambda) that interacts with the SageMaker endpoint. Includes the Python code for handling the image upload and invoking the SageMaker endpoint.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># api-gateway-config.yaml</span>
+<span class="na">AWSTemplateFormatVersion</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2010-09-09'</span>
+<span class="na">Description</span><span class="pi">:</span> <span class="s">CloudFormation template for API Gateway and Lambda integration</span>
+
+<span class="na">Resources</span><span class="pi">:</span>
+  <span class="c1"># API Gateway</span>
+  <span class="na">ImageClassificationAPI</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::RestApi</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">Name</span><span class="pi">:</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">Description</span><span class="pi">:</span> <span class="s">API for image classification</span>
+
+  <span class="c1"># API Gateway Resource</span>
+  <span class="na">PredictResource</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::Resource</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">RestApiId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">ParentId</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">ImageClassificationAPI.RootResourceId</span>
+      <span class="na">PathPart</span><span class="pi">:</span> <span class="s">predict</span>
+
+  <span class="c1"># API Gateway Method (POST)</span>
+  <span class="na">PredictMethod</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::Method</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">RestApiId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">ResourceId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">PredictResource</span>
+      <span class="na">HttpMethod</span><span class="pi">:</span> <span class="s">POST</span>
+      <span class="na">AuthorizationType</span><span class="pi">:</span> <span class="s">NONE</span>
+      <span class="na">Integration</span><span class="pi">:</span>
+        <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS_PROXY</span>
+        <span class="na">IntegrationHttpMethod</span><span class="pi">:</span> <span class="s">POST</span>
+        <span class="na">Uri</span><span class="pi">:</span> <span class="kt">!Sub</span> <span class="s">arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ImageClassificationLambda.Arn}/invocations</span>
+
+  <span class="c1"># Lambda Function</span>
+  <span class="na">ImageClassificationLambda</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::Lambda::Function</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">Handler</span><span class="pi">:</span> <span class="s">app.lambda_handler</span>
+      <span class="na">Runtime</span><span class="pi">:</span> <span class="s">python3.9</span>
+      <span class="na">Role</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">LambdaExecutionRole.Arn</span>
+      <span class="na">Code</span><span class="pi">:</span>
+        <span class="na">ZipFile</span><span class="pi">:</span> <span class="pi">|</span>
+          <span class="s">import boto3</span>
+          <span class="s">import json</span>
+          <span class="s">import base64</span>
+
+          <span class="s">sagemaker = boto3.client('sagemaker-runtime')</span>
+
+          <span class="s">def lambda_handler(event, context):</span>
+              <span class="s">try:</span>
+                  <span class="s"># Decode the image from the request</span>
+                  <span class="s">body = json.loads(event['body'])</span>
+                  <span class="s">image_bytes = base64.b64decode(body['file'])</span>
+
+                  <span class="s"># Call SageMaker endpoint</span>
+                  <span class="s">response = sagemaker.invoke_endpoint(</span>
+                      <span class="s">EndpointName='zack-aws-sagemaker-endpoint',</span>
+                      <span class="s">ContentType='application/x-image',</span>
+                      <span class="s">Body=image_bytes</span>
+                  <span class="s">)</span>
+
+                  <span class="s"># Parse the prediction</span>
+                  <span class="s">prediction = json.loads(response['Body'].read().decode())</span>
+                  <span class="s">return {</span>
+                      <span class="s">'statusCode': 200,</span>
+                      <span class="s">'body': json.dumps({'prediction': prediction})</span>
+                  <span class="s">}</span>
+              <span class="s">except Exception as e:</span>
+                  <span class="s">return {</span>
+                      <span class="s">'statusCode': 500,</span>
+                      <span class="s">'body': json.dumps({'error': str(e)})</span>
+                  <span class="s">}</span>
+
+  <span class="c1"># Lambda Execution Role</span>
+  <span class="na">LambdaExecutionRole</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::IAM::Role</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">AssumeRolePolicyDocument</span><span class="pi">:</span>
+        <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+        <span class="na">Statement</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+            <span class="na">Principal</span><span class="pi">:</span>
+              <span class="na">Service</span><span class="pi">:</span> <span class="s">lambda.amazonaws.com</span>
+            <span class="na">Action</span><span class="pi">:</span> <span class="s">sts:AssumeRole</span>
+      <span class="na">Policies</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">PolicyName</span><span class="pi">:</span> <span class="s">LambdaSageMakerAccess</span>
+          <span class="na">PolicyDocument</span><span class="pi">:</span>
+            <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+            <span class="na">Statement</span><span class="pi">:</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">sagemaker:InvokeEndpoint</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogGroup</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogStream</span>
+                  <span class="pi">-</span> <span class="s">logs:PutLogEvents</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span>
+
+  <span class="c1"># API Gateway Deployment</span>
+  <span class="na">ApiGatewayDeployment</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::ApiGateway::Deployment</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">RestApiId</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationAPI</span>
+      <span class="na">StageName</span><span class="pi">:</span> <span class="s">prod</span>
+
+  <span class="c1"># API Gateway Permission to Invoke Lambda</span>
+  <span class="na">ApiGatewayPermission</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::Lambda::Permission</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">Action</span><span class="pi">:</span> <span class="s">lambda:InvokeFunction</span>
+      <span class="na">FunctionName</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">ImageClassificationLambda.Arn</span>
+      <span class="na">Principal</span><span class="pi">:</span> <span class="s">apigateway.amazonaws.com</span>
+      <span class="na">SourceArn</span><span class="pi">:</span> <span class="kt">!Sub</span> <span class="s">arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ImageClassificationAPI}/*/POST/predict</span>
+
+<span class="na">Outputs</span><span class="pi">:</span>
+  <span class="na">ApiGatewayUrl</span><span class="pi">:</span>
+    <span class="na">Description</span><span class="pi">:</span> <span class="s">URL of the API Gateway</span>
+    <span class="na">Value</span><span class="pi">:</span> <span class="kt">!Sub</span> <span class="s">https://${ImageClassificationAPI}.execute-api.${AWS::Region}.amazonaws.com/prod</span>
+
+</code></pre></div></div>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># deploy backend</span>
+aws cloudformation create-stack <span class="se">\</span>
+  <span class="nt">--stack-name</span> image-classification-api <span class="se">\</span>
+  <span class="nt">--template-body</span> file://api-gateway-config.yaml <span class="se">\</span>
+  <span class="nt">--capabilities</span> CAPABILITY_NAMED_IAM <span class="se">\</span>
+  <span class="nt">--region</span> ap-southeast-2
+</code></pre></div></div>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># test the API</span>
+curl <span class="nt">-X</span> POST <span class="nt">-F</span> <span class="s2">"file=@data/chest_xray/val/val_normal0.jpeg"</span> https://i4s4znf7bb.execute-api.ap-southeast-2.amazonaws.com/prod/ImageClassificationAPI/predict
+
+Output:
+b<span class="s1">'[0.8592441082997322, 0.14075589179992676]'</span>
+
+</code></pre></div></div>
+<ul>
+  <li>Sagemaker Endpoint</li>
+</ul>
+
+<p>The cloudformation template covers <code class="language-plaintext highlighter-rouge">SageMaker Execution Role</code> which Grants the SageMaker service permissions to access S3 (for model artifacts) and CloudWatch (for logging), also includes the <code class="language-plaintext highlighter-rouge">SageMaker Model</code>, <code class="language-plaintext highlighter-rouge">serverless Endpoint</code> with a maximum concurrency of 5 and 2048 MB of memory, Outputs the SageMaker endpoint name.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">AWSTemplateFormatVersion</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2010-09-09'</span>
+<span class="na">Description</span><span class="pi">:</span> <span class="s">CloudFormation template for SageMaker serverless endpoint</span>
+
+<span class="na">Resources</span><span class="pi">:</span>
+  <span class="c1"># SageMaker Execution Role</span>
+  <span class="na">SageMakerExecutionRole</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::IAM::Role</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">AssumeRolePolicyDocument</span><span class="pi">:</span>
+        <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+        <span class="na">Statement</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+            <span class="na">Principal</span><span class="pi">:</span>
+              <span class="na">Service</span><span class="pi">:</span> <span class="s">sagemaker.amazonaws.com</span>
+            <span class="na">Action</span><span class="pi">:</span> <span class="s">sts:AssumeRole</span>
+      <span class="na">Policies</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">PolicyName</span><span class="pi">:</span> <span class="s">SageMakerAccess</span>
+          <span class="na">PolicyDocument</span><span class="pi">:</span>
+            <span class="na">Version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2012-10-17'</span>
+            <span class="na">Statement</span><span class="pi">:</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">s3:GetObject</span>
+                  <span class="pi">-</span> <span class="s">s3:PutObject</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s">arn:aws:s3:::sagemaker-bucket-851725491342/*</span>
+              <span class="pi">-</span> <span class="na">Effect</span><span class="pi">:</span> <span class="s">Allow</span>
+                <span class="na">Action</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogGroup</span>
+                  <span class="pi">-</span> <span class="s">logs:CreateLogStream</span>
+                  <span class="pi">-</span> <span class="s">logs:PutLogEvents</span>
+                <span class="na">Resource</span><span class="pi">:</span> <span class="s2">"</span><span class="s">*"</span>
+
+  <span class="c1"># SageMaker Model</span>
+  <span class="na">ImageClassificationModel</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::SageMaker::Model</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">ModelName</span><span class="pi">:</span> <span class="s">zack-aws-sagemaker-endpoint</span>
+      <span class="na">PrimaryContainer</span><span class="pi">:</span>
+        <span class="na">Image</span><span class="pi">:</span> <span class="s">algorithm_image</span>
+        <span class="na">ModelDataUrl</span><span class="pi">:</span> <span class="s">s3://sagemaker-bucket-851725491342/models/image_model/classifier-2025-01-26-02-58-03-001-a577816e/output/model.tar.gz</span>
+      <span class="na">ExecutionRoleArn</span><span class="pi">:</span> <span class="kt">!GetAtt</span> <span class="s">SageMakerExecutionRole.Arn</span>
+
+  <span class="c1"># SageMaker Endpoint Configuration</span>
+  <span class="na">ImageClassificationEndpointConfig</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::SageMaker::EndpointConfig</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">ProductionVariants</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">ModelName</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationModel</span>
+          <span class="na">VariantName</span><span class="pi">:</span> <span class="s">AllTraffic</span>
+          <span class="na">ServerlessConfig</span><span class="pi">:</span>
+            <span class="na">MaxConcurrency</span><span class="pi">:</span> <span class="m">5</span>
+            <span class="na">MemorySizeInMB</span><span class="pi">:</span> <span class="m">2048</span>
+
+  <span class="c1"># SageMaker Endpoint</span>
+  <span class="na">ImageClassificationEndpoint</span><span class="pi">:</span>
+    <span class="na">Type</span><span class="pi">:</span> <span class="s">AWS::SageMaker::Endpoint</span>
+    <span class="na">Properties</span><span class="pi">:</span>
+      <span class="na">EndpointConfigName</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationEndpointConfig</span>
+      <span class="na">EndpointName</span><span class="pi">:</span> <span class="s">ImageClassificationEndpoint</span>
+
+<span class="na">Outputs</span><span class="pi">:</span>
+  <span class="na">SageMakerEndpointName</span><span class="pi">:</span>
+    <span class="na">Description</span><span class="pi">:</span> <span class="s">Name of the SageMaker endpoint</span>
+    <span class="na">Value</span><span class="pi">:</span> <span class="kt">!Ref</span> <span class="s">ImageClassificationEndpoint</span>
+</code></pre></div></div>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aws cloudformation create-stack <span class="se">\</span>
+  <span class="nt">--stack-name</span> sagemaker-endpoint <span class="se">\</span>
+  <span class="nt">--template-body</span> file://endpoint-config.yaml <span class="se">\</span>
+  <span class="nt">--capabilities</span> CAPABILITY_NAMED_IAM <span class="se">\</span>
+  <span class="nt">--region</span> ap-southeast-2
+</code></pre></div></div>
+
+<ul>
+  <li>Test and Validate</li>
+</ul>
+
+<p>Access the S3 static website URL, choose a image to verify the model prediction. Logs can be found via both cloudwatch Sagemaker endpornt and lambda logs.</p>
+
+<p><img src="/assets/mlops09-2.png" alt="image tooltip here" /></p>
+
+<p>API and Model prediction verified from Postman</p>
+
+<p><img src="/assets/mlops09-3.png" alt="image tooltip here" /></p>
+
+<p><b>Key Takeaways:</b></p>
+
+<ul>
+  <li>
+    <p>Move Pneumonia image classfication ML application from local docker to AWS serverless deployment.</p>
+  </li>
+  <li>
+    <p>Leverage with AWS API Gateway and Lambda to preprocess images and call the ML model.</p>
+  </li>
+  <li>
+    <p>Deployed the Pneumonia Classifier model with a SageMaker serverless endpoint for real-time inference.</p>
+  </li>
+  <li>
+    <p>Automated AWS resource provisioning with CloudFormation.</p>
+  </li>
+  <li>
+    <p>Tested end-to-end functionality, logging and monitored with CloudWatch.</p>
+  </li>
+</ul>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Continue Pneumonia Classifier by moving to AWS Serverless]]></summary></entry><entry><title type="html">MLOps - Image Classifier with AWS SageMaker</title><link href="http://localhost:4000/jekyll/cat2/2025/01/25/mlops7.html" rel="alternate" type="text/html" title="MLOps - Image Classifier with AWS SageMaker" /><published>2025-01-25T19:18:29+11:00</published><updated>2025-01-25T19:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/25/mlops7</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/25/mlops7.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
 
 <p>In this post, we will Continue Pneumonia Classifier practice by leveraging with AWS managed AI service SageMaker. We will:</p>
 
@@ -3754,225 +4096,4 @@ kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</co
 <img src="/assets/eks75.png" alt="image tooltip here" /></p>
 
 <p>Head over to Grafana, then import the dashboard 763 
-<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry><entry><title type="html">EKS - Cluster Upgrade</title><link href="http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html" rel="alternate" type="text/html" title="EKS - Cluster Upgrade" /><published>2024-09-27T10:15:29+10:00</published><updated>2024-09-27T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/27/eks7</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/27/eks7.html"><![CDATA[<p><b>Kubernetes Release vs EKS EOL</b></p>
-
-<p>A Kubernetes version encompasses both the control plane and the data plane. While AWS manages and upgrades the control plane, we (cluster owner/customer) holds the responsibility for initiating upgrade for both cluster control plane as well as the data plane. When we initiate a cluster upgrade, AWS manages upgrading the control plane and we are still responsible for initiating the upgrades of the data plane, this includes worker nodes provisioned via Self Managed node groups, Managed Node Groups, Fargate &amp; other add-ons . If worker nodes are provisioned via Karpenter Controller, we can can take advantage of Drift  or Disruption Controller  features (spec.expireAfter) for automatic node recycling and upgrade.</p>
-
-<p><img src="/assets/eks65.png" alt="image tooltip here" />
-<img src="/assets/eks66.png" alt="image tooltip here" /></p>
-
-<p><b>Upgrade Strategy: in-place vs Blue-Green</b></p>
-
-<p>Considerations when choosing a EKS upgrade strategy:</p>
-
-<p><code class="language-plaintext highlighter-rouge">Downtime tolerance</code>: Consider the acceptable level of downtime for applications and services during the upgrade process.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Upgrade complexity</code>: Evaluate the complexity of application architecture, dependencies, and stateful components.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Kubernetes version gap</code>: Assess the gap between current Kubernetes version and the target version, as well as the compatibility of applications and add-ons.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Resource constraints</code>: Consider the available infrastructure resources and budget for maintaining multiple clusters during the upgrade process. A Canary strategy which is similar to blue/green except scale out the new cluster while scaling in the old cluster while ramp up workloads would minimize this.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Team expertise</code>: Evaluate team’s expertise and familiarity with managing multiple clusters and implementing traffic shifting strategies.</p>
-
-<p><b>EKS in-place Upgrade Workflow</b></p>
-
-<p>Here I will follow bellow phases to run an in-place EKS cluster upgrade:</p>
-
-<p><code class="language-plaintext highlighter-rouge">Preparation Phase</code>:</p>
-
-<ul>
-  <li>Verify EKS Upgrade Insights and Checklist</li>
-</ul>
-
-<p><img src="/assets/eks67.png" alt="image tooltip here" /></p>
-
-<ul>
-  <li>
-    <p>Backup Cluster with <a href="https://zackz.site/jekyll/cat2/2024/09/15/eks3.html">Velero</a>.</p>
-  </li>
-  <li>
-    <p>Verify compatibility of workloads with <a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md">Kubernetes 1.31</a></p>
-  </li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">Execution Phases</code>:</p>
-
-<ul>
-  <li>Upgrade the Control Plane.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# <span class="nb">export </span><span class="nv">AWS_REGION</span><span class="o">=</span>ap-southeast-2
-root@zackz:~# <span class="nb">export </span><span class="nv">EKS_CLUSTER_NAME</span><span class="o">=</span>ex-karpenter
-root@zackz:~# aws eks update-cluster-version <span class="nt">--region</span> <span class="k">${</span><span class="nv">AWS_REGION</span><span class="k">}</span> <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span>  <span class="nt">--kubernetes-version</span> 1.31
-<span class="o">{</span>
-    <span class="s2">"update"</span>: <span class="o">{</span>
-        <span class="s2">"id"</span>: <span class="s2">"2c23dcc6-a8e0-337a-bf2a-c97de842a756"</span>,
-        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
-        <span class="s2">"type"</span>: <span class="s2">"VersionUpdate"</span>,
-        <span class="s2">"params"</span>: <span class="o">[</span>
-            <span class="o">{</span>
-                <span class="s2">"type"</span>: <span class="s2">"Version"</span>,
-                <span class="s2">"value"</span>: <span class="s2">"1.31"</span>
-            <span class="o">}</span>,
-            <span class="o">{</span>
-                <span class="s2">"type"</span>: <span class="s2">"PlatformVersion"</span>,
-                <span class="s2">"value"</span>: <span class="s2">"eks.12"</span>
-            <span class="o">}</span>
-        <span class="o">]</span>,
-        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T12:51:13.370000+11:00"</span>,
-        <span class="s2">"errors"</span>: <span class="o">[]</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-
-root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--query</span> <span class="s2">"cluster.{Name:name,Version:version}"</span> <span class="nt">--output</span> table
-<span class="nt">-----------------------------</span>
-|      DescribeCluster      |
-+---------------+-----------+
-|     Name      |  Version  |
-+---------------+-----------+
-|  ex-karpenter |  1.31     |
-+---------------+-----------+</code></pre></figure>
-
-<ul>
-  <li>Upgrade EKS Addons
-<img src="/assets/eks68.png" alt="image tooltip here" /></li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
-2024-11-22 13:06:07 <span class="o">[</span>ℹ]  Kubernetes version <span class="s2">"1.31"</span> <span class="k">in </span>use by cluster <span class="s2">"ex-karpenter"</span>
-2024-11-22 13:06:07 <span class="o">[</span>ℹ]  getting all addons
-2024-11-22 13:06:09 <span class="o">[</span>ℹ]  to see issues <span class="k">for </span>an addon run <span class="sb">`</span>eksctl get addon <span class="nt">--name</span> &lt;addon-name&gt; <span class="nt">--cluster</span> &lt;cluster-name&gt;<span class="sb">`</span>
-NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE                                                             CONFIGURATION VALUES     POD IDENTITY ASSOCIATION ROLES
-coredns                 v1.11.1-eksbuild.8      ACTIVE  0               v1.11.3-eksbuild.2,v1.11.3-eksbuild.1,v1.11.1-eksbuild.13,v1.11.1-eksbuild.11
-eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
-kube-proxy              v1.30.6-eksbuild.3      ACTIVE  0               v1.31.2-eksbuild.3,v1.31.2-eksbuild.2,v1.31.1-eksbuild.2,v1.31.0-eksbuild.5,v1.31.0-eksbuild.2
-vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0
-root@zackz:~# aws eks update-addon <span class="se">\</span>
-  <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="se">\</span>
-  <span class="nt">--addon-name</span> coredns <span class="se">\</span>
-  <span class="nt">--addon-version</span> v1.11.3-eksbuild.2
-<span class="o">{</span>
-    <span class="s2">"update"</span>: <span class="o">{</span>
-        <span class="s2">"id"</span>: <span class="s2">"79ccd9e1-004e-3cc7-89bb-c7dc8b286281"</span>,
-        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
-        <span class="s2">"type"</span>: <span class="s2">"AddonUpdate"</span>,
-        <span class="s2">"params"</span>: <span class="o">[</span>
-            <span class="o">{</span>
-                <span class="s2">"type"</span>: <span class="s2">"AddonVersion"</span>,
-                <span class="s2">"value"</span>: <span class="s2">"v1.11.3-eksbuild.2"</span>
-            <span class="o">}</span>
-        <span class="o">]</span>,
-        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T13:08:18.368000+11:00"</span>,
-        <span class="s2">"errors"</span>: <span class="o">[]</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-root@zackz:~# aws eks update-addon <span class="se">\</span>
-  <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="se">\</span>
-  <span class="nt">--addon-name</span> kube-proxy <span class="se">\</span>
-  <span class="nt">--addon-version</span> v1.31.2-eksbuild.3
-<span class="o">{</span>
-    <span class="s2">"update"</span>: <span class="o">{</span>
-        <span class="s2">"id"</span>: <span class="s2">"63288184-13f9-3d5b-8c63-9ecf5414bc82"</span>,
-        <span class="s2">"status"</span>: <span class="s2">"InProgress"</span>,
-        <span class="s2">"type"</span>: <span class="s2">"AddonUpdate"</span>,
-        <span class="s2">"params"</span>: <span class="o">[</span>
-            <span class="o">{</span>
-                <span class="s2">"type"</span>: <span class="s2">"AddonVersion"</span>,
-                <span class="s2">"value"</span>: <span class="s2">"v1.31.2-eksbuild.3"</span>
-            <span class="o">}</span>
-        <span class="o">]</span>,
-        <span class="s2">"createdAt"</span>: <span class="s2">"2024-11-22T13:08:29.617000+11:00"</span>,
-        <span class="s2">"errors"</span>: <span class="o">[]</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c"># after add-on upgrade</span>
-
-root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
-2024-11-22 13:10:15 <span class="o">[</span>ℹ]  Kubernetes version <span class="s2">"1.31"</span> <span class="k">in </span>use by cluster <span class="s2">"ex-karpenter"</span>
-2024-11-22 13:10:15 <span class="o">[</span>ℹ]  getting all addons
-2024-11-22 13:10:16 <span class="o">[</span>ℹ]  to see issues <span class="k">for </span>an addon run <span class="sb">`</span>eksctl get addon <span class="nt">--name</span> &lt;addon-name&gt; <span class="nt">--cluster</span> &lt;cluster-name&gt;<span class="sb">`</span>
-NAME                    VERSION                 STATUS  ISSUES  IAMROLE UPDATE AVAILABLE        CONFIGURATION VALUES    POD IDENTITY ASSOCIATION ROLES
-coredns                 v1.11.3-eksbuild.2      ACTIVE  0
-eks-pod-identity-agent  v1.3.4-eksbuild.1       ACTIVE  0
-kube-proxy              v1.31.2-eksbuild.3      ACTIVE  0
-vpc-cni                 v1.19.0-eksbuild.1      ACTIVE  0</code></pre></figure>
-
-<ul>
-  <li>Upgrade Managed Node Groups or Self-Managed Nodes.</li>
-</ul>
-
-<p>When we initiate a managed node group update in EKS, the process automatically completes four phases:</p>
-
-<p><code class="language-plaintext highlighter-rouge">Setup Phase</code>: Creates a new launch template version, updates the Auto Scaling group, and determines the max nodes to upgrade in parallel (default 1, up to 100).</p>
-
-<p><code class="language-plaintext highlighter-rouge">Scale Up Phase</code>: Increases the Auto Scaling group size, ensures new nodes are ready, marks old nodes unschedulable, and excludes them from load balancers.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Upgrade Phase</code>: Randomly selects nodes to upgrade, drains pods, cordons nodes, terminates old nodes, and repeats until all nodes use the new configuration.</p>
-
-<p><code class="language-plaintext highlighter-rouge">Scale Down Phase</code>: Reduces Auto Scaling group size back to its original values.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--query</span> <span class="s2">"cluster.version"</span> <span class="nt">--output</span> text
-1.31
-
-root@zackz:~# kubectl get node
-NAME                                             STATUS   ROLES    AGE   VERSION
-ip-10-0-11-33.ap-southeast-2.compute.internal    Ready    &lt;none&gt;   62m   v1.30.6-eks-94953ac
-ip-10-0-16-112.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   61m   v1.30.6-eks-94953ac
-root@zackz:~# aws eks list-nodegroups <span class="nt">--cluster-name</span> <span class="nv">$EKS_CLUSTER_NAME</span>
-<span class="o">{</span>
-    <span class="s2">"nodegroups"</span>: <span class="o">[</span>
-        <span class="s2">"karpenter-2024112200002335730000001f"</span>
-    <span class="o">]</span>
-<span class="o">}</span>
-
-root@zackz:~# eksctl upgrade nodegroup <span class="nt">--name</span><span class="o">=</span>karpenter-2024112200002335730000001f <span class="nt">--cluster</span><span class="o">=</span><span class="nv">$EKS_CLUSTER_NAME</span> <span class="nt">--kubernetes-version</span><span class="o">=</span>1.31
-2024-11-22 13:16:35 <span class="o">[</span>ℹ]  upgrade of nodegroup <span class="s2">"karpenter-2024112200002335730000001f"</span> <span class="k">in </span>progress
-2024-11-22 13:16:35 <span class="o">[</span>ℹ]  waiting <span class="k">for </span>upgrade of nodegroup <span class="s2">"karpenter-2024112200002335730000001f"</span> to <span class="nb">complete
-</span>2024-11-22 13:25:40 <span class="o">[</span>ℹ]  nodegroup successfully upgraded
-
-root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get node
-NAME                                            STATUS   ROLES    AGE     VERSION
-ip-10-0-2-232.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   5m28s   v1.31.2-eks-94953ac
-ip-10-0-24-55.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   5m26s   v1.31.2-eks-94953ac
-
-root@zackz:~/zack-gitops-project/argocd-joesite# kubectl get po <span class="nt">-A</span>
-NAMESPACE     NAME                           READY   STATUS    RESTARTS   AGE
-kube-system   aws-node-58bcm                 2/2     Running   0          8m11s
-kube-system   aws-node-xq7lj                 2/2     Running   0          8m13s
-kube-system   coredns-864f654d7c-49ch8       1/1     Running   0          4m40s
-kube-system   coredns-864f654d7c-trk6h       1/1     Running   0          7m44s
-kube-system   eks-pod-identity-agent-5788x   1/1     Running   0          8m11s
-kube-system   eks-pod-identity-agent-fbq9q   1/1     Running   0          8m13s
-kube-system   karpenter-5f6bbf8cdc-gx6mn     1/1     Running   0          4m40s
-kube-system   karpenter-5f6bbf8cdc-nh4fb     1/1     Running   0          7m43s
-kube-system   kube-proxy-9798b               1/1     Running   0          8m13s
-kube-system   kube-proxy-dnfgt               1/1     Running   0          8m11s</code></pre></figure>
-
-<ul>
-  <li>Upgrade AWS Fargate Nodes.</li>
-</ul>
-
-<p>For upgrading AWS Fargate nodes, we can re-start the K8s deployments so that the new pods will automatically get scheduled on the latest Kubernetes Version.</p>
-
-<p><b>Conclosion</b></p>
-
-<p>By following the above upgrade approach to move an EKS cluster from Kubernetes 1.30 to 1.31, what we havce achieved:</p>
-
-<ul>
-  <li>
-    <p>Seamless Control Plane Upgrade: Ensures the Kubernetes API server and control plane components are updated to 1.31 without disrupting workloads.</p>
-  </li>
-  <li>
-    <p>Add-On Compatibility: Updates critical EKS add-ons (e.g., CoreDNS, kube-proxy, VPC CNI) to ensure compatibility and leverage new features in Kubernetes 1.31.</p>
-  </li>
-  <li>
-    <p>Managed Node Group Updates: Automatically updates node groups to use the latest AMIs, applying new Kubernetes features, security patches, and optimized configurations while minimizing disruption.</p>
-  </li>
-  <li>
-    <p>Workload Continuity: Ensures workloads remain available during the upgrade with controlled pod evictions, proper cordoning, and scaling mechanisms.</p>
-  </li>
-</ul>
-
-<p><img src="/assets/eks69.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Kubernetes Release vs EKS EOL]]></summary></entry></feed>
+<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry></feed>

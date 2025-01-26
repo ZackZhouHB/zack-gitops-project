@@ -1,0 +1,341 @@
+---
+layout: post
+title:  "MLOps - Deploy Pneumonia Classifier Application with AWS Serverless "
+date:   2025-01-25 22:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue Pneumonia Classifier by moving to AWS Serverless</b>
+
+- Go AWS Serverless Deployment
+
+Deploying machine learning models in production requires additional considerations to address latency, scalability, cost-efficiency, and monitoring. 
+
+A modern approach to hosting an ML application in AWS can be considered as a `serverless architecture`. 
+
+This allow users to upload images via a S3 static web page and send to API Gateway. The API Gateway receives the HTTP POST request and forwards it to the Lambda function, which handles the image preprocessing, inference, and postprocessing logic. The Lambda function sends the image payload to the SageMaker endpoint, by calling the SageMaker endpoint using the SageMaker Runtime SDK (invoke_endpoint) which hosts my trained model, and then retrieves the prediction. The prediction result is sent back to the frontend for display.
+
+This approach leverages `S3`, `AWS Lambda`, `Amazon API Gateway`, and `Amazon SageMaker`, to leverage with Amazon SageMaker Managed endpoints (Real-Time Inference) that handle auto-scaling, security, and monitoring out-of-the-box.
+
+- Advantage with AWS Serverless
+
+`Scalability`: API Gateway scales automatically to handle high concurrency. Lambda scales horizontally (serverless) and is invoked only when needed. SageMaker Endpoint supports auto-scaling to handle varying inference loads.
+
+`Low Latency`: Real-time inference is achieved with the SageMaker Endpoint.
+
+`Cost Optimized`: Lambda is a pay-per-use service, so we're not paying for idle compute resources. SageMaker Endpoint supports multi-model endpoints and elastic inference for cost savings.
+
+`AWS Serverless and fully managed services`: Fully managed services reduce operational overhead for model hosting and frontend and backend infrastructure.
+
+```shell
+# Model flow
+S3 (Model Artifacts) → SageMaker Model → Real-Time Endpoint (GPU) → Auto-Scaling + Model Monitor
+
+# Image and Inference flow
+
+S3 Static web → Upload Image → API Gateway → Lambda (Image Preprocessing) → SageMaker Endpoint (Real-Time Inference) → API Gateway → S3 (Result)
+
+```
+
+<b>Design of the Pneumonia Classifier Application with AWS Serverless</b>
+
+Here are the components of the serverless application:
+
+`Frontend`: contain the static files for website hosted on S3, allowing users to upload images and display predictions.
+
+`Backend`: Yaml file to deploy API Gateway to trigger the Lambda function.
+
+`Lambda`: Define function to process the image and interact with the SageMaker endpoint.
+
+`SageMaker`: Configuration for the serverless endpoint that hosts the ML model.
+
+```shell
+# Folder Structure
+root@zackz:/mnt/f/ml-local/local-cv/aws-deploy# tree
+.
+├── backend
+│   └── api-gateway-config.yaml
+├── frontend
+│   ├── assets
+│   │   ├── fonts
+│   │   └── images
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+└── sagemaker
+    └── endpoint-config.yaml
+
+```
+
+- Frondend: S3 Static Website Hosting
+
+Upload files into S3 bucket and enable Static Website Hosting, Specify `index.html` as the index document, Update Bucket Policy to Allow Public Access, verify the URL for access
+
+
+```yaml
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::sagemaker-frontend--zz-imageclassification/*"
+        }
+    ]
+}
+```
+![image tooltip here](/assets/mlops09-1.png)
+
+- Backend: API Gateway and Lambda Function
+
+This folder will contain a cloudformation yaml file to create for `API Gateway`, `Lambda function` and `Lambda Execution role`, Outputs the API Gateway URL.
+
+API Gateway resource will create a REST API (ImageClassificationAPI) with a /predict resource. Defines a POST method that integrates with the Lambda function, then deploys to a prod stage that Allows API Gateway to invoke the Lambda function
+
+Lambda defines the function (ImageClassificationLambda) that interacts with the SageMaker endpoint. Includes the Python code for handling the image upload and invoking the SageMaker endpoint.
+
+```yaml
+# api-gateway-config.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for API Gateway and Lambda integration
+
+Resources:
+  # API Gateway
+  ImageClassificationAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ImageClassificationAPI
+      Description: API for image classification
+
+  # API Gateway Resource
+  PredictResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ImageClassificationAPI
+      ParentId: !GetAtt ImageClassificationAPI.RootResourceId
+      PathPart: predict
+
+  # API Gateway Method (POST)
+  PredictMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ImageClassificationAPI
+      ResourceId: !Ref PredictResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ImageClassificationLambda.Arn}/invocations
+
+  # Lambda Function
+  ImageClassificationLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import base64
+
+          sagemaker = boto3.client('sagemaker-runtime')
+
+          def lambda_handler(event, context):
+              try:
+                  # Decode the image from the request
+                  body = json.loads(event['body'])
+                  image_bytes = base64.b64decode(body['file'])
+
+                  # Call SageMaker endpoint
+                  response = sagemaker.invoke_endpoint(
+                      EndpointName='zack-aws-sagemaker-endpoint',
+                      ContentType='application/x-image',
+                      Body=image_bytes
+                  )
+
+                  # Parse the prediction
+                  prediction = json.loads(response['Body'].read().decode())
+                  return {
+                      'statusCode': 200,
+                      'body': json.dumps({'prediction': prediction})
+                  }
+              except Exception as e:
+                  return {
+                      'statusCode': 500,
+                      'body': json.dumps({'error': str(e)})
+                  }
+
+  # Lambda Execution Role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaSageMakerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sagemaker:InvokeEndpoint
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  # API Gateway Deployment
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref ImageClassificationAPI
+      StageName: prod
+
+  # API Gateway Permission to Invoke Lambda
+  ApiGatewayPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ImageClassificationLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ImageClassificationAPI}/*/POST/predict
+
+Outputs:
+  ApiGatewayUrl:
+    Description: URL of the API Gateway
+    Value: !Sub https://${ImageClassificationAPI}.execute-api.${AWS::Region}.amazonaws.com/prod
+
+```
+
+```shell
+# deploy backend
+aws cloudformation create-stack \
+  --stack-name image-classification-api \
+  --template-body file://api-gateway-config.yaml \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --region ap-southeast-2
+```
+
+```shell
+# test the API
+curl -X POST -F "file=@data/chest_xray/val/val_normal0.jpeg" https://i4s4znf7bb.execute-api.ap-southeast-2.amazonaws.com/prod/ImageClassificationAPI/predict
+
+Output:
+b'[0.8592441082997322, 0.14075589179992676]'
+
+```
+- Sagemaker Endpoint
+
+The cloudformation template covers `SageMaker Execution Role` which Grants the SageMaker service permissions to access S3 (for model artifacts) and CloudWatch (for logging), also includes the `SageMaker Model`, `serverless Endpoint` with a maximum concurrency of 5 and 2048 MB of memory, Outputs the SageMaker endpoint name.
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for SageMaker serverless endpoint
+
+Resources:
+  # SageMaker Execution Role
+  SageMakerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SageMakerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: arn:aws:s3:::sagemaker-bucket-851725491342/*
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  # SageMaker Model
+  ImageClassificationModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ModelName: zack-aws-sagemaker-endpoint
+      PrimaryContainer:
+        Image: algorithm_image
+        ModelDataUrl: s3://sagemaker-bucket-851725491342/models/image_model/classifier-2025-01-26-02-58-03-001-a577816e/output/model.tar.gz
+      ExecutionRoleArn: !GetAtt SageMakerExecutionRole.Arn
+
+  # SageMaker Endpoint Configuration
+  ImageClassificationEndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      ProductionVariants:
+        - ModelName: !Ref ImageClassificationModel
+          VariantName: AllTraffic
+          ServerlessConfig:
+            MaxConcurrency: 5
+            MemorySizeInMB: 2048
+
+  # SageMaker Endpoint
+  ImageClassificationEndpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointConfigName: !Ref ImageClassificationEndpointConfig
+      EndpointName: ImageClassificationEndpoint
+
+Outputs:
+  SageMakerEndpointName:
+    Description: Name of the SageMaker endpoint
+    Value: !Ref ImageClassificationEndpoint
+```
+
+```shell
+aws cloudformation create-stack \
+  --stack-name sagemaker-endpoint \
+  --template-body file://endpoint-config.yaml \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --region ap-southeast-2
+```
+
+- Test and Validate
+
+Access the S3 static website URL, choose a image to verify the model prediction. Logs can be found via both cloudwatch Sagemaker endpornt and lambda logs.
+
+![image tooltip here](/assets/mlops09-2.png)
+
+API and Model prediction verified from Postman 
+
+![image tooltip here](/assets/mlops09-3.png)
+
+
+<b>Key Takeaways:</b>
+
+- Move Pneumonia image classfication ML application from local docker to AWS serverless deployment. 
+
+- Leverage with AWS API Gateway and Lambda to preprocess images and call the ML model.
+
+- Deployed the Pneumonia Classifier model with a SageMaker serverless endpoint for real-time inference.
+
+- Automated AWS resource provisioning with CloudFormation.
+
+- Tested end-to-end functionality, logging and monitored with CloudWatch.
+
