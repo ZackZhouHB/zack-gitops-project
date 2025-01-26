@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Image Classifier with AWS SageMaker"
+title:  "MLOps - Move Image Classifier to AWS SageMaker"
 date:   2025-01-25 19:18:29 +1100
 categories: jekyll Cat2
 ---

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Build a local KB with Ollama and Open WebUI"
+title:  "MLOps - Build Knowledge Base with Ollama and Open WebUI"
 date:   2025-01-19 11:15:29 +1100
 categories: jekyll Cat2
 ---

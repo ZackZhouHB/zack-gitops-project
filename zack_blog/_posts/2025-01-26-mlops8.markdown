@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Deploy Pneumonia Classifier Application with AWS Serverless "
+title:  "MLOps - Deploy Classifier with AWS Serverless "
 date:   2025-01-25 22:18:29 +1100
 categories: jekyll Cat2
 ---

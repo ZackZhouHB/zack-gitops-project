@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Build a local Image Classifier Model"
+title:  "MLOps - Build a Image Classifier Model"
 date:   2025-01-25 11:18:29 +1100
 categories: jekyll Cat2
 ---

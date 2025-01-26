@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Home Lab with Pre-trained ML model"
+title:  "MLOps - Setup a Home Machine Learning Lab"
 date:   2024-10-01 11:15:29 +1100
 categories: jekyll Cat2
 ---

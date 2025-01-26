@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - mini Project with ML tools"
+title:  "MLOps - Explore ML tools"
 date:   2024-10-02 11:15:29 +1100
 categories: jekyll Cat2
 ---

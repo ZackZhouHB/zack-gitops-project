@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - a Pneumonia Classifier Application with Docker"
+title:  "MLOps - Containerize Classifier Application"
 date:   2025-01-25 13:18:29 +1100
 categories: jekyll Cat2
 ---
