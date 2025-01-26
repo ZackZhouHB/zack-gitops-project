@@ -1,0 +1,42 @@
+---
+layout: post
+title:  "MLOps - Deploying a Pneumonia Classifier with AWS SageMaker AI"
+date:   2025-01-25 19:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue Pneumonia Classifier by moving to AWS SageMaker</b>
+
+In this post, we will Continue Pneumonia Classifier practice by leveraging with AWS managed AI service SageMaker. We will:  
+
+- Provision AWS Sagemaker AI domain and workspace.
+
+- Run a JupiterLab to download, process and upload chest X-ray dataset from Kaggle to S3 for SageMaker access.
+
+- Use SageMaker Pre-built image classification algorithm, to define SageMaker Estimator to configures the SageMaker training job, including compute resources, training duration, and data input method, 
+
+- Count the number of training samples and Set the hyperparameters, Perform hyperparameter tuning to find the best configuration for the model
+
+- Launching the Hyperparameter Tuning Job   
+
+- Using CloudWatch and Sagemaker Train Job to monitor and troubleshoot
+
+
+
+
+
+{% highlight shell %}
+
+
+{% endhighlight %}
+
+
+
+
+![image tooltip here](/assets/mlops03-5.png)
+
+
+
+
+<b>Conclusion</b>
+

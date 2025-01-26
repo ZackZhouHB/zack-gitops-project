@@ -1,0 +1,302 @@
+---
+layout: post
+title:  "MLOps - Image Classifier with AWS SageMaker"
+date:   2025-01-25 19:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue Pneumonia Classifier by moving to AWS SageMaker</b>
+
+In this post, we will Continue Pneumonia Classifier practice by leveraging with AWS managed AI service SageMaker. We will:  
+
+- Provision AWS Sagemaker AI domain and workspace.
+
+- Run a JupiterLab to download, process and upload chest X-ray dataset from Kaggle to S3 for SageMaker access.
+
+- Use SageMaker Pre-built image classification algorithm, to define SageMaker Estimator to configures the SageMaker training job, including compute resources, training duration, and data input method, 
+
+- Count the number of training samples and Set the hyperparameters, Perform hyperparameter tuning to find the best configuration for the model
+
+- Launching the Hyperparameter Tuning Job   
+
+- Using CloudWatch and Sagemaker Train Job to monitor and troubleshoot
+
+<b>In the AWS SageMaker AI JupiterLab</b>
+
+I will skip the dataset dowoload as this task remains same as what I did in the previous post. 
+
+- S3 will be the storage where Sagemaker will access the dataset. so let's starting from data upload.
+
+
+```python
+# Data upload to S3
+import boto3
+import os
+
+os.environ["DEFAULT_S3_BUCKET"]=bucket
+
+bucket='sagemaker-bucket-851725491342'
+print("bucket:{}".format(bucket))
+region='ap-southeast-2'
+print("region:{}".format(region))
+roleArn='arn:aws:s3:::sagemaker-bucket-851725491342'
+print("roleArn:{}".format(roleArn))
+
+# Upload the 2 .lst files to S3
+boto3.Session().resource('s3').Bucket(bucket).Object("train.lst").upload_file('./train.lst')
+boto3.Session().resource('s3').Bucket(bucket).Object("test.lst").upload_file('./test.lst')
+
+# upload train and test images to S3
+!aws s3 sync ./data/chest_xray/train s3://${DEFAULT_S3_BUCKET}/train/
+!aws s3 sync ./data/chest_xray/test s3://${DEFAULT_S3_BUCKET}/train/
+
+```
+
+- Next step to Set Up SageMaker estimator to define the training job, including compute resources, training duration, and data input method. We will use th built-in algorithm for image classification. 
+
+```python
+# Set up SageMaker framework, execution_role and S3 location
+
+import sagemaker
+from sagemaker import image_uris
+import boto3
+from sagemaker import get_execution_role
+sess=sagemaker.Session()
+
+algorithm_image=image_uris.retrieve(
+    region=boto3.Session().region_name,
+    framework="image-classification",
+    version="latest"
+)
+
+s3_output_location=f"s3://{bucket}/models/image_model"
+print(algorithm_image)
+
+role=get_execution_role()
+print(role)
+```
+
+- Set up SageMaker estimator to define the training job, We will use th built-in algorithm for image classification with `ml.g4dn.xlarge` as spot GPU instance for job training.  
+
+```python
+# Set up SageMaker estimator
+import sagemaker
+img_classifier_model=sagemaker.estimator.Estimator(
+    algorithm_image,
+    role=role,
+    instance_count=1,
+    instance_type="ml.g4dn.xlarge",
+    use_spot_instances=True,  # Enable spot instances
+    max_run=432000,           # 5 days (432,000 seconds)
+    max_wait=432000,          # Must be >= max_run
+    volume_size=50,
+    input_mode="File",
+    output_path=s3_output_location,
+    sagemaker_session=sess
+)
+print(img_classifier_model)
+```
+
+- Setup the total number of labeled images to define epochs and batch size for training job. 
+
+```python
+# Define epochs and batch size
+import glob 
+count=0
+
+for filepath in glob.glob('./data/chest_xray/train/*.jpeg'):
+    count+=1
+print(count)
+
+count = 5216  # Example: Total training images
+img_classifier_model.set_hyperparameters(
+    image_shape='3,224,224',
+    num_classes='2',  # As string
+    use_pretrained_model='1',  # As string
+    num_training_samples=str(count),  # As string
+    augmentation_type='crop_color_transform',
+    epochs='15',  # As string
+    early_stopping='True',  # As string
+    early_stopping_min_epochs='8',
+    early_stopping_tolerance='0.0',
+    early_stopping_patience='5',
+    lr_scheduler_factor='0.1',
+    lr_scheduler_step='8,10,12'
+)
+```
+
+- Perform hyperparameter tuning to find the best configuration for the model with Metrics to evaluate model quality.
+
+```python
+# Hyperparameter tuning
+from sagemaker.tuner import CategoricalParameter,ContinuousParameter,HyperparameterTuner
+
+hyperparameter_ranges={
+    "learning_rate":ContinuousParameter(0.01,0.1),
+    "mini_batch_size":CategoricalParameter([8,16,32]),
+    "optimizer":CategoricalParameter(["sgd","adam"])
+}
+
+objective_metric_name="validation:accuracy"
+objective_type="Maximize"
+max_jobs=5
+max_parallel_jobs=1
+
+tuner=HyperparameterTuner(estimator=img_classifier_model,
+                         objective_metric_name=objective_metric_name,
+                         hyperparameter_ranges=hyperparameter_ranges,
+                         objective_type=objective_type,
+                         max_jobs=max_jobs,
+                         max_parallel_jobs=max_parallel_jobs  
+                         )
+
+                         from sagemaker.session import TrainingInput
+```
+
+- Configuring Input Data sources by Specify the S3 paths and content types for SageMaker training jobs
+
+```python
+# Configuring Input Data sources
+model_inputs={
+    "train":sagemaker.inputs.TrainingInput(s3_data=f"s3://{bucket}/train/",content_type="application/x-image"),
+    "validation":sagemaker.inputs.TrainingInput(s3_data=f"s3://{bucket}/test/",content_type="application/x-image"),
+    "train_lst":sagemaker.inputs.TrainingInput(s3_data=f"s3://{bucket}/train.lst",content_type="application/x-image"),
+    "validation_lst":sagemaker.inputs.TrainingInput(s3_data=f"s3://{bucket}/test.lst",content_type="application/x-image"),
+}
+```
+
+- Launching the Hyperparameter Tuning Job
+
+```python
+# Start the hyperparameter tuning job with the specified inputs and configurations
+import time 
+job_name_prefix="classifier"
+timestamp=time.strftime("-%Y-%m-%d-%H-%M-%S",time.gmtime())
+job_name=job_name_prefix+timestamp
+
+tuner.fit(inputs=model_inputs,job_name=job_name,logs=True)
+```
+
+- Monitor the tuning job in the AWS SageMaker console to track progress
+
+Go to the AWS SageMaker console, navigate to the "Training - Training Jobs" tab, to view the status of the running job.
+
+![image tooltip here](/assets/mlops08-1.png)
+
+Go Cloudwatch Sagemaker log group to see detialed logs of the training job.
+
+![image tooltip here](/assets/mlops08-2.png)
+
+- Key Factors Influencing Runtime
+
+Total training runtime and Performance Influencd by Tesla T4 GPU instance `ml.g4dn.xlarge` and the totale 15 epochs of 5216 training samples.
+
+Tesla T4 typically takes ~0.5-1 second per batch for tasks of this complexity. so the total Hyperparameter Tuning Time: 5 jobs × 41 minutes per job = 205 minutes ( 3.4 hours).
+
+Increase max_parallel_jobs to run multiple jobs concurrently (e.g., `max_parallel_jobs=2` would cut the runtime in half).
+Use a more powerful instance (e.g., `ml.p3.2xlarge` with a V100 GPU for faster training).
+
+- Deploy the trained model to validate prediction
+
+Creates a SageMaker model object using the trained model's artifacts (`model_data`) and algorithm container (`image_uri`).Deploys the model as a SageMaker endpoint using the `deploy()` method. Using a instance type (ml.m4.xlarge) to offer endpoint for real-time inference.
+
+```python
+model = sagemaker.model.Model(
+    image_uri=algorithm_image,
+    model_data='',
+    role=role
+)
+endpoint_name = ''
+
+deployment = model.deploy(
+    initial_instance_count=1,
+    instance_type='ml.m4.xlarge',
+    endpoint_name=endpoint_name
+)
+
+```
+
+- Setup and test the endpoint for real-time prediction
+
+Send an testing in binary mode to the endpoint as the payload for prediction.
+
+```python
+from sagemaker.predictor import Predictor
+predictor = Predictor("")
+
+from sagemaker.serializers import IdentitySerializer
+import base64
+
+file_name = 'data/chest_xray/val/val_pneumonia0.jpeg'
+predictor.serializer = IdentitySerializer("image/jpeg")
+
+with open(file_name, "rb") as f:
+    payload = f.read()
+inference = predictor.predict(data=payload)
+print(inference)
+print(inference[1])
+
+```
+
+- Run a batch prediction and evaluate the matrix
+
+Now let's Loops through all images in the validation dataset, Sends each image to the endpoint for prediction, Collect predictions for all validation images to evaluate the model's overall performance, print classification report
+
+```python
+import glob
+import json
+import numpy as np
+
+file_path = 'data/chest_xray/val/*.jpeg'
+files = glob.glob(file_path)
+
+y_true = []
+y_pred = []
+
+def make_pred():
+    for file in files:
+        if "normal" in file:
+            with open(file, "rb") as f:
+                payload = f.read()
+                inference = predictor.predict(data=payload).decode("utf-8")
+                result = json.loads(inference)
+                predicted_class = np.argmax(result)
+                y_true.append(0)  # Normal class
+                y_pred.append(predicted_class)
+        elif "pneumonia" in file:
+            with open(file, "rb") as f:
+                payload = f.read()
+                inference = predictor.predict(data=payload).decode("utf-8")
+                result = json.loads(inference)
+                predicted_class = np.argmax(result)
+                y_true.append(1)  # Pneumonia class
+                y_pred.append(predicted_class)
+
+make_pred()
+print(y_true)
+print(y_pred)
+
+
+# Evaluate the metrics
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_true, y_pred)
+
+# print classification report
+from sklearn.metrics import classification_report
+print(classification_report(y_true, y_pred))
+```
+
+<b>Conclusion</b>
+
+Key takeaways:
+
+- Move image classification model to cloud ML service using AWS SageMaker, intergrated with AWS services (IAM, S3, SageMaker, CloudWatch) for data storage and model deployment and monitoring.
+
+- Set up a cloud based real-time image prediction endpoint for the trained model.
+
+- Test the endpoint with an individual input image to confirm functionality.
+
+- Run predictions on a validation dataset to evaluate model accuracy and robustness.
+
+- Use confusion matrices and classification reports to assess the quality of predictions and identify areas for improvement.
