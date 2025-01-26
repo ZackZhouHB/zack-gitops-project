@@ -203,10 +203,10 @@ Creates a SageMaker model object using the trained model's artifacts (`model_dat
 ```python
 model = sagemaker.model.Model(
     image_uri=algorithm_image,
-    model_data='',
+    model_data='s3://sagemaker-bucket-851725491342/models/image_model/classifier-2025-01-26-02-58-03-001-a577816e/output/model.tar.gz',
     role=role
 )
-endpoint_name = ''
+endpoint_name = 'zack-super-cool-endpoint'
 
 deployment = model.deploy(
     initial_instance_count=1,
@@ -222,20 +222,26 @@ Send an testing in binary mode to the endpoint as the payload for prediction.
 
 ```python
 from sagemaker.predictor import Predictor
-predictor = Predictor("")
+predictor = Predictor("zack-super-cool-endpoint")
 
 from sagemaker.serializers import IdentitySerializer
 import base64
 
-file_name = 'data/chest_xray/val/val_pneumonia0.jpeg'
+file_name = 'data/chest_xray/val/val_normal0.jpeg'
 predictor.serializer = IdentitySerializer("image/jpeg")
 
 with open(file_name, "rb") as f:
     payload = f.read()
 inference = predictor.predict(data=payload)
 print(inference)
+
+Output:
+b'[0.8592441082997322, 0.14075589179992676]'
+
 print(inference[1])
 
+Output:
+48
 ```
 
 - Run a batch prediction and evaluate the matrix
@@ -276,15 +282,33 @@ make_pred()
 print(y_true)
 print(y_pred)
 
+Output:
+[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0,]
+[0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0,]
 
 # Evaluate the metrics
 
 from sklearn.metrics import confusion_matrix
 confusion_matrix(y_true, y_pred)
 
+Output:
+array([[6, 2],
+       [0, 8]])    
+
 # print classification report
 from sklearn.metrics import classification_report
 print(classification_report(y_true, y_pred))
+
+Output:
+
+              precision    recall  f1-score   support
+
+           0       1.00      0.75      0.86         8
+           1       0.80      1.00      0.89         8
+
+    accuracy                           0.88        16
+   macro avg       0.90      0.88      0.87        16
+weighted avg       0.90      0.88      0.87        16
 ```
 
 <b>Conclusion</b>

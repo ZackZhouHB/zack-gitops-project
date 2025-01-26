@@ -265,10 +265,10 @@ Use a more powerful instance (e.g., <code class="language-plaintext highlighter-
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="nc">Model</span><span class="p">(</span>
     <span class="n">image_uri</span><span class="o">=</span><span class="n">algorithm_image</span><span class="p">,</span>
-    <span class="n">model_data</span><span class="o">=</span><span class="sh">''</span><span class="p">,</span>
+    <span class="n">model_data</span><span class="o">=</span><span class="sh">'</span><span class="s">s3://sagemaker-bucket-851725491342/models/image_model/classifier-2025-01-26-02-58-03-001-a577816e/output/model.tar.gz</span><span class="sh">'</span><span class="p">,</span>
     <span class="n">role</span><span class="o">=</span><span class="n">role</span>
 <span class="p">)</span>
-<span class="n">endpoint_name</span> <span class="o">=</span> <span class="sh">''</span>
+<span class="n">endpoint_name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">zack-super-cool-endpoint</span><span class="sh">'</span>
 
 <span class="n">deployment</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">deploy</span><span class="p">(</span>
     <span class="n">initial_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -285,20 +285,26 @@ Use a more powerful instance (e.g., <code class="language-plaintext highlighter-
 <p>Send an testing in binary mode to the endpoint as the payload for prediction.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">sagemaker.predictor</span> <span class="kn">import</span> <span class="n">Predictor</span>
-<span class="n">predictor</span> <span class="o">=</span> <span class="nc">Predictor</span><span class="p">(</span><span class="sh">""</span><span class="p">)</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="nc">Predictor</span><span class="p">(</span><span class="sh">"</span><span class="s">zack-super-cool-endpoint</span><span class="sh">"</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="n">sagemaker.serializers</span> <span class="kn">import</span> <span class="n">IdentitySerializer</span>
 <span class="kn">import</span> <span class="n">base64</span>
 
-<span class="n">file_name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">data/chest_xray/val/val_pneumonia0.jpeg</span><span class="sh">'</span>
+<span class="n">file_name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">data/chest_xray/val/val_normal0.jpeg</span><span class="sh">'</span>
 <span class="n">predictor</span><span class="p">.</span><span class="n">serializer</span> <span class="o">=</span> <span class="nc">IdentitySerializer</span><span class="p">(</span><span class="sh">"</span><span class="s">image/jpeg</span><span class="sh">"</span><span class="p">)</span>
 
 <span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="sh">"</span><span class="s">rb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
 <span class="n">inference</span> <span class="o">=</span> <span class="n">predictor</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
 <span class="nf">print</span><span class="p">(</span><span class="n">inference</span><span class="p">)</span>
+
+<span class="n">Output</span><span class="p">:</span>
+<span class="sa">b</span><span class="sh">'</span><span class="s">[0.8592441082997322, 0.14075589179992676]</span><span class="sh">'</span>
+
 <span class="nf">print</span><span class="p">(</span><span class="n">inference</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
+<span class="n">Output</span><span class="p">:</span>
+<span class="mi">48</span>
 </code></pre></div></div>
 
 <ul>
@@ -340,15 +346,33 @@ Use a more powerful instance (e.g., <code class="language-plaintext highlighter-
 <span class="nf">print</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
 <span class="nf">print</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
 
+<span class="n">Output</span><span class="p">:</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,]</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,]</span>
 
 <span class="c1"># Evaluate the metrics
 </span>
 <span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
 <span class="nf">confusion_matrix</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
+<span class="n">Output</span><span class="p">:</span>
+<span class="nf">array</span><span class="p">([[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>    
+
 <span class="c1"># print classification report
 </span><span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
 <span class="nf">print</span><span class="p">(</span><span class="nf">classification_report</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
+
+<span class="n">Output</span><span class="p">:</span>
+
+              <span class="n">precision</span>    <span class="n">recall</span>  <span class="n">f1</span><span class="o">-</span><span class="n">score</span>   <span class="n">support</span>
+
+           <span class="mi">0</span>       <span class="mf">1.00</span>      <span class="mf">0.75</span>      <span class="mf">0.86</span>         <span class="mi">8</span>
+           <span class="mi">1</span>       <span class="mf">0.80</span>      <span class="mf">1.00</span>      <span class="mf">0.89</span>         <span class="mi">8</span>
+
+    <span class="n">accuracy</span>                           <span class="mf">0.88</span>        <span class="mi">16</span>
+   <span class="n">macro</span> <span class="n">avg</span>       <span class="mf">0.90</span>      <span class="mf">0.88</span>      <span class="mf">0.87</span>        <span class="mi">16</span>
+<span class="n">weighted</span> <span class="n">avg</span>       <span class="mf">0.90</span>      <span class="mf">0.88</span>      <span class="mf">0.87</span>        <span class="mi">16</span>
 </code></pre></div></div>
 
 <p><b>Conclusion</b></p>
