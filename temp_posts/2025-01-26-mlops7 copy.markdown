@@ -1,0 +1,69 @@
+---
+layout: post
+title:  "MLOps - AWS Serverless Approach: SageMaker + Lambda + API Gateway"
+date:   2025-01-25 22:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue Pneumonia Classifier by moving to AWS Serverless</b>
+
+- Go Serverless Deployment
+
+Deploying machine learning models in production requires additional considerations to address latency, scalability, cost-efficiency, and monitoring. 
+
+A modern approach to hosting an ML application in AWS can be considered as a serverless architecture. This approach leverages `AWS Lambda`, `Amazon API Gateway`, and `Amazon SageMaker`, to leverage with Amazon SageMaker Managed endpoints (Real-Time Inference) that handle auto-scaling, security, and monitoring out-of-the-box.
+
+```shell
+S3 (Model Artifacts) → SageMaker Model → Real-Time Endpoint (GPU) → Auto-Scaling + Model Monitor
+```
+
+Why go SageMaker Endpoints?
+
+- `Low Latency`: Models are hosted on dedicated infrastructure (e.g., ml.m5, ml.g4dn instances) optimized for inference.
+
+- `Auto Scaling`: Configure automatic scaling for the endpoint to handle peak concurrent requests.
+
+- `Multi-Model Endpoints`: Host multiple models on the same endpoint to optimize cost.
+
+- `Real-Time Metrics`: Monitor inference metrics (e.g., latency, requests, errors) via Amazon CloudWatch.
+
+```python
+import sagemaker
+from sagemaker import get_execution_role
+
+role = get_execution_role()
+
+model = sagemaker.model.Model(
+    image_uri=algorithm_image,
+    model_data='s3://sagemaker-bucket-851725491342/models/image_model/classifier-2025-01-26-02-58-03-001-a577816e/output/model.tar.gz',
+    role=role
+)
+
+endpoint_name = 'zack-super-cool-classifier'
+
+deployment = model.deploy(
+    initial_instance_count=1,
+    instance_type='ml.m4.xlarge',
+    use_spot_instances=True,
+    endpoint_name=endpoint_name
+)
+```
+
+
+
+
+{% highlight shell %}
+
+
+{% endhighlight %}
+
+
+
+
+![image tooltip here](/assets/mlops03-5.png)
+
+
+
+
+<b>Conclusion</b>
+

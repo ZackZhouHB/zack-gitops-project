@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "MLOps - Deploying a Pneumonia Classifier with AWS SageMaker AI"
+title:  "MLOps - Serverless Approach: SageMaker + Lambda + API Gateway"
 date:   2025-01-25 19:18:29 +1100
 categories: jekyll Cat2
 ---
