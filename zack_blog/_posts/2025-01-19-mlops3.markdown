@@ -203,7 +203,9 @@ Using `#` in the beginning of the prompt to enable RAG feature, choose the knowl
 Start a dialogue and choose `deepseek-r1:8b` model, use the knowledge base collections `Zack Blog for MLops` as reference to provide answer to summarize the posts I created 2024:
 
 ![image tooltip here](/assets/mlops03-6.png)
+![image tooltip here](/assets/mlops03-7.png)
 
+7b model is just for fun, it can not fetch the correct information based on the prompt and the given knowledge base collections. I assume 14b model maybe better, but due to the limitation of my GPU card, the token output for DeekSeek 14b is too slow. May be I will try to use cloud GPU to test it in future.
 
 
 <b>Conclusion</b>
@@ -218,7 +220,7 @@ Now I have successfully built a local Knowledge Base (KB) using Ollama, Open Web
 
 - Configured the system to enable Retrieval Augmented Generation (RAG) with Docker volumes for persistence.
 
-- Created a local RAG system using DeepSeek R1 which capable of querying knowledge from aged tech docs and Zack blog posts.
+- Created a local RAG system using DeepSeek R1 which capable of querying knowledge base collections built from my local docs and Zack blog posts.
 
 - Demonstrated effective model comparisons and knowledge-based querying through a user-friendly web interface.
 

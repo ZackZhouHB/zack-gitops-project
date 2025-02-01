@@ -255,7 +255,10 @@ Configure Open WebUI to use the knowledge base during interactions. This involve
 
 <p>Start a dialogue and choose <code class="language-plaintext highlighter-rouge">deepseek-r1:8b</code> model, use the knowledge base collections <code class="language-plaintext highlighter-rouge">Zack Blog for MLops</code> as reference to provide answer to summarize the posts I created 2024:</p>
 
-<p><img src="/assets/mlops03-6.png" alt="image tooltip here" /></p>
+<p><img src="/assets/mlops03-6.png" alt="image tooltip here" />
+<img src="/assets/mlops03-7.png" alt="image tooltip here" /></p>
+
+<p>7b model is just for fun, it can not fetch the correct information based on the prompt and the given knowledge base collections. I assume 14b model maybe better, but due to the limitation of my GPU card, the token output for DeekSeek 14b is too slow. May be I will try to use cloud GPU to test it in future.</p>
 
 <p><b>Conclusion</b></p>
 
@@ -275,7 +278,7 @@ Configure Open WebUI to use the knowledge base during interactions. This involve
     <p>Configured the system to enable Retrieval Augmented Generation (RAG) with Docker volumes for persistence.</p>
   </li>
   <li>
-    <p>Created a local RAG system using DeepSeek R1 which capable of querying knowledge from aged tech docs and Zack blog posts.</p>
+    <p>Created a local RAG system using DeepSeek R1 which capable of querying knowledge base collections built from my local docs and Zack blog posts.</p>
   </li>
   <li>
     <p>Demonstrated effective model comparisons and knowledge-based querying through a user-friendly web interface.</p>
