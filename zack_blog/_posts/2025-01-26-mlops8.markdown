@@ -86,7 +86,10 @@ Upload files into S3 bucket and enable Static Website Hosting, Specify `index.ht
     ]
 }
 ```
-![image tooltip here](/assets/mlops09-1.png)
+
+<a href="/assets/mlops09-1.png" target="_blank">
+    <img src="/assets/mlops09-1.png" alt="image tooltip here">
+</a>
 
 - Backend: API Gateway and Lambda Function
 
@@ -320,12 +323,16 @@ aws cloudformation create-stack \
 
 Access the S3 static website URL, choose a image to verify the model prediction. Logs can be found via both cloudwatch Sagemaker endpornt and lambda logs.
 
-![image tooltip here](/assets/mlops09-2.png)
+
+<a href="/assets/mlops09-2.png" target="_blank">
+    <img src="/assets/mlops09-2.png" alt="image tooltip here">
+</a>
 
 API and Model prediction verified from Postman 
 
-![image tooltip here](/assets/mlops09-3.png)
-
+<a href="/assets/mlops09-3.png" target="_blank">
+    <img src="/assets/mlops09-3.png" alt="image tooltip here">
+</a>
 
 <b>Key Takeaways:</b>
 

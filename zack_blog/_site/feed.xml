@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T14:29:00+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-02-01T01:18:29+11:00</published><updated>2025-02-01T01:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/01/mlops10</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T15:28:15+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-02-01T01:18:29+11:00</published><updated>2025-02-01T01:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/01/mlops10</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
 
 <p>In the previous post, I was able to complete both local Pytorch ML and AWS sagemaker practice, and containerize and deploy ML docker image locally.</p>
 
@@ -253,7 +253,9 @@ root@zackz:/mnt/f/1/spot-and-karpenter# aws eks list-addons <span class="nt">--c
     <span class="o">]</span>
 <span class="o">}</span>
 </code></pre></div></div>
-<p><img src="/assets/mlops10-1.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops10-1.png" target="_blank">
+    <img src="/assets/mlops10-1.png" alt="image tooltip here" />
+</a></p>
 
 <p>Then tag and push the optimized image classifier-eks to ECR and deploy it to EKS using Karpenter.</p>
 
@@ -454,7 +456,9 @@ root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-instance-types <span class
 
 <p>Need to engage with AWS support to request GPU instance limit increase.</p>
 
-<p><img src="/assets/mlops10-2.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops10-2.png" target="_blank">
+    <img src="/assets/mlops10-2.png" alt="image tooltip here" />
+</a></p>
 
 <p><b>Conclusion</b></p>
 
@@ -554,7 +558,10 @@ root@zackz:/mnt/f/ml-local/local-cv/aws-deploy# tree
     <span class="pi">]</span>
 <span class="pi">}</span>
 </code></pre></div></div>
-<p><img src="/assets/mlops09-1.png" alt="image tooltip here" /></p>
+
+<p><a href="/assets/mlops09-1.png" target="_blank">
+    <img src="/assets/mlops09-1.png" alt="image tooltip here" />
+</a></p>
 
 <ul>
   <li>Backend: API Gateway and Lambda Function</li>
@@ -789,11 +796,15 @@ b<span class="s1">'[0.8592441082997322, 0.14075589179992676]'</span>
 
 <p>Access the S3 static website URL, choose a image to verify the model prediction. Logs can be found via both cloudwatch Sagemaker endpornt and lambda logs.</p>
 
-<p><img src="/assets/mlops09-2.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops09-2.png" target="_blank">
+    <img src="/assets/mlops09-2.png" alt="image tooltip here" />
+</a></p>
 
 <p>API and Model prediction verified from Postman</p>
 
-<p><img src="/assets/mlops09-3.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops09-3.png" target="_blank">
+    <img src="/assets/mlops09-3.png" alt="image tooltip here" />
+</a></p>
 
 <p><b>Key Takeaways:</b></p>
 

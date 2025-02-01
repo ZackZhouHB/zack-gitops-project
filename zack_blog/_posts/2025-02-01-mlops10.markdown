@@ -199,8 +199,9 @@ root@zackz:/mnt/f/1/spot-and-karpenter# aws eks list-addons --cluster-name spot-
     ]
 }
 ```
-![image tooltip here](/assets/mlops10-1.png)
-
+<a href="/assets/mlops10-1.png" target="_blank">
+    <img src="/assets/mlops10-1.png" alt="image tooltip here">
+</a>
 
 Then tag and push the optimized image classifier-eks to ECR and deploy it to EKS using Karpenter. 
 
@@ -407,7 +408,9 @@ kubectl -n karpenter logs -l app.kubernetes.io/name=karpenter
 
 Need to engage with AWS support to request GPU instance limit increase.
 
-![image tooltip here](/assets/mlops10-2.png)
+<a href="/assets/mlops10-2.png" target="_blank">
+    <img src="/assets/mlops10-2.png" alt="image tooltip here">
+</a>
 
 <b>Conclusion</b>
 
