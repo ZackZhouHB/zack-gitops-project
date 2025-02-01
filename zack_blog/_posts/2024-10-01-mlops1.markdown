@@ -120,10 +120,13 @@ LOGO=ubuntu-logo
 
 - CUDA works with C. Thus, we need to install the gcc compiler first, then install CUDA from [the official website of Nvidia](https://developer.nvidia.com/cuda-downloads), then configure environment variable for post-installation  [The official CUDA installation guide from Nvidia](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
 
-![image tooltip here](/assets/mlops1.png)
+<a href="/assets/mlops1.png" target="_blank">
+    <img src="/assets/mlops1.png" alt="image tooltip here">
+</a>
 
-![image tooltip here](/assets/mlops2.png)
-
+<a href="/assets/mlops2.png" target="_blank">
+    <img src="/assets/mlops2.png" alt="image tooltip here">
+</a>
 {% highlight shell %}
 sudo apt install gcc --fix-missing
 
@@ -207,10 +210,12 @@ source jupyter_env/bin/activate
 
 Installing the PyTorch [the official website of PyTorch](https://pytorch.org/get-started/locally/), and enable the Nvidia Developer Settings for using CUDA via WSL, then validate CUDA from Torch. 
 
-![image tooltip here](/assets/mlops3.png)
-
-![image tooltip here](/assets/mlops4.png)
-
+<a href="/assets/mlops3.png" target="_blank">
+    <img src="/assets/mlops3.png" alt="image tooltip here">
+</a>
+<a href="/assets/mlops4.png" target="_blank">
+    <img src="/assets/mlops4.png" alt="image tooltip here">
+</a>
 {% highlight shell %}
 (jupyter_env)root@zackz:~# pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 
 
@@ -250,8 +255,9 @@ else:
 print("using", device, "device") 
 {% endhighlight %}
 
-![image tooltip here](/assets/mlops5.png)
-
+<a href="/assets/mlops5.png" target="_blank">
+    <img src="/assets/mlops5.png" alt="image tooltip here">
+</a>
 - Run performance comparison between my CPU and GPU (CUDA)
 
 {% highlight shell %}
@@ -281,8 +287,9 @@ for i in range(3):
  print("verify device:", result_gpu.device)
 {% endhighlight %}
 
-![image tooltip here](/assets/mlops6.png)
-
+<a href="/assets/mlops6.png" target="_blank">
+    <img src="/assets/mlops6.png" alt="image tooltip here">
+</a>
 
 Here I run a pretrained model `RedPajama`, ask questions from prompt, the 2nd answer just killing me :) 
 
@@ -311,10 +318,12 @@ token = outputs.sequences[0, input_length:]
 output_str = tokenizer.decode(token)
 print(output_str)
 {% endhighlight %}
-![image tooltip here](/assets/mlops7.png)
-
-![image tooltip here](/assets/mlops8.png)
-
+<a href="/assets/mlops7.png" target="_blank">
+    <img src="/assets/mlops7.png" alt="image tooltip here">
+</a>
+<a href="/assets/mlops8.png" target="_blank">
+    <img src="/assets/mlops8.png" alt="image tooltip here">
+</a>
 <b>Conclusion</b>
 
 Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image. 

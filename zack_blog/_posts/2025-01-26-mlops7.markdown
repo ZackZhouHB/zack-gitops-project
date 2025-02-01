@@ -181,11 +181,14 @@ tuner.fit(inputs=model_inputs,job_name=job_name,logs=True)
 
 Go to the AWS SageMaker console, navigate to the "Training - Training Jobs" tab, to view the status of the running job.
 
-![image tooltip here](/assets/mlops08-1.png)
-
+<a href="/assets/mlops08-1.png" target="_blank">
+    <img src="/assets/mlops08-1.png" alt="image tooltip here">
+</a>
 Go Cloudwatch Sagemaker log group to see detialed logs of the training job.
 
-![image tooltip here](/assets/mlops08-2.png)
+<a href="/assets/mlops08-2.png" target="_blank">
+    <img src="/assets/mlops08-2.png" alt="image tooltip here">
+</a>
 
 - Key Factors Influencing Runtime
 

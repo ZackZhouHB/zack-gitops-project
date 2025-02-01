@@ -216,21 +216,24 @@ INFO:     connection open</span></code></pre></figure>
   <li>Open web browser and navigate to <code class="language-plaintext highlighter-rouge">http://localhost:3000/</code> to access Open WebUI. First time access, you will be prompted to create a new admin account.</li>
 </ul>
 
-<p><img src="/assets/mlops03-1.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/mlops03-1.png" target="_blank">
+    <img src="/assets/mlops03-1.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Check modules available from frontend webui:</li>
 </ul>
 
-<p><img src="/assets/mlops03-2.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/mlops03-2.png" target="_blank">
+    <img src="/assets/mlops03-2.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Start a dialogue to compare 3 modles <code class="language-plaintext highlighter-rouge">deepseek-r1:8b</code>, <code class="language-plaintext highlighter-rouge">llama3:8b</code> and <code class="language-plaintext highlighter-rouge">mistral</code>, obviouly <code class="language-plaintext highlighter-rouge">llama3:8b</code> is better then the other 2 models.</li>
 </ul>
 
-<p><img src="/assets/mlops03-3.png" alt="image tooltip here" /></p>
-
-<p><b>Build knowledge base collections</b></p>
+<p><a href="/assets/mlops03-3.png" target="_blank">
+    <img src="/assets/mlops03-3.png" alt="image tooltip here" />
+</a>
+<b>Build knowledge base collections</b></p>
 
 <p>Building knowledge base collections in Open WebUI typically involves organizing, indexing, and embedding relevant data so that it can be queried effectively by the LLM.</p>
 
@@ -240,9 +243,12 @@ INFO:     connection open</span></code></pre></figure>
 
 <p>I have some aged Linux, VMware and Windows admin docs in my computer with Microsoft word format, I will use them to build some testing knowledge base collections, then I will upload my Zack bolg posts as Markdown format into KB collections, then test from the dialogue it can be easier indexing and retrieval.</p>
 
-<p><img src="/assets/mlops03-4.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/mlops03-5.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops03-4.png" target="_blank">
+    <img src="/assets/mlops03-4.png" alt="image tooltip here" />
+</a>
+<a href="/assets/mlops03-5.png" target="_blank">
+    <img src="/assets/mlops03-5.png" alt="image tooltip here" />
+</a></p>
 
 <ul>
   <li>Enable Retrieval Features and Test Knowledge Base
@@ -251,14 +257,20 @@ Configure Open WebUI to use the knowledge base during interactions. This involve
 
 <p>Using <code class="language-plaintext highlighter-rouge">#</code> in the beginning of the prompt to enable RAG feature, choose the knowledge collection from the collections we built earlier.</p>
 
-<p><img src="/assets/mlops03-8.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops03-8.png" target="_blank">
+    <img src="/assets/mlops03-8.png" alt="image tooltip here" />
+</a></p>
 
 <p>Start a dialogue and choose <code class="language-plaintext highlighter-rouge">deepseek-r1:8b</code> model, use the knowledge base collections <code class="language-plaintext highlighter-rouge">Zack Blog for MLops</code> as reference to provide answer to summarize the posts I created 2024:</p>
 
-<p><img src="/assets/mlops03-6.png" alt="image tooltip here" />
-<img src="/assets/mlops03-7.png" alt="image tooltip here" /></p>
+<p><a href="/assets/mlops03-6.png" target="_blank">
+    <img src="/assets/mlops03-6.png" alt="image tooltip here" />
+</a></p>
 
-<p>7b model is just for fun, it can not fetch the correct information based on the prompt and the given knowledge base collections. I assume 14b model maybe better, but due to the limitation of my GPU card, the token output for DeekSeek 14b is too slow. May be I will try to use cloud GPU to test it in future.</p>
+<p><a href="/assets/mlops03-7.png" target="_blank">
+    <img src="/assets/mlops03-7.png" alt="image tooltip here" />
+</a>
+7b model is just for fun, it can not fetch the correct information based on the prompt and the given knowledge base collections. I assume 14b model maybe better, but due to the limitation of my GPU card, the token output for DeekSeek 14b is too slow. May be I will try to use cloud GPU to test it in future.</p>
 
 <p><b>Conclusion</b></p>
 

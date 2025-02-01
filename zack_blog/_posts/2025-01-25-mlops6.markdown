@@ -398,10 +398,15 @@ root@zackz:/mnt/f/ml-local/local-cv/# curl -X POST -F "file=@data/chest_xray/zz/
 
 - Frontend testing by provide a google searched chest X-Ray image to the frontend and see the backend response for Pneumonia prediction.
 
-![image tooltip here](/assets/mlops06-1.png)
 
-![image tooltip here](/assets/mlops06-2.png)
+<a href="/assets/mlops06-1.png" target="_blank">
+    <img src="/assets/mlops06-1.png" alt="image tooltip here">
+</a>
 
+
+<a href="/assets/mlops06-2.png" target="_blank">
+    <img src="/assets/mlops06-2.png" alt="image tooltip here">
+</a>
 ### **Key Takeaways**
 
 - Successfully built and containerized the pneumonia classifier model and created a functional frontend-backend application with portability and scalability.

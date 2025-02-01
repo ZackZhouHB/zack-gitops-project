@@ -201,22 +201,30 @@ root@ip-172-31-26-78:/var/snap/amazon-ssm-agent/9881# curl localhost:9080
 
 - Create An NLB with Security group forwards traffic to TCP 9080 port on the EC2 instance.
 
-![image tooltip here](/assets/ssm13.png)
+<a href="/assets/ssm13.png" target="_blank">
+    <img src="/assets/ssm13.png" alt="image tooltip here">
+</a>
 
 - Register instance as target group, Create VPC Endpoint Service expose the NLB to consumer accounts. 
 
-![image tooltip here](/assets/ssm14.png)
+<a href="/assets/ssm14.png" target="_blank">
+    <img src="/assets/ssm14.png" alt="image tooltip here">
+</a>
 
 - Manual approve when get connection request from consumer account.
 
-![image tooltip here](/assets/ssm11.png)
+<a href="/assets/ssm11.png" target="_blank">
+    <img src="/assets/ssm11.png" alt="image tooltip here">
+</a>
 
 
 In Consumer Account (Joe):
 
 - Create a VPC Interface Endpoint requests and connects to the provider's endpoint service.
 
-![image tooltip here](/assets/ssm12.png)
+<a href="/assets/ssm12.png" target="_blank">
+    <img src="/assets/ssm12.png" alt="image tooltip here">
+</a>
 
 - Create a testing EC2 with 9080 allowed from security group, run curl private DNS name with 9080 port to verify the private link.
 

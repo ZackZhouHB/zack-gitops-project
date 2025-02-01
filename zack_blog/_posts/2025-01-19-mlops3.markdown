@@ -171,16 +171,19 @@ INFO:     connection open
 
 - Open web browser and navigate to `http://localhost:3000/` to access Open WebUI. First time access, you will be prompted to create a new admin account.
 
-![image tooltip here](/assets/mlops03-1.png)
-
+<a href="/assets/mlops03-1.png" target="_blank">
+    <img src="/assets/mlops03-1.png" alt="image tooltip here">
+</a>
 - Check modules available from frontend webui:
 
-![image tooltip here](/assets/mlops03-2.png)
-
+<a href="/assets/mlops03-2.png" target="_blank">
+    <img src="/assets/mlops03-2.png" alt="image tooltip here">
+</a>
 - Start a dialogue to compare 3 modles `deepseek-r1:8b`, `llama3:8b` and `mistral`, obviouly `llama3:8b` is better then the other 2 models. 
 
-![image tooltip here](/assets/mlops03-3.png)
-
+<a href="/assets/mlops03-3.png" target="_blank">
+    <img src="/assets/mlops03-3.png" alt="image tooltip here">
+</a>
 <b>Build knowledge base collections</b>
 
 Building knowledge base collections in Open WebUI typically involves organizing, indexing, and embedding relevant data so that it can be queried effectively by the LLM.
@@ -189,22 +192,31 @@ Building knowledge base collections in Open WebUI typically involves organizing,
 
 I have some aged Linux, VMware and Windows admin docs in my computer with Microsoft word format, I will use them to build some testing knowledge base collections, then I will upload my Zack bolg posts as Markdown format into KB collections, then test from the dialogue it can be easier indexing and retrieval.
 
-![image tooltip here](/assets/mlops03-4.png)
-
-![image tooltip here](/assets/mlops03-5.png)
+<a href="/assets/mlops03-4.png" target="_blank">
+    <img src="/assets/mlops03-4.png" alt="image tooltip here">
+</a>
+<a href="/assets/mlops03-5.png" target="_blank">
+    <img src="/assets/mlops03-5.png" alt="image tooltip here">
+</a>
 
 - Enable Retrieval Features and Test Knowledge Base
 Configure Open WebUI to use the knowledge base during interactions. This involve enabling a retrieval-augmented generation (RAG) feature or linking the embeddings to the model. 
 
 Using `#` in the beginning of the prompt to enable RAG feature, choose the knowledge collection from the collections we built earlier.
 
-![image tooltip here](/assets/mlops03-8.png)
+<a href="/assets/mlops03-8.png" target="_blank">
+    <img src="/assets/mlops03-8.png" alt="image tooltip here">
+</a>
 
 Start a dialogue and choose `deepseek-r1:8b` model, use the knowledge base collections `Zack Blog for MLops` as reference to provide answer to summarize the posts I created 2024:
 
-![image tooltip here](/assets/mlops03-6.png)
-![image tooltip here](/assets/mlops03-7.png)
+<a href="/assets/mlops03-6.png" target="_blank">
+    <img src="/assets/mlops03-6.png" alt="image tooltip here">
+</a>
 
+<a href="/assets/mlops03-7.png" target="_blank">
+    <img src="/assets/mlops03-7.png" alt="image tooltip here">
+</a>
 7b model is just for fun, it can not fetch the correct information based on the prompt and the given knowledge base collections. I assume 14b model maybe better, but due to the limitation of my GPU card, the token output for DeekSeek 14b is too slow. May be I will try to use cloud GPU to test it in future.
 
 

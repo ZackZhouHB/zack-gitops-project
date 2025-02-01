@@ -136,7 +136,9 @@ mlflow ui
 
 Navigate to http://127.0.0.1:5000 to view the experiment
 
-![image tooltip here](/assets/mlops21.png)
+<a href="/assets/mlops21.png" target="_blank">
+    <img src="/assets/mlops21.png" alt="image tooltip here">
+</a>
 
 - Step 3: Dockerize the Model for Deployment
 
@@ -256,7 +258,10 @@ airflow users create \
 {% endhighlight %}
 
 Navigate to http://127.0.0.1:8080/to view the Airflow
-![image tooltip here](/assets/mlops22.png)
+
+<a href="/assets/mlops22.png" target="_blank">
+    <img src="/assets/mlops22.png" alt="image tooltip here">
+</a>
 
 - Step 5: CICD with Jenkins
 
