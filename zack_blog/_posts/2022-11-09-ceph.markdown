@@ -56,6 +56,7 @@ rook-ceph-block (default)   rook-ceph.rbd.csi.ceph.com   Delete          Immedia
 
 check pool and OSDs in ceph webui
 
-![image tooltip here](/assets/ceph.png)
-
+<a href="/assets/ceph.png" target="_blank">
+    <img src="/assets/ceph.png" alt="image tooltip here">
+</a>
 

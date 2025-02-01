@@ -12,8 +12,9 @@ Here we use helm to install istio (istio-base, istiod, istia gateway), then depl
 
 Bookinfo Topology: 
 
-![image tooltip here](/assets/bookinfo.png)
-
+<a href="/assets/bookinfo.png" target="_blank">
+    <img src="/assets/bookinfo.png" alt="image tooltip here">
+</a>
 - Helm install istio (istiod, istio-ingress)
 
 {% highlight shell %}
@@ -72,8 +73,9 @@ kubectl create -f prometheus.yaml -f jaeger.yaml -f grafana.yaml
 {% endhighlight %}
 
 - visit http://book.istio:31000/productpage, with review (v1, v2, v3)
-![image tooltip here](/assets/kiali.png)
-
+<a href="/assets/kiali.png" target="_blank">
+    <img src="/assets/kiali.png" alt="image tooltip here">
+</a>
 - define destination rules and virtual service for reviews
 {% highlight shell %}
 wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
@@ -114,8 +116,9 @@ refresh bookinfo webpage, test Traffic route weight as bellow
 
 90% traffic for reviews v3  vs  10% traffic for review v1
 
-![image tooltip here](/assets/1090.png)
-
+<a href="/assets/1090.png" target="_blank">
+    <img src="/assets/1090.png" alt="image tooltip here">
+</a>
 
 
 

@@ -154,7 +154,9 @@ pgo        1/1     1            1           176m
 
 Edit manifest to add 2 more replicas
 
-![image tooltip here](/assets/ps3-1.png)
+<a href="/assets/ps3-1.png" target="_blank">
+    <img src="/assets/ps3-1.png" alt="image tooltip here">
+</a>
 
 {% highlight shell %}
 [root@freeipa-server kustomize]# kubectl apply -k postgres -n postgres-operator
@@ -163,8 +165,9 @@ postgrescluster.postgres-operator.crunchydata.com/hippo configured
 [root@freeipa-server postgres-operator-examples]# watch kubectl get pod -L postgres-operator.crunchydata.com/role -l postgres-operator.crunchydata.com/instance -n postgres-operator
 {% endhighlight %}
 
-![image tooltip here](/assets/ps3-2.png)
-
+<a href="/assets/ps3-2.png" target="_blank">
+    <img src="/assets/ps3-2.png" alt="image tooltip here">
+</a>
 Failover testing:
 
 Now I am going to delete the primary instance, one of the standby pod will take over and become primary automatically
@@ -175,8 +178,9 @@ Now I am going to delete the primary instance, one of the standby pod will take 
 pod "hippo-instance1-nhbc-0" deleted
 {% endhighlight %}
 
-![image tooltip here](/assets/ps3-3.png)
-
+<a href="/assets/ps3-3.png" target="_blank">
+    <img src="/assets/ps3-3.png" alt="image tooltip here">
+</a>
 - Perform Minor version rolling upgrade 
 
 Here I changed the database version to 16.1, the cluster will start a rolling update by
@@ -196,10 +200,12 @@ Defaulted container "database" out of: database, replication-cert-copy, pgbackre
 psql (PostgreSQL) 16.2
 {% endhighlight %}
 
-![image tooltip here](/assets/ps3-5.png)
-
-![image tooltip here](/assets/ps3-4.png)
-
+<a href="/assets/ps3-5.png" target="_blank">
+    <img src="/assets/ps3-5.png" alt="image tooltip here">
+</a>
+<a href="/assets/ps3-4.png" target="_blank">
+    <img src="/assets/ps3-4.png" alt="image tooltip here">
+</a>
 {% highlight shell %}
 # validate DB version after miner version change
 [root@freeipa-server kustomize]# kubectl exec -it hippo-instance1-q8kk-0 -n postgres-operator -- psql --version
@@ -211,8 +217,9 @@ psql (PostgreSQL) 16.1
 
 Add backup Cron job into manifest to add weekly full backup and daily incremental
 
-![image tooltip here](/assets/ps3-6.png)
-
+<a href="/assets/ps3-6.png" target="_blank">
+    <img src="/assets/ps3-6.png" alt="image tooltip here">
+</a>
 {% highlight shell %}
 [root@freeipa-server ~]# kubectl get cronjobs -n postgres-operator 
 NAME               SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
@@ -265,14 +272,17 @@ generating data (client-side)...
 {% endhighlight %}
 
 
-![image tooltip here](/assets/ps3-7.png)
-
+<a href="/assets/ps3-7.png" target="_blank">
+    <img src="/assets/ps3-7.png" alt="image tooltip here">
+</a>
 Some Grafana predefined PostgreSQL dashboard, unfortunately I donot have much data in it to show more monitoring status.
 
-![image tooltip here](/assets/ps3-8.png)
-
-![image tooltip here](/assets/ps3-9.png)
-
+<a href="/assets/ps3-8.png" target="_blank">
+    <img src="/assets/ps3-8.png" alt="image tooltip here">
+</a>
+<a href="/assets/ps3-9.png" target="_blank">
+    <img src="/assets/ps3-9.png" alt="image tooltip here">
+</a>
 <b> Conclusion</b>
 
 This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!

@@ -499,8 +499,9 @@ pipeline {
 
 After thorough testing and validation, the CI pipeline finally works like a charm.
 
-![image tooltip here](/assets/jenkins1.png)
-
+<a href="/assets/jenkins1.png" target="_blank">
+    <img src="/assets/jenkins1.png" alt="image tooltip here">
+</a>
 Next, I will create a CD pipeline to integrate with Ansible, AWS, and Terraform to deploy the blog onto AWS EC2, ECS, and EKS.
 
 

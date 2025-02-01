@@ -274,8 +274,9 @@ It simulated moving the existing pods to other nodes. Once it determined that th
 
 This behavior ensures that the cluster's resources are used efficiently, scaling down when there is no workload, thereby reducing costs.
 
-![image tooltip here](/assets/eks1.png)
-
+<a href="/assets/eks1.png" target="_blank">
+    <img src="/assets/eks1.png" alt="image tooltip here">
+</a>
 <b> Conclusion: </b>
 
 By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.

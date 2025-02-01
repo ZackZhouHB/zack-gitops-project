@@ -84,9 +84,13 @@
 
 <p>Then I found Prometheus was unable to scrape metrics from several Kubernetes components (etcd, kube-controller-manager, kube-scheduler, and kube-proxy). These targets were marked as DOWN in the Prometheus UI with errors such as: Connection refused.</p>
 
-<p><img src="/assets/eks72.png" alt="image tooltip here" /></p>
+<p><a href="/assets/eks72.png" target="_blank">
+    <img src="/assets/eks72.png" alt="image tooltip here" />
+</a></p>
 
-<p><img src="/assets/eks73.png" alt="image tooltip here" />
+<p><a href="/assets/eks73.png" target="_blank">
+    <img src="/assets/eks73.png" alt="image tooltip here" />
+</a>
 <b>Troubleshooting Steps</b></p>
 
 <p>As per Prometheus monitoring flow, let’s start with troubleshooting.</p>
@@ -189,9 +193,10 @@ kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</co
 
 <p>Confirmed that Prometheus targets were UP after the fixes.</p>
 
-<p><img src="/assets/eks71.png" alt="image tooltip here" /></p>
-
-<p><b>Conclusion</b></p>
+<p><a href="/assets/eks71.png" target="_blank">
+    <img src="/assets/eks71.png" alt="image tooltip here" />
+</a>
+<b>Conclusion</b></p>
 
 <p>Common Prometheus Metrics debug steps:</p>
 
@@ -310,10 +315,14 @@ kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</co
 <span class="s">servicemonitor.monitoring.coreos.com/redis-monitor created</span></code></pre></figure>
 
 <p>Head over to Prometheus Targets, we can see the metrics is being scraped from the Redis exporter.
-<img src="/assets/eks75.png" alt="image tooltip here" /></p>
+<a href="/assets/eks75.png" target="_blank">
+    <img src="/assets/eks75.png" alt="image tooltip here" />
+</a></p>
 
 <p>Head over to Grafana, then import the dashboard 763 
-<img src="/assets/eks74.png" alt="image tooltip here" /></p>
+<a href="/assets/eks74.png" target="_blank">
+    <img src="/assets/eks74.png" alt="image tooltip here" />
+</a></p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/09/29/eks6.html" hidden></a>
 </article>

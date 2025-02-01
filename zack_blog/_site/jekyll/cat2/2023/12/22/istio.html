@@ -53,8 +53,9 @@
 
 <p>Bookinfo Topology:</p>
 
-<p><img src="/assets/bookinfo.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/bookinfo.png" target="_blank">
+    <img src="/assets/bookinfo.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Helm install istio (istiod, istio-ingress)</li>
 </ul>
@@ -109,13 +110,11 @@ wget https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/g
 kubectl create <span class="nt">-f</span> prometheus.yaml <span class="nt">-f</span> jaeger.yaml <span class="nt">-f</span> grafana.yaml</code></pre></figure>
 
 <ul>
-  <li>
-    <p>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
-<img src="/assets/kiali.png" alt="image tooltip here" /></p>
-  </li>
-  <li>
-    <p>define destination rules and virtual service for reviews</p>
-  </li>
+  <li>visit http://book.istio:31000/productpage, with review (v1, v2, v3)
+<a href="/assets/kiali.png" target="_blank">
+    <img src="/assets/kiali.png" alt="image tooltip here" />
+</a></li>
+  <li>define destination rules and virtual service for reviews</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">wget https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/networking/destination-rule-all.yaml
@@ -153,7 +152,9 @@ Spec:
 
 <p>90% traffic for reviews v3  vs  10% traffic for review v1</p>
 
-<p><img src="/assets/1090.png" alt="image tooltip here" /></p>
+<p><a href="/assets/1090.png" target="_blank">
+    <img src="/assets/1090.png" alt="image tooltip here" />
+</a></p>
 
 
   </div><a class="u-url" href="/jekyll/cat2/2023/12/22/istio.html" hidden></a>

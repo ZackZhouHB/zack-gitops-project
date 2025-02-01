@@ -89,8 +89,9 @@ Install Karpenter</p>
 
 <p>Here I will set up a Kubernetes cluster using AWS EKS, configure IAM roles for service accounts to enable IRSA, install Karpenter using Helm, install eks monitoring tools <a href="https://github.com/awslabs/eks-node-viewer">eks-node-viewer</a> to observe Karpenter scaling.</p>
 
-<p><img src="/assets/eks81.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/eks81.png" target="_blank">
+    <img src="/assets/eks81.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Step 2: Scaling and Resource Management</li>
 </ul>
@@ -100,8 +101,9 @@ Install Karpenter</p>
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:39:19.332Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"disrupting nodeclaim(s) via delete, terminating 1 nodes (0 pods) ip-192-168-156-150.ap-southeast-2.compute.internal/c6a.large/on-demand"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"disruption"</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">""</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"ec9527bb-ab80-4d55-b9fb-24b9083cf1e4"</span>,<span class="s2">"command-id"</span>:<span class="s2">"bf26fc67-52d3-410a-a6fd-96b00f229c5b"</span>,<span class="s2">"reason"</span>:<span class="s2">"empty"</span><span class="o">}</span>
 <span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:39:19.666Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"tainted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-156-150.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-156-150.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"95e576e4-b326-4870-b7e5-b64f8a013c9d"</span>,<span class="s2">"taint.Key"</span>:<span class="s2">"karpenter.sh/disrupted"</span>,<span class="s2">"taint.Value"</span>:<span class="s2">""</span>,<span class="s2">"taint.Effect"</span>:<span class="s2">"NoSchedule"</span><span class="o">}</span></code></pre></figure>
 
-<p><img src="/assets/eks82.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/eks82.png" target="_blank">
+    <img src="/assets/eks82.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Step 3: Clean up the resources
 Karpenter will detect the scale down from Application deployment, scheduled to terminate unnecessary nodes for the EKS cluster. Then I will remove all the resources created in this example.</li>
@@ -111,7 +113,9 @@ Karpenter will detect the scale down from Application deployment, scheduled to t
 <span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:49.254Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"deleted node"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"node.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">""</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"Node"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"a3ef7364-5aaf-4e68-8280-c08d0b1012cc"</span><span class="o">}</span>
 <span class="o">{</span><span class="s2">"level"</span>:<span class="s2">"INFO"</span>,<span class="s2">"time"</span>:<span class="s2">"2024-11-18T12:35:49.497Z"</span>,<span class="s2">"logger"</span>:<span class="s2">"controller"</span>,<span class="s2">"message"</span>:<span class="s2">"deleted nodeclaim"</span>,<span class="s2">"commit"</span>:<span class="s2">"a2875e3"</span>,<span class="s2">"controller"</span>:<span class="s2">"nodeclaim.termination"</span>,<span class="s2">"controllerGroup"</span>:<span class="s2">"karpenter.sh"</span>,<span class="s2">"controllerKind"</span>:<span class="s2">"NodeClaim"</span>,<span class="s2">"NodeClaim"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"default-drbmq"</span><span class="o">}</span>,<span class="s2">"namespace"</span>:<span class="s2">""</span>,<span class="s2">"name"</span>:<span class="s2">"default-drbmq"</span>,<span class="s2">"reconcileID"</span>:<span class="s2">"0e20cb98-389d-4143-8177-5ec9c777c227"</span>,<span class="s2">"Node"</span>:<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ip-192-168-71-167.ap-southeast-2.compute.internal"</span><span class="o">}</span>,<span class="s2">"provider-id"</span>:<span class="s2">"aws:///ap-southeast-2a/i-062db9708bac9d0dd"</span><span class="o">}</span></code></pre></figure>
 
-<p><img src="/assets/eks83.png" alt="image tooltip here" /></p>
+<p><a href="/assets/eks83.png" target="_blank">
+    <img src="/assets/eks83.png" alt="image tooltip here" />
+</a></p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c">#!/bin/bash</span>
 

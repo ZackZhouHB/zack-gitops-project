@@ -51,10 +51,13 @@
 
 <p>A Kubernetes version encompasses both the control plane and the data plane. While AWS manages and upgrades the control plane, we (cluster owner/customer) holds the responsibility for initiating upgrade for both cluster control plane as well as the data plane. When we initiate a cluster upgrade, AWS manages upgrading the control plane and we are still responsible for initiating the upgrades of the data plane, this includes worker nodes provisioned via Self Managed node groups, Managed Node Groups, Fargate &amp; other add-ons . If worker nodes are provisioned via Karpenter Controller, we can can take advantage of Drift  or Disruption Controller  features (spec.expireAfter) for automatic node recycling and upgrade.</p>
 
-<p><img src="/assets/eks65.png" alt="image tooltip here" />
-<img src="/assets/eks66.png" alt="image tooltip here" /></p>
-
-<p><b>Upgrade Strategy: in-place vs Blue-Green</b></p>
+<p><a href="/assets/eks65.png" target="_blank">
+    <img src="/assets/eks65.png" alt="image tooltip here" />
+</a>
+<a href="/assets/eks66.png" target="_blank">
+    <img src="/assets/eks66.png" alt="image tooltip here" />
+</a>
+<b>Upgrade Strategy: in-place vs Blue-Green</b></p>
 
 <p>Considerations when choosing a EKS upgrade strategy:</p>
 
@@ -78,8 +81,9 @@
   <li>Verify EKS Upgrade Insights and Checklist</li>
 </ul>
 
-<p><img src="/assets/eks67.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/eks67.png" target="_blank">
+    <img src="/assets/eks67.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>
     <p>Backup Cluster with <a href="https://zackz.site/jekyll/cat2/2024/09/15/eks3.html">Velero</a>.</p>
@@ -129,7 +133,9 @@ root@zackz:~# aws eks describe-cluster <span class="nt">--name</span> <span clas
 
 <ul>
   <li>Upgrade EKS Addons
-<img src="/assets/eks68.png" alt="image tooltip here" /></li>
+<a href="/assets/eks68.png" target="_blank">
+    <img src="/assets/eks68.png" alt="image tooltip here" />
+</a></li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@zackz:~# eksctl get addon <span class="nt">--cluster</span> <span class="nv">$EKS_CLUSTER_NAME</span>
@@ -268,7 +274,9 @@ kube-system   kube-proxy-dnfgt               1/1     Running   0          8m11s<
   </li>
 </ul>
 
-<p><img src="/assets/eks69.png" alt="image tooltip here" /></p>
+<p><a href="/assets/eks69.png" target="_blank">
+    <img src="/assets/eks69.png" alt="image tooltip here" />
+</a></p>
 
   </div><a class="u-url" href="/jekyll/cat2/2024/09/27/eks7.html" hidden></a>
 </article>

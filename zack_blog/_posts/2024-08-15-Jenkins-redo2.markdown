@@ -462,8 +462,9 @@ Ansible Playbook deploy-docker-playbook.yml
 
 After thorough testing and validation, the CD pipeline also works like a charm.
 
-![image tooltip here](/assets/jenkins2.png)
-
+<a href="/assets/jenkins2.png" target="_blank">
+    <img src="/assets/jenkins2.png" alt="image tooltip here">
+</a>
 <b>Terraform Modularization for Multi-Destination Deployment</b>
 
 The folder structure bellow is designed to organize Infrastructure as Code (IaC) using Terraform, breaking down the configuration into reusable modules for ECS, EKS, and EC2 deployments, along with different environments (production, stage, etc.). So The Jenkins reusable CD pipeline can manage multi-destination deployments based on this structure. 
@@ -594,8 +595,9 @@ root@zackz:~/zack-gitops-project/jenkins# tree
 {% endhighlight %}
 
 
-![image tooltip here](/assets/jenkins3.png)
-
+<a href="/assets/jenkins3.png" target="_blank">
+    <img src="/assets/jenkins3.png" alt="image tooltip here">
+</a>
 <b>Conclusion</b> 
 
 Using Terraform and Jenkins practices enables efficient management of complex, multi-environment, and multi-service deployments, which are crucial for cloud-native CI/CD processes to achieve:

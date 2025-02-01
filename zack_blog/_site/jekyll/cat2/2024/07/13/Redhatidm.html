@@ -213,9 +213,10 @@ nameserver 127.0.0.1
 ipa config-mod <span class="nt">--defaultshell</span><span class="o">=</span>/bin/bash
 ipa user-add tina <span class="nt">--first</span><span class="o">=</span>tina <span class="nt">--last</span><span class="o">=</span>qi <span class="nt">--password</span></code></pre></figure>
 
-<p><img src="/assets/idm3.png" alt="image tooltip here" /></p>
-
-<p><b> Idm client Enrollment </b></p>
+<p><a href="/assets/idm3.png" target="_blank">
+    <img src="/assets/idm3.png" alt="image tooltip here" />
+</a>
+<b> Idm client Enrollment </b></p>
 
 <p>Now the idm web portal should be accessible, by adding “11.0.1.180 server1.ipa.zack.world” into local “c:/wondows/system32/drivers/etc/hosts.</p>
 
@@ -261,9 +262,10 @@ ipa-client-install <span class="nt">--server</span><span class="o">=</span>serve
 Client configuration complete.
 The ipa-client-install <span class="nb">command </span>was successful</code></pre></figure>
 
-<p><img src="/assets/idm2.png" alt="image tooltip here" /></p>
-
-<p><b> Setup idm and AD trust</b></p>
+<p><a href="/assets/idm2.png" target="_blank">
+    <img src="/assets/idm2.png" alt="image tooltip here" />
+</a>
+<b> Setup idm and AD trust</b></p>
 
 <p>On Windows DC, setup AD</p>
 
@@ -298,8 +300,9 @@ Command completed successfully.
 dig SRV _ldap._tcp.ipa.zack.world
 dig SRV _ldap._tcp.ad.zack.world</code></pre></figure>
 
-<p><img src="/assets/idm1.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/idm1.png" target="_blank">
+    <img src="/assets/idm1.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Install required packages then setup trust on FreeIPA Server</li>
 </ul>
@@ -367,17 +370,19 @@ Added Active Directory trust for realm "ad.zack.world"
 authselect enable-feature with-mkhomedir
 systemctl enable --now oddjobd</span></code></pre></figure>
 
-<p><img src="/assets/idm4.png" alt="image tooltip here" /></p>
-
-<p><b> Validation of both idm clients with idm and AD user</b></p>
+<p><a href="/assets/idm4.png" target="_blank">
+    <img src="/assets/idm4.png" alt="image tooltip here" />
+</a>
+<b> Validation of both idm clients with idm and AD user</b></p>
 
 <ul>
   <li>Validate ssh into ubuntu client with AD user “joez@ad.zack.world”</li>
 </ul>
 
-<p><img src="/assets/idm6.png" alt="image tooltip here" /></p>
-
-<p>Validate ssh into Centos client with idm user “tina”</p>
+<p><a href="/assets/idm6.png" target="_blank">
+    <img src="/assets/idm6.png" alt="image tooltip here" />
+</a>
+Validate ssh into Centos client with idm user “tina”</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">login as: tina
 Keyboard-interactive authentication prompts from server:

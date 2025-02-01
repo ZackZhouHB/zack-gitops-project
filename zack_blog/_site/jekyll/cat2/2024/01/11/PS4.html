@@ -198,16 +198,19 @@ pgo        1/1     1            1           176m</code></pre></
 
 <p>Edit manifest to add 2 more replicas</p>
 
-<p><img src="/assets/ps3-1.png" alt="image tooltip here" /></p>
+<p><a href="/assets/ps3-1.png" target="_blank">
+    <img src="/assets/ps3-1.png" alt="image tooltip here" />
+</a></p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server kustomize]# kubectl apply <span class="nt">-k</span> postgres <span class="nt">-n</span> postgres-operator
 postgrescluster.postgres-operator.crunchydata.com/hippo configured
 <span class="c"># watch change</span>
 <span class="o">[</span>root@freeipa-server postgres-operator-examples]# watch kubectl get pod <span class="nt">-L</span> postgres-operator.crunchydata.com/role <span class="nt">-l</span> postgres-operator.crunchydata.com/instance <span class="nt">-n</span> postgres-operator</code></pre></figure>
 
-<p><img src="/assets/ps3-2.png" alt="image tooltip here" /></p>
-
-<p>Failover testing:</p>
+<p><a href="/assets/ps3-2.png" target="_blank">
+    <img src="/assets/ps3-2.png" alt="image tooltip here" />
+</a>
+Failover testing:</p>
 
 <p>Now I am going to delete the primary instance, one of the standby pod will take over and become primary automatically</p>
 
@@ -216,8 +219,9 @@ postgrescluster.postgres-operator.crunchydata.com/hippo configured
 <span class="o">[</span>root@freeipa-server kustomize]# kubectl delete po hippo-instance1-nhbc-0 <span class="nt">-n</span> postgres-operator 
 pod <span class="s2">"hippo-instance1-nhbc-0"</span> deleted</code></pre></figure>
 
-<p><img src="/assets/ps3-3.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/ps3-3.png" target="_blank">
+    <img src="/assets/ps3-3.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Perform Minor version rolling upgrade</li>
 </ul>
@@ -244,9 +248,12 @@ pod <span class="s2">"hippo-instance1-nhbc-0"</span> deleted</code></pre></figur
 Defaulted container <span class="s2">"database"</span> out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup <span class="o">(</span>init<span class="o">)</span>, nss-wrapper-init <span class="o">(</span>init<span class="o">)</span>
 psql <span class="o">(</span>PostgreSQL<span class="o">)</span> 16.2</code></pre></figure>
 
-<p><img src="/assets/ps3-5.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/ps3-4.png" alt="image tooltip here" /></p>
+<p><a href="/assets/ps3-5.png" target="_blank">
+    <img src="/assets/ps3-5.png" alt="image tooltip here" />
+</a>
+<a href="/assets/ps3-4.png" target="_blank">
+    <img src="/assets/ps3-4.png" alt="image tooltip here" />
+</a></p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># validate DB version after miner version change</span>
 <span class="o">[</span>root@freeipa-server kustomize]# kubectl <span class="nb">exec</span> <span class="nt">-it</span> hippo-instance1-q8kk-0 <span class="nt">-n</span> postgres-operator <span class="nt">--</span> psql <span class="nt">--version</span>
@@ -259,7 +266,9 @@ psql <span class="o">(</span>PostgreSQL<span class="o">)</span> 16.1</code></pre
 
 <p>Add backup Cron job into manifest to add weekly full backup and daily incremental</p>
 
-<p><img src="/assets/ps3-6.png" alt="image tooltip here" /></p>
+<p><a href="/assets/ps3-6.png" target="_blank">
+    <img src="/assets/ps3-6.png" alt="image tooltip here" />
+</a></p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>root@freeipa-server ~]# kubectl get cronjobs <span class="nt">-n</span> postgres-operator 
 NAME               SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
@@ -310,15 +319,18 @@ creating tables...
 generating data <span class="o">(</span>client-side<span class="o">)</span>...
 10000000 of 10000000 tuples <span class="o">(</span>100%<span class="o">)</span> <span class="k">done</span> <span class="o">(</span>elapsed 45.61 s, remaining 0.00 s<span class="o">)</span></code></pre></figure>
 
-<p><img src="/assets/ps3-7.png" alt="image tooltip here" /></p>
+<p><a href="/assets/ps3-7.png" target="_blank">
+    <img src="/assets/ps3-7.png" alt="image tooltip here" />
+</a>
+Some Grafana predefined PostgreSQL dashboard, unfortunately I donot have much data in it to show more monitoring status.</p>
 
-<p>Some Grafana predefined PostgreSQL dashboard, unfortunately I donot have much data in it to show more monitoring status.</p>
-
-<p><img src="/assets/ps3-8.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/ps3-9.png" alt="image tooltip here" /></p>
-
-<p><b> Conclusion</b></p>
+<p><a href="/assets/ps3-8.png" target="_blank">
+    <img src="/assets/ps3-8.png" alt="image tooltip here" />
+</a>
+<a href="/assets/ps3-9.png" target="_blank">
+    <img src="/assets/ps3-9.png" alt="image tooltip here" />
+</a>
+<b> Conclusion</b></p>
 
 <p>This is the final session of this PostgreSQL series, together I have explored PostgreSQL from very basic docker deployment with replica, to production-grade deployment in Kubernetes using operator, practise from backup, monitoring, rolling update, to HA, failover and scale up. HAHA!</p>
 

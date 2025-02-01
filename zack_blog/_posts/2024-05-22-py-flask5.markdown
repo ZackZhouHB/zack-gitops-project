@@ -190,10 +190,12 @@ replicaset.apps/user-service-5d8766d9cb    1         1         1    
 
 Access API gateway via http://NodeIP:NodePort/users and http://NodeIP:NodePort/orders 
 
-![image tooltip here](/assets/flask11.png)
-
-![image tooltip here](/assets/flask12.png)
-
+<a href="/assets/flask11.png" target="_blank">
+    <img src="/assets/flask11.png" alt="image tooltip here">
+</a>
+<a href="/assets/flask12.png" target="_blank">
+    <img src="/assets/flask12.png" alt="image tooltip here">
+</a>
 <b> Conclusion</b>
 
 Now we complete all Python Flask sessions. 

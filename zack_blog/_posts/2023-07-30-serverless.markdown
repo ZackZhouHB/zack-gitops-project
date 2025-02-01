@@ -47,14 +47,16 @@ Total Objects: 5
 
 Go AWS console, under S3 bucket "zackweb-serverless" properties, enable static website hosting, update the bucket website endpoint address to Godaddy DNS record.
 
-![image tooltip here](/assets/serverless2.png)
-
+<a href="/assets/serverless2.png" target="_blank">
+    <img src="/assets/serverless2.png" alt="image tooltip here">
+</a>
 <b> Option 2: using AWS CDK + CDN </b>
 
 With AWS CDK and CDN, the "zackweb" can be straightforward distributed from an S3 bucket accessible to the public by using CloudFront.
 
-![image tooltip here](/assets/serverless3.png)
-
+<a href="/assets/serverless3.png" target="_blank">
+    <img src="/assets/serverless3.png" alt="image tooltip here">
+</a>
 the steps will be:
 
 1. Enable AWS CDK on EC2 bastion host.
@@ -145,8 +147,9 @@ ubuntu@ip-172-31-26-78:~/cdk/# cdk deploy
 
 - The "zackweb" is now hosted on the AWS with serverless deployment !
 
-![image tooltip here](/assets/serverless4.png)
-
+<a href="/assets/serverless4.png" target="_blank">
+    <img src="/assets/serverless4.png" alt="image tooltip here">
+</a>
 <b> Conclusion</b>
 
 Now we move the blog onto AWS with serverless website hosting, using both S3 static webhosting and AWS CDK plus Cloudfront. 

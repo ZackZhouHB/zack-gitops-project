@@ -11,8 +11,9 @@ Last post I started hands-on session with PostgreSQL installation on both docker
 
 In this post I will setup a second PostgreSQL instance to setup a primaty and standby replication for PostgreSQL HA, by using some pg tools, last we will test failover by shut down primary and promot standby instance. 
 
-![image tooltip here](/assets/ps2-1.png)
-
+<a href="/assets/ps2-1.png" target="_blank">
+    <img src="/assets/ps2-1.png" alt="image tooltip here">
+</a>
 To achieve this, steps can be followed by:  
 
 - Setup docker network and Create Replication User in Primary instance

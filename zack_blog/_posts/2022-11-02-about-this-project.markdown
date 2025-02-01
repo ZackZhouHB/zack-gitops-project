@@ -33,10 +33,12 @@ By design, I will create:
 
 <b>The Archetecture</b>
 
-![image tooltip here](/assets/aws-ar.png)
-
+<a href="/assets/aws-ar.png" target="_blank">
+    <img src="/assets/aws-ar.png" alt="image tooltip here">
+</a>
 This is the design of CICD pipeline in GitHub Action workflow to auto build docker images for this website every time I make code change and commit to my git repo  [zack-gitops-project](https://github.com/ZackZhouHB/zack-gitops-project)  [Branch : editing]
 
-![image tooltip here](/assets/cicd.png)
-
+<a href="/assets/cicd.png" target="_blank">
+    <img src="/assets/cicd.png" alt="image tooltip here">
+</a>
 [Zack's Blog]: http://zackz.site

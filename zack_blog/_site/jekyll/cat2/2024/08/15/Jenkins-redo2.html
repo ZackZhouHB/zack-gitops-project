@@ -9,15 +9,15 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Jenkins CD Pipeline Design" />
 <meta property="og:description" content="Jenkins CD Pipeline Design" />
-<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" />
-<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2.html" />
 <meta property="og:site_name" content="Zack’s Blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-08-15T10:15:29+10:00" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Jenkins - Multi-Destination CD pipeline with Terraform" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-08-15T10:15:29+10:00","datePublished":"2024-08-15T10:15:29+10:00","description":"Jenkins CD Pipeline Design","headline":"Jenkins - Multi-Destination CD pipeline with Terraform","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"},"url":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2024-08-15T10:15:29+10:00","datePublished":"2024-08-15T10:15:29+10:00","description":"Jenkins CD Pipeline Design","headline":"Jenkins - Multi-Destination CD pipeline with Terraform","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2.html"},"url":"http://localhost:4000/jekyll/cat2/2024/08/15/Jenkins-redo2.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -502,9 +502,10 @@ output <span class="s2">"ec2_public_ip"</span> <span class="o">{</span>
 
 <p>After thorough testing and validation, the CD pipeline also works like a charm.</p>
 
-<p><img src="/assets/jenkins2.png" alt="image tooltip here" /></p>
-
-<p><b>Terraform Modularization for Multi-Destination Deployment</b></p>
+<p><a href="/assets/jenkins2.png" target="_blank">
+    <img src="/assets/jenkins2.png" alt="image tooltip here" />
+</a>
+<b>Terraform Modularization for Multi-Destination Deployment</b></p>
 
 <p>The folder structure bellow is designed to organize Infrastructure as Code (IaC) using Terraform, breaking down the configuration into reusable modules for ECS, EKS, and EC2 deployments, along with different environments (production, stage, etc.). So The Jenkins reusable CD pipeline can manage multi-destination deployments based on this structure.</p>
 
@@ -633,9 +634,10 @@ output <span class="s2">"ec2_public_ip"</span> <span class="o">{</span>
 │           ├── output.tf
 │           └── variables.tf</code></pre></figure>
 
-<p><img src="/assets/jenkins3.png" alt="image tooltip here" /></p>
-
-<p><b>Conclusion</b></p>
+<p><a href="/assets/jenkins3.png" target="_blank">
+    <img src="/assets/jenkins3.png" alt="image tooltip here" />
+</a>
+<b>Conclusion</b></p>
 
 <p>Using Terraform and Jenkins practices enables efficient management of complex, multi-environment, and multi-service deployments, which are crucial for cloud-native CI/CD processes to achieve:</p>
 
@@ -685,7 +687,7 @@ Solves complex problems and improves efficiency, reducing build times and increa
 </ul>
 
 
-  </div><a class="u-url" href="/jekyll/cat2/2024/08/15/Jenkins-redo2-copy.html" hidden></a>
+  </div><a class="u-url" href="/jekyll/cat2/2024/08/15/Jenkins-redo2.html" hidden></a>
 </article>
 
       </div>

@@ -122,9 +122,12 @@ root@ubt-server:~# docker compose up</code></pre></figure>
   <li>Validate from adminer web console locahost:8080 with password set in the environment variables</li>
 </ul>
 
-<p><img src="/assets/ps1-1.png" alt="image tooltip here" />
-<img src="/assets/ps1-2.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/ps1-1.png" target="_blank">
+    <img src="/assets/ps1-1.png" alt="image tooltip here" />
+</a>
+<a href="/assets/ps1-2.png" target="_blank">
+    <img src="/assets/ps1-2.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Persist data to mount the PostgreSQL container volume, validate data table after start/stop container 
 PostgreSQL stores its data by default under /var/lib/postgresql/data, here we create a /pgdata folder on local machine to mount PostgreSQL default volume</li>
@@ -210,9 +213,10 @@ root@ubt-server:~# docker compose up</code></pre></figure>
 </ul>
 
 <p>Table and record still there because of the persistent data mount
-<img src="/assets/ps1-3.png" alt="image tooltip here" /></p>
-
-<p><b>PostgreSQL Configuration</b></p>
+<a href="/assets/ps1-3.png" target="_blank">
+    <img src="/assets/ps1-3.png" alt="image tooltip here" />
+</a>
+<b>PostgreSQL Configuration</b></p>
 
 <p>Before jumping into replication, it is more important to explore the PostgreSQL configuration files to have a better understanding of its important config, take the default conf files out of a running database and learn it and make own configuration, then mount these conf files into container, so tell PostgreSQL to use my own configuration files to perform my prefered way.</p>
 
@@ -256,9 +260,10 @@ Main configuration file for PostgreSQL which contains global settings to tailor 
 </ul>
 
 <p>Create custom config file 
-<img src="/assets/ps1-4.png" alt="image tooltip here" /></p>
-
-<p>now we can adjust the command by adding environment variables to run PostgreSQL from docker and docker-compose using our custom conf files</p>
+<a href="/assets/ps1-4.png" target="_blank">
+    <img src="/assets/ps1-4.png" alt="image tooltip here" />
+</a>
+now we can adjust the command by adding environment variables to run PostgreSQL from docker and docker-compose using our custom conf files</p>
 
 <figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@ubt-server:~# vim docker-compose.yaml
 version: <span class="s1">'3.1'</span>

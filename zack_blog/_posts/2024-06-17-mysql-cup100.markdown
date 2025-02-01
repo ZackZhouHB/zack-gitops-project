@@ -19,16 +19,18 @@ _CloudWatch - Metrics - All metrics - Add query - RDS - Top 10 RDS instances by 
 
 This only queries the recent 3 hours metrics, but it is enough for me to identify the issue: CPU 100%
 
-![image tooltip here](/assets/mysqlcpu1.png)
-
+<a href="/assets/mysqlcpu1.png" target="_blank">
+    <img src="/assets/mysqlcpu1.png" alt="image tooltip here">
+</a>
 To further understand the high CUP, I go:
 
 _CloudWatch - Metrics - All metrics - Browse - RDS - DBClusterIdentifier - CPUUtilization_
 
 which gives me a long period of monitoring, so I can see it started to 100% CPU since yesterday morning.
 
-![image tooltip here](/assets/mysqlcpu2.png)
-
+<a href="/assets/mysqlcpu2.png" target="_blank">
+    <img src="/assets/mysqlcpu2.png" alt="image tooltip here">
+</a>
 
 - AWS console RDS Logs & events
 
@@ -56,15 +58,17 @@ SHOW PROCESSLIST;
 KILL <process_id>;
 {% endhighlight %}
 
-![image tooltip here](/assets/mysqlcpu4.png)
-
+<a href="/assets/mysqlcpu4.png" target="_blank">
+    <img src="/assets/mysqlcpu4.png" alt="image tooltip here">
+</a>
 
 Then I go _AWS RDS console - Actions - Reboot_ the RDS instance.
 
 - Now the CPU usage started to drop and back to normal after terminating the stuck processes and DB instance reboot. 
 
-![image tooltip here](/assets/mysqlcpu3.png)
-
+<a href="/assets/mysqlcpu3.png" target="_blank">
+    <img src="/assets/mysqlcpu3.png" alt="image tooltip here">
+</a>
 
 Done.
 

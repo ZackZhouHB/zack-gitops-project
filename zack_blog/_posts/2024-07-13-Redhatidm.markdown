@@ -142,8 +142,9 @@ ipa user-add tina --first=tina --last=qi --password
 
 {% endhighlight %}
 
-![image tooltip here](/assets/idm3.png)
-
+<a href="/assets/idm3.png" target="_blank">
+    <img src="/assets/idm3.png" alt="image tooltip here">
+</a>
 <b> Idm client Enrollment </b>
 
 Now the idm web portal should be accessible, by adding "11.0.1.180 server1.ipa.zack.world" into local "c:/wondows/system32/drivers/etc/hosts.
@@ -189,8 +190,9 @@ Client configuration complete.
 The ipa-client-install command was successful
 {% endhighlight %}
 
-![image tooltip here](/assets/idm2.png)
-
+<a href="/assets/idm2.png" target="_blank">
+    <img src="/assets/idm2.png" alt="image tooltip here">
+</a>
 <b> Setup idm and AD trust</b>
 
 On Windows DC, setup AD
@@ -219,8 +221,9 @@ dig SRV _ldap._tcp.ipa.zack.world
 dig SRV _ldap._tcp.ad.zack.world
 {% endhighlight %}
 
-![image tooltip here](/assets/idm1.png)
-
+<a href="/assets/idm1.png" target="_blank">
+    <img src="/assets/idm1.png" alt="image tooltip here">
+</a>
 - Install required packages then setup trust on FreeIPA Server
 {% highlight shell %}
 # Install packages
@@ -287,14 +290,16 @@ authselect enable-feature with-mkhomedir
 systemctl enable --now oddjobd
 {% endhighlight %}
 
-![image tooltip here](/assets/idm4.png)
-
+<a href="/assets/idm4.png" target="_blank">
+    <img src="/assets/idm4.png" alt="image tooltip here">
+</a>
 <b> Validation of both idm clients with idm and AD user</b>
 
 - Validate ssh into ubuntu client with AD user "joez@ad.zack.world"
 
-![image tooltip here](/assets/idm6.png)
-
+<a href="/assets/idm6.png" target="_blank">
+    <img src="/assets/idm6.png" alt="image tooltip here">
+</a>
 Validate ssh into Centos client with idm user "tina"
 
 {% highlight shell %}

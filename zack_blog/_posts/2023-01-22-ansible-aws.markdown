@@ -17,8 +17,9 @@ It supports most of the public and private cloud platforms not limited to just A
 
 - The Dynamic Inventory Topology: 
 
-![image tooltip here](/assets/ansible-inventory.png)
-
+<a href="/assets/ansible-inventory.png" target="_blank">
+    <img src="/assets/ansible-inventory.png" alt="image tooltip here">
+</a>
 - Setup Ansible AWS Dynamic Inventory
 
 {% highlight shell %}
@@ -67,9 +68,9 @@ inventory      = /opt/ansible/inventory/aws_ec2.yaml
 
 {% endhighlight %}
 
-
-![image tooltip here](/assets/ec2-inventory.png)
-
+<a href="/assets/ec2-inventory.png" target="_blank">
+    <img src="/assets/ec2-inventory.png" alt="image tooltip here">
+</a>
 - Test if Ansible is able to ping all the machines returned by the dynamic inventory
 
 {% highlight shell %}
@@ -91,8 +92,9 @@ instance_type_t2_micro
 
 tag_Name
 
-![image tooltip here](/assets/list-aws-ec2.png)
-
+<a href="/assets/list-aws-ec2.png" target="_blank">
+    <img src="/assets/list-aws-ec2.png" alt="image tooltip here">
+</a>
 
 
 

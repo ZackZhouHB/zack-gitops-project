@@ -12,8 +12,9 @@ Here we use helm to install Redis cluster, then validate statefuleset storage an
 
 Typical Redis cluster (3 master + 3 slave for slots) Topology: 
 
-![image tooltip here](/assets/redis-slot.png)
-
+<a href="/assets/redis-slot.png" target="_blank">
+    <img src="/assets/redis-slot.png" alt="image tooltip here">
+</a>
 - Helm install bitnami/redis-cluster
 
 {% highlight shell %}

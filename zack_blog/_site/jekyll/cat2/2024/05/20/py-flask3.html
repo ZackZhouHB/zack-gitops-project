@@ -319,21 +319,25 @@ consul_1         | 2024-05-18T14:55:46.688Z <span class="o">[</span>DEBUG] a
 elasticsearch_1  | <span class="o">{</span><span class="s2">"type"</span>: <span class="s2">"deprecation.elasticsearch"</span>, <span class="s2">"timestamp"</span>: <span class="s2">"2024-05-18T14:55:09,016Z"</span>, <span class="s2">"level"</span>: <span class="s2">"DEPRECATION"</span>, <span class="s2">"component"</span>: <span class="s2">"o.e.d.r.RestController"</span>, <span class="s2">"cluster.name"</span>: <span class="s2">"docker-cluster"</span>, <span class="s2">"node.name"</span>: <span class="s2">"430bff78a529"</span>, <span class="s2">"message"</span>: <span class="s2">"Legacy index templates are deprecated in favor of composable templates."</span>, <span class="s2">"cluster.uuid"</span>: <span class="s2">"B9QKhgEGTA6Ot5auY9skQQ"</span>, <span class="s2">"node.id"</span>: <span class="s2">"QzKPL7DYSB2_CeWJpUaxXg"</span>  <span class="o">}</span>
 kibana_1         | <span class="o">{</span><span class="s2">"type"</span>:<span class="s2">"log"</span>,<span class="s2">"@timestamp"</span>:<span class="s2">"2024-05-18T14:55:09+00:00"</span>,<span class="s2">"tags"</span>:[<span class="s2">"info"</span>,<span class="s2">"plugins"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"monitoring"</span>,<span class="s2">"kibana-monitoring"</span><span class="o">]</span>,<span class="s2">"pid"</span>:952,<span class="s2">"message"</span>:<span class="s2">"Starting monitoring stats collection"</span><span class="o">}</span></code></pre></figure>
 
-<p><img src="/assets/flask6.png" alt="image tooltip here" /></p>
-
-<p><b> Verify ElasticSearch and Kibana</b></p>
+<p><a href="/assets/flask6.png" target="_blank">
+    <img src="/assets/flask6.png" alt="image tooltip here" />
+</a>
+<b> Verify ElasticSearch and Kibana</b></p>
 
 <ul>
   <li>Validate ElasticSearch status via localhost:9200</li>
 </ul>
 
-<p><img src="/assets/flask7.png" alt="image tooltip here" /></p>
-
+<p><a href="/assets/flask7.png" target="_blank">
+    <img src="/assets/flask7.png" alt="image tooltip here" />
+</a></p>
 <ul>
   <li>Visit localhost:5601 to access Kibana dashboard, add Index Pattern “logs-*” to see data populated in the Discover tab</li>
 </ul>
 
-<p><img src="/assets/flask8.png" alt="image tooltip here" />
+<p><a href="/assets/flask8.png" target="_blank">
+    <img src="/assets/flask8.png" alt="image tooltip here" />
+</a>
 <b> Conclusion</b></p>
 
 <p>Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.</p>

@@ -171,10 +171,12 @@ Add Prometheus as a Data Source in Grafana by setting the URL to http://localhos
 
 Create Dashboards in Grafana to use the Prometheus data source to visualize metrics from user-service and order-service.
 
-![image tooltip here](/assets/flask10.png)
-
-![image tooltip here](/assets/flask9.png)
-
+<a href="/assets/flask10.png" target="_blank">
+    <img src="/assets/flask10.png" alt="image tooltip here">
+</a>
+<a href="/assets/flask9.png" target="_blank">
+    <img src="/assets/flask9.png" alt="image tooltip here">
+</a>
 <b> Conclusion</b>
 
 Now we can enable monitoring with Prometheus and Grafana.

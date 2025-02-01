@@ -282,17 +282,21 @@ elasticsearch_1  | {"type": "deprecation.elasticsearch", "timestamp": "2024-05-
 kibana_1         | {"type":"log","@timestamp":"2024-05-18T14:55:09+00:00","tags":["info","plugins","monitoring","monitoring","kibana-monitoring"],"pid":952,"message":"Starting monitoring stats collection"}
 {% endhighlight %}
 
-![image tooltip here](/assets/flask6.png)
-
+<a href="/assets/flask6.png" target="_blank">
+    <img src="/assets/flask6.png" alt="image tooltip here">
+</a>
 <b> Verify ElasticSearch and Kibana</b>
 
 - Validate ElasticSearch status via localhost:9200 
 
-![image tooltip here](/assets/flask7.png)
-
+<a href="/assets/flask7.png" target="_blank">
+    <img src="/assets/flask7.png" alt="image tooltip here">
+</a>
 - Visit localhost:5601 to access Kibana dashboard, add Index Pattern "logs-*" to see data populated in the Discover tab
 
-![image tooltip here](/assets/flask8.png)
+<a href="/assets/flask8.png" target="_blank">
+    <img src="/assets/flask8.png" alt="image tooltip here">
+</a>
 <b> Conclusion</b>
 
 Now we can enable logging with ELK stack, and use Logstash, ElasticSearch and Kibana.

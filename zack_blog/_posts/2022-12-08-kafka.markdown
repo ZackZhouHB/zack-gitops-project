@@ -27,8 +27,9 @@ Apache Kafka has proven to be an extremely popular event streaming platform, as 
 
 Typical Kafka Topology: 
 
-![image tooltip here](/assets/kafka.png)
-
+<a href="/assets/kafka.png" target="_blank">
+    <img src="/assets/kafka.png" alt="image tooltip here">
+</a>
 - Helm install bitnami/kafka
 
 Here we use helm to install Kafka, then validate statefuleset storage and cluster avalibility by create topic, producer and consumer
@@ -91,8 +92,9 @@ window2:
 
 test topic and PRODUCER with CONSUMER
 
-![image tooltip here](/assets/kafka-validation.png)
-
+<a href="/assets/kafka-validation.png" target="_blank">
+    <img src="/assets/kafka-validation.png" alt="image tooltip here">
+</a>
 
 
 

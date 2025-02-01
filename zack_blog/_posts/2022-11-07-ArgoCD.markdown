@@ -63,5 +63,6 @@ spec:
 
 - access to argocd UI check for sync
 
-![image tooltip here](/assets/argo-demo.png)
-
+<a href="/assets/argo-demo.png" target="_blank">
+    <img src="/assets/argo-demo.png" alt="image tooltip here">
+</a>

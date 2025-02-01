@@ -30,10 +30,13 @@ Non-cloud-native targets: Defined statically or exposed through exporters.
 
 Then I found Prometheus was unable to scrape metrics from several Kubernetes components (etcd, kube-controller-manager, kube-scheduler, and kube-proxy). These targets were marked as DOWN in the Prometheus UI with errors such as: Connection refused.
 
-![image tooltip here](/assets/eks72.png)
+<a href="/assets/eks72.png" target="_blank">
+    <img src="/assets/eks72.png" alt="image tooltip here">
+</a>
 
-
-![image tooltip here](/assets/eks73.png)
+<a href="/assets/eks73.png" target="_blank">
+    <img src="/assets/eks73.png" alt="image tooltip here">
+</a>
 <b>Troubleshooting Steps</b>
 
 As per Prometheus monitoring flow, let's start with troubleshooting.
@@ -130,8 +133,9 @@ kubectl rollout restart ds kube-proxy -n kube-system
 
 Confirmed that Prometheus targets were UP after the fixes.
 
-![image tooltip here](/assets/eks71.png)
-
+<a href="/assets/eks71.png" target="_blank">
+    <img src="/assets/eks71.png" alt="image tooltip here">
+</a>
 <b>Conclusion</b>
 
 Common Prometheus Metrics debug steps:
@@ -247,8 +251,11 @@ servicemonitor.monitoring.coreos.com/redis-monitor created
 {% endhighlight %}
 
 Head over to Prometheus Targets, we can see the metrics is being scraped from the Redis exporter.
-![image tooltip here](/assets/eks75.png)
-
+<a href="/assets/eks75.png" target="_blank">
+    <img src="/assets/eks75.png" alt="image tooltip here">
+</a>
 
 Head over to Grafana, then import the dashboard 763 
-![image tooltip here](/assets/eks74.png)
+<a href="/assets/eks74.png" target="_blank">
+    <img src="/assets/eks74.png" alt="image tooltip here">
+</a>

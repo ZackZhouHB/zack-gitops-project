@@ -38,8 +38,9 @@ To start with Karpenter, I will use bellow script to run few steps:
 
 Here I will set up a Kubernetes cluster using AWS EKS, configure IAM roles for service accounts to enable IRSA, install Karpenter using Helm, install eks monitoring tools [eks-node-viewer](https://github.com/awslabs/eks-node-viewer) to observe Karpenter scaling.
 
-![image tooltip here](/assets/eks81.png)
-
+<a href="/assets/eks81.png" target="_blank">
+    <img src="/assets/eks81.png" alt="image tooltip here">
+</a>
 - Step 2: Scaling and Resource Management
 
 Then I will define EC2 Node Class and Node pool, deploy a sample Application, change the replicas to observe Karpenter scaling behavior via eks-node-viewer. Karpenter will detect the pending pods to decide which instance tpye to launch to fit the workload.
@@ -49,8 +50,9 @@ Then I will define EC2 Node Class and Node pool, deploy a sample Application, ch
 {"level":"INFO","time":"2024-11-18T12:39:19.666Z","logger":"controller","message":"tainted node","commit":"a2875e3","controller":"node.termination","controllerGroup":"","controllerKind":"Node","Node":{"name":"ip-192-168-156-150.ap-southeast-2.compute.internal"},"namespace":"","name":"ip-192-168-156-150.ap-southeast-2.compute.internal","reconcileID":"95e576e4-b326-4870-b7e5-b64f8a013c9d","taint.Key":"karpenter.sh/disrupted","taint.Value":"","taint.Effect":"NoSchedule"}
 {% endhighlight %}
 
-![image tooltip here](/assets/eks82.png)
-
+<a href="/assets/eks82.png" target="_blank">
+    <img src="/assets/eks82.png" alt="image tooltip here">
+</a>
 - Step 3: Clean up the resources
 Karpenter will detect the scale down from Application deployment, scheduled to terminate unnecessary nodes for the EKS cluster. Then I will remove all the resources created in this example. 
 
@@ -60,8 +62,9 @@ Karpenter will detect the scale down from Application deployment, scheduled to t
 {"level":"INFO","time":"2024-11-18T12:35:49.497Z","logger":"controller","message":"deleted nodeclaim","commit":"a2875e3","controller":"nodeclaim.termination","controllerGroup":"karpenter.sh","controllerKind":"NodeClaim","NodeClaim":{"name":"default-drbmq"},"namespace":"","name":"default-drbmq","reconcileID":"0e20cb98-389d-4143-8177-5ec9c777c227","Node":{"name":"ip-192-168-71-167.ap-southeast-2.compute.internal"},"provider-id":"aws:///ap-southeast-2a/i-062db9708bac9d0dd"}
 {% endhighlight %}
 
-![image tooltip here](/assets/eks83.png)
-
+<a href="/assets/eks83.png" target="_blank">
+    <img src="/assets/eks83.png" alt="image tooltip here">
+</a>
 
 {% highlight shell %}
 #!/bin/bash

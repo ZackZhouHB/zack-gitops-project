@@ -263,8 +263,9 @@ hourly-backup-20241011020003   Completed         2        0        
 
 Verify backups in S3 bucket 
 
-![image tooltip here](/assets/velero1.png)
-
+<a href="/assets/velero1.png" target="_blank">
+    <img src="/assets/velero1.png" alt="image tooltip here">
+</a>
 <b>Conclusion</b>
 
 Here's a summary of what we covered and achieved in the common Velero administrative tasks for backup and restore on EKS cluster:

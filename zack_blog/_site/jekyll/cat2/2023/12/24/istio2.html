@@ -92,9 +92,10 @@ staff-service-59987757dc-mfm2t                              2/2     Running   4 
 vehicle-telemetry-56c7f8d859-jvtpj                          2/2     Running   4 <span class="o">(</span>30m ago<span class="o">)</span>    17h
 webapp-59bc7757fb-trnnv                                     2/2     Running   6 <span class="o">(</span>30m ago<span class="o">)</span>    17h</code></pre></figure>
 
-<p><img src="/assets/istio2-2.png" alt="image tooltip here" /></p>
-
-<p><b>How Jaeger Works</b></p>
+<p><a href="/assets/istio2-2.png" target="_blank">
+    <img src="/assets/istio2-2.png" alt="image tooltip here" />
+</a>
+<b>How Jaeger Works</b></p>
 
 <p>When a request enters a microservice (e.g., a user making a request to a frontend service), the tracing library creates a span and assigns it a trace ID. As the request propagates through other services, additional spans are created and linked to the same trace ID. Each span is recorded with its respective start and end timestamps, operation name, and other metadata.</p>
 
@@ -102,24 +103,27 @@ webapp-59bc7757fb-trnnv                                     2/2     Running   6 
 
 <p>As the request flows through different services, each service creates additional or child spans. (e.g., The frontend service might call an authentication service. then authentication service call a user service, thus Jaeger will create 2 child spans)</p>
 
-<p><img src="/assets/istio2-1.png" alt="image tooltip here" /></p>
-
-<p><b>Latency and Performance Analysis</b></p>
+<p><a href="/assets/istio2-1.png" target="_blank">
+    <img src="/assets/istio2-1.png" alt="image tooltip here" />
+</a>
+<b>Latency and Performance Analysis</b></p>
 
 <p>By examining the durations of each span, If a particular span has a long duration, that service might be a bottleneck.
 If spans have significant gaps between them, network latency or queuing delays might be an issue. so we can identify which part of the request is taking the most time and investigate further to optimize performance.</p>
 
-<p><img src="/assets/istio2-4.png" alt="image tooltip here" /></p>
-
-<p><b>Manage routing in each service from Kiali </b></p>
+<p><a href="/assets/istio2-4.png" target="_blank">
+    <img src="/assets/istio2-4.png" alt="image tooltip here" />
+</a>
+<b>Manage routing in each service from Kiali </b></p>
 
 <p>Managing routing in Istio can be done either through the Kiali console or by defining VirtualServices and DestinationRules using Kubernetes YAML manifests. here from Kiali console, we have the visualization of each service traffic flow, metrics, and dependencies between services in real-time.</p>
 
 <p>By create weighted routing or suspend traffic, Kiali will create it own VirtualServices and DestinationRules to manage the traffic</p>
 
-<p><img src="/assets/istio2-3.png" alt="image tooltip here" /></p>
-
-<p><b>Add timeout in istio virtual service YAML</b></p>
+<p><a href="/assets/istio2-3.png" target="_blank">
+    <img src="/assets/istio2-3.png" alt="image tooltip here" />
+</a>
+<b>Add timeout in istio virtual service YAML</b></p>
 
 <p>To add a timeout into istio virtual service YAML and ensure it works with Jaeger for better visibility and efficiency in the microservice architecture.</p>
 

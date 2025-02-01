@@ -90,9 +90,12 @@ docker-compose up --build
 
 Verify the 2 services can be accessed via API Gateway address and port plus /users and /orders by defining request functions.
 
-![image tooltip here](/assets/flask4.png)
-![image tooltip here](/assets/flask5.png)
-
+<a href="/assets/flask4.png" target="_blank">
+    <img src="/assets/flask4.png" alt="image tooltip here">
+</a>
+<a href="/assets/flask5.png" target="_blank">
+    <img src="/assets/flask5.png" alt="image tooltip here">
+</a>
 
 <b> About Consul</b>
 
@@ -243,8 +246,9 @@ consul_1         | 2024-05-18T14:28:45.465Z [DEBUG] agent: Service in sync: 
 
 {% endhighlight %}
 
-![image tooltip here](/assets/flask6.png)
-
+<a href="/assets/flask6.png" target="_blank">
+    <img src="/assets/flask6.png" alt="image tooltip here">
+</a>
 
 <b> Conclusion</b>
 

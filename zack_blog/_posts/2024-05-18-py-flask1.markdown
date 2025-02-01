@@ -81,8 +81,9 @@ Press CTRL+C to quit
 
 {% endhighlight %}
 
-![image tooltip here](/assets/flask1.png)
-
+<a href="/assets/flask1.png" target="_blank">
+    <img src="/assets/flask1.png" alt="image tooltip here">
+</a>
 
 <b> Create "user" and "order" flask microservice apps</b>
 
@@ -223,8 +224,12 @@ user-service_1   | Press CTRL+C to quit
 
 {% endhighlight %}
 
-![image tooltip here](/assets/flask2.png)
-![image tooltip here](/assets/flask3.png)
+<a href="/assets/flask2.png" target="_blank">
+    <img src="/assets/flask2.png" alt="image tooltip here">
+</a>
+<a href="/assets/flask3.png" target="_blank">
+    <img src="/assets/flask3.png" alt="image tooltip here">
+</a>
 
 <b> Conclusion</b>
 

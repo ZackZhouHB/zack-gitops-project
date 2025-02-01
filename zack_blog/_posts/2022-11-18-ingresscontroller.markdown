@@ -284,12 +284,15 @@ Validate from Browser to visit each subdomain for the ingress routed K8S service
 
 `Joe's Site`: http://j.tina.place/
 
-![image tooltip here](/assets/subdomain1.png)
-
-![image tooltip here](/assets/subdomain2.png)
-
-![image tooltip here](/assets/subdomain3.png)
-
+<a href="/assets/subdomain1.png" target="_blank">
+    <img src="/assets/subdomain1.png" alt="image tooltip here">
+</a>
+<a href="/assets/subdomain2.png" target="_blank">
+    <img src="/assets/subdomain2.png" alt="image tooltip here">
+</a>
+<a href="/assets/subdomain3.png" target="_blank">
+    <img src="/assets/subdomain3.png" alt="image tooltip here">
+</a>
 <b>Conclusion</b>
 
 By using MetalLB and the NGINX Ingress Controller, we can achieve subdomain-based routing for K8s services. The key steps involve configuring MetalLB for IP allocation, deploying the Ingress controller, creating services with Ingress rules for routing, and setting up local DNS.
