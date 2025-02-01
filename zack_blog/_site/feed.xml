@@ -1,4 +1,395 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-27T00:12:58+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy Classifier with AWS Serverless</title><link href="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html" rel="alternate" type="text/html" title="MLOps - Deploy Classifier with AWS Serverless" /><published>2025-01-25T22:18:29+11:00</published><updated>2025-01-25T22:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/25/mlops8</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS Serverless</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T13:04:37+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/01/26/mlops9.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-01-26T11:18:29+11:00</published><updated>2025-01-26T11:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/26/mlops9</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/26/mlops9.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
+
+<p>In the previous post, I was able to complete both local Pytorch ML and AWS sagemaker practice, and containerize and deploy ML docker image locally.</p>
+
+<p>In this post, I will explore the model deployment to EKS cluster with Karpenter to sumilate a more scalable and real-life production ready environment.</p>
+
+<p><b>Challenges when move to Cloud deployment</b></p>
+
+<p>Here are key differences between local Pytorch model vs AWS SageMaker artifacts, and how they impact the Docker image size and Performance consideration for LLM images in EKS deployment.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Local PyTorch Model (.pth)</th>
+      <th>AWS SageMaker Model (.tar.gz)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Contents</code></td>
+      <td>Full model state_dict + Python code</td>
+      <td>Only model parameters + inference code</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Framework</code></td>
+      <td>Raw PyTorch implementation</td>
+      <td>Optimized MXNet framework</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Serialization</code></td>
+      <td>torch.save() native format</td>
+      <td>Framework-specific serialization</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Dependencies</code></td>
+      <td>Requires full PyTorch installation</td>
+      <td>Minimal runtime dependencies</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The latency between pod initialization and readiness to serve requests includes:</p>
+
+<ol>
+  <li>
+    <p>Container image pull time</p>
+  </li>
+  <li>
+    <p>Model download from storage</p>
+  </li>
+  <li>
+    <p>Framework initialization</p>
+  </li>
+  <li>
+    <p>GPU context creation</p>
+  </li>
+  <li>
+    <p>Model loading into memory</p>
+  </li>
+</ol>
+
+<ul>
+  <li>Optimize Docker image size for AWS ECR and EKS deployment.</li>
+</ul>
+
+<p>Optimized Dockerfile (Target: ~450MB)</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Use NVIDIA CUDA base image with Python</span>
+FROM nvidia/cuda:11.2.2-base-ubuntu20.04
+
+<span class="c"># Install system dependencies</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> <span class="se">\</span>
+    python3.8 <span class="se">\</span>
+    python3-pip <span class="se">\</span>
+    python3.8-venv <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> <span class="nb">rm</span> <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
+
+<span class="c"># Create and activate virtual environment</span>
+RUN python3 <span class="nt">-m</span> venv /opt/venv
+ENV <span class="nv">PATH</span><span class="o">=</span><span class="s2">"/opt/venv/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
+
+<span class="c"># Install Python dependencies</span>
+COPY requirements.txt <span class="nb">.</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Copy inference code</span>
+COPY app.py <span class="nb">.</span>
+
+<span class="c"># Environment variables</span>
+ENV <span class="nv">MODEL_S3_URI</span><span class="o">=</span><span class="s2">"s3://sagemaker-bucket-85xxxxxxxx42/models/image_model/classifier-2025-01-26-02-58-03-005-dbf196d2/output/model.tar.gz"</span>
+ENV <span class="nv">AWS_REGION</span><span class="o">=</span>ap-southeast-2
+
+<span class="c"># Expose API port</span>
+EXPOSE 8080
+
+<span class="c"># Startup command</span>
+CMD <span class="o">[</span><span class="s2">"python3"</span>, <span class="s2">"app.py"</span><span class="o">]</span>
+
+</code></pre></div></div>
+<p>requirements.txt</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">mxnet</span><span class="o">==</span>1.9.1
+<span class="nv">flask</span><span class="o">==</span>2.2.5
+<span class="nv">boto3</span><span class="o">==</span>1.28.62
+<span class="nv">pillow</span><span class="o">==</span>10.1.0
+</code></pre></div></div>
+
+<p>app.py (Optimized Inference Service)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">tarfile</span>
+<span class="kn">import</span> <span class="n">boto3</span>
+<span class="kn">from</span> <span class="n">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">import</span> <span class="n">mxnet</span> <span class="k">as</span> <span class="n">mx</span>
+<span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="n">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="n">io</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="nc">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c1"># Initialize model
+</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="nf">gpu</span><span class="p">()</span> <span class="k">if</span> <span class="n">mx</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="nf">num_gpus</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">mx</span><span class="p">.</span><span class="nf">cpu</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="k">def</span> <span class="nf">download_and_extract_model</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">model</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="nf">client</span><span class="p">(</span><span class="sh">'</span><span class="s">s3</span><span class="sh">'</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">AWS_REGION</span><span class="sh">'</span><span class="p">])</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="sh">'</span><span class="s">/tmp/model.tar.gz</span><span class="sh">'</span>
+    <span class="n">bucket</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">MODEL_S3_URI</span><span class="sh">'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">//</span><span class="sh">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s3</span><span class="p">.</span><span class="nf">download_file</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">model_path</span><span class="p">)</span>
+    
+    <span class="k">with</span> <span class="n">tarfile</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+        <span class="n">tar</span><span class="p">.</span><span class="nf">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sh">'</span><span class="s">/model</span><span class="sh">'</span><span class="p">)</span>
+    
+    <span class="n">sym</span><span class="p">,</span> <span class="n">arg_params</span><span class="p">,</span> <span class="n">aux_params</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="nf">load_checkpoint</span><span class="p">(</span><span class="sh">'</span><span class="s">/model/model</span><span class="sh">'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">mod</span><span class="p">.</span><span class="nc">Module</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">sym</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="n">mod</span><span class="p">.</span><span class="nf">bind</span><span class="p">(</span><span class="n">for_training</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">data_shapes</span><span class="o">=</span><span class="p">[(</span><span class="sh">'</span><span class="s">data</span><span class="sh">'</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))])</span>
+    <span class="n">mod</span><span class="p">.</span><span class="nf">set_params</span><span class="p">(</span><span class="n">arg_params</span><span class="p">,</span> <span class="n">aux_params</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">mod</span>
+
+<span class="nd">@app.before_first_request</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">():</span>
+    <span class="nf">download_and_extract_model</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="nc">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)).</span><span class="nf">convert</span><span class="p">(</span><span class="sh">'</span><span class="s">RGB</span><span class="sh">'</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">.</span><span class="nf">resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">img</span><span class="p">).</span><span class="nf">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">).</span><span class="nf">astype</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">nd</span><span class="p">.</span><span class="nf">array</span><span class="p">((</span><span class="n">img</span> <span class="o">-</span> <span class="mi">128</span><span class="p">)</span> <span class="o">/</span> <span class="mi">128</span><span class="p">)</span>  <span class="c1"># Match SageMaker preprocessing
+</span>    <span class="k">return</span> <span class="n">img</span><span class="p">.</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="sh">'</span><span class="s">/predict</span><span class="sh">'</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">predict</span><span class="p">():</span>
+    <span class="k">if</span> <span class="sh">'</span><span class="s">image</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="p">.</span><span class="n">files</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span><span class="sh">'</span><span class="s">error</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">No image provided</span><span class="sh">'</span><span class="p">}),</span> <span class="mi">400</span>
+    
+    <span class="n">image</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">files</span><span class="p">[</span><span class="sh">'</span><span class="s">image</span><span class="sh">'</span><span class="p">].</span><span class="nf">read</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="nc">DataBatch</span><span class="p">([</span><span class="n">data</span><span class="p">])</span>
+    <span class="n">model</span><span class="p">.</span><span class="nf">forward</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">get_outputs</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="nf">asnumpy</span><span class="p">().</span><span class="nf">argmax</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span><span class="sh">'</span><span class="s">prediction</span><span class="sh">'</span><span class="p">:</span> <span class="nf">int</span><span class="p">(</span><span class="n">prob</span><span class="p">)})</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">'</span><span class="s">__main__</span><span class="sh">'</span><span class="p">:</span>
+    <span class="n">app</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">0.0.0.0</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Size Comparison after optimization:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Local PyTorch</th>
+      <th>Optimized MXNet</th>
+      <th>Reduction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Base Image</td>
+      <td>2.5GB</td>
+      <td>418MB</td>
+      <td>-83%</td>
+    </tr>
+    <tr>
+      <td>Framework</td>
+      <td>1.2GB</td>
+      <td>89MB</td>
+      <td>-93%</td>
+    </tr>
+    <tr>
+      <td>Model Storage</td>
+      <td>Baked-in</td>
+      <td>S3 Download</td>
+      <td>-100%</td>
+    </tr>
+    <tr>
+      <td>Total Image Size</td>
+      <td>~5GB</td>
+      <td>537MB</td>
+      <td>-90%</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:/mnt/f/ml-local/local-cv/eks# docker image <span class="nb">ls
+</span>REPOSITORY                                TAG                                        IMAGE ID       CREATED          SIZE
+classifier-eks                            latest                                     92736798f67f   11 seconds ago   537MB
+pneumonia-frontend                        latest                                     ac8f5e301dfd   3 days ago       47.1MB
+pneumonia-classifier-1                    latest                                     d0bf743556d8   3 days ago       4.73GB
+</code></pre></div></div>
+<ul>
+  <li>Provision EKS and Karpenter with Terraform</li>
+</ul>
+
+<p>Here I will use Terraform to <a href="https://raw.githubusercontent.com/ZackZhouHB/zack-gitops-project/refs/heads/editing/EKS-Karpenter-Spot/main.tf">provision an EKS cluster with Karpenter</a>.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:/mnt/f/1/spot-and-karpenter# kubectl get node
+NAME                                             STATUS   ROLES    AGE   VERSION
+ip-10-0-119-37.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   21m   v1.30.8-eks-aeac579
+ip-10-0-65-17.ap-southeast-2.compute.internal    Ready    &lt;none&gt;   21m   v1.30.8-eks-aeac579
+root@zackz:/mnt/f/1/spot-and-karpenter# kubectl get po <span class="nt">-A</span>
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS   AGE
+karpenter     karpenter-7c9f6776cc-5djcv            1/1     Running   0          23m
+karpenter     karpenter-7c9f6776cc-ntgwj            1/1     Running   0          23m
+kube-system   aws-node-8v5v5                        2/2     Running   0          21m
+kube-system   aws-node-pqlcg                        2/2     Running   0          21m
+kube-system   coredns-7dd48c8549-97dbr              1/1     Running   0          23m
+kube-system   coredns-7dd48c8549-dv4n4              1/1     Running   0          23m
+kube-system   ebs-csi-controller-56cb7b4bc-2gwgl    6/6     Running   0          23m
+kube-system   ebs-csi-controller-56cb7b4bc-wbffq    6/6     Running   0          23m
+kube-system   ebs-csi-node-lnvg8                    3/3     Running   0          21m
+kube-system   ebs-csi-node-nkg5c                    3/3     Running   0          21m
+kube-system   efs-csi-controller-75645855f5-jssl5   3/3     Running   0          4m22s
+kube-system   efs-csi-controller-75645855f5-lfd8r   3/3     Running   0          4m22s
+kube-system   efs-csi-node-jc6lm                    3/3     Running   0          4m22s
+kube-system   efs-csi-node-m6g7q                    3/3     Running   0          4m23s
+kube-system   kube-proxy-44px7                      1/1     Running   0          21m
+kube-system   kube-proxy-lrtfd                      1/1     Running   0          21m
+root@zackz:/mnt/f/1/spot-and-karpenter# aws eks list-addons <span class="nt">--cluster-name</span> spot-and-karpenter <span class="nt">--region</span> ap-southeast-2
+<span class="o">{</span>
+    <span class="s2">"addons"</span>: <span class="o">[</span>
+        <span class="s2">"aws-ebs-csi-driver"</span>,
+        <span class="s2">"aws-efs-csi-driver"</span>,
+        <span class="s2">"coredns"</span>,
+        <span class="s2">"kube-proxy"</span>,
+        <span class="s2">"vpc-cni"</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><img src="/assets/mlops10-1.png" alt="image tooltip here" /></p>
+
+<p>Then tag and push the optimized image classifier-eks to ECR and deploy it to EKS using Karpenter.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:~# aws ecr get-login-password <span class="nt">--region</span> ap-southeast-2 | docker login <span class="nt">--username</span> AWS <span class="nt">--password-stdin</span> 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com
+Login Succeeded
+root@zackz:~# docker tag classifier-eks:latest 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks:latest
+root@zackz:~# docker push 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks:latest
+The push refers to repository <span class="o">[</span>851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks]
+700cbfa4a29a: Pushed
+1e026a0de221: Pushed
+e30ec0bde91f: Pushed
+9994fd5f0914: Pushed
+67796cf8ce29: Pushed
+0474cd91a62d: Pushed
+3c2c7e066741: Pushed
+3d25fa2df354: Pushed
+0f24c57a5268: Pushed
+6c3e7df31590: Pushed
+latest: digest: sha256:ccb3a4f70dd01b59658bc365616346bb62c5389814857b78416e40499b6d35c2 size: 2416
+</code></pre></div></div>
+
+<p>I will also explore the performance and cost practices by leveraging with <code class="language-plaintext highlighter-rouge">spot GPU instance</code> and <code class="language-plaintext highlighter-rouge">cold start</code> amd <code class="language-plaintext highlighter-rouge">model cache</code> to reduce the performance factors particularly in terms of initialization time, model download, and container image pull times, as LLM-Specific models can be very large.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># nodepool-gpu.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.sh/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">NodePool</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-pool</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">workload-type</span><span class="pi">:</span> <span class="s">custom-ml</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">nodeClassRef</span><span class="pi">:</span>
+        <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.k8s.aws/v1beta1</span>
+        <span class="na">kind</span><span class="pi">:</span> <span class="s">EC2NodeClass</span>
+        <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-nodeclass</span>
+      <span class="na">requirements</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">karpenter.sh/capacity-type</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+          <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">on-demand"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">spot"</span><span class="pi">]</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">node.kubernetes.io/instance-type</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+          <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">g4dn.2xlarge"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">g5.xlarge"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">g5.2xlarge"</span><span class="pi">]</span>  <span class="c1"># Larger instance types</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">kubernetes.io/arch</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+          <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">amd64"</span><span class="pi">]</span>
+      <span class="na">taints</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s2">"</span><span class="s">nvidia.com/gpu"</span>
+          <span class="na">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">present"</span>
+          <span class="na">effect</span><span class="pi">:</span> <span class="s">NoSchedule</span>
+  <span class="na">disruption</span><span class="pi">:</span>
+    <span class="na">consolidationPolicy</span><span class="pi">:</span> <span class="s">WhenUnderutilized</span>
+    <span class="na">expireAfter</span><span class="pi">:</span> <span class="s">168h</span>
+
+<span class="c1"># gpu-nodeclass.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.k8s.aws/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">EC2NodeClass</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-nodeclass</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">role</span><span class="pi">:</span> <span class="s2">"</span><span class="s">karpenter-spot-and-karpenter"</span>
+  <span class="na">subnetSelectorTerms</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">tags</span><span class="pi">:</span>
+        <span class="na">karpenter.sh/discovery</span><span class="pi">:</span> <span class="s2">"</span><span class="s">spot-and-karpenter"</span>
+  <span class="na">securityGroupSelectorTerms</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">tags</span><span class="pi">:</span>
+        <span class="na">karpenter.sh/discovery</span><span class="pi">:</span> <span class="s2">"</span><span class="s">spot-and-karpenter"</span>
+  <span class="na">amiFamily</span><span class="pi">:</span> <span class="s">Bottlerocket</span>
+  <span class="na">blockDeviceMappings</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">deviceName</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/dev/xvda"</span>
+      <span class="na">ebs</span><span class="pi">:</span>
+        <span class="na">volumeSize</span><span class="pi">:</span> <span class="s">100Gi</span>
+        <span class="na">volumeType</span><span class="pi">:</span> <span class="s">gp3</span>
+  <span class="na">userData</span><span class="pi">:</span> <span class="pi">|</span>
+    <span class="s">[settings]</span>
+    <span class="s">[settings.kernel]</span>
+    <span class="s">lockdown = "integrity"</span>
+    <span class="s">[settings.kubernetes]</span>
+    <span class="s">node-labels = { "workload-type" = "custom-ml" }</span>
+</code></pre></div></div>
+
+<p>Unfortunately, the GPU instance for ML workload is not provisioning aby Karpenter due to <code class="language-plaintext highlighter-rouge">Max spot instance count exceeded</code> and <code class="language-plaintext highlighter-rouge">insufficient capacity with VcpuLimitExceeded</code> , Here are the logs from the Karpenter controller:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#list avaibale GPU instances and spot price</span>
+root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-spot-price-history <span class="se">\</span>
+    <span class="nt">--instance-types</span> <span class="si">$(</span>aws ec2 describe-instance-types <span class="se">\</span>
+        <span class="nt">--query</span> <span class="s1">'InstanceTypes[?GpuInfo.Gpus!=null].InstanceType'</span> <span class="nt">--output</span> text <span class="nt">--region</span> ap-southeast-2<span class="si">)</span> <span class="se">\</span>
+    <span class="nt">--product-descriptions</span> <span class="s2">"Linux/UNIX"</span> <span class="se">\</span>
+    <span class="nt">--start-time</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">date</span> <span class="nt">-u</span> +<span class="s1">'%Y-%m-%dT%H:%M:%SZ'</span><span class="si">)</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">--region</span> ap-southeast-2 <span class="se">\</span>
+    <span class="nt">--query</span> <span class="s1">'SpotPriceHistory[*].[InstanceType, SpotPrice]'</span> <span class="se">\</span>
+    <span class="nt">--output</span> table
+<span class="nt">----------------------------------------------------------------------------------------------------</span>
+
+root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-instance-types <span class="se">\</span>
+    <span class="nt">--query</span> <span class="s1">'InstanceTypes[?GpuInfo.Gpus!=null].[InstanceType, GpuInfo.Gpus[0].Manufacturer, GpuInfo.Gpus[0].Name, GpuInfo.Gpus[0].Count, GpuInfo.TotalGpuMemoryInMiB]'</span> <span class="se">\</span>
+    <span class="nt">--region</span> ap-southeast-2 <span class="nt">--output</span> table
+
+</code></pre></div></div>
+
+<p>Karpenter logs for troubleshooting:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">Max</span><span class="w"> </span><span class="err">spot</span><span class="w"> </span><span class="err">instance</span><span class="w"> </span><span class="err">count</span><span class="w"> </span><span class="err">exceeded</span><span class="w">
+</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T00:48:15.820Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), MaxSpotInstanceCountExceeded: Max spot instance count exceeded"</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="s2">"gpu-pool-m7qwg"</span><span class="p">,</span><span class="nl">"nodepool"</span><span class="p">:</span><span class="s2">"gpu-pool"</span><span class="p">}</span><span class="err">`</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">insufficient</span><span class="w"> </span><span class="err">capacity</span><span class="w"> </span><span class="err">with</span><span class="w"> </span><span class="err">VcpuLimitExceeded</span><span class="w">
+</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T01:01:49.074Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), VcpuLimitExceeded: You have requested more vCPU capacity than your current vCPU limit of 0 allows for the instance bucket that the specified instance type belongs to. Please visit http://aws.amazon.com/contact-us/ec2-request to request an adjustment to this limit."</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="s2">"gpu-pool-m6c45"</span><span class="p">,</span><span class="nl">"nodepool"</span><span class="p">:</span><span class="s2">"gpu-pool"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">instance</span><span class="w"> </span><span class="err">type</span><span class="w"> </span><span class="err">met</span><span class="w"> </span><span class="err">all</span><span class="w"> </span><span class="err">requirements</span><span class="w">
+</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T01:04:37.398Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.provisioner"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Could not schedule pod, incompatible with nodepool </span><span class="se">\"</span><span class="s2">gpu-pool</span><span class="se">\"</span><span class="s2">, daemonset overhead={</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">240Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">5</span><span class="se">\"</span><span class="s2">}, no instance type satisfied resources {</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">4336Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">nvidia.com/gpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">6</span><span class="se">\"</span><span class="s2">} and requirements karpenter.k8s.aws/instance-family In [g5 p3 p4], karpenter.sh/capacity-type In [on-demand spot], karpenter.sh/nodepool In [gpu-pool], kubernetes.io/arch In [amd64], workload-type In [custom-ml] (no instance type met all requirements)"</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"pod"</span><span class="p">:</span><span class="s2">"default/test-pod"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Need to engage with AWS support to request GPU instance limit increase.</p>
+
+<p><img src="/assets/mlops10-2.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>This exploration of deploying an ML workload to EKS with Karpenter revealed several critical insights for production-grade MLOps. Key takeaways inculde:</p>
+
+<ul>
+  <li>
+    <p>ML docker container Optimization</p>
+  </li>
+  <li>
+    <p>EKS with Karpenter ready to ML load deployment</p>
+  </li>
+</ul>
+
+<p>I will continue to explore the performance and cost practices after approved GPU quotas, by leveraging with spot GPU instance and cold start amd model cache to reduce the performance factors particularly in terms of initialization time, model download, and container image pull times.</p>
+
+<p>Then I will deploy frontend application and K8S sevices to expose the loadbalancer for image upload and prediction.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Continue Pneumonia Classifier by moving to AWS SageMaker]]></summary></entry><entry><title type="html">MLOps - Deploy Classifier with AWS Serverless</title><link href="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html" rel="alternate" type="text/html" title="MLOps - Deploy Classifier with AWS Serverless" /><published>2025-01-25T22:18:29+11:00</published><updated>2025-01-25T22:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/25/mlops8</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/25/mlops8.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS Serverless</b></p>
 
 <ul>
   <li>Go AWS Serverless Deployment</li>
@@ -3830,270 +4221,4 @@ torch.cuda.synchronize<span class="o">()</span>
 
 <p><b>Conclusion</b></p>
 
-<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry><entry><title type="html">EKS - Debug Prometheus Metrics</title><link href="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html" rel="alternate" type="text/html" title="EKS - Debug Prometheus Metrics" /><published>2024-09-29T10:15:29+10:00</published><updated>2024-09-29T10:15:29+10:00</updated><id>http://localhost:4000/jekyll/cat2/2024/09/29/eks6</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2024/09/29/eks6.html"><![CDATA[<p><b>AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS</b></p>
-
-<p><code class="language-plaintext highlighter-rouge">AWS Managed Prometheus &amp; Grafana</code> is the “plug-and-play” choice for production workloads requiring minimal management, while on the other hand install helm <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> offers maximum control but requires more effort to maintain and scale effectively.</p>
-
-<p>Hence for cost control and full customization, I got to install <code class="language-plaintext highlighter-rouge">kube-prometheus-stack</code> on my local lab cluster.</p>
-
-<p><b>Understand Prometheus Pull-based Monitoring Flow</b></p>
-
-<ul>
-  <li>
-    <p><code class="language-plaintext highlighter-rouge">Expose Metrics</code>: Applications expose metrics in Prometheus format.</p>
-  </li>
-  <li>
-    <p><code class="language-plaintext highlighter-rouge">Discover Targets</code>:</p>
-  </li>
-</ul>
-
-<p>Kubernetes-native targets: Discovered via the Kubernetes API.</p>
-
-<p>Non-cloud-native targets: Defined statically or exposed through exporters.</p>
-
-<ul>
-  <li>
-    <p><code class="language-plaintext highlighter-rouge">Scrape Metrics</code>: Prometheus scrapes metrics periodically from /metrics endpoints.</p>
-  </li>
-  <li>
-    <p><code class="language-plaintext highlighter-rouge">Store Metrics</code>: Metrics are stored in Prometheus’s time-series database.</p>
-  </li>
-  <li>
-    <p><code class="language-plaintext highlighter-rouge">Visualize Metrics</code>: Grafana (in kube-prometheus-stack) is often used to query and visualize metrics.</p>
-  </li>
-</ul>
-
-<p><b>Prometheus metrics issue</b></p>
-
-<p>Then I found Prometheus was unable to scrape metrics from several Kubernetes components (etcd, kube-controller-manager, kube-scheduler, and kube-proxy). These targets were marked as DOWN in the Prometheus UI with errors such as: Connection refused.</p>
-
-<p><img src="/assets/eks72.png" alt="image tooltip here" /></p>
-
-<p><img src="/assets/eks73.png" alt="image tooltip here" />
-<b>Troubleshooting Steps</b></p>
-
-<p>As per Prometheus monitoring flow, let’s start with troubleshooting.</p>
-
-<ul>
-  <li>Step 1: check Prometheus service, pod and ServiceMonitor</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">root@asb:/home/ubuntu# kubectl  get svc <span class="nt">-n</span> kube-system
-NAME                                                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                        AGE
-kube-dns                                             ClusterIP   10.96.0.10     &lt;none&gt;        53/UDP,53/TCP,9153/TCP         63d
-metrics-server                                       ClusterIP   10.110.18.85   &lt;none&gt;        443/TCP                        61d
-prometheus-stack-kube-prom-coredns                   ClusterIP   None           &lt;none&gt;        9153/TCP                       60d
-prometheus-stack-kube-prom-kube-controller-manager   ClusterIP   None           &lt;none&gt;        10257/TCP                      60d
-prometheus-stack-kube-prom-kube-etcd                 ClusterIP   None           &lt;none&gt;        2381/TCP                       60d
-prometheus-stack-kube-prom-kube-proxy                ClusterIP   None           &lt;none&gt;        10249/TCP                      60d
-prometheus-stack-kube-prom-kube-scheduler            ClusterIP   None           &lt;none&gt;        10259/TCP                      60d
-prometheus-stack-kube-prom-kubelet                   ClusterIP   None           &lt;none&gt;        10250/TCP,10255/TCP,4194/TCP   60d
-root@asb:/home/ubuntu# kubectl  get po <span class="nt">-n</span> kube-system
-NAME                                       READY   STATUS    RESTARTS        AGE
-calico-kube-controllers-84b7b7fdbb-klzpf   1/1     Running   10 <span class="o">(</span>42m ago<span class="o">)</span>    39d
-calico-node-bzf6d                          1/1     Running   20 <span class="o">(</span>113m ago<span class="o">)</span>   63d
-calico-node-ggw7r                          1/1     Running   21 <span class="o">(</span>112m ago<span class="o">)</span>   63d
-calico-node-t8jfn                          1/1     Running   20 <span class="o">(</span>112m ago<span class="o">)</span>   63d
-coredns-5d5dd8cb46-pwsvt                   1/1     Running   1 <span class="o">(</span>113m ago<span class="o">)</span>    25h
-coredns-5d5dd8cb46-vthsr                   1/1     Running   9 <span class="o">(</span>112m ago<span class="o">)</span>    39d
-etcd-asb-mst                               1/1     Running   0               41m
-kube-apiserver-asb-mst                     1/1     Running   19 <span class="o">(</span>41m ago<span class="o">)</span>    39d
-kube-controller-manager-asb-mst            1/1     Running   0               41m
-kube-proxy-956zq                           1/1     Running   0               28m
-kube-proxy-9fcd4                           1/1     Running   0               28m
-kube-proxy-tcnql                           1/1     Running   0               28m
-kube-scheduler-asb-mst                     1/1     Running   0               41m
-metrics-server-7766f59c77-xbxxr            1/1     Running   1 <span class="o">(</span>112m ago<span class="o">)</span>    25h
-root@asb:/home/ubuntu# kubectl  get servicemonitors.monitoring.coreos.com <span class="nt">-n</span> monitoring 
-NAME                                                 AGE
-prometheus-stack-grafana                             60d
-prometheus-stack-kube-prom-alertmanager              60d
-prometheus-stack-kube-prom-apiserver                 60d
-prometheus-stack-kube-prom-coredns                   60d
-prometheus-stack-kube-prom-kube-controller-manager   60d
-prometheus-stack-kube-prom-kube-etcd                 60d
-prometheus-stack-kube-prom-kube-proxy                60d
-prometheus-stack-kube-prom-kube-scheduler            60d
-prometheus-stack-kube-prom-kubelet                   60d
-prometheus-stack-kube-prom-operator                  60d
-prometheus-stack-kube-prom-prometheus                60d
-prometheus-stack-kube-state-metrics                  60d
-prometheus-stack-prometheus-node-exporter            60d</code></pre></figure>
-
-<ul>
-  <li>
-    <p>Step 2: Checked Prometheus ServiceMonitor configurations to ensure they matched the service labels, ports, and namespaces. Check <code class="language-plaintext highlighter-rouge">Service Labels and Selectors</code> vs <code class="language-plaintext highlighter-rouge">Pod Labels</code> vs <code class="language-plaintext highlighter-rouge">ServiceMonitor Selector</code>.</p>
-  </li>
-  <li>
-    <p>Step 3: Verify Metrics Exposure</p>
-  </li>
-</ul>
-
-<p>Port-forwarded ETCD service and tested metrics endpoint using <code class="language-plaintext highlighter-rouge">wget</code> to see if ETCD metrics were being exposed. then verify /metrics was accessible locally within the pods but not externally.</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl port-forward <span class="nt">-n</span> kube-system svc/prometheus-stack-kube-prom-kube-etcd 2381:2381
-curl http://localhost:2381/metrics</code></pre></figure>
-
-<p>See that API <code class="language-plaintext highlighter-rouge">/metrics</code> was accessible with a list of retrieves, then I need to create debug pod to test metrics endpoint</p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl run <span class="nt">-it</span> <span class="nt">--rm</span> debug-pod <span class="nt">--image</span><span class="o">=</span>busybox <span class="nt">--restart</span><span class="o">=</span>Never <span class="nt">--</span> sh
-
-/ <span class="c"># wget http://11.0.1.231:2381/metrics</span>
-Connecting to 11.0.1.231:2381 <span class="o">(</span>11.0.1.231:2381<span class="o">)</span>
-wget: server returned error: HTTP/1.1 503 Service Unavailable</code></pre></figure>
-
-<p>The 503 Service Unavailable error indicates that the service is reachable, but it’s not properly routing requests to the etcd pod. This suggests a potential issue with the service configuration or the etcd pod itself</p>
-
-<p>Step 4: Inspect ETCD configuration via /etc/kubernetes/manifests/etcd.yaml</p>
-
-<p>The etcd pod must be configured to expose metrics on port 2381. Check the etcd deployment or static pod configuration file (often in /etc/kubernetes/manifests/ for static pods on control plane nodes).</p>
-
-<p>The <code class="language-plaintext highlighter-rouge">--listen-metrics-urls</code> flag include the :2381 endpoint is <code class="language-plaintext highlighter-rouge">--listen-metrics-urls=http://127.0.0.1:2381</code></p>
-
-<ul>
-  <li>Step 4: Identify the Actual Issues</li>
-</ul>
-
-<p>Determined that the root issue was the bind addresses and configuration of metrics endpoints, ETCD, kube-controller-manager, kube-scheduler and kube-proxy Metrics were bound to 127.0.0.1, preventing external access.</p>
-
-<ul>
-  <li>Step 5: Implement Fixes</li>
-</ul>
-
-<p>Backup and modified each ETCD, kube-controller-manager and kube-scheduler manifests to bind metrics to <code class="language-plaintext highlighter-rouge">0.0.0.0</code> instead of <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, Updated ConfigMap for kube-proxy, edited the kube-proxy ConfigMap to set <code class="language-plaintext highlighter-rouge">metricsBindAddress: "0.0.0.0:10249"</code></p>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># vim /etc/kubernetes/manifests/etcd.yaml</span>
-
-<span class="nt">--listen-metrics-urls</span><span class="o">=</span>http://0.0.0.0:2381
-
-<span class="c"># Updated ConfigMap and restart kube-proxy:</span>
-kubectl edit cm kube-proxy <span class="nt">-n</span> kube-system
-kubectl rollout restart ds kube-proxy <span class="nt">-n</span> kube-system</code></pre></figure>
-
-<p>Confirmed that Prometheus targets were UP after the fixes.</p>
-
-<p><img src="/assets/eks71.png" alt="image tooltip here" /></p>
-
-<p><b>Conclusion</b></p>
-
-<p>Common Prometheus Metrics debug steps:</p>
-
-<ul>
-  <li>
-    <p>check Prometheus pod, service and servicemonitor status</p>
-  </li>
-  <li>
-    <p>check labels (servicemonitor label vs service label vs po label)</p>
-  </li>
-  <li>
-    <p>check and test metrics API endpoint within Prometheus pod (e.g. /metrics)</p>
-  </li>
-</ul>
-
-<p>This troubleshooting experience highlights the importance of end-to-end configuration alignment in Prometheus Metrics and Targets setups, from endpoint exposure to scraping configurations. It can be a method to debug any other similiar Metrics issue in a Prometheus monitoring for cloud-native and non cloud-native applications.</p>
-
-<p><b>Export Redis Metrics</b></p>
-
-<p>Here I will run another practice to install Redis and Redis exporter, then use Prometheus to scrape its metrics and visualize in Grafana.</p>
-
-<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="c1"># Redis and Redis exporter deployment </span>
-
-<span class="s">root@asb:~# cat k8s-redis-and-exporter-deployment.yaml</span> 
-<span class="nn">---</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Namespace</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">redis</span>
-<span class="nn">---</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">redis</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">redis</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">matchLabels</span><span class="pi">:</span>
-      <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">metadata</span><span class="pi">:</span>
-      <span class="na">annotations</span><span class="pi">:</span>
-        <span class="na">prometheus.io/scrape</span><span class="pi">:</span> <span class="s2">"</span><span class="s">true"</span>
-        <span class="na">prometheus.io/port</span><span class="pi">:</span> <span class="s2">"</span><span class="s">9121"</span>
-      <span class="na">labels</span><span class="pi">:</span>
-        <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
-    <span class="na">spec</span><span class="pi">:</span>
-      <span class="na">containers</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">redis</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">redis:4</span>
-        <span class="na">resources</span><span class="pi">:</span>
-          <span class="na">requests</span><span class="pi">:</span>
-            <span class="na">cpu</span><span class="pi">:</span> <span class="s">100m</span>
-            <span class="na">memory</span><span class="pi">:</span> <span class="s">100Mi</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">6379</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">redis-exporter</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">oliver006/redis_exporter:latest</span>
-        <span class="na">securityContext</span><span class="pi">:</span>
-          <span class="na">runAsUser</span><span class="pi">:</span> <span class="m">59000</span>
-          <span class="na">runAsGroup</span><span class="pi">:</span> <span class="m">59000</span>
-          <span class="na">allowPrivilegeEscalation</span><span class="pi">:</span> <span class="kc">false</span>
-          <span class="na">capabilities</span><span class="pi">:</span>
-            <span class="na">drop</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="s">ALL</span>
-        <span class="na">resources</span><span class="pi">:</span>
-          <span class="na">requests</span><span class="pi">:</span>
-            <span class="na">cpu</span><span class="pi">:</span> <span class="s">100m</span>
-            <span class="na">memory</span><span class="pi">:</span> <span class="s">100Mi</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">9121</span>
-
-<span class="c1"># redis service and servicemonitor</span>
-<span class="s">root@asb:~# cat k8s-redis-and-exporter-svc-svcmonitor.yaml</span> 
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">redis</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">redis-metrics</span>
-  <span class="na">labels</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
-  <span class="na">ports</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">http-metrics</span>
-    <span class="na">port</span><span class="pi">:</span> <span class="m">9121</span>
-    <span class="na">targetPort</span><span class="pi">:</span> <span class="m">9121</span>
-<span class="nn">---</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">monitoring.coreos.com/v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ServiceMonitor</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">redis-monitor</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">monitoring</span>
-  <span class="na">labels</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
-    <span class="na">release</span><span class="pi">:</span> <span class="s">prometheus-stack</span>  <span class="c1"># important to match with kube-monitoring-stack</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">matchLabels</span><span class="pi">:</span>
-      <span class="na">app</span><span class="pi">:</span> <span class="s">redis</span>
-  <span class="na">namespaceSelector</span><span class="pi">:</span>
-    <span class="na">matchNames</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s">redis</span>
-  <span class="na">endpoints</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="s">http-metrics</span>
-      <span class="na">interval</span><span class="pi">:</span> <span class="s">30s</span>
-
-<span class="s">kubectl apply -f k8s-redis-and-exporter-deployment.yaml</span> 
-<span class="s">namespace/redis created</span>
-<span class="s">deployment.apps/redis created</span>
-
-<span class="s">kubectl apply -f k8s-redis-and-exporter-svc-svcmonitor.yaml</span> 
-<span class="s">service/redis-metrics created</span>
-<span class="s">servicemonitor.monitoring.coreos.com/redis-monitor created</span></code></pre></figure>
-
-<p>Head over to Prometheus Targets, we can see the metrics is being scraped from the Redis exporter.
-<img src="/assets/eks75.png" alt="image tooltip here" /></p>
-
-<p>Head over to Grafana, then import the dashboard 763 
-<img src="/assets/eks74.png" alt="image tooltip here" /></p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[AWS Managed Prometheus &amp; Grafana vs kube-prometheus-stack on EKS]]></summary></entry></feed>
+<p>Here I have successfully set up a local machine learning lab env, and installed ML tools on local Windows using WSL2. Next stage we will try to run a local ML module and containerize it into a docker image.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[Move to MLOPS]]></summary></entry></feed>

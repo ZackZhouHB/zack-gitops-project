@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MLOps - Deploy ML workload into EKS with Karpenter | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MLOps - Deploy ML workload into EKS with Karpenter" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Continue Pneumonia Classifier by moving to AWS SageMaker" />
+<meta property="og:description" content="Continue Pneumonia Classifier by moving to AWS SageMaker" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2025/01/26/mlops9.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2025/01/26/mlops9.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-01-26T11:18:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MLOps - Deploy ML workload into EKS with Karpenter" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-01-26T11:18:29+11:00","datePublished":"2025-01-26T11:18:29+11:00","description":"Continue Pneumonia Classifier by moving to AWS SageMaker","headline":"MLOps - Deploy ML workload into EKS with Karpenter","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2025/01/26/mlops9.html"},"url":"http://localhost:4000/jekyll/cat2/2025/01/26/mlops9.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MLOps - Deploy ML workload into EKS with Karpenter</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2025-01-26T11:18:29+11:00" itemprop="datePublished">Jan 26, 2025
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
+
+<p>In the previous post, I was able to complete both local Pytorch ML and AWS sagemaker practice, and containerize and deploy ML docker image locally.</p>
+
+<p>In this post, I will explore the model deployment to EKS cluster with Karpenter to sumilate a more scalable and real-life production ready environment.</p>
+
+<p><b>Challenges when move to Cloud deployment</b></p>
+
+<p>Here are key differences between local Pytorch model vs AWS SageMaker artifacts, and how they impact the Docker image size and Performance consideration for LLM images in EKS deployment.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Local PyTorch Model (.pth)</th>
+      <th>AWS SageMaker Model (.tar.gz)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Contents</code></td>
+      <td>Full model state_dict + Python code</td>
+      <td>Only model parameters + inference code</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Framework</code></td>
+      <td>Raw PyTorch implementation</td>
+      <td>Optimized MXNet framework</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Serialization</code></td>
+      <td>torch.save() native format</td>
+      <td>Framework-specific serialization</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Dependencies</code></td>
+      <td>Requires full PyTorch installation</td>
+      <td>Minimal runtime dependencies</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The latency between pod initialization and readiness to serve requests includes:</p>
+
+<ol>
+  <li>
+    <p>Container image pull time</p>
+  </li>
+  <li>
+    <p>Model download from storage</p>
+  </li>
+  <li>
+    <p>Framework initialization</p>
+  </li>
+  <li>
+    <p>GPU context creation</p>
+  </li>
+  <li>
+    <p>Model loading into memory</p>
+  </li>
+</ol>
+
+<ul>
+  <li>Optimize Docker image size for AWS ECR and EKS deployment.</li>
+</ul>
+
+<p>Optimized Dockerfile (Target: ~450MB)</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Use NVIDIA CUDA base image with Python</span>
+FROM nvidia/cuda:11.2.2-base-ubuntu20.04
+
+<span class="c"># Install system dependencies</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> <span class="se">\</span>
+    python3.8 <span class="se">\</span>
+    python3-pip <span class="se">\</span>
+    python3.8-venv <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> <span class="nb">rm</span> <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
+
+<span class="c"># Create and activate virtual environment</span>
+RUN python3 <span class="nt">-m</span> venv /opt/venv
+ENV <span class="nv">PATH</span><span class="o">=</span><span class="s2">"/opt/venv/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
+
+<span class="c"># Install Python dependencies</span>
+COPY requirements.txt <span class="nb">.</span>
+RUN pip <span class="nb">install</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> requirements.txt
+
+<span class="c"># Copy inference code</span>
+COPY app.py <span class="nb">.</span>
+
+<span class="c"># Environment variables</span>
+ENV <span class="nv">MODEL_S3_URI</span><span class="o">=</span><span class="s2">"s3://sagemaker-bucket-85xxxxxxxx42/models/image_model/classifier-2025-01-26-02-58-03-005-dbf196d2/output/model.tar.gz"</span>
+ENV <span class="nv">AWS_REGION</span><span class="o">=</span>ap-southeast-2
+
+<span class="c"># Expose API port</span>
+EXPOSE 8080
+
+<span class="c"># Startup command</span>
+CMD <span class="o">[</span><span class="s2">"python3"</span>, <span class="s2">"app.py"</span><span class="o">]</span>
+
+</code></pre></div></div>
+<p>requirements.txt</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">mxnet</span><span class="o">==</span>1.9.1
+<span class="nv">flask</span><span class="o">==</span>2.2.5
+<span class="nv">boto3</span><span class="o">==</span>1.28.62
+<span class="nv">pillow</span><span class="o">==</span>10.1.0
+</code></pre></div></div>
+
+<p>app.py (Optimized Inference Service)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">tarfile</span>
+<span class="kn">import</span> <span class="n">boto3</span>
+<span class="kn">from</span> <span class="n">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">import</span> <span class="n">mxnet</span> <span class="k">as</span> <span class="n">mx</span>
+<span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="n">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="n">io</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="nc">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c1"># Initialize model
+</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="nf">gpu</span><span class="p">()</span> <span class="k">if</span> <span class="n">mx</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="nf">num_gpus</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">mx</span><span class="p">.</span><span class="nf">cpu</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="k">def</span> <span class="nf">download_and_extract_model</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">model</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="nf">client</span><span class="p">(</span><span class="sh">'</span><span class="s">s3</span><span class="sh">'</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">AWS_REGION</span><span class="sh">'</span><span class="p">])</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="sh">'</span><span class="s">/tmp/model.tar.gz</span><span class="sh">'</span>
+    <span class="n">bucket</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">MODEL_S3_URI</span><span class="sh">'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">//</span><span class="sh">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s3</span><span class="p">.</span><span class="nf">download_file</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">model_path</span><span class="p">)</span>
+    
+    <span class="k">with</span> <span class="n">tarfile</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+        <span class="n">tar</span><span class="p">.</span><span class="nf">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sh">'</span><span class="s">/model</span><span class="sh">'</span><span class="p">)</span>
+    
+    <span class="n">sym</span><span class="p">,</span> <span class="n">arg_params</span><span class="p">,</span> <span class="n">aux_params</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="nf">load_checkpoint</span><span class="p">(</span><span class="sh">'</span><span class="s">/model/model</span><span class="sh">'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">mod</span><span class="p">.</span><span class="nc">Module</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">sym</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="n">mod</span><span class="p">.</span><span class="nf">bind</span><span class="p">(</span><span class="n">for_training</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">data_shapes</span><span class="o">=</span><span class="p">[(</span><span class="sh">'</span><span class="s">data</span><span class="sh">'</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))])</span>
+    <span class="n">mod</span><span class="p">.</span><span class="nf">set_params</span><span class="p">(</span><span class="n">arg_params</span><span class="p">,</span> <span class="n">aux_params</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">mod</span>
+
+<span class="nd">@app.before_first_request</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">():</span>
+    <span class="nf">download_and_extract_model</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="nc">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)).</span><span class="nf">convert</span><span class="p">(</span><span class="sh">'</span><span class="s">RGB</span><span class="sh">'</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">.</span><span class="nf">resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">img</span><span class="p">).</span><span class="nf">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">).</span><span class="nf">astype</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">nd</span><span class="p">.</span><span class="nf">array</span><span class="p">((</span><span class="n">img</span> <span class="o">-</span> <span class="mi">128</span><span class="p">)</span> <span class="o">/</span> <span class="mi">128</span><span class="p">)</span>  <span class="c1"># Match SageMaker preprocessing
+</span>    <span class="k">return</span> <span class="n">img</span><span class="p">.</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="sh">'</span><span class="s">/predict</span><span class="sh">'</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">predict</span><span class="p">():</span>
+    <span class="k">if</span> <span class="sh">'</span><span class="s">image</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="p">.</span><span class="n">files</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span><span class="sh">'</span><span class="s">error</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">No image provided</span><span class="sh">'</span><span class="p">}),</span> <span class="mi">400</span>
+    
+    <span class="n">image</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">files</span><span class="p">[</span><span class="sh">'</span><span class="s">image</span><span class="sh">'</span><span class="p">].</span><span class="nf">read</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">mx</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="nc">DataBatch</span><span class="p">([</span><span class="n">data</span><span class="p">])</span>
+    <span class="n">model</span><span class="p">.</span><span class="nf">forward</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">get_outputs</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="nf">asnumpy</span><span class="p">().</span><span class="nf">argmax</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span><span class="sh">'</span><span class="s">prediction</span><span class="sh">'</span><span class="p">:</span> <span class="nf">int</span><span class="p">(</span><span class="n">prob</span><span class="p">)})</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">'</span><span class="s">__main__</span><span class="sh">'</span><span class="p">:</span>
+    <span class="n">app</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">0.0.0.0</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Size Comparison after optimization:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Local PyTorch</th>
+      <th>Optimized MXNet</th>
+      <th>Reduction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Base Image</td>
+      <td>2.5GB</td>
+      <td>418MB</td>
+      <td>-83%</td>
+    </tr>
+    <tr>
+      <td>Framework</td>
+      <td>1.2GB</td>
+      <td>89MB</td>
+      <td>-93%</td>
+    </tr>
+    <tr>
+      <td>Model Storage</td>
+      <td>Baked-in</td>
+      <td>S3 Download</td>
+      <td>-100%</td>
+    </tr>
+    <tr>
+      <td>Total Image Size</td>
+      <td>~5GB</td>
+      <td>537MB</td>
+      <td>-90%</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:/mnt/f/ml-local/local-cv/eks# docker image <span class="nb">ls
+</span>REPOSITORY                                TAG                                        IMAGE ID       CREATED          SIZE
+classifier-eks                            latest                                     92736798f67f   11 seconds ago   537MB
+pneumonia-frontend                        latest                                     ac8f5e301dfd   3 days ago       47.1MB
+pneumonia-classifier-1                    latest                                     d0bf743556d8   3 days ago       4.73GB
+</code></pre></div></div>
+<ul>
+  <li>Provision EKS and Karpenter with Terraform</li>
+</ul>
+
+<p>Here I will use Terraform to <a href="https://raw.githubusercontent.com/ZackZhouHB/zack-gitops-project/refs/heads/editing/EKS-Karpenter-Spot/main.tf">provision an EKS cluster with Karpenter</a>.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:/mnt/f/1/spot-and-karpenter# kubectl get node
+NAME                                             STATUS   ROLES    AGE   VERSION
+ip-10-0-119-37.ap-southeast-2.compute.internal   Ready    &lt;none&gt;   21m   v1.30.8-eks-aeac579
+ip-10-0-65-17.ap-southeast-2.compute.internal    Ready    &lt;none&gt;   21m   v1.30.8-eks-aeac579
+root@zackz:/mnt/f/1/spot-and-karpenter# kubectl get po <span class="nt">-A</span>
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS   AGE
+karpenter     karpenter-7c9f6776cc-5djcv            1/1     Running   0          23m
+karpenter     karpenter-7c9f6776cc-ntgwj            1/1     Running   0          23m
+kube-system   aws-node-8v5v5                        2/2     Running   0          21m
+kube-system   aws-node-pqlcg                        2/2     Running   0          21m
+kube-system   coredns-7dd48c8549-97dbr              1/1     Running   0          23m
+kube-system   coredns-7dd48c8549-dv4n4              1/1     Running   0          23m
+kube-system   ebs-csi-controller-56cb7b4bc-2gwgl    6/6     Running   0          23m
+kube-system   ebs-csi-controller-56cb7b4bc-wbffq    6/6     Running   0          23m
+kube-system   ebs-csi-node-lnvg8                    3/3     Running   0          21m
+kube-system   ebs-csi-node-nkg5c                    3/3     Running   0          21m
+kube-system   efs-csi-controller-75645855f5-jssl5   3/3     Running   0          4m22s
+kube-system   efs-csi-controller-75645855f5-lfd8r   3/3     Running   0          4m22s
+kube-system   efs-csi-node-jc6lm                    3/3     Running   0          4m22s
+kube-system   efs-csi-node-m6g7q                    3/3     Running   0          4m23s
+kube-system   kube-proxy-44px7                      1/1     Running   0          21m
+kube-system   kube-proxy-lrtfd                      1/1     Running   0          21m
+root@zackz:/mnt/f/1/spot-and-karpenter# aws eks list-addons <span class="nt">--cluster-name</span> spot-and-karpenter <span class="nt">--region</span> ap-southeast-2
+<span class="o">{</span>
+    <span class="s2">"addons"</span>: <span class="o">[</span>
+        <span class="s2">"aws-ebs-csi-driver"</span>,
+        <span class="s2">"aws-efs-csi-driver"</span>,
+        <span class="s2">"coredns"</span>,
+        <span class="s2">"kube-proxy"</span>,
+        <span class="s2">"vpc-cni"</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><img src="/assets/mlops10-1.png" alt="image tooltip here" /></p>
+
+<p>Then tag and push the optimized image classifier-eks to ECR and deploy it to EKS using Karpenter.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:~# aws ecr get-login-password <span class="nt">--region</span> ap-southeast-2 | docker login <span class="nt">--username</span> AWS <span class="nt">--password-stdin</span> 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com
+Login Succeeded
+root@zackz:~# docker tag classifier-eks:latest 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks:latest
+root@zackz:~# docker push 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks:latest
+The push refers to repository <span class="o">[</span>851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks]
+700cbfa4a29a: Pushed
+1e026a0de221: Pushed
+e30ec0bde91f: Pushed
+9994fd5f0914: Pushed
+67796cf8ce29: Pushed
+0474cd91a62d: Pushed
+3c2c7e066741: Pushed
+3d25fa2df354: Pushed
+0f24c57a5268: Pushed
+6c3e7df31590: Pushed
+latest: digest: sha256:ccb3a4f70dd01b59658bc365616346bb62c5389814857b78416e40499b6d35c2 size: 2416
+</code></pre></div></div>
+
+<p>I will also explore the performance and cost practices by leveraging with <code class="language-plaintext highlighter-rouge">spot GPU instance</code> and <code class="language-plaintext highlighter-rouge">cold start</code> amd <code class="language-plaintext highlighter-rouge">model cache</code> to reduce the performance factors particularly in terms of initialization time, model download, and container image pull times, as LLM-Specific models can be very large.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># nodepool-gpu.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.sh/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">NodePool</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-pool</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">workload-type</span><span class="pi">:</span> <span class="s">custom-ml</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">nodeClassRef</span><span class="pi">:</span>
+        <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.k8s.aws/v1beta1</span>
+        <span class="na">kind</span><span class="pi">:</span> <span class="s">EC2NodeClass</span>
+        <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-nodeclass</span>
+      <span class="na">requirements</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">karpenter.sh/capacity-type</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+          <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">on-demand"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">spot"</span><span class="pi">]</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">node.kubernetes.io/instance-type</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+          <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">g4dn.2xlarge"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">g5.xlarge"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">g5.2xlarge"</span><span class="pi">]</span>  <span class="c1"># Larger instance types</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">kubernetes.io/arch</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+          <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">amd64"</span><span class="pi">]</span>
+      <span class="na">taints</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s2">"</span><span class="s">nvidia.com/gpu"</span>
+          <span class="na">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">present"</span>
+          <span class="na">effect</span><span class="pi">:</span> <span class="s">NoSchedule</span>
+  <span class="na">disruption</span><span class="pi">:</span>
+    <span class="na">consolidationPolicy</span><span class="pi">:</span> <span class="s">WhenUnderutilized</span>
+    <span class="na">expireAfter</span><span class="pi">:</span> <span class="s">168h</span>
+
+<span class="c1"># gpu-nodeclass.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.k8s.aws/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">EC2NodeClass</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">gpu-nodeclass</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">role</span><span class="pi">:</span> <span class="s2">"</span><span class="s">karpenter-spot-and-karpenter"</span>
+  <span class="na">subnetSelectorTerms</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">tags</span><span class="pi">:</span>
+        <span class="na">karpenter.sh/discovery</span><span class="pi">:</span> <span class="s2">"</span><span class="s">spot-and-karpenter"</span>
+  <span class="na">securityGroupSelectorTerms</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">tags</span><span class="pi">:</span>
+        <span class="na">karpenter.sh/discovery</span><span class="pi">:</span> <span class="s2">"</span><span class="s">spot-and-karpenter"</span>
+  <span class="na">amiFamily</span><span class="pi">:</span> <span class="s">Bottlerocket</span>
+  <span class="na">blockDeviceMappings</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">deviceName</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/dev/xvda"</span>
+      <span class="na">ebs</span><span class="pi">:</span>
+        <span class="na">volumeSize</span><span class="pi">:</span> <span class="s">100Gi</span>
+        <span class="na">volumeType</span><span class="pi">:</span> <span class="s">gp3</span>
+  <span class="na">userData</span><span class="pi">:</span> <span class="pi">|</span>
+    <span class="s">[settings]</span>
+    <span class="s">[settings.kernel]</span>
+    <span class="s">lockdown = "integrity"</span>
+    <span class="s">[settings.kubernetes]</span>
+    <span class="s">node-labels = { "workload-type" = "custom-ml" }</span>
+</code></pre></div></div>
+
+<p>Unfortunately, the GPU instance for ML workload is not provisioning aby Karpenter due to <code class="language-plaintext highlighter-rouge">Max spot instance count exceeded</code> and <code class="language-plaintext highlighter-rouge">insufficient capacity with VcpuLimitExceeded</code> , Here are the logs from the Karpenter controller:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#list avaibale GPU instances and spot price</span>
+root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-spot-price-history <span class="se">\</span>
+    <span class="nt">--instance-types</span> <span class="si">$(</span>aws ec2 describe-instance-types <span class="se">\</span>
+        <span class="nt">--query</span> <span class="s1">'InstanceTypes[?GpuInfo.Gpus!=null].InstanceType'</span> <span class="nt">--output</span> text <span class="nt">--region</span> ap-southeast-2<span class="si">)</span> <span class="se">\</span>
+    <span class="nt">--product-descriptions</span> <span class="s2">"Linux/UNIX"</span> <span class="se">\</span>
+    <span class="nt">--start-time</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">date</span> <span class="nt">-u</span> +<span class="s1">'%Y-%m-%dT%H:%M:%SZ'</span><span class="si">)</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">--region</span> ap-southeast-2 <span class="se">\</span>
+    <span class="nt">--query</span> <span class="s1">'SpotPriceHistory[*].[InstanceType, SpotPrice]'</span> <span class="se">\</span>
+    <span class="nt">--output</span> table
+<span class="nt">----------------------------------------------------------------------------------------------------</span>
+
+root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-instance-types <span class="se">\</span>
+    <span class="nt">--query</span> <span class="s1">'InstanceTypes[?GpuInfo.Gpus!=null].[InstanceType, GpuInfo.Gpus[0].Manufacturer, GpuInfo.Gpus[0].Name, GpuInfo.Gpus[0].Count, GpuInfo.TotalGpuMemoryInMiB]'</span> <span class="se">\</span>
+    <span class="nt">--region</span> ap-southeast-2 <span class="nt">--output</span> table
+
+</code></pre></div></div>
+
+<p>Karpenter logs for troubleshooting:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">Max</span><span class="w"> </span><span class="err">spot</span><span class="w"> </span><span class="err">instance</span><span class="w"> </span><span class="err">count</span><span class="w"> </span><span class="err">exceeded</span><span class="w">
+</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T00:48:15.820Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), MaxSpotInstanceCountExceeded: Max spot instance count exceeded"</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="s2">"gpu-pool-m7qwg"</span><span class="p">,</span><span class="nl">"nodepool"</span><span class="p">:</span><span class="s2">"gpu-pool"</span><span class="p">}</span><span class="err">`</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">insufficient</span><span class="w"> </span><span class="err">capacity</span><span class="w"> </span><span class="err">with</span><span class="w"> </span><span class="err">VcpuLimitExceeded</span><span class="w">
+</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T01:01:49.074Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), VcpuLimitExceeded: You have requested more vCPU capacity than your current vCPU limit of 0 allows for the instance bucket that the specified instance type belongs to. Please visit http://aws.amazon.com/contact-us/ec2-request to request an adjustment to this limit."</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="s2">"gpu-pool-m6c45"</span><span class="p">,</span><span class="nl">"nodepool"</span><span class="p">:</span><span class="s2">"gpu-pool"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">instance</span><span class="w"> </span><span class="err">type</span><span class="w"> </span><span class="err">met</span><span class="w"> </span><span class="err">all</span><span class="w"> </span><span class="err">requirements</span><span class="w">
+</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T01:04:37.398Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.provisioner"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Could not schedule pod, incompatible with nodepool </span><span class="se">\"</span><span class="s2">gpu-pool</span><span class="se">\"</span><span class="s2">, daemonset overhead={</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">240Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">5</span><span class="se">\"</span><span class="s2">}, no instance type satisfied resources {</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">4336Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">nvidia.com/gpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">6</span><span class="se">\"</span><span class="s2">} and requirements karpenter.k8s.aws/instance-family In [g5 p3 p4], karpenter.sh/capacity-type In [on-demand spot], karpenter.sh/nodepool In [gpu-pool], kubernetes.io/arch In [amd64], workload-type In [custom-ml] (no instance type met all requirements)"</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"pod"</span><span class="p">:</span><span class="s2">"default/test-pod"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Need to engage with AWS support to request GPU instance limit increase.</p>
+
+<p><img src="/assets/mlops10-2.png" alt="image tooltip here" /></p>
+
+<p><b>Conclusion</b></p>
+
+<p>This exploration of deploying an ML workload to EKS with Karpenter revealed several critical insights for production-grade MLOps. Key takeaways inculde:</p>
+
+<ul>
+  <li>
+    <p>ML docker container Optimization</p>
+  </li>
+  <li>
+    <p>EKS with Karpenter ready to ML load deployment</p>
+  </li>
+</ul>
+
+<p>I will continue to explore the performance and cost practices after approved GPU quotas, by leveraging with spot GPU instance and cold start amd model cache to reduce the performance factors particularly in terms of initialization time, model download, and container image pull times.</p>
+
+<p>Then I will deploy frontend application and K8S sevices to expose the loadbalancer for image upload and prediction.</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2025/01/26/mlops9.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

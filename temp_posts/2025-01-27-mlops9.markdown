@@ -1,0 +1,53 @@
+---
+layout: post
+title:  "MLOps - EKS + Karpenter
+date:   2025-01-27 19:18:29 +1100
+categories: jekyll Cat2
+---
+
+<b>Continue Pneumonia Classifier by moving to AWS SageMaker</b>
+
+In the previous post, I was able to complete both local Pytorch ML and AWS sagemaker practice, and containerize and deploy ML docker image locally. 
+
+In this post, I will explore the model deployment to EKS cluster with Karpenter to sumilate a more scalable and real-life production ready environment. 
+
+<b>Challenges when move to Cloud deployment</b>
+
+- key differences between local Pytorch model vs AWS SageMaker artifacts, and how they impact Docker image size
+
+| Aspect                      | Local PyTorch Model (.pth)        | AWS SageMaker Model (.tar.gz)                        |
+|-----------------------------|-------------|------------------------------|
+| `Contents`             | Full model state_dict + Python code  | Only model parameters + inference code          |
+| `Framework`           | Raw PyTorch implementation | Optimized MXNet framework                           |
+| `Serialization`                 | torch.save() native format | Framework-specific serialization                         |
+| `Dependencies`  | Requires full PyTorch installation    | Minimal runtime dependencies          |
+
+- Run a JupiterLab to download, process and upload chest X-ray dataset from Kaggle to S3 for SageMaker access.
+
+- Use SageMaker Pre-built image classification algorithm, to define SageMaker Estimator to configures the SageMaker training job, including compute resources, training duration, and data input method, 
+
+- Count the number of training samples and Set the hyperparameters, Perform hyperparameter tuning to find the best configuration for the model
+
+- Launching the Hyperparameter Tuning Job   
+
+- Using CloudWatch and Sagemaker Train Job to monitor and troubleshoot
+
+
+
+
+
+{% highlight shell %}
+
+
+{% endhighlight %}
+
+
+
+
+![image tooltip here](/assets/mlops03-5.png)
+
+
+
+
+<b>Conclusion</b>
+
