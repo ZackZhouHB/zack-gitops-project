@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T13:06:30+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-02-01T01:18:29+11:00</published><updated>2025-02-01T01:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/01/mlops10</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T13:42:43+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-02-01T01:18:29+11:00</published><updated>2025-02-01T01:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/01/mlops10</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
 
 <p>In the previous post, I was able to complete both local Pytorch ML and AWS sagemaker practice, and containerize and deploy ML docker image locally.</p>
 
@@ -275,7 +275,7 @@ e30ec0bde91f: Pushed
 latest: digest: sha256:ccb3a4f70dd01b59658bc365616346bb62c5389814857b78416e40499b6d35c2 size: 2416
 </code></pre></div></div>
 
-<p>I will also explore the performance and cost practices by leveraging with <code class="language-plaintext highlighter-rouge">spot GPU instance</code> and <code class="language-plaintext highlighter-rouge">cold start</code> amd <code class="language-plaintext highlighter-rouge">model cache</code> to reduce the performance factors particularly in terms of initialization time, model download, and container image pull times, as LLM-Specific models can be very large.</p>
+<p>Create Karpenter NodeClass and NodePool for GPU workloads.</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># nodepool-gpu.yaml</span>
 <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">karpenter.sh/v1beta1</span>
@@ -2760,13 +2760,15 @@ Test accuracy: 0.9899</code></pre></figure>
 
 <p>So here we are able to set up a Minikube with local GPU support, integrated NVIDIA GPU (RTX 3070 Ti), by validating CUDA with TensorFlow GPU integration, deploy a CNN (Convolutional Neural Network) training on MNIST with final test accuracy: 98.99%.</p>
 
-<p>In next post I will explore how to manage Kubeflow for more complex machine learning senarios and enable Prometheus and Grafana for ML workload monitoring.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[ML Project Lifecycle in the Real World]]></summary></entry><entry><title type="html">MLOps - Build Knowledge Base with Ollama and Open WebUI</title><link href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html" rel="alternate" type="text/html" title="MLOps - Build Knowledge Base with Ollama and Open WebUI" /><published>2025-01-19T11:15:29+11:00</published><updated>2025-01-19T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/19/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html"><![CDATA[<p><b>Continue Local MLOPS Project </b></p>
+<p>In next post I will explore how to manage Kubeflow for more complex machine learning senarios and enable Prometheus and Grafana for ML workload monitoring.</p>]]></content><author><name></name></author><category term="jekyll" /><category term="Cat2" /><summary type="html"><![CDATA[ML Project Lifecycle in the Real World]]></summary></entry><entry><title type="html">MLOps - Build a local Knowledge Base with DeekSeek R1</title><link href="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html" rel="alternate" type="text/html" title="MLOps - Build a local Knowledge Base with DeekSeek R1" /><published>2025-01-19T11:15:29+11:00</published><updated>2025-01-19T11:15:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/01/19/mlops3</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/01/19/mlops3.html"><![CDATA[<p><b>Continue Local MLOPS Project </b></p>
 
-<p>In this post, I want to build a local Knowledge Base using WSL, Docker, Ollama and Open WebUI.</p>
+<p>In this post, I want to build a local Knowledge Base using WSL, Docker, Ollama, Open WebUI and DeepSeek R1 7b.</p>
 
 <p><code class="language-plaintext highlighter-rouge">Ollama</code> is a desktop application designed to run and interact with large language models (LLMs) locally on a machine. It provides an easy interface for downloading, managing, and using various LLMs, ensuring privacy and local execution.</p>
 
 <p><code class="language-plaintext highlighter-rouge">Open WebUI</code> is a web-based user interface for interacting with AI models. It is often used in conjunction with locally hosted or remote LLMs, providing a customizable and user-friendly platform to input queries and manage model interactions.</p>
+
+<p><code class="language-plaintext highlighter-rouge">DeepSeek R1 7b</code> is a large language model developed by DeepSeek, a Chinese AI company. It is designed to understand and generate human-like text based on input prompts. This model can be used for a variety of natural language processing tasks, including text generation, translation, and question answering.</p>
 
 <p>Here is what I am going to build:</p>
 
@@ -2787,7 +2789,7 @@ Test accuracy: 0.9899</code></pre></figure>
     <p>Build Knowledge base from some aged tech docs and Zack blogs</p>
   </li>
   <li>
-    <p>Query KB from the web interface with prompt</p>
+    <p>Query KB from the web interface with prompt to DeepSeek R1</p>
   </li>
 </ul>
 
@@ -2858,56 +2860,24 @@ Created symlink /etc/systemd/system/default.target.wants/ollama.service → /etc
 <span class="o">&gt;&gt;&gt;</span> The Ollama API is now available at 127.0.0.1:11434.
 <span class="o">&gt;&gt;&gt;</span> Install complete. Run <span class="s2">"ollama"</span> from the <span class="nb">command </span>line.
 
-<span class="c"># verify ollama installed</span>
-root@zackz:/mnt/f/ml-local# ollama
-Usage:
-  ollama <span class="o">[</span>flags]
-  ollama <span class="o">[</span><span class="nb">command</span><span class="o">]</span>
+<span class="c"># pull and run deepseek-r1:8b models</span>
+root@zackz:~# ollama list
+NAME               ID              SIZE      MODIFIED
+deepseek-r1:14b    ea35dfe18182    9.0 GB    6 days ago
+deepseek-r1:8b     28f8fd6cdc67    4.9 GB    11 days ago
+llama3:8b          365c0bd3c000    4.7 GB    12 days ago
+qwen:7b            2091ee8c8d8f    4.5 GB    12 days ago
+mistral:latest     f974a74358d6    4.1 GB    12 days ago
+root@zackz:~# ollama run deepseek-r1:8b
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">who </span>are you
+&lt;think&gt;
 
-Available Commands:
-  serve       Start ollama
-  create      Create a model from a Modelfile
-  show        Show information <span class="k">for </span>a model
-  run         Run a model
-  stop        Stop a running model
-  pull        Pull a model from a registry
-  push        Push a model to a registry
-  list        List models
-  ps          List running models
-  <span class="nb">cp          </span>Copy a model
-  <span class="nb">rm          </span>Remove a model
-  <span class="nb">help        </span>Help about any <span class="nb">command
+&lt;/think&gt;
 
-</span>Flags:
-  <span class="nt">-h</span>, <span class="nt">--help</span>      <span class="nb">help </span><span class="k">for </span>ollama
-  <span class="nt">-v</span>, <span class="nt">--version</span>   Show version information
+Greetings! I<span class="s1">'m DeepSeek-R1, an artificial intelligence assistant created by DeepSeek. I'</span>m at your service and
+would be delighted to assist you with any inquiries or tasks you may have.
 
-Use <span class="s2">"ollama [command] --help"</span> <span class="k">for </span>more information about a command.
-
-<span class="c"># pull and run ollama models</span>
-root@zackz:/mnt/f/ml-local# ollama run mistral
-pulling manifest
-pulling ff82381e2bea... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏ 4.1 GB
-pulling 43070e2d4e53... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏  11 KB
-pulling 491dfa501e59... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏  801 B
-pulling ed11eda7790d... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏   30 B
-pulling 42347cd80dc8... 100% ▕██████████████████████████████████████████████████████████████████████████████████████▏  485 B
-verifying sha256 digest
-writing manifest
-success
-<span class="o">&gt;&gt;&gt;</span> <span class="nb">who </span>is the australia open men<span class="s1">'s single champain in year 2020
- The Australia Open Men'</span>s Singles champion <span class="k">for </span>the year 2020 was Novak Djokovic from Serbia. He defeated Dominic Thiem of Austria <span class="k">in </span>a thrilling
-five-set final. It was Djokovic<span class="s1">'s record-extending eighth Australian Open title and his 17th Grand Slam singles championship overall. The
-tournament took place from January 20 to February 2, 2020, at Melbourne Park in Melbourne, Australia.
-
-&gt;&gt;&gt; Send a message (/? for help)
-
-# list running models
-root@zackz:/mnt/f/ml-local# ollama list
-NAME              ID              SIZE      MODIFIED
-llama3:8b         365c0bd3c000    4.7 GB    6 minutes ago
-qwen:7b           2091ee8c8d8f    4.5 GB    14 minutes ago
-mistral:latest    f974a74358d6    4.1 GB    28 minutes ago</span></code></pre></figure>
+<span class="o">&gt;&gt;&gt;</span> /bye</code></pre></figure>
 
 <ul>
   <li>Follow <code class="language-plaintext highlighter-rouge">Open WebUI</code> Github, install Open WebUI using docker, by confituring ollama API URL and docker persistent volume, Open WebUI will show the models running within Ollama, all the configuration and dialogue history data also can be persist after server and application restart.</li>
@@ -2968,7 +2938,7 @@ INFO:     connection open</span></code></pre></figure>
 <p><img src="/assets/mlops03-2.png" alt="image tooltip here" /></p>
 
 <ul>
-  <li>Start a dialogue to compare 3 modles <code class="language-plaintext highlighter-rouge">qwen:7b</code>, <code class="language-plaintext highlighter-rouge">llama3:8b</code> and <code class="language-plaintext highlighter-rouge">mistral</code>, obviouly <code class="language-plaintext highlighter-rouge">llama3:8b</code> is better then the other 2 models.</li>
+  <li>Start a dialogue to compare 3 modles <code class="language-plaintext highlighter-rouge">deepseek-r1:8b</code>, <code class="language-plaintext highlighter-rouge">llama3:8b</code> and <code class="language-plaintext highlighter-rouge">mistral</code>, obviouly <code class="language-plaintext highlighter-rouge">llama3:8b</code> is better then the other 2 models.</li>
 </ul>
 
 <p><img src="/assets/mlops03-3.png" alt="image tooltip here" /></p>
@@ -2996,14 +2966,13 @@ Configure Open WebUI to use the knowledge base during interactions. This involve
 
 <p><img src="/assets/mlops03-8.png" alt="image tooltip here" /></p>
 
-<p>Start a dialogue and choose <code class="language-plaintext highlighter-rouge">llama3:8b</code> model, use the knowledge base collections <code class="language-plaintext highlighter-rouge">zacl blog 2024</code> as reference to provide answer to summarize the posts I created 2024:</p>
+<p>Start a dialogue and choose <code class="language-plaintext highlighter-rouge">deepseek-r1:8b</code> model, use the knowledge base collections <code class="language-plaintext highlighter-rouge">Zack Blog for MLops</code> as reference to provide answer to summarize the posts I created 2024:</p>
 
-<p><img src="/assets/mlops03-6.png" alt="image tooltip here" />
-<img src="/assets/mlops03-7.png" alt="image tooltip here" /></p>
+<p><img src="/assets/mlops03-6.png" alt="image tooltip here" /></p>
 
 <p><b>Conclusion</b></p>
 
-<p>Now I have successfully built a local Knowledge Base (KB) using Ollama and Open WebUI. Here’s a brief summary of what I achieved:</p>
+<p>Now I have successfully built a local Knowledge Base (KB) using Ollama, Open WebUI and DeepSeek R1 . Here’s a brief summary of what I achieved:</p>
 
 <ul>
   <li>
@@ -3019,7 +2988,7 @@ Configure Open WebUI to use the knowledge base during interactions. This involve
     <p>Configured the system to enable Retrieval Augmented Generation (RAG) with Docker volumes for persistence.</p>
   </li>
   <li>
-    <p>Created a local RAG system capable of querying knowledge from aged tech docs and Zack blog posts.</p>
+    <p>Created a local RAG system using DeepSeek R1 which capable of querying knowledge from aged tech docs and Zack blog posts.</p>
   </li>
   <li>
     <p>Demonstrated effective model comparisons and knowledge-based querying through a user-friendly web interface.</p>

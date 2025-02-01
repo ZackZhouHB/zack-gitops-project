@@ -223,7 +223,7 @@ e30ec0bde91f: Pushed
 latest: digest: sha256:ccb3a4f70dd01b59658bc365616346bb62c5389814857b78416e40499b6d35c2 size: 2416
 ```
 
-I will also explore the performance and cost practices by leveraging with `spot GPU instance` and `cold start` amd `model cache` to reduce the performance factors particularly in terms of initialization time, model download, and container image pull times, as LLM-Specific models can be very large.
+Create Karpenter NodeClass and NodePool for GPU workloads. 
 
 ```yaml
 # nodepool-gpu.yaml
