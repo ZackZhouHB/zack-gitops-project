@@ -286,7 +286,55 @@ spec:
     node-labels = { "workload-type" = "custom-ml" }
 ```
 
-Unfortunately, the GPU instance for ML workload is not provisioning aby Karpenter due to `Max spot instance count exceeded` and `insufficient capacity with VcpuLimitExceeded` , Here are the logs from the Karpenter controller:
+Create EKS deployment to request GPU nodes using Karpenter, here I will choose spot `g4dn.2xlarge` instance to deploy the `classifier-eks:latest` image from ECR.
+
+```yaml
+# custom-ml-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-ml
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-ml
+  template:
+    metadata:
+      labels:
+        app: custom-ml
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: workload-type
+                    operator: In
+                    values: ["custom-ml"]
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "karpenter.sh/interruption"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: custom-ml
+          image: 851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks:latest
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              cpu: 3000m  # Reduced CPU request
+              memory: 12Gi  # Reduced memory request
+            limits:
+              nvidia.com/gpu: 1
+              cpu: 3000m
+              memory: 12Gi
+          command: ["python", "app.py"]
+```
+
+Unfortunately, the GPU instance for ML workload is not provisioned by Karpenter due to `Max spot instance count exceeded` and `insufficient capacity with VcpuLimitExceeded`, Here are the logs from the Karpenter controller:
 
 ```shell
 #list avaibale GPU instances and spot price
@@ -308,19 +356,53 @@ root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-instance-types \
 
 Karpenter logs for troubleshooting:
 
-```json
-# Max spot instance count exceeded
-{"level":"ERROR","time":"2025-02-01T00:48:15.820Z","logger":"controller.nodeclaim.lifecycle","message":"creating instance, insufficient capacity, with fleet error(s), MaxSpotInstanceCountExceeded: Max spot instance count exceeded","commit":"1072d3b","nodeclaim":"gpu-pool-m7qwg","nodepool":"gpu-pool"}`
+```shell
+kubectl -n karpenter logs -l app.kubernetes.io/name=karpenter
 ```
-
 ```json
-# insufficient capacity with VcpuLimitExceeded
-{"level":"ERROR","time":"2025-02-01T01:01:49.074Z","logger":"controller.nodeclaim.lifecycle","message":"creating instance, insufficient capacity, with fleet error(s), VcpuLimitExceeded: You have requested more vCPU capacity than your current vCPU limit of 0 allows for the instance bucket that the specified instance type belongs to. Please visit http://aws.amazon.com/contact-us/ec2-request to request an adjustment to this limit.","commit":"1072d3b","nodeclaim":"gpu-pool-m6c45","nodepool":"gpu-pool"}
-```
+{
+  "level": "ERROR",
+  "time": "2025-02-01T00:48:15.820Z",
+  "logger": "controller.nodeclaim.lifecycle",
+  "message": "creating instance, insufficient capacity, with fleet error(s), 
+              MaxSpotInstanceCountExceeded: Max spot instance count exceeded",
+  "commit": "1072d3b",
+  "nodeclaim": "gpu-pool-m7qwg",
+  "nodepool": "gpu-pool"
+}
 
-```json
-# no instance type met all requirements
-{"level":"ERROR","time":"2025-02-01T01:04:37.398Z","logger":"controller.provisioner","message":"Could not schedule pod, incompatible with nodepool \"gpu-pool\", daemonset overhead={\"cpu\":\"210m\",\"memory\":\"240Mi\",\"pods\":\"5\"}, no instance type satisfied resources {\"cpu\":\"1210m\",\"memory\":\"4336Mi\",\"nvidia.com/gpu\":\"1\",\"pods\":\"6\"} and requirements karpenter.k8s.aws/instance-family In [g5 p3 p4], karpenter.sh/capacity-type In [on-demand spot], karpenter.sh/nodepool In [gpu-pool], kubernetes.io/arch In [amd64], workload-type In [custom-ml] (no instance type met all requirements)","commit":"1072d3b","pod":"default/test-pod"}
+{
+  "level": "ERROR",
+  "time": "2025-02-01T01:01:49.074Z",
+  "logger": "controller.nodeclaim.lifecycle",
+  "message": "creating instance, insufficient capacity, with fleet error(s), 
+              VcpuLimitExceeded: You have requested more vCPU capacity than your 
+              current vCPU limit of 0 allows for the instance bucket that the 
+              specified instance type belongs to. Please visit 
+              http://aws.amazon.com/contact-us/ec2-request to request an 
+              adjustment to this limit.",
+  "commit": "1072d3b",
+  "nodeclaim": "gpu-pool-m6c45",
+  "nodepool": "gpu-pool"
+}
+
+{
+  "level": "ERROR",
+  "time": "2025-02-01T01:04:37.398Z",
+  "logger": "controller.provisioner",
+  "message": "Could not schedule pod, incompatible with nodepool \"gpu-pool\", 
+              daemonset overhead={\"cpu\":\"210m\",\"memory\":\"240Mi\",\"pods\":\"5\"}, 
+              no instance type satisfied resources {\"cpu\":\"1210m\",\"memory\":\"4336Mi\",
+              \"nvidia.com/gpu\":\"1\",\"pods\":\"6\"} and requirements 
+              karpenter.k8s.aws/instance-family In [g5 p3 p4], 
+              karpenter.sh/capacity-type In [on-demand spot], 
+              karpenter.sh/nodepool In [gpu-pool], 
+              kubernetes.io/arch In [amd64], workload-type In [custom-ml] 
+              (no instance type met all requirements)",
+  "commit": "1072d3b",
+  "pod": "default/custom-ml"
+}
+
 ```
 
 Need to engage with AWS support to request GPU instance limit increase.

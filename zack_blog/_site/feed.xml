@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T13:51:26+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-02-01T01:18:29+11:00</published><updated>2025-02-01T01:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/01/mlops10</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-01T14:29:00+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Deploy ML workload into EKS with Karpenter</title><link href="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html" rel="alternate" type="text/html" title="MLOps - Deploy ML workload into EKS with Karpenter" /><published>2025-02-01T01:18:29+11:00</published><updated>2025-02-01T01:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/01/mlops10</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/01/mlops10.html"><![CDATA[<p><b>Continue Pneumonia Classifier by moving to AWS SageMaker</b></p>
 
 <p>In the previous post, I was able to complete both local Pytorch ML and AWS sagemaker practice, and containerize and deploy ML docker image locally.</p>
 
@@ -337,7 +337,54 @@ latest: digest: sha256:ccb3a4f70dd01b59658bc365616346bb62c5389814857b78416e40499
     <span class="s">node-labels = { "workload-type" = "custom-ml" }</span>
 </code></pre></div></div>
 
-<p>Unfortunately, the GPU instance for ML workload is not provisioning aby Karpenter due to <code class="language-plaintext highlighter-rouge">Max spot instance count exceeded</code> and <code class="language-plaintext highlighter-rouge">insufficient capacity with VcpuLimitExceeded</code> , Here are the logs from the Karpenter controller:</p>
+<p>Create EKS deployment to request GPU nodes using Karpenter, here I will choose spot <code class="language-plaintext highlighter-rouge">g4dn.2xlarge</code> instance to deploy the <code class="language-plaintext highlighter-rouge">classifier-eks:latest</code> image from ECR.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># custom-ml-deployment.yaml</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">custom-ml</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">app</span><span class="pi">:</span> <span class="s">custom-ml</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">app</span><span class="pi">:</span> <span class="s">custom-ml</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">affinity</span><span class="pi">:</span>
+        <span class="na">nodeAffinity</span><span class="pi">:</span>
+          <span class="na">requiredDuringSchedulingIgnoredDuringExecution</span><span class="pi">:</span>
+            <span class="na">nodeSelectorTerms</span><span class="pi">:</span>
+              <span class="pi">-</span> <span class="na">matchExpressions</span><span class="pi">:</span>
+                  <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">workload-type</span>
+                    <span class="na">operator</span><span class="pi">:</span> <span class="s">In</span>
+                    <span class="na">values</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">custom-ml"</span><span class="pi">]</span>
+      <span class="na">tolerations</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s2">"</span><span class="s">nvidia.com/gpu"</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Exists"</span>
+          <span class="na">effect</span><span class="pi">:</span> <span class="s2">"</span><span class="s">NoSchedule"</span>
+        <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s2">"</span><span class="s">karpenter.sh/interruption"</span>
+          <span class="na">operator</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Exists"</span>
+          <span class="na">effect</span><span class="pi">:</span> <span class="s2">"</span><span class="s">NoSchedule"</span>
+      <span class="na">containers</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">custom-ml</span>
+          <span class="na">image</span><span class="pi">:</span> <span class="s">851725491342.dkr.ecr.ap-southeast-2.amazonaws.com/classifier-eks:latest</span>
+          <span class="na">resources</span><span class="pi">:</span>
+            <span class="na">requests</span><span class="pi">:</span>
+              <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="m">1</span>
+              <span class="na">cpu</span><span class="pi">:</span> <span class="s">3000m</span>  <span class="c1"># Reduced CPU request</span>
+              <span class="na">memory</span><span class="pi">:</span> <span class="s">12Gi</span>  <span class="c1"># Reduced memory request</span>
+            <span class="na">limits</span><span class="pi">:</span>
+              <span class="na">nvidia.com/gpu</span><span class="pi">:</span> <span class="m">1</span>
+              <span class="na">cpu</span><span class="pi">:</span> <span class="s">3000m</span>
+              <span class="na">memory</span><span class="pi">:</span> <span class="s">12Gi</span>
+          <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">python"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">app.py"</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<p>Unfortunately, the GPU instance for ML workload is not provisioned by Karpenter due to <code class="language-plaintext highlighter-rouge">Max spot instance count exceeded</code> and <code class="language-plaintext highlighter-rouge">insufficient capacity with VcpuLimitExceeded</code>, Here are the logs from the Karpenter controller:</p>
 
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#list avaibale GPU instances and spot price</span>
 root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-spot-price-history <span class="se">\</span>
@@ -358,16 +405,51 @@ root@zackz:/mnt/f/ml-local/local-cv# aws ec2 describe-instance-types <span class
 
 <p>Karpenter logs for troubleshooting:</p>
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">Max</span><span class="w"> </span><span class="err">spot</span><span class="w"> </span><span class="err">instance</span><span class="w"> </span><span class="err">count</span><span class="w"> </span><span class="err">exceeded</span><span class="w">
-</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T00:48:15.820Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), MaxSpotInstanceCountExceeded: Max spot instance count exceeded"</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="s2">"gpu-pool-m7qwg"</span><span class="p">,</span><span class="nl">"nodepool"</span><span class="p">:</span><span class="s2">"gpu-pool"</span><span class="p">}</span><span class="err">`</span><span class="w">
-</span></code></pre></div></div>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl <span class="nt">-n</span> karpenter logs <span class="nt">-l</span> app.kubernetes.io/name<span class="o">=</span>karpenter
+</code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERROR"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-02-01T00:48:15.820Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"logger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), 
+              MaxSpotInstanceCountExceeded: Max spot instance count exceeded"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"commit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gpu-pool-m7qwg"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"nodepool"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gpu-pool"</span><span class="w">
+</span><span class="p">}</span><span class="w">
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">insufficient</span><span class="w"> </span><span class="err">capacity</span><span class="w"> </span><span class="err">with</span><span class="w"> </span><span class="err">VcpuLimitExceeded</span><span class="w">
-</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T01:01:49.074Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), VcpuLimitExceeded: You have requested more vCPU capacity than your current vCPU limit of 0 allows for the instance bucket that the specified instance type belongs to. Please visit http://aws.amazon.com/contact-us/ec2-request to request an adjustment to this limit."</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="s2">"gpu-pool-m6c45"</span><span class="p">,</span><span class="nl">"nodepool"</span><span class="p">:</span><span class="s2">"gpu-pool"</span><span class="p">}</span><span class="w">
-</span></code></pre></div></div>
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERROR"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-02-01T01:01:49.074Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"logger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"controller.nodeclaim.lifecycle"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"creating instance, insufficient capacity, with fleet error(s), 
+              VcpuLimitExceeded: You have requested more vCPU capacity than your 
+              current vCPU limit of 0 allows for the instance bucket that the 
+              specified instance type belongs to. Please visit 
+              http://aws.amazon.com/contact-us/ec2-request to request an 
+              adjustment to this limit."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"commit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"nodeclaim"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gpu-pool-m6c45"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"nodepool"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gpu-pool"</span><span class="w">
+</span><span class="p">}</span><span class="w">
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">instance</span><span class="w"> </span><span class="err">type</span><span class="w"> </span><span class="err">met</span><span class="w"> </span><span class="err">all</span><span class="w"> </span><span class="err">requirements</span><span class="w">
-</span><span class="p">{</span><span class="nl">"level"</span><span class="p">:</span><span class="s2">"ERROR"</span><span class="p">,</span><span class="nl">"time"</span><span class="p">:</span><span class="s2">"2025-02-01T01:04:37.398Z"</span><span class="p">,</span><span class="nl">"logger"</span><span class="p">:</span><span class="s2">"controller.provisioner"</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Could not schedule pod, incompatible with nodepool </span><span class="se">\"</span><span class="s2">gpu-pool</span><span class="se">\"</span><span class="s2">, daemonset overhead={</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">240Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">5</span><span class="se">\"</span><span class="s2">}, no instance type satisfied resources {</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">4336Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">nvidia.com/gpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">6</span><span class="se">\"</span><span class="s2">} and requirements karpenter.k8s.aws/instance-family In [g5 p3 p4], karpenter.sh/capacity-type In [on-demand spot], karpenter.sh/nodepool In [gpu-pool], kubernetes.io/arch In [amd64], workload-type In [custom-ml] (no instance type met all requirements)"</span><span class="p">,</span><span class="nl">"commit"</span><span class="p">:</span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="nl">"pod"</span><span class="p">:</span><span class="s2">"default/test-pod"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERROR"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-02-01T01:04:37.398Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"logger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"controller.provisioner"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Could not schedule pod, incompatible with nodepool </span><span class="se">\"</span><span class="s2">gpu-pool</span><span class="se">\"</span><span class="s2">, 
+              daemonset overhead={</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">240Mi</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">5</span><span class="se">\"</span><span class="s2">}, 
+              no instance type satisfied resources {</span><span class="se">\"</span><span class="s2">cpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1210m</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">memory</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">4336Mi</span><span class="se">\"</span><span class="s2">,
+              </span><span class="se">\"</span><span class="s2">nvidia.com/gpu</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">1</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">pods</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">6</span><span class="se">\"</span><span class="s2">} and requirements 
+              karpenter.k8s.aws/instance-family In [g5 p3 p4], 
+              karpenter.sh/capacity-type In [on-demand spot], 
+              karpenter.sh/nodepool In [gpu-pool], 
+              kubernetes.io/arch In [amd64], workload-type In [custom-ml] 
+              (no instance type met all requirements)"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"commit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1072d3b"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"pod"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default/custom-ml"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
 </span></code></pre></div></div>
 
 <p>Need to engage with AWS support to request GPU instance limit increase.</p>
