@@ -3,8 +3,7 @@
 set -e
 
 echo "Installing htop..."
-sudo apt update 
-sudo apt install -y -qq htop
+sudo yum install -y htop
 
 # Verify
 if command -v htop >/dev/null; then
