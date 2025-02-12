@@ -3,7 +3,7 @@
 set -e
 
 echo "Installing htop..."
-sudo yum install -y htop
+sudo yum install -y tree
 
 # Verify
 if command -v htop >/dev/null; then
