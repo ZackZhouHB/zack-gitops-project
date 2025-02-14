@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MLOps - Get Started with KubeRay | Zack’s Blog</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MLOps - Get Started with KubeRay" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="About Ray" />
+<meta property="og:description" content="About Ray" />
+<link rel="canonical" href="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html" />
+<meta property="og:site_name" content="Zack’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-02-11T19:18:29+11:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MLOps - Get Started with KubeRay" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-02-11T19:18:29+11:00","datePublished":"2025-02-11T19:18:29+11:00","description":"About Ray","headline":"MLOps - Get Started with KubeRay","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html"},"url":"http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Zack&apos;s Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Zack&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/certificate/">Education &amp; Certificate</a><a class="page-link" href="/pro/">Work Experiences</a><a class="page-link" href="/skillroadmap/">Skill Roadmap</a><a class="page-link" href="/aboutme/">About Me</a><a class="page-link" href="/gitrepo/">Github Repos</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MLOps - Get Started with KubeRay</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2025-02-11T19:18:29+11:00" itemprop="datePublished">Feb 11, 2025
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><b>About Ray</b></p>
+
+<p>Ray is an open-source framework designed for scalable and distributed ML workloads, including training, tuning, and inference. It provides a simple API for scaling Python applications across multiple nodes</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Distributed Training</code>: Easily scale PyTorch, TensorFlow, and other ML jobs across multiple GPUs/instances.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Hyperparameter Tuning</code>: Integrates with Optuna and Ray Tune for distributed hyperparameter optimization.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Parallel Inference</code>: Supports inference pipelines that scale out dynamically based on demand.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Fault Tolerance</code>: If a node fails, Ray can reschedule tasks on other available nodes.</p>
+  </li>
+</ul>
+
+<p>Together with EKS, Kapenter and Ray, a modern ML team can achieve dynamic Auto-Scaling and GPU resource allocation from local deployment to Running Distributed ML Jobs in Cloud Production environment:</p>
+
+<ul>
+  <li>
+    <p>Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes. Multi-Tenant Resource Sharing:</p>
+  </li>
+  <li>
+    <p>ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. Seamless Transition from Local to Cloud:</p>
+  </li>
+  <li>
+    <p>Engineers can run jobs locally with <code class="language-plaintext highlighter-rouge">Ray (ray.init())</code> and later scale seamlessly to AWS EKS by switching to <code class="language-plaintext highlighter-rouge">ray.init(address=”ray://…”)</code>.</p>
+  </li>
+  <li>
+    <p>Cost Optimization with Spot &amp; On-Demand Nodes: Karpenter provisions spot instances for non-critical ML training. On-demand nodes handle critical, low-latency inference.</p>
+  </li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th><strong>Challenge</strong></th>
+      <th><strong>Solution with Ray + EKS + Karpenter</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>High GPU Costs</strong></td>
+      <td>Use Karpenter to provision Spot instances for non-critical jobs.</td>
+    </tr>
+    <tr>
+      <td><strong>Slow Autoscaling</strong></td>
+      <td>Karpenter launches nodes faster than Cluster Autoscaler.</td>
+    </tr>
+    <tr>
+      <td><strong>Resource Fragmentation</strong></td>
+      <td>Ray dynamically balances workloads across available nodes.</td>
+    </tr>
+    <tr>
+      <td><strong>GPU Underutilization</strong></td>
+      <td>Ray enables job sharing on GPU nodes.</td>
+    </tr>
+    <tr>
+      <td><strong>Multi-Tenancy Conflicts</strong></td>
+      <td>Use Kubernetes namespaces, Ray job queueing, and fine-grained IAM roles.</td>
+    </tr>
+    <tr>
+      <td><strong>Fault Tolerance</strong></td>
+      <td>Ray reschedules failed tasks, and Karpenter replaces failed nodes.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><b>Deployed a Ray cluster on Minikube with NVIDIA GPU support</b></p>
+
+<p>Here I will start a local minikube kuberay deployment to get started with Ray cluster</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># start minikube with GPU support</span>
+root@zackz:~# minikube start <span class="nt">--driver</span> docker <span class="nt">--container-runtime</span> docker <span class="nt">--gpus</span> all <span class="nt">--force</span> <span class="nt">--cpus</span><span class="o">=</span>12 <span class="nt">--memory</span><span class="o">=</span>36g
+root@zackz:~# minikube addons <span class="nb">enable </span>nvidia-gpu-device-plugin
+
+<span class="c"># install ray and ray cluster helm chart on minikube</span>
+root@zackz:~# helm repo add kuberay https://ray-project.github.io/kuberay-helm/
+<span class="s2">"kuberay"</span> has been added to your repositories
+
+root@zackz:~# helm repo update
+Hang tight <span class="k">while </span>we grab the latest from your chart repositories...
+...Successfully got an update from the <span class="s2">"aws-ebs-csi-driver"</span> chart repository
+...Successfully got an update from the <span class="s2">"kuberay"</span> chart repository
+...Successfully got an update from the <span class="s2">"karpenter"</span> chart repository
+...Successfully got an update from the <span class="s2">"eks-charts"</span> chart repository
+...Successfully got an update from the <span class="s2">"grafana"</span> chart repository
+...Successfully got an update from the <span class="s2">"external-secrets"</span> chart repository
+...Successfully got an update from the <span class="s2">"prometheus-community"</span> chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+root@zackz:~# helm <span class="nb">install </span>kuberay-operator kuberay/kuberay-operator
+NAME: kuberay-operator
+LAST DEPLOYED: Fri Feb 14 10:26:51 2025
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
+root@zackz:~# helm <span class="nb">install </span>my-ray-cluster kuberay/ray-cluster
+NAME: my-ray-cluster
+LAST DEPLOYED: Fri Feb 14 10:27:25 2025
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
+<span class="c"># check ray pods</span>
+root@zackz:~# kubectl get pods
+NAMESPACE     NAME                                              READY   STATUS    RESTARTS        AGE
+default       kuberay-operator-975995b7d-xzjd4                  1/1     Running   0               2m19s
+default       my-ray-cluster-kuberay-head-q6gcz                 1/1     Running   0               105s
+default       my-ray-cluster-kuberay-workergroup-worker-mf5pr   1/1     Running   0               105s
+
+root@zackz:~# kubectl get svc
+NAME                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                                         AGE
+kuberay-operator                  ClusterIP   10.98.253.157   &lt;none&gt;        8080/TCP                                        2m39s
+kubernetes                        ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP                                         20d
+my-ray-cluster-kuberay-head-svc   ClusterIP   None            &lt;none&gt;        10001/TCP,8265/TCP,8080/TCP,6379/TCP,8000/TCP   2m5s
+
+<span class="c"># forward ray dashboard port</span>
+root@zackz:~# kubectl port-forward svc/my-ray-cluster-kuberay-head-svc 8265:8265
+Forwarding from 127.0.0.1:8265 -&gt; 8265
+Forwarding from <span class="o">[</span>::1]:8265 -&gt; 8265
+Handling connection <span class="k">for </span>8265
+</code></pre></div></div>
+<p>Access Ray dashboard via http://localhost:8265/ to verify ray cluster head and worker nodes are running properly.</p>
+
+<p><a href="/assets/mlops111.png" target="_blank">
+    <img src="/assets/mlops111.png" alt="image tooltip here" />
+</a></p>
+
+<p><b>Resource Allocation and GPU training test</b></p>
+
+<p>Here I exec into Ray head pod to varify the resource and GPU support, found that the Ray cluster is not configured to use GPU by default helm chart.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:~# kubectl <span class="nb">exec</span> <span class="nt">-it</span> my-ray-cluster-kuberay-head-q6gcz <span class="nt">--</span> bash
+<span class="o">(</span>base<span class="o">)</span> ray@my-ray-cluster-kuberay-head-q6gcz:~<span class="nv">$ </span>python <span class="nt">-c</span> <span class="s2">"import ray; ray.init(); print(ray.cluster_resources())"</span>
+2025-02-13 15:31:21,699 INFO worker.py:1405 <span class="nt">--</span> Using address 127.0.0.1:6379 <span class="nb">set </span><span class="k">in </span>the environment variable RAY_ADDRESS
+2025-02-13 15:31:21,699 INFO worker.py:1540 <span class="nt">--</span> Connecting to existing Ray cluster at address: 10.244.0.16:6379...
+2025-02-13 15:31:21,706 INFO worker.py:1715 <span class="nt">--</span> Connected to Ray cluster. View the dashboard at http://10.244.0.16:8265
+<span class="o">{</span><span class="s1">'node:__internal_head__'</span>: 1.0, <span class="s1">'node:10.244.0.16'</span>: 1.0, <span class="s1">'CPU'</span>: 2.0, <span class="s1">'memory'</span>: 3000000000.0, <span class="s1">'object_store_memory'</span>: 540331621.0, <span class="s1">'node:10.244.0.17'</span>: 1.0<span class="o">}</span>
+
+<span class="o">(</span>base<span class="o">)</span> ray@my-ray-cluster-kuberay-head-q6gcz:~<span class="nv">$ </span>nvidia-smi
+bash: nvidia-smi: <span class="nb">command </span>not found
+</code></pre></div></div>
+
+<p>Hence I need to create a custom helm chart vaule file to add GPU resource request for Ray worker node and then update the Ray cluster.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:~# helm list
+NAME                    NAMESPACE       REVISION        UPDATED                                         STATUS          CHART                   APP VERSION
+kuberay-operator        default         1               2025-02-14 10:26:51.403488615 +1100 AEDT        deployed        kuberay-operator-1.2.2
+
+my-ray-cluster          default         1               2025-02-14 10:27:25.186940262 +1100 AEDT        deployed        ray-cluster-1.2.2
+
+root@zackz:~# helm get values my-ray-cluster
+USER-SUPPLIED VALUES:
+null
+
+vim ray-values.yaml
+
+<span class="c"># Ray version</span>
+rayVersion: <span class="s1">'2.9.0'</span>
+
+<span class="c"># Image configuration</span>
+image:
+  repository: rayproject/ray
+  tag: <span class="s2">"2.9.0"</span>
+  pullPolicy: IfNotPresent
+
+<span class="nb">head</span>:
+  rayStartParams:
+    dashboard-host: <span class="s2">"0.0.0.0"</span>
+    num-cpus: <span class="s2">"2"</span>
+  resources:
+    limits:
+      cpu: <span class="s2">"2"</span>
+      memory: <span class="s2">"4Gi"</span>
+    requests:
+      cpu: <span class="s2">"1"</span>
+      memory: <span class="s2">"2Gi"</span>
+  volumeMounts:
+    - mountPath: /dev/shm
+      name: dshm
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+worker:
+  replicas: 1
+  rayStartParams:
+    num-cpus: <span class="s2">"2"</span>
+  resources:
+    limits:
+      cpu: <span class="s2">"4"</span>
+      memory: <span class="s2">"16Gi"</span>
+      nvidia.com/gpu: 1
+    requests:
+      cpu: <span class="s2">"2"</span>
+      memory: <span class="s2">"8Gi"</span>
+  volumeMounts:
+    - mountPath: /dev/shm
+      name: dshm
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+root@zackz:/mnt/f/ml-local/local-minikube/ray# helm upgrade my-ray-cluster kuberay/ray-cluster <span class="nt">-f</span> ray-values.yaml
+Release <span class="s2">"my-ray-cluster"</span> has been upgraded. Happy Helming!
+NAME: my-ray-cluster
+LAST DEPLOYED: Fri Feb 14 11:40:24 2025
+NAMESPACE: default
+STATUS: deployed
+REVISION: 3
+TEST SUITE: None
+</code></pre></div></div>
+
+<p>Now I was able to run a Ray task-based workload with memory/custom resource constraints, Adjusted Ray’s memory thresholds to avoid OOM kills</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:~# <span class="se">\</span>
+
+python <span class="nt">-c</span> <span class="s2">"
+import ray
+from time import sleep
+
+# Initialize with memory threshold adjustment
+ray.init(runtime_env={
+    'env_vars': {
+        'RAY_memory_monitor_refresh_ms': '0',  # Disable OOM killing
+        'RAY_memory_usage_threshold': '0.95'
+    }
+})
+
+# Specify resource requirements for the task
+@ray.remote(
+    num_cpus=0.5,              # Use less CPU to allow multiple tasks
+    memory=500 * 1024 * 1024,  # Request 500MB memory per task
+    resources={'worker': 1}     # Ensure it runs on worker nodes
+)
+def train_model_simulation(model_id):
+    sleep(2)
+    return f'Model {model_id} trained'
+
+# Run fewer parallel tasks initially
+futures = [train_model_simulation.remote(i) for i in range(2)]
+results = ray.get(futures)
+print(results)
+
+
+&gt; "</span>
+2025-02-13 19:11:50,638 INFO worker.py:1405 <span class="nt">--</span> Using address my-ray-cluster-kuberay-head-svc.default.svc.cluster.local:6379 <span class="nb">set </span><span class="k">in </span>the environment variable RAY_ADDRESS
+2025-02-13 19:11:50,638 INFO worker.py:1540 <span class="nt">--</span> Connecting to existing Ray cluster at address: my-ray-cluster-kuberay-head-svc.default.svc.cluster.local:6379...
+2025-02-13 19:11:50,646 INFO worker.py:1715 <span class="nt">--</span> Connected to Ray cluster. View the dashboard at http://10.244.0.18:8265
+Initial resources: <span class="o">{</span><span class="s1">'node:__internal_head__'</span>: 1.0, <span class="s1">'CPU'</span>: 4.0, <span class="s1">'object_store_memory'</span>: 6069400780.0, <span class="s1">'memory'</span>: 21474836480.0, <span class="s1">'node:10.244.0.18'</span>: 1.0, <span class="s1">'node:10.244.0.19'</span>: 1.0, <span class="s1">'GPU'</span>: 1.0, <span class="s1">'accelerator_type:G'</span>: 1.0<span class="o">}</span>
+Available resources: <span class="o">{</span><span class="s1">'object_store_memory'</span>: 6069400780.0, <span class="s1">'node:10.244.0.18'</span>: 1.0, <span class="s1">'memory'</span>: 21474836480.0, <span class="s1">'CPU'</span>: 4.0, <span class="s1">'node:__internal_head__'</span>: 1.0, <span class="s1">'GPU'</span>: 1.0, <span class="s1">'accelerator_type:G'</span>: 1.0, <span class="s1">'node:10.244.0.19'</span>: 1.0<span class="o">}</span>
+Single task result: Model 1 trained
+Multiple results: <span class="o">[</span><span class="s1">'Model 0 trained'</span>, <span class="s1">'Model 1 trained'</span><span class="o">]</span>
+</code></pre></div></div>
+
+<p>Check the job event and history in Ray dashboard.</p>
+
+<p><a href="/assets/mlops112.png" target="_blank">
+    <img src="/assets/mlops112.png" alt="image tooltip here" />
+</a></p>
+
+<p><b>Conclusion</b></p>
+
+<p>Here is what we achieved:</p>
+
+<ul>
+  <li>
+    <p>Ray cluster setup on Local Minikube with GPU support (KubeRay)</p>
+  </li>
+  <li>
+    <p>Configuring Ray’s resource limits (memory, CPU allocation per task)</p>
+  </li>
+  <li>
+    <p>Running remote tasks efficiently using Ray’s distributed execution</p>
+  </li>
+  <li>
+    <p>Observing Ray cluster resource usage in real-time</p>
+  </li>
+</ul>
+
+<p>Next step I will see how to run Ray cluster together with Karpenter on EKS once I have the GPU EC2 instance quota request approved by AWS</p>
+
+  </div><a class="u-url" href="/jekyll/cat2/2025/02/11/mlops11.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Zack&#39;s Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Zack&#39;s Blog</li><li><a class="u-email" href="mailto:zhbsoftboy1@gmail.com">zhbsoftboy1@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ZackZhouHB"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ZackZhouHB</span></a></li><li><a href="https://www.twitter.com/ZackZ"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">ZackZ</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
