@@ -194,7 +194,34 @@ TEST SUITE: None
 Now I was able to run a Ray task-based workload with memory/custom resource constraints, Adjusted Ray's memory thresholds to avoid OOM kills
 
 ```shell
-root@zackz:~# \
+root@zackz:/mnt/f/ml-local/local-minikube/ray# kubectl exec -it my-ray-cluster-kuberay-workergroup-worker-6lcx5 -- bash
+(base) ray@my-ray-cluster-kuberay-workergroup-worker-6lcx5:~$ nvidia-smi
+Thu Feb 13 19:16:44 2025
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.02              Driver Version: 560.94         CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  |   00000000:01:00.0  On |                  N/A |
+| 47%   45C    P8             19W /  232W |    2955MiB /   8192MiB |     28%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A        27      G   /Xwayland                                   N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                   N/A      |
++-----------------------------------------------------------------------------------------+
+
+(base) ray@my-ray-cluster-kuberay-workergroup-worker-6lcx5:~$ exit
+exit
+
+root@zackz:/mnt/f/ml-local/local-minikube/ray# \
 
 python -c "
 import ray

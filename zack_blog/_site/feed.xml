@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-14T14:15:35+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Get Started with KubeRay</title><link href="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html" rel="alternate" type="text/html" title="MLOps - Get Started with KubeRay" /><published>2025-02-11T19:18:29+11:00</published><updated>2025-02-11T19:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/11/mlops11</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html"><![CDATA[<p><b>About Ray</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-14T14:17:54+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Get Started with KubeRay</title><link href="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html" rel="alternate" type="text/html" title="MLOps - Get Started with KubeRay" /><published>2025-02-11T19:18:29+11:00</published><updated>2025-02-11T19:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/11/mlops11</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html"><![CDATA[<p><b>About Ray</b></p>
 
 <p>Ray is an open-source framework designed for scalable and distributed ML workloads, including training, tuning, and inference. It provides a simple API for scaling Python applications across multiple nodes</p>
 
@@ -222,7 +222,34 @@ TEST SUITE: None
 
 <p>Now I was able to run a Ray task-based workload with memory/custom resource constraints, Adjusted Ray’s memory thresholds to avoid OOM kills</p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:~# <span class="se">\</span>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@zackz:/mnt/f/ml-local/local-minikube/ray# kubectl <span class="nb">exec</span> <span class="nt">-it</span> my-ray-cluster-kuberay-workergroup-worker-6lcx5 <span class="nt">--</span> bash
+<span class="o">(</span>base<span class="o">)</span> ray@my-ray-cluster-kuberay-workergroup-worker-6lcx5:~<span class="nv">$ </span>nvidia-smi
+Thu Feb 13 19:16:44 2025
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.02              Driver Version: 560.94         CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|<span class="o">=========================================</span>+<span class="o">========================</span>+<span class="o">======================</span>|
+|   0  NVIDIA GeForce RTX 3070 Ti     On  |   00000000:01:00.0  On |                  N/A |
+| 47%   45C    P8             19W /  232W |    2955MiB /   8192MiB |     28%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|<span class="o">=========================================================================================</span>|
+|    0   N/A  N/A        27      G   /Xwayland                                   N/A      |
+|    0   N/A  N/A        37      G   /Xwayland                                   N/A      |
++-----------------------------------------------------------------------------------------+
+
+<span class="o">(</span>base<span class="o">)</span> ray@my-ray-cluster-kuberay-workergroup-worker-6lcx5:~<span class="nv">$ </span><span class="nb">exit
+exit
+
+</span>root@zackz:/mnt/f/ml-local/local-minikube/ray# <span class="se">\</span>
 
 python <span class="nt">-c</span> <span class="s2">"
 import ray
