@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-14T14:17:54+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Get Started with KubeRay</title><link href="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html" rel="alternate" type="text/html" title="MLOps - Get Started with KubeRay" /><published>2025-02-11T19:18:29+11:00</published><updated>2025-02-11T19:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/11/mlops11</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html"><![CDATA[<p><b>About Ray</b></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-02-14T14:36:00+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zack’s Blog</title><subtitle>## AWS   ## Jenkins  ## Microservices ## Automation ## K8S   ## CICD     ## Gitops </subtitle><entry><title type="html">MLOps - Get Started with KubeRay</title><link href="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html" rel="alternate" type="text/html" title="MLOps - Get Started with KubeRay" /><published>2025-02-11T19:18:29+11:00</published><updated>2025-02-11T19:18:29+11:00</updated><id>http://localhost:4000/jekyll/cat2/2025/02/11/mlops11</id><content type="html" xml:base="http://localhost:4000/jekyll/cat2/2025/02/11/mlops11.html"><![CDATA[<p><b>About Ray</b></p>
 
 <p>Ray is an open-source framework designed for scalable and distributed ML workloads, including training, tuning, and inference. It provides a simple API for scaling Python applications across multiple nodes</p>
 
@@ -21,13 +21,10 @@
 
 <ul>
   <li>
-    <p>Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes. Multi-Tenant Resource Sharing:</p>
+    <p>Dynamic Auto-Scaling: Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes.</p>
   </li>
   <li>
-    <p>ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. Seamless Transition from Local to Cloud:</p>
-  </li>
-  <li>
-    <p>Engineers can run jobs locally with <code class="language-plaintext highlighter-rouge">Ray (ray.init())</code> and later scale seamlessly to AWS EKS by switching to <code class="language-plaintext highlighter-rouge">ray.init(address=”ray://…”)</code>.</p>
+    <p>Multi-Tenant Resource Sharing and Seamless Transition from Local to Cloud:: ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. ML Engineers can run jobs locally with <code class="language-plaintext highlighter-rouge">Ray (ray.init())</code> and later scale seamlessly to AWS EKS by switching to <code class="language-plaintext highlighter-rouge">ray.init(address=”ray://…”)</code>.</p>
   </li>
   <li>
     <p>Cost Optimization with Spot &amp; On-Demand Nodes: Karpenter provisions spot instances for non-critical ML training. On-demand nodes handle critical, low-latency inference.</p>

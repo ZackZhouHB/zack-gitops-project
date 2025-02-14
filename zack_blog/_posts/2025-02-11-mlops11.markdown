@@ -19,11 +19,9 @@ Ray is an open-source framework designed for scalable and distributed ML workloa
 
 Together with EKS, Kapenter and Ray, a modern ML team can achieve dynamic Auto-Scaling and GPU resource allocation from local deployment to Running Distributed ML Jobs in Cloud Production environment:
 
-- Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes. Multi-Tenant Resource Sharing:
+- Dynamic Auto-Scaling: Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes. 
 
-- ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. Seamless Transition from Local to Cloud:
-
-- Engineers can run jobs locally with `Ray (ray.init())` and later scale seamlessly to AWS EKS by switching to `ray.init(address=”ray://…”)`. 
+- Multi-Tenant Resource Sharing and Seamless Transition from Local to Cloud:: ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. ML Engineers can run jobs locally with `Ray (ray.init())` and later scale seamlessly to AWS EKS by switching to `ray.init(address=”ray://…”)`. 
 
 - Cost Optimization with Spot & On-Demand Nodes: Karpenter provisions spot instances for non-critical ML training. On-demand nodes handle critical, low-latency inference.
 

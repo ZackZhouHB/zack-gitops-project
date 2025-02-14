@@ -70,13 +70,10 @@
 
 <ul>
   <li>
-    <p>Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes. Multi-Tenant Resource Sharing:</p>
+    <p>Dynamic Auto-Scaling: Karpenter scales worker nodes based on Ray’s demand (CPU, GPU, memory). Ray autoscaler scales Ray worker pods dynamically. No need for pre-provisioned expensive GPU nodes.</p>
   </li>
   <li>
-    <p>ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. Seamless Transition from Local to Cloud:</p>
-  </li>
-  <li>
-    <p>Engineers can run jobs locally with <code class="language-plaintext highlighter-rouge">Ray (ray.init())</code> and later scale seamlessly to AWS EKS by switching to <code class="language-plaintext highlighter-rouge">ray.init(address=”ray://…”)</code>.</p>
+    <p>Multi-Tenant Resource Sharing and Seamless Transition from Local to Cloud:: ML teams can submit workloads without managing Kubernetes pods directly. Ray manages job execution and ensures efficient resource utilization. ML Engineers can run jobs locally with <code class="language-plaintext highlighter-rouge">Ray (ray.init())</code> and later scale seamlessly to AWS EKS by switching to <code class="language-plaintext highlighter-rouge">ray.init(address=”ray://…”)</code>.</p>
   </li>
   <li>
     <p>Cost Optimization with Spot &amp; On-Demand Nodes: Karpenter provisions spot instances for non-critical ML training. On-demand nodes handle critical, low-latency inference.</p>
