@@ -1,0 +1,7 @@
+[
+  {
+      "title": "My First Post",
+      "content": "## Introduction\n\nThis is a **test post** that I created with Jekyll. Here is a link to [Google](https://www.google.com).\n\n![Alt text](images/myimage.jpg)",
+      "user_id": 1
+  }
+]

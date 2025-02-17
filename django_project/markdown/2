@@ -1,0 +1,65 @@
+<p>Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes applications. This is a post to show how to enable Argo CD on local k8s and AWS EKS, deploy applications and sync with GitHub manifests.</p>
+
+<ul>
+<li>Argo CD install ingress controller ingress-nginx</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+</pre>
+
+<ul>
+<li>Download and install Argo CD CLI</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+</pre>
+
+<ul>
+<li>Configure Argo CD API Server and deploy zackweb</li>
+</ul>
+
+<p>Change the argocd-server service type to NodePort, initialize admin password, and deploy "zackweb" via Argo CD application manifests (argo-zackweb-application.yaml).</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+argocd admin initial-password -n argocd
+kubectl create -f argo-zackweb-application.yaml
+</pre>
+
+<p>argo-zackweb-application.yaml</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: zackweb
+  namespace: argocd
+spec:
+  destination:
+    namespace: 'zackweb'
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: eks-deploy
+    repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
+    targetRevision: editing
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+</pre>
+
+<ul>
+<li>Access the Argo CD UI to check for sync</li>
+</ul>
+
+<a href="/static/blog/images/argo-demo.png" target="_blank">
+  <img src="/static/blog/images/argo-demo.png" alt="image tooltip here">
+</a>

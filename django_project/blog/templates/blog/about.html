@@ -1,0 +1,75 @@
+{% extends "blog/base.html" %}
+
+{% load static %}  <!-- Load static files tag -->
+
+{% block content %}
+    <h3>Professional Summary</h3>
+    <p>
+        I am a seasoned IT professional with over a decade of experience, characterized by continuous evolution and mastery across diverse technological domains. My career began at Lenovo, a Fortune Global 500 company, where I developed a strong foundation in traditional IT, gaining comprehensive expertise in hardware, databases, operating systems, and SAP applications. This experience provided me with a robust understanding of enterprise-level IT ecosystems.
+    </p>
+    <p>
+        Since relocating to Australia in 2017, I have broadened my professional ICT expertise in cinema and public sector. At EVENT Cinemas, I transitioned to cloud computing, focusing on AWS cloud platforms and DevOps practices. My role involved implementing cost optimization strategies and leading digital transformations, which enhanced organizational agility and expanded cloud footprints. Currently, as a Senior DevOps Engineer at the NSW Education Standards Authority (NESA), I specialize in AWS cloud infrastructure automation, CI/CD pipelines, Kubernetes deployments, and serverless migrations. I have also ventured into machine learning operations (MLOps), automating the provisioning and deployment of machine learning models on AWS.
+    </p>
+    <p>
+        With extensive cloud and DevOps experience, I possess proven expertise in Kubernetes orchestration, CI/CD pipeline development, and serverless architecture. My strong capabilities in automation through Infrastructure as Code (IaC) using tools like CloudFormation, Terraform, and Ansible have enabled me to streamline infrastructure provisioning and dynamic management. I hold several industry-recognized certifications, including AWS Certified Solutions Architect, AWS Certified DevOps Engineer, CNCF Certified Kubernetes Administrator (CKA), CNCF Certified Kubernetes Security Specialist (CKS), and RedHat Certified Engineer (RHCE).
+    </p>
+
+    <!-- Corrected Image Reference for Media Files -->
+    <img src="{% static 'blog/images/k8s.png' %}" alt="" title="My Path so far" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    
+    <p>
+        I am passionate about leveraging my technical acumen and strategic mindset to contribute to cloud-native architectures and automation practices that drive continuous improvement in DevOps operations.
+    </p>
+
+
+    <h3>Education & Certificate</h3>
+    <p>
+    <strong>Master of Information Communication Technology</strong>
+    </p>
+    <p>University of Wollongong – 2008-2010 Wollongong, NSW</p>
+    
+    <p>
+    <strong>Bachelor of Computer Science</strong>
+    </p> 
+    <p>
+    South-Central University – 2004-2008 China   
+    </p> 
+    <p>    
+        <strong>AWS Certified Solutions Architect - Professional (SAP)</strong> 
+        </p>
+    <img src="{% static 'blog/images/aws-sap.png' %}" alt="" title="AWS Certified Solutions Architect - Professional (SAP)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>AWS Certified DevOps Engineer - Professional (DOP)</strong> 
+        </p>
+    <img src="{% static 'blog/images/aws-devops.png' %}" alt="" title="AWS Certified DevOps Engineer - Professional (DOP)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>CNCF Certified Kubernetes Administrator (CKA)</strong> 
+        </p>
+    <img src="{% static 'blog/images/k8s-cka.png' %}" alt="" title="CNCF Certified Kubernetes Administrator (CKA)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>CNCF Certified Kubernetes Security Specialist (CKS)</strong> 
+        </p>
+    <img src="{% static 'blog/images/cks.png' %}" alt="" title="CNCF Certified Kubernetes Security Specialist (CKS)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>Red Hat Certified System Administrator (RHCSA)</strong> 
+        </p>
+    <img src="{% static 'blog/images/rhcsa.png' %}" alt="" title="Red Hat Certified System Administrator (RHCSA)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>Red Hat Certified Engineer (RHCE)</strong> 
+        </p>
+    <img src="{% static 'blog/images/rhce.png' %}" alt="" title="Red Hat Certified Engineer (RHCE)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>VMware Certified Professional - Data Center Virtulization 2022 (VCP)</strong> 
+        </p>
+    <img src="{% static 'blog/images/vmware-vcp.png' %}" alt="" title="VMware Certified Professional - Data Center Virtulization 2022 (VCP)" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>DevOps Projects Real Time DevOps & GitOps Projects</strong> 
+        </p>
+    <img src="{% static 'blog/images/udm-20.jpg' %}" alt="" title="DevOps Projects Real Time DevOps & GitOps Projects" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+    <p>    
+        <strong>DevOps Deployment Automation with Terraform, AWS and Docker</strong> 
+        </p>
+    <img src="{% static 'blog/images/udm-gitlab.jpg' %}" alt="My Path" title="DevOps Deployment Automation with Terraform, AWS and Docker" style="display:block; margin: 20px auto; max-width: 100%; height: auto;">
+
+
+{% endblock content %}

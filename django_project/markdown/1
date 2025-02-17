@@ -1,0 +1,65 @@
+<p>Today, I will explore how to install and configure Persistent Volume for all the deployment in K8S to consume </p>
+
+<p>Helm install Rook-Ceph for persistent storage</p>
+
+<ul>
+    <li>Configure local VM block storage to add 50Gb sdb to all k8s master and worker nodes</li>
+    <li>Install rook-ceph cluster</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+git clone --single-branch --branch master https://github.com/rook/rook.git
+cd rook/deploy/examples
+kubectl create -f crds.yaml -f common.yaml -f operator.yaml
+kubectl create -f cluster.yaml
+</pre>
+
+<ul>
+    <li>Ceph toolbox to check cluster status</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+kubectl create -f toolbox.yaml
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
+ceph status
+ceph osd status
+ceph df
+rados df
+</pre>
+
+<ul>
+    <li>Ceph Dashboard service for HTTPS login</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+kubectl create -f dashboard-external-https.yaml
+kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
+</pre>
+
+<ul>
+    <li>Create storage pool and storage class</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+kubectl create -f pool.yaml
+cd csi/rbd
+kubectl create -f storageclass.yaml
+</pre>
+
+<ul>
+    <li>Set "rook-ceph-block" as the default storage class</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+kubectl get sc
+NAME                        PROVISIONER                  RECLAIMPOLICY  VOLUMEBINDINGMODE  ALLOWVOLUMEEXPANSION   AGE
+rook-ceph-block (default)   rook-ceph.rbd.csi.ceph.com   Delete          Immediate          true                  8d
+</pre>
+
+<p>Check pool and OSDs in Ceph web UI</p>
+
+<a href="/static/blog/images/ceph.png" target="_blank">
+    <img src="/static/blog/images/ceph.png" alt="image tooltip here">
+</a>
