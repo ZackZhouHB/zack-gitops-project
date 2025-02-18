@@ -81,6 +81,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/zack-gitops-project || { echo "Directory not found! Exiting."; exit 1; }
+            git reset --hard origin/editing
             git pull
             sudo chmod -R 755 /home/ubuntu/zack-gitops-project/django_project
             sudo docker stop django-blog-container || true
