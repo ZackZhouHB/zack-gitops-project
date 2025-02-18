@@ -1,0 +1,4 @@
+[core]
+    autocrlf = input     # For Linux/macOS compatibility
+    eol = lf             # Force LF line endings
+    fileMode = false     # Ignore file permission changes
