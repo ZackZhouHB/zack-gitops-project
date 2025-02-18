@@ -1,0 +1,115 @@
+<p>
+I originally used Jekyll, a straightforward static site generator, for my technical blog. It was easy to set up, and ideal for managing content in Markdown. However, as my skills grew, I realized Jekyll was limited by static content, a lack of dynamic features, and the absence of essential tools like a built-in database and user management. That's when I decided to migrate to Django.
+</p>
+<a href="/static/blog/images/byb1.png" target="_blank">
+<img src="/static/blog/images/byb1.png" alt="image tooltip here">
+</a>
+<p>
+Django, with its ability to handle dynamic content and a fully integrated database, offered the perfect solution. It was clear that the migration was the right choice.
+</p>
+
+<section>
+    <p><b>The Migration Plan: From Jekyll to Django</b></p>
+    <p>Here's how I tackled the migration:</p>
+
+    <p><b>1. Setting Up the Django Environment</b></p>
+    <p>
+        I used Docker to set up a portable Python environment, which ensured consistency across multiple platforms and smooth deployment.
+    </p>
+
+    <p><b>2. Creating the Django Application</b></p>
+    <p>
+        I built a Django application tailored to my needs, structuring the blog posts, user management, and content control within Django’s ORM.
+    </p>
+
+    <p><b>3. Converting Jekyll Posts to Django</b></p>
+    <p>
+        I wrote a script to automatically convert my Jekyll Markdown posts to HTML and import them into Django’s database.
+    </p>
+
+    <p><b>4. Configuring the Database</b></p>
+    <p>
+        Django's ORM allowed me to store data seamlessly in SQLite. I also became familiar with its migration tools to handle updates and changes.
+    </p>
+
+    <p><b>5. Cloud Hosting, Domain, and SSL</b></p>
+    <p>
+        I purchased a domain through Cloudflare, configured DNS, and implemented SSL, ensuring secure communication and smooth performance.
+    </p>
+    <a href="/static/blog/images/byb2.png" target="_blank">
+        <img src="/static/blog/images/byb2.png" alt="image tooltip here">
+    </a>
+
+    <p><b>6. Setting Up CI/CD with GitHub Actions</b></p>
+    <p>
+        I set up CI/CD with GitHub Actions, automating the deployment process and reducing manual intervention.
+    </p>
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+name: "zack gitops workflow for Django blog"
+on: 
+push: 
+    branches:
+    - editing
+    paths:             
+    - django_project/**
+
+pull_request:        
+    branches:          
+    - main           
+    paths:          
+    - django_project/**
+
+env:                  
+AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+HOST_NAME: ${{secrets.HOST_NAME}}
+USER_NAME: ${{secrets.USER_NAME}}
+
+
+jobs: 
+terraform:   
+    name: "Zackweb image build CI pipeline"
+    runs-on: ubuntu-latest    
+    defaults:
+    run:
+        shell: bash
+        working-directory: ./django_project
+    
+    steps:
+    - name: SCM checkout
+        uses: actions/checkout@v3
+    - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+</pre>
+
+    <p>This part automated deployments and ensured the pipeline was fully streamlined.</p>
+</section>
+
+<section>
+    <p><b>Achievements and Reflections</b></p>
+    <p>
+        Here's a brief summary of the skills I enhanced:
+    </p>
+    <ul>
+        <li><strong>Web Development:</strong> Improved my ability to work with Django and Python.</li>
+        <li><strong>Database Management:</strong> Gained expertise in using Django’s ORM.</li>
+        <li><strong>Containerization:</strong> Used Docker for a portable and consistent development environment.</li>
+        <li><strong>Cloud Hosting & SSL:</strong> Configured DNS and SSL to secure my hosting environment.</li>
+        <li><strong>CI/CD:</strong> Automated deployments using GitHub Actions.</li>
+    </ul>
+</section>
+
+<section>
+    <p><b>Conclusion</b></p>
+    <p>
+        Migrating from Jekyll to Django wasn’t just about solving a technical problem—it was a demonstration of best DevOps practices. The journey was insightful, and I enjoyed the debugging challenges. It reaffirmed the importance of using the right tools for the job.
+    </p>
+</section>

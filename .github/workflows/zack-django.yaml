@@ -16,11 +16,6 @@ env:                   # cred for AWS access, terrform is looking for
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-
-  # also can be stored in github var
-#  AWS_DEFAULT_REGION: ap-southeast-2
-#  EKS_CLUSTER: zack-gitops-eks-prod
-
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
