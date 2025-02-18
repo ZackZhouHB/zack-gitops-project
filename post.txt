@@ -1,0 +1,49 @@
+apt install aws-nuke
+
+vim nuke-config.yaml
+regions:
+  - ap-southeast-2
+  - global
+
+account-blocklist:
+  - "851725491342"  # Zack production account ID
+
+accounts:
+  "851725522315": # Joe Account to be deleted
+
+ensure aws cred
+
+
+need alias 
+
+root@zackz:/mnt/f/aws-nuke# aws iam list-account-aliases --profile joe
+{
+    "AccountAliases": []
+}
+
+
+root@zackz:/mnt/f/aws-nuke# aws iam create-account-alias --account-alias aws-joe-851725522315 --profile joe
+
+
+aws-nuke version unknown - unknown - unknown
+
+Do you really want to nuke the account with the ID 851725522315 and the alias 'aws-joe-851725522315'?
+Do you want to continue? Enter account alias to continue.
+> aws-joe-851725522315
+
+ap-southeast-2 - EC2Instance - i-052b0511339457efc - [Identifier: "i-052b0511339457efc", ImageIdentifier: "ami-09c8d5d747253fb7a", InstanceState: "running", InstanceType: "t2.micro", LaunchTime: "2024-03-17T08:51:40Z", tag:Application: "bb", tag:Businessunit: "dd", tag:Dataclassification: "aa", tag:Environment: "cc", tag:MSP-managed: "ee", tag:Name: "joe-site"] - would remove
+global - IAMRolePolicyAttachment - AWSServiceRoleForTrustedAdvisor -> AWSTrustedAdvisorServiceRolePolicy - [PolicyArn: "arn:aws:iam::aws:policy/aws-service-role/AWSTrustedAdvisorServiceRolePolicy", PolicyName: "AWSTrustedAdvisorServiceRolePolicy", RoleName: "AWSServiceRoleForTrustedAdvisor"] - cannot detach from service roles
+global - IAMRolePolicyAttachment - k8s-master-role -> k8s-ec2-master-policy - [PolicyArn: "arn:aws:iam::851725522315:policy/k8s-ec2-master-policy", PolicyName: "k8s-ec2-master-policy", RoleName: "k8s-master-role"] - would remove
+global - IAMRolePolicyAttachment - k8s-worker-role -> k8s-worker-policy - [PolicyArn: "arn:aws:iam::851725522315:policy/k8s-worker-policy", PolicyName: "k8s-worker-policy", RoleName: "k8s-worker-role"] - would remove
+Scan complete: 126 total, 52 nukeable, 74 filtered.
+
+The above resources would be deleted with the supplied configuration. Provide --no-dry-run to actually destroy resources.
+root@zackz:/mnt/f/aws-nuke# vim nuke-config.yaml
+root@zackz:/mnt/f/aws-nuke# aws-nuke --profile joe --config /mnt/f/aws-nuke/nuke-config.yaml --no-dry-run
+aws-nuke version unknown - unknown - unknown
+
+Do you really want to nuke the account with the ID 851725522315 and the alias 'aws-joe-851725522315'?
+Do you want to continue? Enter account alias to continue.
+> aws-joe-851725522315
+
+

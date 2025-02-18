@@ -80,17 +80,9 @@ jobs:
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/zack-gitops-project
+            cd ~/zack-gitops-project || { echo "Directory not found! Exiting."; exit 1; }
             git pull
-            # Check if the container is running
-            if docker ps -q -f name=django-blog-container; then
-              echo "Stopping and removing existing container..."
-              sudo docker stop django-blog-container
-              sudo docker rm django-blog-container
-            else
-              echo "No running container found for django-blog-container"
-            fi            
-            sudo docker pull zackz001/zackblog-django:v9${{ github.run_number }}
+            sudo chmod -R 755 /home/ubuntu/zack-gitops-project/django_project
             sudo docker stop django-blog-container || true
             sudo docker rm django-blog-container || true
-            sudo docker run -d --name django-blog-container -p 80:8000 zackz001/zackblog-django:v9${{ github.run_number }}
+            sudo docker run -d --name django-blog-container -p 80:8000 -v /home/ubuntu/zack-gitops-project/django_project:/app zackz001/zackblog-django:latest
