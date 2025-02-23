@@ -1,34 +1,194 @@
-<b>Breaking down the ML project</b><br><br>
-The 97th Academy Awards ceremony, presented by the Academy of Motion Picture Arts and Sciences (AMPAS), will take place on March 2, 2025, at the Dolby Theatre in Hollywood, Los Angeles. 
-Last year 2024 I had some greate experience with some great movie like Dune Part2 and Wicked, now sure if some of my faviourate actors can grab a Oscar. The user's goal is to use a historical Oscar nominations dataset for the past 20 years, create and train a model to predict the winners each year by feeding categories and results into the model. They'll need to process and clean the CSV file, possibly adding extra columns for box office data, other nominations, IMDb score, etc., for more accuracy.<br><br>
-To do this, they’ll need to understand basic data processing, Python, and machine learning. This is a beginner-level project that will help them learn essential ML, data analysis, and Python skills.<br><br>
+<p>In this tutorial, we will walk through how to build a basic machine learning model to predict the <b>Best Picture</b> winner at the Academy Awards (Oscar). </p>
+    
+<p>We will use our previous processed dataset that includes information about the nominees and winners from the 72nd to the 96th Oscar ceremonies. The goal is to predict the winner based on various features like IMDb ratings, Metascore, Tomatometer percentage, Golden Globe and BAFTA wins/nominations.</p>
 
-<b>Planning for the Oscar prediction model</b><br><br>
-The final goal is building an ML model that predicts Oscar winners using historical data and additional features like box office numbers, IMDb scores, and other award nominations. The planning steps are:<br><br>
+<b>Step 1: Understand the Data</b>
+<p>The dataset includes several features:</p>
+<ul>
+    <li><strong>IMDb rating</strong>: The IMDb rating of the film.</li>
+    <li><strong>Metascore</strong>: The Metascore of the film.</li>
+    <li><strong>Tomatometer</strong>: The Tomatometer rating (percentage of positive reviews).</li>
+    <li><strong>Golden Globe/BAFTA nominations/wins</strong>: The number of nominations/wins for Golden Globe and BAFTA.</li>
+    <li><strong>Winner</strong>: Whether the film won the Best Picture award (True/False).</li>
+</ul>
+<p>The target variable is the <strong>winner</strong> column, where "True" means the film won Best Picture, and "False" means it did not.</p>
 
-<b>Project Objective:</b> Predict Oscar winners from historical data.<br>
-<b>Data Collection:</b> Use Kaggle’s CSV and include extra data like box office, other awards, and IMDb scores.<br>
-<b>Data Processing:</b> Clean and integrate data, standardize columns, feature engineering.<br>
-<b>Exploratory Data Analysis (EDA):</b> Visualize data and analyze correlations for winning prediction.<br>
-<b>Model Design:</b> Build and train models like logistic regression, random forest, or neural networks.<br><br>
+<b>Step 2: Final Data Cleaning</b>
+<p>The first step is to finally clean and preprocess the data. We will:</p>
+<ul>
+    <li>Convert the "winner" column to a binary format (1 for winner, 0 for not winner).</li>
+    <li>Remove the percentage sign from the "Tomatometer" column and convert it to a float.</li>
+    <li>Encode the Golden Globe and BAFTA columns as numerical values (won = 2, nominated = 1, none = 0).</li>
+</ul>
 
-<b>Below is a structured summary an
-    d project plan for your Oscar prediction ML project:</b><br><br>
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+import pandas as pd
 
-<b>1. Project Overview</b><br><br>
-<b>Objective:</b><br>
-Develop a machine learning model that uses historical Oscar nomination data—augmented with additional features like box office revenue, other awards/nominations, and IMDb ratings—to predict this year’s Oscar winners.<br><br>
+# Load data
+df = pd.read_csv("updated_with_changes.csv")
 
-<b>Key Components:</b><br>
-<b>Data Sources:</b><br>
-<b>Historical Oscars CSV:</b> Contains nominations, categories, and win/loss outcomes.<br>
-<b>Additional Data:</b> Box office figures, IMDb scores, other major awards/nominations.<br><br>
+# Clean 'winner' column
+df['winner'] = df['winner'].astype(int)
 
-<b>Environment:</b><br>
-Local GPU desktop<br>
-Python (Dockerized Jupyter Notebook)<br><br>
+# Clean 'Tomatometer' (remove % and convert to float)
+df['Tomatometer'] = df['Tomatometer'].str.replace('%', '').astype(float) / 100
 
-<b>2. Data Acquisition and Integration</b><br><br>
-<b>Base Data:</b><br>
-Use the Kaggle CSV covering 20 years of Oscar nominations.<br>
-Assess columns available: nomination year, category, nominee details, win status, etc.<br>
+# Encode GoldenGlobe and BAFTAs
+award_mapping = {'won': 2, 'nominated': 1, 'none': 0}
+df['GoldenGlobe'] = df['GoldenGlobe'].str.split().str[0].map(award_mapping).fillna(0)
+df['BAFTAs'] = df['BAFTAs'].map(award_mapping).fillna(0)
+</pre>
+
+<b>Step 3: Feature Engineering</b>
+<p>Next, we will create new features to improve the prediction accuracy:</p>
+<ul>
+    <li><strong>Total Awards Score</strong>: The sum of Golden Globe and BAFTA awards.</li>
+  </ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+# Create Total Awards Score
+df['Total_Awards'] = df['GoldenGlobe'] + df['BAFTAs']
+
+# Drop unnecessary columns
+df = df.drop(['ceremony', 'category', 'film'], axis=1)
+</pre>
+
+<b>Step 4: Split Data into Training and Testing Sets</b>
+<p>We will split the dataset into training and testing sets based on the ceremony year. For example, we can use the ceremonies from 1972 to 1990 for training and those from 1991 to 1996 for testing.</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+# Assuming 'ceremony' column exists (if not, reset index)
+train = df[df['ceremony'] <= 90]
+test = df[df['ceremony'] > 90]
+
+# Separate features (X) and target (y)
+X_train = train.drop('winner', axis=1)
+y_train = train['winner']
+X_test = test.drop('winner', axis=1)
+y_test = test['winner']
+</pre>
+
+<b>Step 5: Train our Model</b>
+<p>Now that we have our training and testing data, let's train a Logistic Regression model to predict the Best Picture winner. Logistic Regression is a simple, interpretable model that will help us understand which features matter most in predicting a winner.</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+from sklearn.linear_model import LogisticRegression
+
+# Initialize and train the model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Check accuracy on test data
+accuracy = model.score(X_test, y_test)
+print(f"Accuracy: {accuracy:.2f}")
+</pre>
+
+<a href="/static/blog/images/
+mlops141.png" target="_blank">
+        <img src="/static/blog/images/
+mlops141.png" alt="image tooltip here">
+</a>
+
+<b>Step 6: Evaluate the Model</b>
+<p>After training the model, we need to evaluate its performance. We will use metrics such as accuracy, precision, recall, and F1-score to assess the model. Since the dataset might be imbalanced (few winners each year), we also consider ROC-AUC.</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+from sklearn.metrics import classification_report
+
+# Predict on test data
+y_pred = model.predict(X_test)
+
+# Generate evaluation report
+print(classification_report(y_test, y_pred))
+</pre>
+
+<a href="/static/blog/images/
+mlops142.png" target="_blank">
+        <img src="/static/blog/images/
+mlops142.png" alt="image tooltip here">
+</a>
+
+<b>Step 7: Predict This Year's Winner</b>
+<p>Once the model is trained and evaluated, we can use it to predict the Best Picture winner for the current year. The input data for this year's nominees should be in the same format as the training data.</p>
+
+<a href="/static/blog/images/
+mlops144.png" target="_blank">
+        <img src="/static/blog/images/
+mlops144.png" alt="image tooltip here">
+</a>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+    # Example: New data for 2024 nominees
+    new_data = pd.DataFrame({
+        'ceremony': [97, 97, 97, 97, 97, 97, 97, 97, 97, 97],
+        'imdb_rating': [7.7, 7.8, 7.6, 7.4, 8.5, 5.5, 8.8, 7.2, 7.3, 7.6],
+        'Metascore': [91, 90, 70, 79, 79, 70, 48, 91, 78, 73],
+        'Tomatometer': [0.94, 0.94, 0.70, 0.79, 0.79, 0.70, 0.48, 0.91, 0.78, 0.73],
+        'GoldenGlobe': [1, 2, 1, 1, 1, 2, 1, 1, 1, 1],
+        'BAFTAs': [1, 1, 1, 2, 0, 1, 0, 0, 0, 0],
+        'Total_Awards': [2, 3, 2, 3, 1, 3, 1, 1, 1, 1]
+    }) 
+    
+    # Predict probabilities
+    probabilities = model.predict_proba(new_data)[:, 1]
+    print("Win probabilities:", probabilities)
+
+</pre>
+
+<a href="/static/blog/images/
+mlops146.png" target="_blank">
+        <img src="/static/blog/images/
+mlops146.png" alt="image tooltip here">
+</a>
+
+
+The win probabilities predicted by the model for the 2024 Best Picture nominees are as follows (in order of the films listed in the data):
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;"></pre>
+[0.016 (1.6%), 0.173 (17.3%), 0.0086 (0.86%), 0.0238 (2.38%), 0.0079 (0.79%),
+ 0.0255 (2.55%), 0.0043 (0.43%), 0.0046 (0.46%), 0.0035 (0.35%), 0.0037 (0.37%)]
+</pre>
+
+<p><b>Key Observations:</b></p>
+<p>The Brutalist (17.3%) is the clear favorite according to the model, likely due to:</p>
+<ul>
+    <li>Golden Globe win (encoded as 2 in the data, a strong predictor).</li>
+    <li>High scores: Metascore 90, Tomatometer 94%.</li>
+    <li>3 Total Awards (tied for highest among nominees).</li>
+</ul>
+<p>Emilia Pérez (2.55%) and Conclave (2.38%) follow distantly, likely because:</p>
+<ul>
+    <li>Emilia Pérez won a Golden Globe and has 3 Total Awards (despite a low IMDb rating of 5.5).</li>
+    <li>Conclave won a BAFTA (encoded as 2) and has 3 Total Awards.</li>
+</ul>
+<p>Dune: Part Two (0.79%) underperforms despite its high IMDb rating (8.5) and box office success because:</p>
+<ul>
+    <li>It lacks major award wins (Golden Globe=1 = nominated, BAFTAs=0 = none).</li>
+    <li>The model prioritizes awards over popularity/critical ratings.</li>
+</ul>
+<p>Low probabilities overall (summing to ~26.6%) suggest:</p>
+<ul>
+    <li>The model treats each nominee independently (binary classification), not as a competitive multi-class problem.</li>
+    <li>No film strongly matches historical winner profiles, indicating a competitive year.</li>
+</ul>
+
+<p><b>Feature Insights:</b></p>
+<ul>
+    <li>Award wins matter most: Golden Globe/BAFTA wins (2 in the data) heavily influence predictions.</li>
+    <li>Critical acclaim: High Metascore and Tomatometer values boost probabilities (e.g., The Brutalist).</li>
+    <li>IMDb rating is less impactful: Dune’s high IMDb score doesn’t compensate for its lack of awards.</li>
+    <li>Box office ignored: The model excludes box office data, explaining why Wicked (high revenue) has a low probability.</li>
+</ul>
+
+<p><b>Conclusion:</b></p>
+<p>The model identifies The Brutalist as the most likely winner due to its award wins and critical acclaim. However, the low probabilities overall suggest uncertainty, possibly reflecting a lack of a dominant frontrunner in this year’s nominees based on historical patterns.</p>
+
+<b>Improvements (Optional)</b>
+<p>There are several ways to improve the model:</p>
+<ul>
+    <li>Handle class imbalance using techniques like <code>class_weight='balanced'</code>.</li>
+    <li>Try advanced models like Random Forest or XGBoost.</li>
+    <li>Include more data, such as budget, genre, or director popularity.</li>
+</ul>
+
+<p>With these steps, you can predict the Best Picture winner and gain insights into what makes a film successful at the Oscars!</p>
