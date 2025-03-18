@@ -71,7 +71,7 @@ data "aws_availability_zones" "available" {}
 
 locals {
   name            = "spot-and-karpenter"
-  cluster_version = "1.30"
+  cluster_version = "1.31"
   region          = var.region
   node_group_name = "managed-ondemand"
 
@@ -91,12 +91,12 @@ locals {
 ################################################################################
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.19.1"
+  version = "20.34.0"
 
   cluster_name                   = local.name
   cluster_version                = local.cluster_version
   cluster_endpoint_public_access = true
-
+  enable_cluster_creator_admin_permissions = true
   cluster_addons = {
 
     vpc-cni = {
@@ -117,19 +117,7 @@ module "eks" {
   create_cloudwatch_log_group   = false
   create_cluster_security_group = false
   create_node_security_group    = false
-
-  manage_aws_auth_configmap = true
-  aws_auth_roles = [
-    {
-      rolearn  = module.eks_blueprints_addons.karpenter.node_iam_role_arn
-      username = "system:node:{{EC2PrivateDNSName}}"
-      groups = [
-        "system:bootstrappers",
-        "system:nodes",
-      ]
-    }
-  ]
-
+  authentication_mode = "API_AND_CONFIG_MAP"
   eks_managed_node_groups = {
     mg_5 = {
       node_group_name = "managed-ondemand"
@@ -158,10 +146,25 @@ module "eks" {
     "karpenter.sh/discovery" = local.name
   })
 }
+module "aws_auth" {
+  source = "terraform-aws-modules/eks/aws//modules/aws-auth"
+  manage_aws_auth_configmap = true
+  aws_auth_roles = [
+    {
+      rolearn  = module.eks_blueprints_addons.karpenter.node_iam_role_arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes",
+      ]
+    }
+  ]
+  
+}
 
 module "eks_blueprints_addons" {
   source  = "aws-ia/eks-blueprints-addons/aws"
-  version = "1.13.0"
+  version = "1.20.0"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
@@ -169,6 +172,10 @@ module "eks_blueprints_addons" {
   oidc_provider_arn = module.eks.oidc_provider_arn
 
   eks_addons = {
+    aws-efs-csi-driver = {
+      most_recent = true
+    }
+
     aws-ebs-csi-driver = {
       most_recent = true
     }
@@ -186,13 +193,13 @@ module "eks_blueprints_addons" {
   karpenter_node = {
     iam_role_use_name_prefix = false
   }
-
+  depends_on = [module.eks.eks_managed_node_groups]
   tags = local.tags
 }
 
 module "ebs_csi_driver_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.20"
+  version = "5.54.0"
 
   role_name_prefix = "${module.eks.cluster_name}-ebs-csi-driver-"
 
@@ -208,13 +215,31 @@ module "ebs_csi_driver_irsa" {
   tags = local.tags
 }
 
+module "efs_csi_driver_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.54.0"
+
+  role_name_prefix = "${module.eks.cluster_name}-efs-csi-driver-"
+
+  attach_efs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:efs-csi-controller-sa"]
+    }
+  }
+  tags = local.tags
+}
+
+
 #---------------------------------------------------------------
 # Supporting Resources
 #---------------------------------------------------------------
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0"
+  version = "5.19.0"
 
   name = local.name
   cidr = local.vpc_cidr
