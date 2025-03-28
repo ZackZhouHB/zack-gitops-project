@@ -14,7 +14,7 @@ In this Scenario when deploying k8s pods and services in this K8S cluster, it wi
 By searching online, Kubernetes actually provides such solution called <b>“cloud-provider-aws”</b>, which provides interface between a self-owned AWS Kubernetes cluster and AWS APIs. This allows EC2 instances running Kubernetes node to be able to provision AWS NLB or ELB resources during service deployment by mentioning “LoadBalancer”..
 
 
-<b></b>
+<b>###</b>
 
 To enable the Kubernetes External Cloud Controller Manager, a <b>AWS Cloud Controller manager</b> need to be deployed into cluster, by doing so, it will create and a AWS loadbalancers (NLB), then self-owned K8S cluster can expose services externally by creating ELB.
 
