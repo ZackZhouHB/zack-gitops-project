@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  python-dev:
+    build: .
+    container_name: python-Dj-zack
+    ports:
+      - "8000:8000"
+
+    # Mount your local source tree over /app inside the container
+    volumes:
+      - /mnt/f/zack-gitops-project/:/home/workspace
+
+    # Tell the container that /app/django_project is the *real* cwd
+    # (adjust if your manage.py lives somewhere else)
+    working_dir: /home/workspace/django_project
+
+    # Override the image’s CMD only if you need something different.
+    # Here we keep it explicit for clarity:
+    command: python manage.py runserver 0.0.0.0:8000
+
+    restart: always
