@@ -1,0 +1,6 @@
+docker run -d --name teamcity-server-instance \
+--restart unless-stopped \
+-v /mnt/f/teamcity/data:/data/teamcity_server/datadir \
+-v /mnt/f/teamcity/logs:/opt/teamcity/logs \
+-p 8111:8111 \
+jetbrains/teamcity-server
