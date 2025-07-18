@@ -1,0 +1,1 @@
+python3 test/modu.py --profiles nonprod --region ap-southeast-2 --agent airlock --output 44.csv
