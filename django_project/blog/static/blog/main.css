@@ -159,6 +159,37 @@ code {
   }
 }
 
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .container {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .col-lg-9, .col-lg-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .article-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+  
+  .article-content img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .media-body {
+    overflow: hidden;
+    min-width: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .row {
     margin-left: 0;
