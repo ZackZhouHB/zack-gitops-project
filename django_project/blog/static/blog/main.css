@@ -2,6 +2,18 @@ body {
   background: #fafafa;
   color: #333333;
   margin-top: 5rem;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+html {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -49,6 +61,8 @@ a.article-title:hover {
   white-space: pre-line;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 pre {
@@ -160,10 +174,21 @@ code {
 }
 
 @media (min-width: 768px) and (max-width: 991.98px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
   .container {
     max-width: 100%;
     padding-left: 15px;
     padding-right: 15px;
+    margin: 0 auto;
+  }
+  
+  .row {
+    margin-left: 0;
+    margin-right: 0;
   }
   
   .col-lg-9, .col-lg-3 {
@@ -177,16 +202,24 @@ code {
     word-wrap: break-word;
     overflow-wrap: break-word;
     max-width: 100%;
+    overflow-x: hidden;
   }
   
-  .article-content img {
+  .article-content img, .article-content pre, .article-content code {
     max-width: 100%;
     height: auto;
+    overflow-x: auto;
+  }
+  
+  .media {
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .media-body {
     overflow: hidden;
     min-width: 0;
+    max-width: 100%;
   }
 }
 
