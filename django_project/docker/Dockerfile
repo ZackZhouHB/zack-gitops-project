@@ -1,5 +1,5 @@
 # ---- base image ----
-    FROM python:3.8-slim
+    FROM python:3.13-slim
 
     # Prevent Python from writing .pyc files and allow stdout/stderr to appear immediately
     ENV PYTHONDONTWRITEBYTECODE=1 \
