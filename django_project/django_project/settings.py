@@ -27,6 +27,21 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', '13.211.254.229', 'zackblog.work', 'www.zackblog.work']
 
+# CSRF trusted origins for production domains
+CSRF_TRUSTED_ORIGINS = [
+    'https://zackblog.work',
+    'https://www.zackblog.work',
+    'http://zackblog.work',
+    'http://www.zackblog.work',
+    'http://13.211.254.229',
+    'https://13.211.254.229',
+]
+
+# For older Django versions compatibility
+CSRF_COOKIE_SECURE = False  # Set to True if using HTTPS
+CSRF_COOKIE_SAMESITE = 'Lax'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 
 # Application definition
 
