@@ -1,3 +1,140 @@
+===
+<!-- Gemini 2.5 Pro Free Blog in Your Style -->
+
+<p>Recently Google released its  <strong>Gemini CLI</strong>" (<a href="https://github.com/google-gemini/gemini-cli/">Github</a>), offering a generous free tier for developers. With the Gemini CLI we can:</p>
+
+<p>1. Query and edit large codebases in and beyond Gemini’s 1 M token context window, so we can feed in entire codebases or lengthy documentation for deep analysis and understanding <br>
+2. Generate new apps from PDFs or sketches, using Gemini’s multimodal capabilities.<br>
+3. Automate operational tasks, like querying pull requests or handling complex rebases.<br>
+4. Use tools and MCP servers to connect new capabilities, including media generation with Imagen, Veo or Lyria.<br>
+5. Ground queries with the Google Search tool, built in to Gemini.<br>
+6. Up to 60 requests per minute and 1,000 requests per day<br></p>
+
+<!-- Image Placeholder: 01 -->
+<a href="/static/blog/images/gemini1.png" target="_blank">
+        <img src="/static/blog/images/gemini1.png" alt="[Image Placeholder 01: Introduction Graphic]">
+</a>
+
+
+<p>I think <strong>Claude Code</strong> is still the best AI coding assistant, but at its $200 USD price point, Google’s “free to start, sky-high cap, professional upgrade” strategy will dramatically lower the barrier to cutting-edge AI—and shows their determination to build a massive developer community quickly.</p>
+
+<hr>
+
+<p>Google also mentioned its Agent-centric design—complete with built-in tools and extensibility. Here’s what I can explore:</p>
+
+<strong>Real-time web search.</strong> The native Google Search tool lets the CLI fetch live information from the internet.<br>
+<strong>Local file-system interaction.</strong> Work with local files (even WSL) just like in VS Code, and run system commands right inside Gemini CLI.<br>
+<strong>Extensible tool ecosystem (MCP).</strong> Hook up external “tool servers” via the Model Context Protocol to connect in-house APIs, databases, or project-management tools.<br>
+<strong>Customizable layered memory (GEMINI.md).</strong> Drop a <code>GEMINI.md</code> file anywhere in your home or project, and it becomes the model’s long-term memory or system prompt—inspect or refresh via <code>/memory</code> commands.</p>
+
+<hr>
+
+<p><strong>Getting Started: Installing Gemini CLI in local dev env</strong></p>
+
+<p><strong>Step 1: Prerequisites</strong><br>
+Let's update the dev container to create a portable dev environment, this time we need to ensure Node.js v18 or higher and Google Gemini CLI globally installed:<br>
+</p>
+<div class="code-container" style="position: relative;">
+  <pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+<code>
+root@zack:~# vim Dockerfile
+
+# Use the latest Python image as base
+FROM python:latest
+
+### ===
+existing dockerfile
+###===
+
+# Install curl, Node.js & npm (v20.x)
+RUN apt-get update \
+ && apt-get install -y curl ca-certificates \
+ && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+ && apt-get install -y nodejs \
+ && rm -rf /var/lib/apt/lists/*
+
+# --- Install Google Gemini CLI globally (non-interactive) ---
+RUN npm install -g @google/gemini-cli
+
+</code>
+  </pre>
+</div>
+
+<p><strong>Step 2: Update Docker Compose to Launch the container, attach to local Dev folder for VS Code</strong><br>
+<div class="code-container" style="position: relative;">
+  <pre style="background-color: #f5f5f5; padding: 15px; overflow-x: auto;">
+<code>
+root@zack:~# docker compose up --build -d
+[+] Running 2/2
+ ✔ dev-container            Built            0.0s
+ ✔ Container dev-container  Started          12.0s
+</code>
+  </pre>
+</div>
+
+<!-- Image Placeholder: 01 -->
+<a href="/static/blog/images/gemini2.png" target="_blank">
+        <img src="/static/blog/images/gemini2.png" alt="[Image Placeholder 01: Introduction Graphic]">
+</a>
+
+
+<p><strong>Step 3: Authenticate to Google account</strong><br>
+Run <code>gemini</code> in VS Code terminal and follow the OAuth flow to log in with personal Google account to unlock free Gemini 2.5 Pro access instantly.</p>
+
+<!-- Image Placeholder: 01 -->
+<a href="/static/blog/images/gemini4.png" target="_blank">
+        <img src="/static/blog/images/gemini4.png" alt="[Image Placeholder 01: Introduction Graphic]">
+</a>
+
+<!-- Image Placeholder: 01 -->
+<a href="/static/blog/images/gemini3.png" target="_blank">
+        <img src="/static/blog/images/gemini3.png" alt="[Image Placeholder 01: Introduction Graphic]">
+</a>
+
+<p><strong>Step 4: Start Chatting!</strong></p>
+
+<!-- Image Placeholder: 01 -->
+<a href="/static/blog/images/gemini5.png" target="_blank">
+        <img src="/static/blog/images/gemini5.png" alt="[Image Placeholder 01: Introduction Graphic]">
+</a>
+
+<p><strong>Gemini CLI Command Cheat Sheet</strong></p>
+
+<p>List a “quick-reference” of commands straight from the official docs. .</p>
+
+<p><strong>1. Slash (/) Commands: Session & Meta Control</strong><br>
+<code>/help</code> or <code>/?</code> — Show help and list all available commands.<br>
+<code>/chat save</code> — Save the current conversation history with a tag for easy restoration.<br>
+<code>/chat resume</code> — Resume a conversation from a previously saved tag.<br>
+<code>/chat list</code> — List all saved conversation tags.<br>
+<code>/compress</code> — Replace the entire chat context with a summary. Great for long sessions to save tokens while retaining core info.<br>
+<code>/memory show</code> — Display all layered memory loaded from GEMINI.md files.<br>
+<code>/memory refresh</code> — Reload memory from GEMINI.md files after you’ve updated them.<br>
+<code>/restore [tool_call_id]</code> — Undo the last tool-driven file change (requires <code>--checkpointing</code> when running <code>gemini</code>).<br>
+<code>/stats</code> — Show detailed session stats, including token usage and duration.<br>
+<code>/theme</code> — Open the theme selector.<br>
+<code>/clear</code> (or Ctrl+L) — Clear the terminal screen.<br>
+<code>/quit</code> or <code>/exit</code> — Exit Gemini CLI.</p>
+
+<p><strong>2. At (@) Commands: Inject Files & Directory Context</strong><br>
+<code>@&lt;file_path&gt;</code> — Inject the contents of a specific file into your prompt.  
+<code>@README.md</code> → “What is this file about?”<br>
+<code>@&lt;directory_path&gt;</code> — Inject all (non-gitignored) text files in a directory and its subdirectories.  
+<code>@src/my_project/</code> → “Summarize the code in this directory.”<br>
+(Use backslashes <code>\</code> to escape spaces in paths.)</p>
+
+<p><strong>3. Exclamation (!) Commands: Seamless Shell Integration</strong><br>
+<code>!&lt;shell_command&gt;</code> — Run a single shell command and return to Gemini CLI.  
+<code>!ls -la</code> or <code>!git status</code><br>
+<code>!</code> (alone) — Toggle “Shell mode.” In this mode, everything you type is run as shell commands, and the prompt color changes. Enter <code>!</code> again to exit back to the AI chat.</p>
+
+<hr>
+
+<p><strong>Wrapping Up: The Perfect Duo for Every Workflow</strong></p>
+
+<p>Overall, this is a great move by Google for AI coding. The identical “Agent mode” engine behind VS Code’s Gemini Code Assist, combined with its large context window and generous free quota, can be a game-changer for many developers. With VS Code’s rich interface and extensions, you get your favorite IDE and your leanest shell side by side—both synced by the same AI powerhouse to supercharge your workflow.</p>
+
+<p>Give it a try—haha!</p>
 ====
 <p><strong>What Happened</strong></p>
 
