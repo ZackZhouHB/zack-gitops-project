@@ -27,8 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# CSRF trusted origins (IP-flexible for development)
-CSRF_TRUSTED_ORIGINS = ['*']
+# CSRF trusted origins (proper format for Django 5.2)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://zackblog.work',
+    'https://zackblog.work',
+    'http://www.zackblog.work',
+    'https://www.zackblog.work',
+]
 
 # For older Django versions compatibility
 CSRF_COOKIE_SECURE = False  # Set to True if using HTTPS
