@@ -83,6 +83,7 @@ jobs:
             git reset --hard origin/editing
             git pull
             sudo chmod -R 755 /home/ubuntu/zack-gitops-project/django_project
+            sudo docker pull zackz001/zackblog-django:latest
             sudo docker stop django-blog-container || true
             sudo docker rm django-blog-container || true
-            sudo docker run -d --name django-blog-container -p 80:8000 -v /home/ubuntu/zack-gitops-project/django_project:/app zackz001/zackblog-django:latest
+            sudo docker run -d --name django-blog-container -p 80:8000 zackz001/zackblog-django:latest
