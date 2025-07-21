@@ -266,16 +266,14 @@ python3 modu.py --profiles prod --agent dynatrace --output dt.csv
 <hr>
 
 <p><strong>Key Achievements</strong></p>
-
 <ol>
-    <li><strong>From Specific to Generic</strong>: Transformed a single-purpose script into a flexible framework.</li>
-    <li><strong>Production-Ready Features</strong>: Configurable timeouts, retries, and comprehensive error handling.</li>
-    <li><strong>Time Savings</strong>: Reduced a manual, days-long process to minutes.</li>
-    <li><strong>Future-Proof Design</strong>: New agents can be added with minimal code.</li>
+    <li><strong>From Monolith to Modular Framework</strong>: Replaced a rigid, 505-line script hard-coded for a single agent (Airlock) with a flexible, extensible framework built on the Strategy design pattern.</li>
+    <li><strong>True "Plugin" Architecture</strong>: New agents (like Dynatrace) can be added simply by inheriting an abstract class and implementing four methods. A template (<code>new_agent_template.py</code>) is provided to make this effortless.</li>
+    <li><strong>Eliminated Code Duplication</strong>: Centralized common logic for AWS and SSM interactions, drastically reducing maintenance overhead. Adding a new agent no longer requires copy-pasting code.</li>
+    <li><strong>Simplified Command-Line Interface</strong>: A single, powerful CLI now handles all checks. Users can switch between agents with a simple flag (e.g., <code>--agent airlock</code> vs. <code>--agent dynatrace</code>).</li>
 </ol>
 
 <p><strong>Next Steps</strong></p>
-
 <ol>
     <li><strong>Parallel Processing</strong>: Scan accounts concurrently for faster results.</li>
     <li><strong>Additional Agents</strong>: Support for New Relic, Datadog, etc.</li>
@@ -283,7 +281,7 @@ python3 modu.py --profiles prod --agent dynatrace --output dt.csv
     <li><strong>Remediation Features</strong>: Option to install missing agents.</li>
 </ol>
 
-<p>This project demonstrates how real-world challenges can lead to robust, reusable solutions. The security team got their Airlock report, the monitoring team can now get Dynatrace insights, and we've built a tool that will save countless hours for future agent audits.</p>
+<p>This project demonstrates how refactoring a single-purpose script can lead to a robust, reusable framework. The security team got their Airlock report, the monitoring team can now get Dynatrace insights, and we've engineered a tool that will save countless hours for all future agent audits.</p>
 
 ===
 
