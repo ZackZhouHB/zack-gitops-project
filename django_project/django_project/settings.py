@@ -25,17 +25,10 @@ SECRET_KEY = 'exhlfdat&vfum(-34*c2uroi(($ww(yo$9pv98=e6p^gl(-eoj'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '13.211.254.229', 'zackblog.work', 'www.zackblog.work']
+ALLOWED_HOSTS = ['*']
 
-# CSRF trusted origins for production domains
-CSRF_TRUSTED_ORIGINS = [
-    'https://zackblog.work',
-    'https://www.zackblog.work',
-    'http://zackblog.work',
-    'http://www.zackblog.work',
-    'http://13.211.254.229',
-    'https://13.211.254.229',
-]
+# CSRF trusted origins (IP-flexible for development)
+CSRF_TRUSTED_ORIGINS = ['*']
 
 # For older Django versions compatibility
 CSRF_COOKIE_SECURE = False  # Set to True if using HTTPS
