@@ -1,0 +1,187 @@
+ceremony,category,film,winner,imdb_rating,Metascore,Tomatometer
+72,BEST PICTURE,American Beauty,True,8.3,84.0,87%
+72,BEST PICTURE,The Cider House Rules,False,7.4,75.0,71%
+72,BEST PICTURE,The Green Mile,False,8.6,61.0,79%
+72,BEST PICTURE,The Insider,False,7.8,85.0,96%
+72,BEST PICTURE,The Sixth Sense,False,8.2,64.0,86%
+73,BEST PICTURE,Chocolat,False,7.2,64.0,63%
+73,BEST PICTURE,"Crouching Tiger, Hidden Dragon",False,5.0,94.0,98%
+73,BEST PICTURE,Erin Brockovich,False,7.5,73.0,85%
+73,BEST PICTURE,Gladiator,True,8.5,67.0,80%
+73,BEST PICTURE,Traffic,False,7.6,86.0,93%
+74,BEST PICTURE,A Beautiful Mind,True,8.2,72.0,74%
+74,BEST PICTURE,Gosford Park,False,7.2,90.0,87%
+74,BEST PICTURE,In the Bedroom,False,7.4,86.0,93%
+74,BEST PICTURE,The Lord of the Rings: The Fellowship of the Ring,False,8.9,92.0,92%
+74,BEST PICTURE,Moulin Rouge,False,7.6,,73%
+75,BEST PICTURE,Chicago,True,8.0,81.0,87%
+75,BEST PICTURE,Gangs of New York,False,7.5,72.0,72%
+75,BEST PICTURE,The Hours,False,7.5,80.0,80%
+75,BEST PICTURE,The Lord of the Rings: The Two Towers,False,8.8,87.0,95%
+75,BEST PICTURE,The Pianist,False,8.5,85.0,95%
+76,BEST PICTURE,The Lord of the Rings: The Return of the King,True,9.0,94.0,94%
+76,BEST PICTURE,Lost in Translation,False,7.7,91.0,95%
+76,BEST PICTURE,Master and Commander: The Far Side of the World,False,7.5,81.0,85%
+76,BEST PICTURE,Mystic River,False,7.9,84.0,89%
+76,BEST PICTURE,Seabiscuit,False,7.3,72.0,78%
+77,BEST PICTURE,The Aviator,False,7.5,77.0,86%
+77,BEST PICTURE,Finding Neverland,False,7.7,67.0,82%
+77,BEST PICTURE,Million Dollar Baby,True,8.1,86.0,90%
+77,BEST PICTURE,Ray,False,7.7,73.0,79%
+77,BEST PICTURE,Sideways,False,7.5,94.0,97%
+78,BEST PICTURE,Brokeback Mountain,False,7.7,87.0,88%
+78,BEST PICTURE,Capote,False,7.3,88.0,89%
+78,BEST PICTURE,Crash,True,7.7,66.0,73%
+78,BEST PICTURE,"Good Night, and Good Luck.",False,7.4,80.0,93%
+78,BEST PICTURE,Munich,False,7.5,74.0,78%
+79,BEST PICTURE,Babel,False,7.5,69.0,68%
+79,BEST PICTURE,The Departed,True,8.5,85.0,91%
+79,BEST PICTURE,Letters from Iwo Jima,False,7.8,89.0,91%
+79,BEST PICTURE,Little Miss Sunshine,False,7.8,80.0,91%
+79,BEST PICTURE,The Queen,False,7.1,90.0,92%
+80,BEST PICTURE,Atonement,False,7.8,85.0,83%
+80,BEST PICTURE,Juno,False,7.4,81.0,93%
+80,BEST PICTURE,Michael Clayton,False,7.2,82.0,90%
+80,BEST PICTURE,No Country for Old Men,True,8.2,92.0,93%
+80,BEST PICTURE,There Will Be Blood,False,8.2,93.0,91%
+81,BEST PICTURE,The Curious Case of Benjamin Button,False,7.8,70.0,72%
+81,BEST PICTURE,Frost/Nixon,False,7.6,80.0,93%
+81,BEST PICTURE,Milk,False,7.5,83.0,93%
+81,BEST PICTURE,The Reader,False,7.6,58.0,63%
+81,BEST PICTURE,Slumdog Millionaire,True,8.0,84.0,91%
+82,BEST PICTURE,Avatar,False,7.9,83.0,81%
+82,BEST PICTURE,The Blind Side,False,7.6,53.0,66%
+82,BEST PICTURE,District 9,False,7.9,81.0,90%
+82,BEST PICTURE,An Education,False,7.2,85.0,93%
+82,BEST PICTURE,The Hurt Locker,True,7.5,95.0,96%
+82,BEST PICTURE,Inglourious Basterds,False,8.4,69.0,89%
+82,BEST PICTURE,Precious,False,7.3,78.0,97%
+82,BEST PICTURE,A Serious Man,False,7.0,88.0,89%
+82,BEST PICTURE,Up,False,8.3,88.0,98%
+82,BEST PICTURE,Up in the Air,False,7.4,83.0,90%
+83,BEST PICTURE,Black Swan,False,8.0,79.0,85%
+83,BEST PICTURE,The Fighter,False,7.8,79.0,91%
+83,BEST PICTURE,Inception,False,8.8,74.0,87%
+83,BEST PICTURE,The Kids Are All Right,False,7.0,86.0,93%
+83,BEST PICTURE,The King's Speech,True,8.0,88.0,94%
+83,BEST PICTURE,127 Hours,False,7.5,82.0,93%
+83,BEST PICTURE,The Social Network,False,7.8,95.0,96%
+83,BEST PICTURE,Toy Story 3,False,8.3,92.0,98%
+83,BEST PICTURE,True Grit,False,7.6,80.0,95%
+83,BEST PICTURE,Winter's Bone,False,7.1,90.0,94%
+84,BEST PICTURE,The Artist,True,7.8,89.0,95%
+84,BEST PICTURE,The Descendants,False,7.3,84.0,88%
+84,BEST PICTURE,Extremely Loud & Incredibly Close,False,6.9,46.0,44%
+84,BEST PICTURE,The Help,False,8.1,62.0,76%
+84,BEST PICTURE,Hugo,False,7.5,83.0,93%
+84,BEST PICTURE,Midnight in Paris,False,7.6,81.0,93%
+84,BEST PICTURE,Moneyball,False,7.6,87.0,94%
+84,BEST PICTURE,The Tree of Life,False,6.8,85.0,85%
+84,BEST PICTURE,War Horse,False,7.2,72.0,74%
+85,BEST PICTURE,Amour,False,7.9,95.0,93%
+85,BEST PICTURE,Argo,True,7.7,86.0,96%
+85,BEST PICTURE,Beasts of the Southern Wild,False,7.2,86.0,87%
+85,BEST PICTURE,Django Unchained,False,8.5,81.0,87%
+85,BEST PICTURE,Les Misérables,False,7.5,63.0,70%
+85,BEST PICTURE,Life of Pi,False,7.9,79.0,86%
+85,BEST PICTURE,Lincoln,False,7.8,87.0,90%
+85,BEST PICTURE,Silver Linings Playbook,False,7.7,81.0,92%
+85,BEST PICTURE,Zero Dark Thirty,False,7.4,95.0,91%
+86,BEST PICTURE,American Hustle,False,7.2,90.0,92%
+86,BEST PICTURE,Captain Phillips,False,7.8,82.0,93%
+86,BEST PICTURE,Dallas Buyers Club,False,7.9,77.0,92%
+86,BEST PICTURE,Gravity,False,7.7,96.0,96%
+86,BEST PICTURE,Her,False,8.0,91.0,95%
+86,BEST PICTURE,Nebraska,False,7.7,86.0,90%
+86,BEST PICTURE,Philomena,False,7.6,77.0,91%
+86,BEST PICTURE,12 Years a Slave,True,8.1,96.0,95%
+86,BEST PICTURE,The Wolf of Wall Street,False,8.2,75.0,79%
+87,BEST PICTURE,American Sniper,False,7.3,73.0,72%
+87,BEST PICTURE,Birdman or (The Unexpected Virtue of Ignorance),True,7.7,87.0,91%
+87,BEST PICTURE,Boyhood,False,7.9,100.0,97%
+87,BEST PICTURE,The Grand Budapest Hotel,False,8.1,88.0,92%
+87,BEST PICTURE,The Imitation Game,False,8.0,71.0,90%
+87,BEST PICTURE,Selma,False,7.5,79.0,99%
+87,BEST PICTURE,The Theory of Everything,False,7.7,71.0,81%
+87,BEST PICTURE,Whiplash,False,8.5,89.0,94%
+88,BEST PICTURE,The Big Short,False,7.8,81.0,89%
+88,BEST PICTURE,Bridge of Spies,False,7.6,81.0,91%
+88,BEST PICTURE,Brooklyn,False,8.4,88.0,97%
+88,BEST PICTURE,Mad Max: Fury Road,False,8.1,90.0,97%
+88,BEST PICTURE,The Martian,False,8.0,80.0,91%
+88,BEST PICTURE,The Revenant,False,8.0,76.0,78%
+88,BEST PICTURE,Room,False,8.1,86.0,93%
+88,BEST PICTURE,Spotlight,True,8.1,93.0,97%
+89,BEST PICTURE,Arrival,False,7.9,81.0,94%
+89,BEST PICTURE,Fences,False,7.8,79.0,92%
+89,BEST PICTURE,Hacksaw Ridge,False,8.1,71.0,84%
+89,BEST PICTURE,Hell or High Water,False,7.6,88.0,97%
+89,BEST PICTURE,Hidden Figures,False,7.8,74.0,93%
+89,BEST PICTURE,La La Land,False,8.0,94.0,91%
+89,BEST PICTURE,Lion,False,6.7,69.0,84%
+89,BEST PICTURE,Manchester by the Sea,False,7.8,96.0,96%
+89,BEST PICTURE,Moonlight,True,7.4,99.0,98%
+90,BEST PICTURE,Call Me by Your Name,False,7.8,94.0,95%
+90,BEST PICTURE,Darkest Hour,False,7.4,75.0,84%
+90,BEST PICTURE,Dunkirk,False,7.8,94.0,92%
+90,BEST PICTURE,Get Out,False,7.8,85.0,98%
+90,BEST PICTURE,Lady Bird,False,7.4,93.0,99%
+90,BEST PICTURE,Phantom Thread,False,7.4,90.0,91%
+90,BEST PICTURE,The Post,False,7.2,83.0,88%
+90,BEST PICTURE,The Shape of Water,True,7.3,87.0,92%
+90,BEST PICTURE,"Three Billboards outside Ebbing, Missouri",False,8.1,88.0,90%
+91,BEST PICTURE,Black Panther,False,7.3,88.0,96%
+91,BEST PICTURE,BlacKkKlansman,False,7.5,83.0,96%
+91,BEST PICTURE,Bohemian Rhapsody,False,7.9,49.0,60%
+91,BEST PICTURE,The Favourite,False,7.5,91.0,93%
+91,BEST PICTURE,Green Book,True,8.2,69.0,77%
+91,BEST PICTURE,Roma,False,7.7,96.0,96%
+91,BEST PICTURE,A Star Is Born,False,7.6,88.0,90%
+91,BEST PICTURE,Vice,False,7.2,61.0,64%
+92,BEST PICTURE,Ford v Ferrari,False,8.1,81.0,92%
+92,BEST PICTURE,The Irishman,False,7.8,94.0,95%
+92,BEST PICTURE,Jojo Rabbit,False,7.9,58.0,80%
+92,BEST PICTURE,Joker,False,8.3,59.0,68%
+92,BEST PICTURE,Little Women,False,7.8,91.0,95%
+92,BEST PICTURE,Marriage Story,False,7.9,94.0,95%
+92,BEST PICTURE,1917,False,8.2,78.0,88%
+92,BEST PICTURE,Once upon a Time...in Hollywood,False,7.6,84.0,86%
+92,BEST PICTURE,Parasite,True,8.5,97.0,99%
+93,BEST PICTURE,The Father,False,8.2,88.0,98%
+93,BEST PICTURE,Judas and the Black Messiah,False,7.4,84.0,96%
+93,BEST PICTURE,Mank,False,6.8,79.0,83%
+93,BEST PICTURE,Minari,False,7.4,89.0,98%
+93,BEST PICTURE,Nomadland,True,7.3,87.0,93%
+93,BEST PICTURE,Promising Young Woman,False,7.5,72.0,90%
+93,BEST PICTURE,Sound of Metal,False,7.7,82.0,97%
+93,BEST PICTURE,The Trial of the Chicago 7,False,7.7,76.0,89%
+94,BEST PICTURE,Belfast,False,7.2,75.0,86%
+94,BEST PICTURE,CODA,True,8.0,72.0,94%
+94,BEST PICTURE,Don't Look Up,False,7.2,49.0,
+94,BEST PICTURE,Drive My Car,False,7.5,91.0,97%
+94,BEST PICTURE,Dune,False,7.3,41.0,36%
+94,BEST PICTURE,King Richard,False,7.5,76.0,90%
+94,BEST PICTURE,Licorice Pizza,False,7.1,90.0,90%
+94,BEST PICTURE,Nightmare Alley,False,7.0,70.0,80%
+94,BEST PICTURE,The Power of the Dog,False,6.8,89.0,94%
+94,BEST PICTURE,West Side Story,False,7.1,86.0,92%
+95,BEST PICTURE,All Quiet on the Western Front,False,8.1,76.0,90%
+95,BEST PICTURE,Avatar: The Way of Water,False,7.5,67.0,76%
+95,BEST PICTURE,The Banshees of Inisherin,False,7.7,87.0,96%
+95,BEST PICTURE,Elvis,False,7.3,64.0,77%
+95,BEST PICTURE,Everything Everywhere All at Once,True,7.8,81.0,94%
+95,BEST PICTURE,The Fabelmans,False,7.5,85.0,92%
+95,BEST PICTURE,Tár,False,7.4,93.0,
+95,BEST PICTURE,Top Gun: Maverick,False,8.2,78.0,96%
+95,BEST PICTURE,Triangle of Sadness,False,7.3,63.0,72%
+95,BEST PICTURE,Women Talking,False,6.9,77.0,90%
+96,BEST PICTURE,American Fiction,False,7.5,81.0,93%
+96,BEST PICTURE,Anatomy of a Fall,False,7.6,86.0,96%
+96,BEST PICTURE,Barbie,False,6.8,80.0,88%
+96,BEST PICTURE,The Holdovers,False,7.9,82.0,97%
+96,BEST PICTURE,Killers of the Flower Moon,False,7.6,89.0,93%
+96,BEST PICTURE,Maestro,False,6.5,77.0,
+96,BEST PICTURE,Oppenheimer,True,8.3,90.0,93%
+96,BEST PICTURE,Past Lives,False,7.8,94.0,95%
+96,BEST PICTURE,Poor Things,False,7.8,88.0,93%
+96,BEST PICTURE,The Zone of Interest,False,7.3,92.0,93%

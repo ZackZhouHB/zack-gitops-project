@@ -1,0 +1,437 @@
+year_film,year_ceremony,ceremony,category,name,film,winner
+1999,2000,72,ACTOR IN A LEADING ROLE,Russell Crowe,The Insider,False
+1999,2000,72,ACTOR IN A LEADING ROLE,Richard Farnsworth,The Straight Story,False
+1999,2000,72,ACTOR IN A LEADING ROLE,Sean Penn,Sweet and Lowdown,False
+1999,2000,72,ACTOR IN A LEADING ROLE,Kevin Spacey,American Beauty,True
+1999,2000,72,ACTOR IN A LEADING ROLE,Denzel Washington,The Hurricane,False
+1999,2000,72,ACTRESS IN A LEADING ROLE,Annette Bening,American Beauty,False
+1999,2000,72,ACTRESS IN A LEADING ROLE,Janet McTeer,Tumbleweeds,False
+1999,2000,72,ACTRESS IN A LEADING ROLE,Julianne Moore,The End of the Affair,False
+1999,2000,72,ACTRESS IN A LEADING ROLE,Meryl Streep,Music of the Heart,False
+1999,2000,72,ACTRESS IN A LEADING ROLE,Hilary Swank,Boys Don't Cry,True
+1999,2000,72,BEST PICTURE,"Bruce Cohen and Dan Jinks, Producers",American Beauty,True
+1999,2000,72,BEST PICTURE,"Richard N. Gladstein, Producer",The Cider House Rules,False
+1999,2000,72,BEST PICTURE,"David Valdes and Frank Darabont, Producers",The Green Mile,False
+1999,2000,72,BEST PICTURE,"Michael Mann and Pieter Jan Brugge, Producers",The Insider,False
+1999,2000,72,BEST PICTURE,"Frank Marshall, Kathleen Kennedy and Barry Mendel, Producers",The Sixth Sense,False
+2000,2001,73,ACTOR IN A LEADING ROLE,Javier Bardem,Before Night Falls,False
+2000,2001,73,ACTOR IN A LEADING ROLE,Russell Crowe,Gladiator,True
+2000,2001,73,ACTOR IN A LEADING ROLE,Tom Hanks,Cast Away,False
+2000,2001,73,ACTOR IN A LEADING ROLE,Ed Harris,Pollock,False
+2000,2001,73,ACTOR IN A LEADING ROLE,Geoffrey Rush,Quills,False
+2000,2001,73,ACTRESS IN A LEADING ROLE,Joan Allen,The Contender,False
+2000,2001,73,ACTRESS IN A LEADING ROLE,Juliette Binoche,Chocolat,False
+2000,2001,73,ACTRESS IN A LEADING ROLE,Ellen Burstyn,Requiem for a Dream,False
+2000,2001,73,ACTRESS IN A LEADING ROLE,Laura Linney,You Can Count on Me,False
+2000,2001,73,ACTRESS IN A LEADING ROLE,Julia Roberts,Erin Brockovich,True
+2000,2001,73,BEST PICTURE,"David Brown, Kit Golden and Leslie Holleran, Producers",Chocolat,False
+2000,2001,73,BEST PICTURE,"Bill Kong, Hsu Li Kong and Ang Lee, Producers","Crouching Tiger, Hidden Dragon",False
+2000,2001,73,BEST PICTURE,"Danny DeVito, Michael Shamberg and Stacey Sher, Producers",Erin Brockovich,False
+2000,2001,73,BEST PICTURE,"Douglas Wick, David Franzoni and Branko Lustig, Producers",Gladiator,True
+2000,2001,73,BEST PICTURE,"Edward Zwick, Marshall Herskovitz and Laura Bickford, Producers",Traffic,False
+2001,2002,74,ACTOR IN A LEADING ROLE,Russell Crowe,A Beautiful Mind,False
+2001,2002,74,ACTOR IN A LEADING ROLE,Sean Penn,I Am Sam,False
+2001,2002,74,ACTOR IN A LEADING ROLE,Will Smith,Ali,False
+2001,2002,74,ACTOR IN A LEADING ROLE,Denzel Washington,Training Day,True
+2001,2002,74,ACTOR IN A LEADING ROLE,Tom Wilkinson,In the Bedroom,False
+2001,2002,74,ACTRESS IN A LEADING ROLE,Halle Berry,Monster's Ball,True
+2001,2002,74,ACTRESS IN A LEADING ROLE,Judi Dench,Iris,False
+2001,2002,74,ACTRESS IN A LEADING ROLE,Nicole Kidman,Moulin Rouge,False
+2001,2002,74,ACTRESS IN A LEADING ROLE,Sissy Spacek,In the Bedroom,False
+2001,2002,74,ACTRESS IN A LEADING ROLE,Renée Zellweger,Bridget Jones's Diary,False
+2001,2002,74,BEST PICTURE,"Brian Grazer and Ron Howard, Producers",A Beautiful Mind,True
+2001,2002,74,BEST PICTURE,"Robert Altman, Bob Balaban and David Levy, Producers",Gosford Park,False
+2001,2002,74,BEST PICTURE,"Graham Leader, Ross Katz and Todd Field, Producers",In the Bedroom,False
+2001,2002,74,BEST PICTURE,"Peter Jackson, Fran Walsh and Barrie M. Osborne, Producers",The Lord of the Rings: The Fellowship of the Ring,False
+2001,2002,74,BEST PICTURE,"Martin Brown, Baz Luhrmann and Fred Baron, Producers",Moulin Rouge,False
+2002,2003,75,ACTOR IN A LEADING ROLE,Adrien Brody,The Pianist,True
+2002,2003,75,ACTOR IN A LEADING ROLE,Nicolas Cage,Adaptation,False
+2002,2003,75,ACTOR IN A LEADING ROLE,Michael Caine,The Quiet American,False
+2002,2003,75,ACTOR IN A LEADING ROLE,Daniel Day-Lewis,Gangs of New York,False
+2002,2003,75,ACTOR IN A LEADING ROLE,Jack Nicholson,About Schmidt,False
+2002,2003,75,ACTRESS IN A LEADING ROLE,Salma Hayek,Frida,False
+2002,2003,75,ACTRESS IN A LEADING ROLE,Nicole Kidman,The Hours,True
+2002,2003,75,ACTRESS IN A LEADING ROLE,Diane Lane,Unfaithful,False
+2002,2003,75,ACTRESS IN A LEADING ROLE,Julianne Moore,Far from Heaven,False
+2002,2003,75,ACTRESS IN A LEADING ROLE,Renée Zellweger,Chicago,False
+2002,2003,75,BEST PICTURE,"Martin Richards, Producer",Chicago,True
+2002,2003,75,BEST PICTURE,"Alberto Grimaldi and Harvey Weinstein, Producers",Gangs of New York,False
+2002,2003,75,BEST PICTURE,"Scott Rudin and Robert Fox, Producers",The Hours,False
+2002,2003,75,BEST PICTURE,"Barrie M. Osborne, Fran Walsh and Peter Jackson, Producers",The Lord of the Rings: The Two Towers,False
+2002,2003,75,BEST PICTURE,"Roman Polanski, Robert Benmussa and Alain Sarde, Producers",The Pianist,False
+2003,2004,76,ACTOR IN A LEADING ROLE,Johnny Depp,Pirates of the Caribbean: The Curse of the Black Pearl,False
+2003,2004,76,ACTOR IN A LEADING ROLE,Ben Kingsley,House of Sand and Fog,False
+2003,2004,76,ACTOR IN A LEADING ROLE,Jude Law,Cold Mountain,False
+2003,2004,76,ACTOR IN A LEADING ROLE,Bill Murray,Lost in Translation,False
+2003,2004,76,ACTOR IN A LEADING ROLE,Sean Penn,Mystic River,True
+2003,2004,76,ACTRESS IN A LEADING ROLE,Keisha Castle-Hughes,Whale Rider,False
+2003,2004,76,ACTRESS IN A LEADING ROLE,Diane Keaton,Something's Gotta Give,False
+2003,2004,76,ACTRESS IN A LEADING ROLE,Samantha Morton,In America,False
+2003,2004,76,ACTRESS IN A LEADING ROLE,Charlize Theron,Monster,True
+2003,2004,76,ACTRESS IN A LEADING ROLE,Naomi Watts,21 Grams,False
+2003,2004,76,BEST PICTURE,"Barrie M. Osborne, Peter Jackson and Fran Walsh, Producers",The Lord of the Rings: The Return of the King,True
+2003,2004,76,BEST PICTURE,"Ross Katz and Sofia Coppola, Producers",Lost in Translation,False
+2003,2004,76,BEST PICTURE,"Samuel Goldwyn, Jr., Peter Weir and Duncan Henderson, Producers",Master and Commander: The Far Side of the World,False
+2003,2004,76,BEST PICTURE,"Robert Lorenz, Judie G. Hoyt and Clint Eastwood, Producers",Mystic River,False
+2003,2004,76,BEST PICTURE,"Kathleen Kennedy, Frank Marshall and Gary Ross, Producers",Seabiscuit,False
+2004,2005,77,ACTOR IN A LEADING ROLE,Don Cheadle,Hotel Rwanda,False
+2004,2005,77,ACTOR IN A LEADING ROLE,Johnny Depp,Finding Neverland,False
+2004,2005,77,ACTOR IN A LEADING ROLE,Leonardo DiCaprio,The Aviator,False
+2004,2005,77,ACTOR IN A LEADING ROLE,Clint Eastwood,Million Dollar Baby,False
+2004,2005,77,ACTOR IN A LEADING ROLE,Jamie Foxx,Ray,True
+2004,2005,77,ACTRESS IN A LEADING ROLE,Annette Bening,Being Julia,False
+2004,2005,77,ACTRESS IN A LEADING ROLE,Catalina Sandino Moreno,Maria Full of Grace,False
+2004,2005,77,ACTRESS IN A LEADING ROLE,Imelda Staunton,Vera Drake,False
+2004,2005,77,ACTRESS IN A LEADING ROLE,Hilary Swank,Million Dollar Baby,True
+2004,2005,77,ACTRESS IN A LEADING ROLE,Kate Winslet,Eternal Sunshine of the Spotless Mind,False
+2004,2005,77,BEST PICTURE,"Michael Mann and Graham King, Producers",The Aviator,False
+2004,2005,77,BEST PICTURE,"Richard N. Gladstein and Nellie Bellflower, Producers",Finding Neverland,False
+2004,2005,77,BEST PICTURE,"Clint Eastwood, Albert S. Ruddy and Tom Rosenberg, Producers",Million Dollar Baby,True
+2004,2005,77,BEST PICTURE,"Taylor Hackford, Stuart Benjamin and Howard Baldwin, Producers",Ray,False
+2004,2005,77,BEST PICTURE,"Michael London, Producer",Sideways,False
+2005,2006,78,ACTOR IN A LEADING ROLE,Philip Seymour Hoffman,Capote,True
+2005,2006,78,ACTOR IN A LEADING ROLE,Terrence Howard,Hustle & Flow,False
+2005,2006,78,ACTOR IN A LEADING ROLE,Heath Ledger,Brokeback Mountain,False
+2005,2006,78,ACTOR IN A LEADING ROLE,Joaquin Phoenix,Walk the Line,False
+2005,2006,78,ACTOR IN A LEADING ROLE,David Strathairn,"Good Night, and Good Luck.",False
+2005,2006,78,ACTRESS IN A LEADING ROLE,Judi Dench,Mrs. Henderson Presents,False
+2005,2006,78,ACTRESS IN A LEADING ROLE,Felicity Huffman,Transamerica,False
+2005,2006,78,ACTRESS IN A LEADING ROLE,Keira Knightley,Pride & Prejudice,False
+2005,2006,78,ACTRESS IN A LEADING ROLE,Charlize Theron,North Country,False
+2005,2006,78,ACTRESS IN A LEADING ROLE,Reese Witherspoon,Walk the Line,True
+2005,2006,78,BEST PICTURE,"Diana Ossana and James Schamus, Producers",Brokeback Mountain,False
+2005,2006,78,BEST PICTURE,"Caroline Baron, William Vince and Michael Ohoven, Producers",Capote,False
+2005,2006,78,BEST PICTURE,"Paul Haggis and Cathy Schulman, Producers",Crash,True
+2005,2006,78,BEST PICTURE,"Grant Heslov, Producer","Good Night, and Good Luck.",False
+2005,2006,78,BEST PICTURE,"Kathleen Kennedy, Steven Spielberg and Barry Mendel, Producers",Munich,False
+2006,2007,79,ACTOR IN A LEADING ROLE,Leonardo DiCaprio,Blood Diamond,False
+2006,2007,79,ACTOR IN A LEADING ROLE,Ryan Gosling,Half Nelson,False
+2006,2007,79,ACTOR IN A LEADING ROLE,Peter O'Toole,Venus,False
+2006,2007,79,ACTOR IN A LEADING ROLE,Will Smith,The Pursuit of Happyness,False
+2006,2007,79,ACTOR IN A LEADING ROLE,Forest Whitaker,The Last King of Scotland,True
+2006,2007,79,ACTRESS IN A LEADING ROLE,Penélope Cruz,Volver,False
+2006,2007,79,ACTRESS IN A LEADING ROLE,Judi Dench,Notes on a Scandal,False
+2006,2007,79,ACTRESS IN A LEADING ROLE,Helen Mirren,The Queen,True
+2006,2007,79,ACTRESS IN A LEADING ROLE,Meryl Streep,The Devil Wears Prada,False
+2006,2007,79,ACTRESS IN A LEADING ROLE,Kate Winslet,Little Children,False
+2006,2007,79,BEST PICTURE,"Alejandro González Iñárritu, Jon Kilik and Steve Golin, Producers",Babel,False
+2006,2007,79,BEST PICTURE,"Graham King, Producer",The Departed,True
+2006,2007,79,BEST PICTURE,"Clint Eastwood, Steven Spielberg and Robert Lorenz, Producers",Letters from Iwo Jima,False
+2006,2007,79,BEST PICTURE,"David T. Friendly, Peter Saraf and Marc Turtletaub, Producers",Little Miss Sunshine,False
+2006,2007,79,BEST PICTURE,"Andy Harries, Christine Langan and Tracey Seaward, Producers",The Queen,False
+2007,2008,80,ACTOR IN A LEADING ROLE,George Clooney,Michael Clayton,False
+2007,2008,80,ACTOR IN A LEADING ROLE,Daniel Day-Lewis,There Will Be Blood,True
+2007,2008,80,ACTOR IN A LEADING ROLE,Johnny Depp,Sweeney Todd The Demon Barber of Fleet Street,False
+2007,2008,80,ACTOR IN A LEADING ROLE,Tommy Lee Jones,In the Valley of Elah,False
+2007,2008,80,ACTOR IN A LEADING ROLE,Viggo Mortensen,Eastern Promises,False
+2007,2008,80,ACTRESS IN A LEADING ROLE,Cate Blanchett,Elizabeth: The Golden Age,False
+2007,2008,80,ACTRESS IN A LEADING ROLE,Julie Christie,Away from Her,False
+2007,2008,80,ACTRESS IN A LEADING ROLE,Marion Cotillard,La Vie en Rose,True
+2007,2008,80,ACTRESS IN A LEADING ROLE,Laura Linney,The Savages,False
+2007,2008,80,ACTRESS IN A LEADING ROLE,Ellen Page,Juno,False
+2007,2008,80,BEST PICTURE,"Tim Bevan, Eric Fellner and Paul Webster, Producers",Atonement,False
+2007,2008,80,BEST PICTURE,"Lianne Halfon, Mason Novick and Russell Smith, Producers",Juno,False
+2007,2008,80,BEST PICTURE,"Sydney Pollack, Jennifer Fox and Kerry Orent, Producers",Michael Clayton,False
+2007,2008,80,BEST PICTURE,"Scott Rudin, Ethan Coen and Joel Coen, Producers",No Country for Old Men,True
+2007,2008,80,BEST PICTURE,"JoAnne Sellar, Paul Thomas Anderson and Daniel Lupi, Producers",There Will Be Blood,False
+2008,2009,81,ACTOR IN A LEADING ROLE,Richard Jenkins,The Visitor,False
+2008,2009,81,ACTOR IN A LEADING ROLE,Frank Langella,Frost/Nixon,False
+2008,2009,81,ACTOR IN A LEADING ROLE,Sean Penn,Milk,True
+2008,2009,81,ACTOR IN A LEADING ROLE,Brad Pitt,The Curious Case of Benjamin Button,False
+2008,2009,81,ACTOR IN A LEADING ROLE,Mickey Rourke,The Wrestler,False
+2008,2009,81,ACTRESS IN A LEADING ROLE,Anne Hathaway,Rachel Getting Married,False
+2008,2009,81,ACTRESS IN A LEADING ROLE,Angelina Jolie,Changeling,False
+2008,2009,81,ACTRESS IN A LEADING ROLE,Melissa Leo,Frozen River,False
+2008,2009,81,ACTRESS IN A LEADING ROLE,Meryl Streep,Doubt,False
+2008,2009,81,ACTRESS IN A LEADING ROLE,Kate Winslet,The Reader,True
+2008,2009,81,BEST PICTURE,"Kathleen Kennedy, Frank Marshall and Ceán Chaffin, Producers",The Curious Case of Benjamin Button,False
+2008,2009,81,BEST PICTURE,"Brian Grazer, Ron Howard and Eric Fellner, Producers",Frost/Nixon,False
+2008,2009,81,BEST PICTURE,"Dan Jinks and Bruce Cohen, Producers",Milk,False
+2008,2009,81,BEST PICTURE,"Anthony Minghella, Sydney Pollack, Donna Gigliotti and Redmond Morris, Producers",The Reader,False
+2008,2009,81,BEST PICTURE,"Christian Colson, Producer",Slumdog Millionaire,True
+2009,2010,82,ACTOR IN A LEADING ROLE,Jeff Bridges,Crazy Heart,True
+2009,2010,82,ACTOR IN A LEADING ROLE,George Clooney,Up in the Air,False
+2009,2010,82,ACTOR IN A LEADING ROLE,Colin Firth,A Single Man,False
+2009,2010,82,ACTOR IN A LEADING ROLE,Morgan Freeman,Invictus,False
+2009,2010,82,ACTOR IN A LEADING ROLE,Jeremy Renner,The Hurt Locker,False
+2009,2010,82,ACTRESS IN A LEADING ROLE,Sandra Bullock,The Blind Side,True
+2009,2010,82,ACTRESS IN A LEADING ROLE,Helen Mirren,The Last Station,False
+2009,2010,82,ACTRESS IN A LEADING ROLE,Carey Mulligan,An Education,False
+2009,2010,82,ACTRESS IN A LEADING ROLE,Gabourey Sidibe,Precious: Based on the Novel 'Push' by Sapphire,False
+2009,2010,82,ACTRESS IN A LEADING ROLE,Meryl Streep,Julie & Julia,False
+2009,2010,82,BEST PICTURE,"James Cameron and Jon Landau, Producers",Avatar,False
+2009,2010,82,BEST PICTURE,"Gil Netter, Andrew A. Kosove and Broderick Johnson, Producers",The Blind Side,False
+2009,2010,82,BEST PICTURE,"Peter Jackson and Carolynne Cunningham, Producers",District 9,False
+2009,2010,82,BEST PICTURE,"Finola Dwyer and Amanda Posey, Producers",An Education,False
+2009,2010,82,BEST PICTURE,"Kathryn Bigelow, Mark Boal, Nicolas Chartier and Greg Shapiro, Producers",The Hurt Locker,True
+2009,2010,82,BEST PICTURE,"Lawrence Bender, Producer",Inglourious Basterds,False
+2009,2010,82,BEST PICTURE,"Lee Daniels, Sarah Siegel-Magness and Gary Magness, Producers",Precious: Based on the Novel 'Push' by Sapphire,False
+2009,2010,82,BEST PICTURE,"Joel Coen and Ethan Coen, Producers",A Serious Man,False
+2009,2010,82,BEST PICTURE,"Jonas Rivera, Producer",Up,False
+2009,2010,82,BEST PICTURE,"Daniel Dubiecki, Ivan Reitman and Jason Reitman, Producers",Up in the Air,False
+2010,2011,83,ACTOR IN A LEADING ROLE,Javier Bardem,Biutiful,False
+2010,2011,83,ACTOR IN A LEADING ROLE,Jeff Bridges,True Grit,False
+2010,2011,83,ACTOR IN A LEADING ROLE,Jesse Eisenberg,The Social Network,False
+2010,2011,83,ACTOR IN A LEADING ROLE,Colin Firth,The King's Speech,True
+2010,2011,83,ACTOR IN A LEADING ROLE,James Franco,127 Hours,False
+2010,2011,83,ACTRESS IN A LEADING ROLE,Annette Bening,The Kids Are All Right,False
+2010,2011,83,ACTRESS IN A LEADING ROLE,Nicole Kidman,Rabbit Hole,False
+2010,2011,83,ACTRESS IN A LEADING ROLE,Jennifer Lawrence,Winter's Bone,False
+2010,2011,83,ACTRESS IN A LEADING ROLE,Natalie Portman,Black Swan,True
+2010,2011,83,ACTRESS IN A LEADING ROLE,Michelle Williams,Blue Valentine,False
+2010,2011,83,BEST PICTURE,"Mike Medavoy, Brian Oliver and Scott Franklin, Producers",Black Swan,False
+2010,2011,83,BEST PICTURE,"David Hoberman, Todd Lieberman and Mark Wahlberg, Producers",The Fighter,False
+2010,2011,83,BEST PICTURE,"Emma Thomas and Christopher Nolan, Producers",Inception,False
+2010,2011,83,BEST PICTURE,"Gary Gilbert, Jeffrey Levy-Hinte and Celine Rattray, Producers",The Kids Are All Right,False
+2010,2011,83,BEST PICTURE,"Iain Canning, Emile Sherman and Gareth Unwin, Producers",The King's Speech,True
+2010,2011,83,BEST PICTURE,"Christian Colson, Danny Boyle and John Smithson, Producers",127 Hours,False
+2010,2011,83,BEST PICTURE,"Scott Rudin, Dana Brunetti, Michael De Luca and Ceán Chaffin, Producers",The Social Network,False
+2010,2011,83,BEST PICTURE,"Darla K. Anderson, Producer",Toy Story 3,False
+2010,2011,83,BEST PICTURE,"Scott Rudin, Ethan Coen and Joel Coen, Producers",True Grit,False
+2010,2011,83,BEST PICTURE,"Anne Rosellini and Alix Madigan-Yorkin, Producers",Winter's Bone,False
+2011,2012,84,ACTOR IN A LEADING ROLE,Demián Bichir,A Better Life,False
+2011,2012,84,ACTOR IN A LEADING ROLE,George Clooney,The Descendants,False
+2011,2012,84,ACTOR IN A LEADING ROLE,Jean Dujardin,The Artist,True
+2011,2012,84,ACTOR IN A LEADING ROLE,Gary Oldman,Tinker Tailor Soldier Spy,False
+2011,2012,84,ACTOR IN A LEADING ROLE,Brad Pitt,Moneyball,False
+2011,2012,84,ACTRESS IN A LEADING ROLE,Glenn Close,Albert Nobbs,False
+2011,2012,84,ACTRESS IN A LEADING ROLE,Viola Davis,The Help,False
+2011,2012,84,ACTRESS IN A LEADING ROLE,Rooney Mara,The Girl with the Dragon Tattoo,False
+2011,2012,84,ACTRESS IN A LEADING ROLE,Meryl Streep,The Iron Lady,True
+2011,2012,84,ACTRESS IN A LEADING ROLE,Michelle Williams,My Week with Marilyn,False
+2011,2012,84,BEST PICTURE,"Thomas Langmann, Producer",The Artist,True
+2011,2012,84,BEST PICTURE,"Jim Burke, Alexander Payne and Jim Taylor, Producers",The Descendants,False
+2011,2012,84,BEST PICTURE,"Scott Rudin, Producer",Extremely Loud & Incredibly Close,False
+2011,2012,84,BEST PICTURE,"Brunson Green, Chris Columbus and Michael Barnathan, Producers",The Help,False
+2011,2012,84,BEST PICTURE,"Graham King and Martin Scorsese, Producers",Hugo,False
+2011,2012,84,BEST PICTURE,"Letty Aronson and Stephen Tenenbaum, Producers",Midnight in Paris,False
+2011,2012,84,BEST PICTURE,"Michael De Luca, Rachael Horovitz and Brad Pitt, Producers",Moneyball,False
+2011,2012,84,BEST PICTURE,"Sarah Green, Bill Pohlad, Dede Gardner and Grant Hill, Producers",The Tree of Life,False
+2011,2012,84,BEST PICTURE,"Steven Spielberg and Kathleen Kennedy, Producers",War Horse,False
+2012,2013,85,ACTOR IN A LEADING ROLE,Bradley Cooper,Silver Linings Playbook,False
+2012,2013,85,ACTOR IN A LEADING ROLE,Daniel Day-Lewis,Lincoln,True
+2012,2013,85,ACTOR IN A LEADING ROLE,Hugh Jackman,Les Misérables,False
+2012,2013,85,ACTOR IN A LEADING ROLE,Joaquin Phoenix,The Master,False
+2012,2013,85,ACTOR IN A LEADING ROLE,Denzel Washington,Flight,False
+2012,2013,85,ACTRESS IN A LEADING ROLE,Jessica Chastain,Zero Dark Thirty,False
+2012,2013,85,ACTRESS IN A LEADING ROLE,Jennifer Lawrence,Silver Linings Playbook,True
+2012,2013,85,ACTRESS IN A LEADING ROLE,Emmanuelle Riva,Amour,False
+2012,2013,85,ACTRESS IN A LEADING ROLE,Quvenzhané Wallis,Beasts of the Southern Wild,False
+2012,2013,85,ACTRESS IN A LEADING ROLE,Naomi Watts,The Impossible,False
+2012,2013,85,BEST PICTURE,"Margaret Menegoz, Stefan Arndt, Veit Heiduschka and Michael Katz, Producers",Amour,False
+2012,2013,85,BEST PICTURE,"Grant Heslov, Ben Affleck and George Clooney, Producers",Argo,True
+2012,2013,85,BEST PICTURE,"Dan Janvey, Josh Penn and Michael Gottwald, Producers",Beasts of the Southern Wild,False
+2012,2013,85,BEST PICTURE,"Stacey Sher, Reginald Hudlin and Pilar Savone, Producers",Django Unchained,False
+2012,2013,85,BEST PICTURE,"Tim Bevan, Eric Fellner, Debra Hayward and Cameron Mackintosh, Producers",Les Misérables,False
+2012,2013,85,BEST PICTURE,"Gil Netter, Ang Lee and David Womark, Producers",Life of Pi,False
+2012,2013,85,BEST PICTURE,"Steven Spielberg and Kathleen Kennedy, Producers",Lincoln,False
+2012,2013,85,BEST PICTURE,"Donna Gigliotti, Bruce Cohen and Jonathan Gordon, Producers",Silver Linings Playbook,False
+2012,2013,85,BEST PICTURE,"Mark Boal, Kathryn Bigelow and Megan Ellison, Producers",Zero Dark Thirty,False
+2013,2014,86,ACTOR IN A LEADING ROLE,Christian Bale,American Hustle,False
+2013,2014,86,ACTOR IN A LEADING ROLE,Bruce Dern,Nebraska,False
+2013,2014,86,ACTOR IN A LEADING ROLE,Leonardo DiCaprio,The Wolf of Wall Street,False
+2013,2014,86,ACTOR IN A LEADING ROLE,Chiwetel Ejiofor,12 Years a Slave,False
+2013,2014,86,ACTOR IN A LEADING ROLE,Matthew McConaughey,Dallas Buyers Club,True
+2013,2014,86,ACTRESS IN A LEADING ROLE,Amy Adams,American Hustle,False
+2013,2014,86,ACTRESS IN A LEADING ROLE,Cate Blanchett,Blue Jasmine,True
+2013,2014,86,ACTRESS IN A LEADING ROLE,Sandra Bullock,Gravity,False
+2013,2014,86,ACTRESS IN A LEADING ROLE,Judi Dench,Philomena,False
+2013,2014,86,ACTRESS IN A LEADING ROLE,Meryl Streep,August: Osage County,False
+2013,2014,86,BEST PICTURE,"Charles Roven, Richard Suckle, Megan Ellison and Jonathan Gordon, Producers",American Hustle,False
+2013,2014,86,BEST PICTURE,"Scott Rudin, Dana Brunetti and Michael De Luca, Producers",Captain Phillips,False
+2013,2014,86,BEST PICTURE,"Robbie Brenner and Rachel Winter, Producers",Dallas Buyers Club,False
+2013,2014,86,BEST PICTURE,"Alfonso Cuarón and David Heyman, Producers",Gravity,False
+2013,2014,86,BEST PICTURE,"Megan Ellison, Spike Jonze and Vincent Landay, Producers",Her,False
+2013,2014,86,BEST PICTURE,"Albert Berger and Ron Yerxa, Producers",Nebraska,False
+2013,2014,86,BEST PICTURE,"Gabrielle Tana, Steve Coogan and Tracey Seaward, Producers",Philomena,False
+2013,2014,86,BEST PICTURE,"Brad Pitt, Dede Gardner, Jeremy Kleiner, Steve McQueen and Anthony Katagas, Producers",12 Years a Slave,True
+2013,2014,86,BEST PICTURE,"Martin Scorsese, Leonardo DiCaprio, Joey McFarland and Emma Tillinger Koskoff, Producers",The Wolf of Wall Street,False
+2014,2015,87,ACTOR IN A LEADING ROLE,Steve Carell,Foxcatcher,False
+2014,2015,87,ACTOR IN A LEADING ROLE,Bradley Cooper,American Sniper,False
+2014,2015,87,ACTOR IN A LEADING ROLE,Benedict Cumberbatch,The Imitation Game,False
+2014,2015,87,ACTOR IN A LEADING ROLE,Michael Keaton,Birdman or (The Unexpected Virtue of Ignorance),False
+2014,2015,87,ACTOR IN A LEADING ROLE,Eddie Redmayne,The Theory of Everything,True
+2014,2015,87,ACTRESS IN A LEADING ROLE,Marion Cotillard,"Two Days, One Night",False
+2014,2015,87,ACTRESS IN A LEADING ROLE,Felicity Jones,The Theory of Everything,False
+2014,2015,87,ACTRESS IN A LEADING ROLE,Julianne Moore,Still Alice,True
+2014,2015,87,ACTRESS IN A LEADING ROLE,Rosamund Pike,Gone Girl,False
+2014,2015,87,ACTRESS IN A LEADING ROLE,Reese Witherspoon,Wild,False
+2014,2015,87,BEST PICTURE,"Clint Eastwood, Robert Lorenz, Andrew Lazar, Bradley Cooper and Peter Morgan, Producers",American Sniper,False
+2014,2015,87,BEST PICTURE,"Alejandro G. Iñárritu, John Lesher and James W. Skotchdopole, Producers",Birdman or (The Unexpected Virtue of Ignorance),True
+2014,2015,87,BEST PICTURE,"Richard Linklater and Cathleen Sutherland, Producers",Boyhood,False
+2014,2015,87,BEST PICTURE,"Wes Anderson, Scott Rudin, Steven Rales and Jeremy Dawson, Producers",The Grand Budapest Hotel,False
+2014,2015,87,BEST PICTURE,"Nora Grossman, Ido Ostrowsky and Teddy Schwarzman, Producers",The Imitation Game,False
+2014,2015,87,BEST PICTURE,"Christian Colson, Oprah Winfrey, Dede Gardner and Jeremy Kleiner, Producers",Selma,False
+2014,2015,87,BEST PICTURE,"Tim Bevan, Eric Fellner, Lisa Bruce and Anthony McCarten, Producers",The Theory of Everything,False
+2014,2015,87,BEST PICTURE,"Jason Blum, Helen Estabrook and David Lancaster, Producers",Whiplash,False
+2015,2016,88,ACTOR IN A LEADING ROLE,Bryan Cranston,Trumbo,False
+2015,2016,88,ACTOR IN A LEADING ROLE,Matt Damon,The Martian,False
+2015,2016,88,ACTOR IN A LEADING ROLE,Leonardo DiCaprio,The Revenant,True
+2015,2016,88,ACTOR IN A LEADING ROLE,Michael Fassbender,Steve Jobs,False
+2015,2016,88,ACTOR IN A LEADING ROLE,Eddie Redmayne,The Danish Girl,False
+2015,2016,88,ACTRESS IN A LEADING ROLE,Cate Blanchett,Carol,False
+2015,2016,88,ACTRESS IN A LEADING ROLE,Brie Larson,Room,True
+2015,2016,88,ACTRESS IN A LEADING ROLE,Jennifer Lawrence,Joy,False
+2015,2016,88,ACTRESS IN A LEADING ROLE,Charlotte Rampling,45 Years,False
+2015,2016,88,ACTRESS IN A LEADING ROLE,Saoirse Ronan,Brooklyn,False
+2015,2016,88,BEST PICTURE,"Brad Pitt, Dede Gardner and Jeremy Kleiner, Producers",The Big Short,False
+2015,2016,88,BEST PICTURE,"Steven Spielberg, Marc Platt and Kristie Macosko Krieger, Producers",Bridge of Spies,False
+2015,2016,88,BEST PICTURE,"Finola Dwyer and Amanda Posey, Producers",Brooklyn,False
+2015,2016,88,BEST PICTURE,"Doug Mitchell and George Miller, Producers",Mad Max: Fury Road,False
+2015,2016,88,BEST PICTURE,"Simon Kinberg, Ridley Scott, Michael Schaefer and Mark Huffam, Producers",The Martian,False
+2015,2016,88,BEST PICTURE,"Arnon Milchan, Steve Golin, Alejandro G. Iñárritu, Mary Parent and Keith Redmon, Producers",The Revenant,False
+2015,2016,88,BEST PICTURE,"Ed Guiney, Producer",Room,False
+2015,2016,88,BEST PICTURE,"Michael Sugar, Steve Golin, Nicole Rocklin and Blye Pagon Faust, Producers",Spotlight,True
+2016,2017,89,ACTOR IN A LEADING ROLE,Casey Affleck,Manchester by the Sea,True
+2016,2017,89,ACTOR IN A LEADING ROLE,Andrew Garfield,Hacksaw Ridge,False
+2016,2017,89,ACTOR IN A LEADING ROLE,Ryan Gosling,La La Land,False
+2016,2017,89,ACTOR IN A LEADING ROLE,Viggo Mortensen,Captain Fantastic,False
+2016,2017,89,ACTOR IN A LEADING ROLE,Denzel Washington,Fences,False
+2016,2017,89,ACTRESS IN A LEADING ROLE,Isabelle Huppert,Elle,False
+2016,2017,89,ACTRESS IN A LEADING ROLE,Ruth Negga,Loving,False
+2016,2017,89,ACTRESS IN A LEADING ROLE,Natalie Portman,Jackie,False
+2016,2017,89,ACTRESS IN A LEADING ROLE,Emma Stone,La La Land,True
+2016,2017,89,ACTRESS IN A LEADING ROLE,Meryl Streep,Florence Foster Jenkins,False
+2016,2017,89,BEST PICTURE,"Shawn Levy, Dan Levine, Aaron Ryder and David Linde, Producers",Arrival,False
+2016,2017,89,BEST PICTURE,"Scott Rudin, Denzel Washington and Todd Black, Producers",Fences,False
+2016,2017,89,BEST PICTURE,"Bill Mechanic and David Permut, Producers",Hacksaw Ridge,False
+2016,2017,89,BEST PICTURE,"Carla Hacken and Julie Yorn, Producers",Hell or High Water,False
+2016,2017,89,BEST PICTURE,"Donna Gigliotti, Peter Chernin, Jenno Topping, Pharrell Williams and Theodore Melfi, Producers",Hidden Figures,False
+2016,2017,89,BEST PICTURE,"Fred Berger, Jordan Horowitz and Marc Platt, Producers",La La Land,False
+2016,2017,89,BEST PICTURE,"Emile Sherman, Iain Canning and Angie Fielder, Producers",Lion,False
+2016,2017,89,BEST PICTURE,"Matt Damon, Kimberly Steward, Chris Moore, Lauren Beck and Kevin J. Walsh, Producers",Manchester by the Sea,False
+2016,2017,89,BEST PICTURE,"Adele Romanski, Dede Gardner and Jeremy Kleiner, Producers",Moonlight,True
+2017,2018,90,ACTOR IN A LEADING ROLE,Timothée Chalamet,Call Me by Your Name,False
+2017,2018,90,ACTOR IN A LEADING ROLE,Daniel Day-Lewis,Phantom Thread,False
+2017,2018,90,ACTOR IN A LEADING ROLE,Daniel Kaluuya,Get Out,False
+2017,2018,90,ACTOR IN A LEADING ROLE,Gary Oldman,Darkest Hour,True
+2017,2018,90,ACTOR IN A LEADING ROLE,Denzel Washington,"Roman J. Israel, Esq.",False
+2017,2018,90,ACTRESS IN A LEADING ROLE,Sally Hawkins,The Shape of Water,False
+2017,2018,90,ACTRESS IN A LEADING ROLE,Frances McDormand,"Three Billboards outside Ebbing, Missouri",True
+2017,2018,90,ACTRESS IN A LEADING ROLE,Margot Robbie,"I, Tonya",False
+2017,2018,90,ACTRESS IN A LEADING ROLE,Saoirse Ronan,Lady Bird,False
+2017,2018,90,ACTRESS IN A LEADING ROLE,Meryl Streep,The Post,False
+2017,2018,90,BEST PICTURE,"Peter Spears, Luca Guadagnino, Emilie Georges and Marco Morabito, Producers",Call Me by Your Name,False
+2017,2018,90,BEST PICTURE,"Tim Bevan, Eric Fellner, Lisa Bruce, Anthony McCarten and Douglas Urbanski, Producers",Darkest Hour,False
+2017,2018,90,BEST PICTURE,"Emma Thomas and Christopher Nolan, Producers",Dunkirk,False
+2017,2018,90,BEST PICTURE,"Sean McKittrick, Jason Blum, Edward H. Hamm Jr. and Jordan Peele, Producers",Get Out,False
+2017,2018,90,BEST PICTURE,"Scott Rudin, Eli Bush and Evelyn O'Neill, Producers",Lady Bird,False
+2017,2018,90,BEST PICTURE,"JoAnne Sellar, Paul Thomas Anderson, Megan Ellison and Daniel Lupi, Producers",Phantom Thread,False
+2017,2018,90,BEST PICTURE,"Amy Pascal, Steven Spielberg and Kristie Macosko Krieger, Producers",The Post,False
+2017,2018,90,BEST PICTURE,"Guillermo del Toro and J. Miles Dale, Producers",The Shape of Water,True
+2017,2018,90,BEST PICTURE,"Graham Broadbent, Pete Czernin and Martin McDonagh, Producers","Three Billboards outside Ebbing, Missouri",False
+2018,2019,91,ACTOR IN A LEADING ROLE,Christian Bale,Vice,False
+2018,2019,91,ACTOR IN A LEADING ROLE,Bradley Cooper,A Star Is Born,False
+2018,2019,91,ACTOR IN A LEADING ROLE,Willem Dafoe,At Eternity's Gate,False
+2018,2019,91,ACTOR IN A LEADING ROLE,Rami Malek,Bohemian Rhapsody,True
+2018,2019,91,ACTOR IN A LEADING ROLE,Viggo Mortensen,Green Book,False
+2018,2019,91,ACTRESS IN A LEADING ROLE,Yalitza Aparicio,Roma,False
+2018,2019,91,ACTRESS IN A LEADING ROLE,Glenn Close,The Wife,False
+2018,2019,91,ACTRESS IN A LEADING ROLE,Olivia Colman,The Favourite,True
+2018,2019,91,ACTRESS IN A LEADING ROLE,Lady Gaga,A Star Is Born,False
+2018,2019,91,ACTRESS IN A LEADING ROLE,Melissa McCarthy,Can You Ever Forgive Me?,False
+2018,2019,91,BEST PICTURE,"Kevin Feige, Producer",Black Panther,False
+2018,2019,91,BEST PICTURE,"Sean McKittrick, Jason Blum, Raymond Mansfield, Jordan Peele and Spike Lee, Producers",BlacKkKlansman,False
+2018,2019,91,BEST PICTURE,"Graham King, Producer",Bohemian Rhapsody,False
+2018,2019,91,BEST PICTURE,"Ceci Dempsey, Ed Guiney, Lee Magiday and Yorgos Lanthimos, Producers",The Favourite,False
+2018,2019,91,BEST PICTURE,"Jim Burke, Charles B. Wessler, Brian Currie, Peter Farrelly and Nick Vallelonga, Producers",Green Book,True
+2018,2019,91,BEST PICTURE,"Gabriela Rodríguez and Alfonso Cuarón, Producers",Roma,False
+2018,2019,91,BEST PICTURE,"Bill Gerber, Bradley Cooper and Lynette Howell Taylor, Producers",A Star Is Born,False
+2018,2019,91,BEST PICTURE,"Dede Gardner, Jeremy Kleiner, Adam McKay and Kevin Messick, Producers",Vice,False
+2019,2020,92,ACTOR IN A LEADING ROLE,Antonio Banderas,Pain and Glory,False
+2019,2020,92,ACTOR IN A LEADING ROLE,Leonardo DiCaprio,Once upon a Time...in Hollywood,False
+2019,2020,92,ACTOR IN A LEADING ROLE,Adam Driver,Marriage Story,False
+2019,2020,92,ACTOR IN A LEADING ROLE,Joaquin Phoenix,Joker,True
+2019,2020,92,ACTOR IN A LEADING ROLE,Jonathan Pryce,The Two Popes,False
+2019,2020,92,ACTRESS IN A LEADING ROLE,Cynthia Erivo,Harriet,False
+2019,2020,92,ACTRESS IN A LEADING ROLE,Scarlett Johansson,Marriage Story,False
+2019,2020,92,ACTRESS IN A LEADING ROLE,Saoirse Ronan,Little Women,False
+2019,2020,92,ACTRESS IN A LEADING ROLE,Charlize Theron,Bombshell,False
+2019,2020,92,ACTRESS IN A LEADING ROLE,Renée Zellweger,Judy,True
+2019,2020,92,BEST PICTURE,"Peter Chernin, Jenno Topping and James Mangold, Producers",Ford v Ferrari,False
+2019,2020,92,BEST PICTURE,"Martin Scorsese, Robert De Niro, Jane Rosenthal and Emma Tillinger Koskoff, Producers",The Irishman,False
+2019,2020,92,BEST PICTURE,"Carthew Neal, Taika Waititi and Chelsea Winstanley, Producers",Jojo Rabbit,False
+2019,2020,92,BEST PICTURE,"Todd Phillips, Bradley Cooper and Emma Tillinger Koskoff, Producers",Joker,False
+2019,2020,92,BEST PICTURE,"Amy Pascal, Producer",Little Women,False
+2019,2020,92,BEST PICTURE,"Noah Baumbach and David Heyman, Producers",Marriage Story,False
+2019,2020,92,BEST PICTURE,"Sam Mendes, Pippa Harris, Jayne-Ann Tenggren and Callum McDougall, Producers",1917,False
+2019,2020,92,BEST PICTURE,"David Heyman, Shannon McIntosh and Quentin Tarantino, Producers",Once upon a Time...in Hollywood,False
+2019,2020,92,BEST PICTURE,"Kwak Sin Ae and Bong Joon Ho, Producers",Parasite,True
+2020,2021,93,ACTOR IN A LEADING ROLE,Riz Ahmed,Sound of Metal,False
+2020,2021,93,ACTOR IN A LEADING ROLE,Chadwick Boseman,Ma Rainey's Black Bottom,False
+2020,2021,93,ACTOR IN A LEADING ROLE,Anthony Hopkins,The Father,True
+2020,2021,93,ACTOR IN A LEADING ROLE,Gary Oldman,Mank,False
+2020,2021,93,ACTOR IN A LEADING ROLE,Steven Yeun,Minari,False
+2020,2021,93,ACTRESS IN A LEADING ROLE,Viola Davis,Ma Rainey's Black Bottom,False
+2020,2021,93,ACTRESS IN A LEADING ROLE,Andra Day,The United States vs. Billie Holiday,False
+2020,2021,93,ACTRESS IN A LEADING ROLE,Vanessa Kirby,Pieces of a Woman,False
+2020,2021,93,ACTRESS IN A LEADING ROLE,Frances McDormand,Nomadland,True
+2020,2021,93,ACTRESS IN A LEADING ROLE,Carey Mulligan,Promising Young Woman,False
+2020,2021,93,BEST PICTURE,"David Parfitt, Jean-Louis Livi and Philippe Carcassonne, Producers",The Father,False
+2020,2021,93,BEST PICTURE,"Shaka King, Charles D. King and Ryan Coogler, Producers",Judas and the Black Messiah,False
+2020,2021,93,BEST PICTURE,"Ceán Chaffin, Eric Roth and Douglas Urbanski, Producers",Mank,False
+2020,2021,93,BEST PICTURE,"Christina Oh, Producer",Minari,False
+2020,2021,93,BEST PICTURE,"Frances McDormand, Peter Spears, Mollye Asher, Dan Janvey and Chloé Zhao, Producers",Nomadland,True
+2020,2021,93,BEST PICTURE,"Ben Browning, Ashley Fox, Emerald Fennell and Josey McNamara, Producers",Promising Young Woman,False
+2020,2021,93,BEST PICTURE,"Bert Hamelinck and Sacha Ben Harroche, Producers",Sound of Metal,False
+2020,2021,93,BEST PICTURE,"Marc Platt and Stuart Besser, Producers",The Trial of the Chicago 7,False
+2021,2022,94,ACTOR IN A LEADING ROLE,Javier Bardem,Being the Ricardos,False
+2021,2022,94,ACTOR IN A LEADING ROLE,Benedict Cumberbatch,The Power of the Dog,False
+2021,2022,94,ACTOR IN A LEADING ROLE,Andrew Garfield,"tick, tick...BOOM!",False
+2021,2022,94,ACTOR IN A LEADING ROLE,Will Smith,King Richard,True
+2021,2022,94,ACTOR IN A LEADING ROLE,Denzel Washington,The Tragedy of Macbeth,False
+2021,2022,94,ACTRESS IN A LEADING ROLE,Jessica Chastain,The Eyes of Tammy Faye,True
+2021,2022,94,ACTRESS IN A LEADING ROLE,Olivia Colman,The Lost Daughter,False
+2021,2022,94,ACTRESS IN A LEADING ROLE,Penélope Cruz,Parallel Mothers,False
+2021,2022,94,ACTRESS IN A LEADING ROLE,Nicole Kidman,Being the Ricardos,False
+2021,2022,94,ACTRESS IN A LEADING ROLE,Kristen Stewart,Spencer,False
+2021,2022,94,BEST PICTURE,"Laura Berwick, Kenneth Branagh, Becca Kovacik and Tamar Thomas, Producers",Belfast,False
+2021,2022,94,BEST PICTURE,"Philippe Rousselet, Fabrice Gianfermi and Patrick Wachsberger, Producers",CODA,True
+2021,2022,94,BEST PICTURE,"Adam McKay and Kevin Messick, Producers",Don't Look Up,False
+2021,2022,94,BEST PICTURE,"Teruhisa Yamamoto, Producer",Drive My Car,False
+2021,2022,94,BEST PICTURE,"Mary Parent, Denis Villeneuve and Cale Boyter, Producers",Dune,False
+2021,2022,94,BEST PICTURE,"Tim White, Trevor White and Will Smith, Producers",King Richard,False
+2021,2022,94,BEST PICTURE,"Sara Murphy, Adam Somner and Paul Thomas Anderson, Producers",Licorice Pizza,False
+2021,2022,94,BEST PICTURE,"Guillermo del Toro, J. Miles Dale and Bradley Cooper, Producers",Nightmare Alley,False
+2021,2022,94,BEST PICTURE,"Jane Campion, Tanya Seghatchian, Emile Sherman, Iain Canning and Roger Frappier, Producers",The Power of the Dog,False
+2021,2022,94,BEST PICTURE,"Steven Spielberg and Kristie Macosko Krieger, Producers",West Side Story,False
+2022,2023,95,ACTOR IN A LEADING ROLE,Austin Butler,Elvis,False
+2022,2023,95,ACTOR IN A LEADING ROLE,Colin Farrell,The Banshees of Inisherin,False
+2022,2023,95,ACTOR IN A LEADING ROLE,Brendan Fraser,The Whale,True
+2022,2023,95,ACTOR IN A LEADING ROLE,Paul Mescal,Aftersun,False
+2022,2023,95,ACTOR IN A LEADING ROLE,Bill Nighy,Living,False
+2022,2023,95,ACTRESS IN A LEADING ROLE,Cate Blanchett,Tár,False
+2022,2023,95,ACTRESS IN A LEADING ROLE,Ana de Armas,Blonde,False
+2022,2023,95,ACTRESS IN A LEADING ROLE,Andrea Riseborough,To Leslie,False
+2022,2023,95,ACTRESS IN A LEADING ROLE,Michelle Williams,The Fabelmans,False
+2022,2023,95,ACTRESS IN A LEADING ROLE,Michelle Yeoh,Everything Everywhere All at Once,True
+2022,2023,95,BEST PICTURE,"Malte Grunert, Producer",All Quiet on the Western Front,False
+2022,2023,95,BEST PICTURE,"James Cameron and Jon Landau, Producers",Avatar: The Way of Water,False
+2022,2023,95,BEST PICTURE,"Graham Broadbent, Pete Czernin and Martin McDonagh, Producers",The Banshees of Inisherin,False
+2022,2023,95,BEST PICTURE,"Baz Luhrmann, Catherine Martin, Gail Berman, Patrick McCormick and Schuyler Weiss, Producers",Elvis,False
+2022,2023,95,BEST PICTURE,"Daniel Kwan, Daniel Scheinert and Jonathan Wang, Producers",Everything Everywhere All at Once,True
+2022,2023,95,BEST PICTURE,"Kristie Macosko Krieger, Steven Spielberg and Tony Kushner, Producers",The Fabelmans,False
+2022,2023,95,BEST PICTURE,"Todd Field, Alexandra Milchan and Scott Lambert, Producers",Tár,False
+2022,2023,95,BEST PICTURE,"Tom Cruise, Christopher McQuarrie, David Ellison and Jerry Bruckheimer, Producers",Top Gun: Maverick,False
+2022,2023,95,BEST PICTURE,"Erik Hemmendorff and Philippe Bober, Producers",Triangle of Sadness,False
+2022,2023,95,BEST PICTURE,"Dede Gardner, Jeremy Kleiner and Frances McDormand, Producers",Women Talking,False
+2023,2024,96,ACTOR IN A LEADING ROLE,Bradley Cooper,Maestro,False
+2023,2024,96,ACTOR IN A LEADING ROLE,Colman Domingo,Rustin,False
+2023,2024,96,ACTOR IN A LEADING ROLE,Paul Giamatti,The Holdovers,False
+2023,2024,96,ACTOR IN A LEADING ROLE,Cillian Murphy,Oppenheimer,True
+2023,2024,96,ACTOR IN A LEADING ROLE,Jeffrey Wright,American Fiction,False
+2023,2024,96,ACTRESS IN A LEADING ROLE,Annette Bening,Nyad,False
+2023,2024,96,ACTRESS IN A LEADING ROLE,Lily Gladstone,Killers of the Flower Moon,False
+2023,2024,96,ACTRESS IN A LEADING ROLE,Sandra Hüller,Anatomy of a Fall,False
+2023,2024,96,ACTRESS IN A LEADING ROLE,Carey Mulligan,Maestro,False
+2023,2024,96,ACTRESS IN A LEADING ROLE,Emma Stone,Poor Things,True
+2023,2024,96,BEST PICTURE,"Ben LeClair, Nikos Karamigios, Cord Jefferson and Jermaine Johnson, Producers",American Fiction,False
+2023,2024,96,BEST PICTURE,"Marie-Ange Luciani and David Thion, Producers",Anatomy of a Fall,False
+2023,2024,96,BEST PICTURE,"David Heyman, Margot Robbie, Tom Ackerley and Robbie Brenner, Producers",Barbie,False
+2023,2024,96,BEST PICTURE,"Mark Johnson, Producer",The Holdovers,False
+2023,2024,96,BEST PICTURE,"Dan Friedkin, Bradley Thomas, Martin Scorsese and Daniel Lupi, Producers",Killers of the Flower Moon,False
+2023,2024,96,BEST PICTURE,"Bradley Cooper, Steven Spielberg, Fred Berner, Amy Durning and Kristie Macosko Krieger, Producers",Maestro,False
+2023,2024,96,BEST PICTURE,"Emma Thomas, Charles Roven and Christopher Nolan, Producers",Oppenheimer,True
+2023,2024,96,BEST PICTURE,"David Hinojosa, Christine Vachon and Pamela Koffler, Producers",Past Lives,False
+2023,2024,96,BEST PICTURE,"Ed Guiney, Andrew Lowe, Yorgos Lanthimos and Emma Stone, Producers",Poor Things,False
+2023,2024,96,BEST PICTURE,"James Wilson, Producer",The Zone of Interest,False

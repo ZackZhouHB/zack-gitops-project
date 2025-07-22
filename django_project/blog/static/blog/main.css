@@ -755,3 +755,21 @@ a[href*="post-detail"]:hover:after,
 .pagination.justify-content-center {
   gap: 4px;
 }
+
+/* Style for links within individual post content only */
+.media-body > div:not([class]) a {
+  color: var(--primary-color) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.media-body > div:not([class]) a:hover {
+  color: #2563eb !important;
+  text-decoration: none !important;
+  border-bottom-color: #cbd5e0;
+}
+
+/* Keep home page links (article titles) unchanged */
+/* These use Bootstrap defaults or existing styles */
