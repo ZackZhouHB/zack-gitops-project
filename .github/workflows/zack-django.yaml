@@ -51,7 +51,7 @@ jobs:
           IMAGE_NAME=zackz001/zackblog-django
           docker buildx create --use
           docker buildx inspect --bootstrap
-          docker build -t zackz001/zackblog-django:test .
+          docker build --no-cache -t zackz001/zackblog-django:test .
           docker tag zackz001/zackblog-django:test zackz001/zackblog-django:v9${{ github.run_number }}  # Replace with your desired tag
           docker tag zackz001/zackblog-django:v9${{ github.run_number }} zackz001/zackblog-django:latest
       - name: Push Docker image newer build
