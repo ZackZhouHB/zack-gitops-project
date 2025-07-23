@@ -2,40 +2,64 @@
 {% load custom_filters %}  <!-- Load the custom filter here -->
 
 {% block content %}
-    {% for post in posts %}
-        <article class="media content-section">
-          <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
-          <div class="media-body">
-            <div class="article-metadata">
-              <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
-              <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
-            </div>
-            <h2 style="font-size: 22px;"><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-            <!-- Apply the markdown filter here and slice content to show only first 3-4 lines -->
-            <p class="article-content">{{ post.content|striptags|slice:":200" }}</p>  <!-- Show content for 2 full lines -->
-            <a href="{% url 'post-detail' post.id %}" class="read-more-link">Read more</a>
-          </div>
-        </article>
-    {% endfor %}
-    {% if is_paginated %}
-      <nav aria-label="Page navigation" class="mb-5 pb-4">
-        <div class="pagination justify-content-center">
-          {% if page_obj.has_previous %}
-            <a class="page-link-modern" href="?page=1">First</a>
-            <a class="page-link-modern" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-          {% endif %}
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <span class="page-link-modern active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-              <a class="page-link-modern" href="?page={{ num }}">{{ num }}</a>
-            {% endif %}
-          {% endfor %}
-          {% if page_obj.has_next %}
-            <a class="page-link-modern" href="?page={{ page_obj.next_page_number }}">Next</a>
-            <a class="page-link-modern" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-          {% endif %}
-        </div>
-      </nav>
-    {% endif %}
+    <div id="post-container">
+        {% for post in posts %}
+            <article class="media content-section">
+              <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+              <div class="media-body">
+                <div class="article-metadata">
+                  <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+                  <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+                </div>
+                <h2 style="font-size: 22px;"><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+                <!-- Apply the markdown filter here and slice content to show only first 3-4 lines -->
+                <p class="article-content">{{ post.content|striptags|slice:":200" }}</p>  <!-- Show content for 2 full lines -->
+                <a href="{% url 'post-detail' post.id %}" class="read-more-link">Read more</a>
+              </div>
+            </article>
+        {% endfor %}
+    </div>
+    <div id="loading" style="display:none;">
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        let page = 2;
+        let isLoading = false;
+        const loading = document.getElementById('loading');
+        const postContainer = document.getElementById('post-container');
+
+        function loadMorePosts() {
+            if (isLoading) return;
+            isLoading = true;
+            loading.style.display = 'block';
+
+            fetch(`/infinite-scroll-posts/?page=${page}`)
+                .then(response => response.text())
+                .then(data => {
+                    if (data.trim().length > 0) {
+                        postContainer.innerHTML += data;
+                        page++;
+                        isLoading = false;
+                        loading.style.display = 'none';
+                    } else {
+                        loading.style.display = 'none';
+                        window.removeEventListener('scroll', handleScroll);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading more posts:', error);
+                    isLoading = false;
+                    loading.style.display = 'none';
+                });
+        }
+
+        function handleScroll() {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+                loadMorePosts();
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll);
+    </script>
 {% endblock content %}
