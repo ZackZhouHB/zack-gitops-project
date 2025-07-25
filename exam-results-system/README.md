@@ -1,8 +1,8 @@
-# 🎓 HSC Results Notification System
+# 🎓 Exam Results Notification System
 
 ## Overview
 
-The **HSC Results Notification System** is designed to process and send HSC results notifications via email and SMS. The system leverages an **Event-Driven Serverless Architecture** with microservices to ensure scalability, reliability, and fault tolerance.
+The **Exam Results Notification System** is designed to process and send Exam results notifications via email and SMS. The system leverages an **Event-Driven Serverless Architecture** with microservices to ensure scalability, reliability, and fault tolerance.
 
 ### Architecture Overview
 
@@ -154,10 +154,10 @@ verified_phone_numbers = ["+614xxxxxxx6", "+6141xxxxxx78"]
 The CSV should follow this **headerless** format:
 
 ```csv
-email@example.com,20000001,16,"2024 HSC Results:
+email@example.com,20000001,16,"2024 Exam Results:
 Mathematics: 85 (Band 5)
 English: 92 (Band 6)
-ELIGIBLE FOR HSC",+61452025776
+ELIGIBLE FOR Exam",+61452025776
 ```
 
 **Columns:**
@@ -165,7 +165,7 @@ ELIGIBLE FOR HSC",+61452025776
 - `email`: Verified SES email address  
 - `student_id`: Unique student identifier  
 - `extra_data`: Additional data (unused)  
-- `results`: HSC results text  
+- `results`: Exam results text  
 - `phone`: E.164 format phone number (+614...)  
 
 ---
