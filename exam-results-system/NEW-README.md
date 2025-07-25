@@ -7,7 +7,11 @@ The **HSC Results Notification System** is designed to process and send HSC resu
 ### Architecture Overview
 
 - **Workflow**:  
-  CSV Upload → S3 Event → Validation Lambda → Step Functions → Parser Lambda → Batch Processor → SQS Queue → Email Notifier → SES → Email Delivery
+  CSV Upload → S3 Event → Validation Lambda → Step Functions → Parser Lambda → Batch Processor → SQS Queue 
+  → Email Notifier → SES → Email Delivery
+  → SMS Notifier   → SNS → SMS Delivery
+
+![Workflow Diagram](workflow.png)
 
 ### Design Patterns Applied
 
