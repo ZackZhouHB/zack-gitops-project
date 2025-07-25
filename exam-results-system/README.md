@@ -175,24 +175,24 @@ ELIGIBLE FOR Exam",+61452025776
 ### 1. Upload CSV
 
 ```bash
-aws s3 cp your_file.csv s3://hsc-results-results-dev/uploads/ready-for-processing/
+aws s3 cp your_file.csv s3://exam-results-results-dev/uploads/ready-for-processing/
 ```
 
 ### 2. Monitor Processing
 
 ```bash
-aws stepfunctions list-executions   --state-machine-arn arn:aws:states:ap-southeast-2:<account>:stateMachine:hsc-results-processing-dev
+aws stepfunctions list-executions   --state-machine-arn arn:aws:states:ap-southeast-2:<account>:stateMachine:exam-results-processing-dev
 ```
 
 ### 3. Check Delivery Status
 
 ```bash
 # Check DynamoDB records
-aws dynamodb scan   --table-name hsc-results-results-dev   --query 'Items[*].[student_id, email_status, sms_status]'   --output table
+aws dynamodb scan   --table-name exam-results-results-dev   --query 'Items[*].[student_id, email_status, sms_status]'   --output table
 
 # Check CloudWatch logs
-aws logs tail /aws/lambda/hsc-results-email-notifier-dev --since 1h
-aws logs tail /aws/lambda/hsc-results-sms-notifier-dev --since 1h
+aws logs tail /aws/lambda/exam-results-email-notifier-dev --since 1h
+aws logs tail /aws/lambda/exam-results-sms-notifier-dev --since 1h
 ```
 
 ---
@@ -217,10 +217,10 @@ aws logs tail /aws/lambda/hsc-results-sms-notifier-dev --since 1h
 
 ```bash
 # Check Lambda status
-aws lambda list-functions   --query 'Functions[?contains(FunctionName, `hsc-results`)]'   --output table
+aws lambda list-functions   --query 'Functions[?contains(FunctionName, `exam-results`)]'   --output table
 
 # Check recent logs
-aws logs tail /aws/lambda/hsc-results-parser-dev --since 1h
+aws logs tail /aws/lambda/exam-results-parser-dev --since 1h
 ```
 
 ---
@@ -251,7 +251,7 @@ terraform destroy -var-file="environments/dev.tfvars"
 ### Remove S3 Objects
 
 ```bash
-aws s3 rm s3://hsc-results-results-dev --recursive
+aws s3 rm s3://exam-results-results-dev --recursive
 ```
 
 ---
