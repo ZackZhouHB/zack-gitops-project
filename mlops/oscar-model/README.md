@@ -76,7 +76,7 @@ The LightGBM model showed a dramatic improvement:
 
 *   **Feature Importances:** The model revealed which factors were most predictive. Prior awards (Golden Globes, BAFTAs) and critic scores were, as expected, highly influential.
 
-    ![LightGBM Feature Importances](https://i.imgur.com/9gL9n2H.png)
+    ![LightGBM Feature Importances](1.png)
 
 ## Final Prediction & Takeaway
 
