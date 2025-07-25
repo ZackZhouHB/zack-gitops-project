@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: joesite
+  labels:
+    app: joesite
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: joesite
+  template:
+    metadata:
+      labels:
+        app: joesite
+    spec:
+      containers:
+      - name: joesite
+        image: zackz001/joesite:latest
+        ports:
+        - containerPort: 80

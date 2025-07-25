@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: retail-sample
+  namespace: argocd  # Add this to specify the ArgoCD namespace
+spec:
+  destination:
+    name: ''
+    namespace: retail
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: retail-mircoservice-app
+    repoURL: 'https://github.com/ZackZhouHB/zack-gitops-project'
+    targetRevision: editing
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -26,11 +26,12 @@
     <script>
         let page = 2;
         let isLoading = false;
+        let hasMorePosts = true;
         const loading = document.getElementById('loading');
         const postContainer = document.getElementById('post-container');
 
         function loadMorePosts() {
-            if (isLoading) return;
+            if (isLoading || !hasMorePosts) return;
             isLoading = true;
             loading.style.display = 'block';
 
@@ -43,7 +44,10 @@
                         isLoading = false;
                         loading.style.display = 'none';
                     } else {
+                        hasMorePosts = false;
                         loading.style.display = 'none';
+                        loading.innerHTML = '<p>No more posts to load</p>';
+                        loading.style.display = 'block';
                         window.removeEventListener('scroll', handleScroll);
                     }
                 })
