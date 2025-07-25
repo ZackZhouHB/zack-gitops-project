@@ -1,0 +1,1 @@
+This is my initial web blog using Ruby Jekyll, since I already move to Django web app, this folder is for archive
