@@ -2,15 +2,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- Favicon -->
-    <link rel="icon" href="{% static 'blog/images/favicon.ico' %}" type="image/x-icon">
-    <link rel="shortcut icon" href="{% static 'blog/images/favicon.ico' %}" type="image/x-icon">
-
-    <!-- Optional: Apple Touch Icon (for iOS devices) -->
-    <link rel="apple-touch-icon" href="{% static 'blog/images/favicon.ico' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'blog/images/favicon.ico' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'blog/images/favicon.ico' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'blog/images/favicon.ico' %}">
+    <!-- Favicon for all browsers -->
+    <link rel="icon" type="image/x-icon" href="{% static 'blog/icons/favicon.ico' %}">
+    
+    <!-- Standard favicon -->
+    <link rel="shortcut icon" href="{% static 'blog/icons/favicon.ico' %}">
+    
+    <!-- Apple Touch Icons for iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'blog/icons/apple-touch-icon.png' %}">
+    
+    <!-- Android and modern browsers -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'blog/icons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'blog/icons/favicon-16x16.png' %}">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="{% static 'blog/icons/manifest.json' %}">
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#5f788a">
+    
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Zack's Blog">
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
