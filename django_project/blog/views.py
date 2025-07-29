@@ -35,20 +35,32 @@ class PostListView(ListView):
 
 def infinite_scroll_posts(request):
     page_number = request.GET.get("page")
-    posts_list = Post.objects.all().order_by('-date_posted')
-    paginator = Paginator(posts_list, 5)  # Show 5 posts per page
     
     try:
         page_number = int(page_number)
     except (ValueError, TypeError):
         page_number = 1
+
+    # The initial page has 12 posts. Subsequent pages have 5.
+    # This calculates the correct offset.
+    initial_posts = 12
+    posts_per_page = 5
     
-    # Check if page number is valid
-    if page_number > paginator.num_pages:
-        return HttpResponse('')  # Return empty response for invalid pages
-    
-    page_obj = paginator.get_page(page_number)
-    return render(request, "blog/post_list_partial.html", {"posts": page_obj})
+    # Calculate the offset based on the page number
+    # For page 2, offset is 12. For page 3, offset is 12 + 5 = 17, and so on.
+    if page_number <= 1:
+        offset = 0
+        limit = initial_posts
+    else:
+        offset = initial_posts + (page_number - 2) * posts_per_page
+        limit = posts_per_page
+
+    posts_list = Post.objects.all().order_by('-date_posted')[offset:offset+limit]
+
+    if not posts_list:
+        return HttpResponse('')  # Return empty response if no more posts
+
+    return render(request, "blog/post_list_partial.html", {"posts": posts_list})
 
 
 class UserPostListView(ListView):
