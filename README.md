@@ -40,8 +40,9 @@ A collection of advanced projects demonstrating modern GitOps principles and Kub
 
 This section showcases my journey into MLOps, covering the end-to-end lifecycle of machine learning models.
 
-*   **Pneumonia Detection from Chest X-Rays:** An end-to-end image classification project. It includes data acquisition from Kaggle, model training with PyTorch on AWS SageMaker, and deployment as a containerized Flask API with a web frontend.
 *   **Oscar Best Picture Prediction:** A data science project that predicts the Best Picture winner at the Academy Awards. It highlights data engineering, feature selection, and the importance of choosing the right model (LightGBM) and evaluation metrics for imbalanced datasets.
+*   **PeppaPig Exploratory Data Analysis:** This was a linguistic analysis project to evaluate the language, themes, and emotional tone of the children's show "Peppa Pig" (specifically, the first four seasons) to determine its suitability for a pre-kindergarten audience.
+*   **Pneumonia Detection from Chest X-Rays:** An end-to-end image classification project. It includes data acquisition from Kaggle, model training with PyTorch on AWS SageMaker, and deployment as a containerized Flask API with a web frontend.
 *   **Local MLOps Project**: demonstrates a complete MLOps workflow for a simple machine learning task in my local PC using Nvidia RTX3070Ti: classifying the Iris dataset. It integrates several key MLOps tools DVC, MLflow, and Airflow to create a versioned, reproducible, and automated pipeline.
 
 ### 4. [Python Automation Scripts](./Python_scripts/)
