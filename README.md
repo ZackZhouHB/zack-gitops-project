@@ -22,7 +22,7 @@ This repository is organized into several key areas, each demonstrating a differ
 
 ### 1. [Django Blog Platform](./django_project/)
 
-A full-featured and modern blog application that serves as my personal portfolio and technical blog. It is containerized with Docker and showcases my web development skills.
+A full-featured and modern blog application that serves as my personal portfolio and technical blog [zackblog.work](https://zackblog.work). It is containerized with Docker and showcases my web development skills.
 
 *   **Features:** Full user authentication, Markdown-based post editor, user profiles, and an infinite scroll homepage.
 *   **Technologies:** Django, Python, Bootstrap 5, Docker, SQLite.
