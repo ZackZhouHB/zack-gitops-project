@@ -81,3 +81,10 @@ npm install
 npm start
 ```
 This will open the application in your default web browser, typically at `http://localhost:3000`.
+
+## Dashboard Screenshot
+
+![Dashboard Screenshot](images/dashboard-screenshot.png)
+![Dashboard Screenshot2](images/dashboard-screenshot2.png)
+![Dashboard Screenshot3](images/dashboard-screenshot3.png)
+![Dashboard Screenshot4](images/dashboard-screenshot4.png)
