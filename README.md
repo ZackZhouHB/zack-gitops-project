@@ -31,35 +31,29 @@ A full-featured and modern blog application that serves as my personal portfolio
 
 A collection of advanced projects demonstrating modern GitOps principles and Kubernetes management at scale.
 
-*   **EKS with Karpenter & Spot Instances:** A Terraform project to provision a cost-optimized EKS cluster that uses Karpenter for dynamic, on-demand node scaling with AWS Spot Instances.
-*   **Kubernetes on EC2 with Ansible:** A hands-on project that builds a Kubernetes cluster from scratch on EC2, using Terraform for infrastructure and Ansible for bootstrapping with `kubeadm`.
-*   **Argo CD Deployments:** Examples of deploying applications to Kubernetes using the GitOps pattern with Argo CD, including both Helm-based and standard manifest deployments.
-*   **PostgreSQL Operator:** Demonstrates managing stateful applications (PostgreSQL) on Kubernetes using the CrunchyData PostgreSQL Operator.
+*   **[EKS with Karpenter & Spot Instances](./gitops-k8s/EKS-Karpenter-Spot/):** A Terraform project to provision a cost-optimized EKS cluster that uses Karpenter for dynamic, on-demand node scaling with AWS Spot Instances.
+*   **[Kubernetes on EC2 with Ansible](./gitops-k8s/k8s-on-ec2-with-ansible/):** A hands-on project that builds a Kubernetes cluster from scratch on EC2, using Terraform for infrastructure and Ansible for bootstrapping with `kubeadm`.
+*   **[Argo CD Deployments](./gitops-k8s/argo-helm-zackblog/):** Examples of deploying applications to Kubernetes using the GitOps pattern with Argo CD, including both Helm-based and standard manifest deployments.
+*   **[PostgreSQL Operator](./gitops-k8s/postgrsql-operator/):** Demonstrates managing stateful applications (PostgreSQL) on Kubernetes using the CrunchyData PostgreSQL Operator.
 
 ### 3. [MLOps Projects](./mlops/)
 
 This section showcases my journey into MLOps, covering the end-to-end lifecycle of machine learning models.
 
-*   **Oscar Best Picture Prediction:** A data science project that predicts the Best Picture winner at the Academy Awards. It highlights data engineering, feature selection, and the importance of choosing the right model (LightGBM) and evaluation metrics for imbalanced datasets.
-*   **PeppaPig Exploratory Data Analysis:** This was a linguistic analysis project to evaluate the language, themes, and emotional tone of the children's show "Peppa Pig" (specifically, the first four seasons) to determine its suitability for a pre-kindergarten audience.
-*   **Pneumonia Detection from Chest X-Rays:** An end-to-end image classification project. It includes data acquisition from Kaggle, model training with PyTorch on AWS SageMaker, and deployment as a containerized Flask API with a web frontend.
-*   **Local MLOps Project**: demonstrates a complete MLOps workflow for a simple machine learning task in my local PC using Nvidia RTX3070Ti: classifying the Iris dataset. It integrates several key MLOps tools DVC, MLflow, and Airflow to create a versioned, reproducible, and automated pipeline.
+*   **[Oscar Best Picture Prediction](./mlops/oscar-model/):** A data science project that predicts the Best Picture winner at the Academy Awards. It highlights data engineering, feature selection, and the importance of choosing the right model (LightGBM) and evaluation metrics for imbalanced datasets.
+*   **[PeppaPig Exploratory Data Analysis](./mlops/peppapig/):** This was a linguistic analysis project to evaluate the language, themes, and emotional tone of the children's show "Peppa Pig" (specifically, the first four seasons) to determine its suitability for a pre-kindergarten audience.
+*   **[Pneumonia Detection from Chest X-Rays](./mlops/image-class/):** An end-to-end image classification project. It includes data acquisition from Kaggle, model training with PyTorch on AWS SageMaker, and deployment as a containerized Flask API with a web frontend.
+*   **[Local MLOps Project](./mlops/mlops-project/):** demonstrates a complete MLOps workflow for a simple machine learning task in my local PC using Nvidia RTX3070Ti: classifying the Iris dataset. It integrates several key MLOps tools DVC, MLflow, and Airflow to create a versioned, reproducible, and automated pipeline.
 *   **[Electricity & Gas Consumption Analysis](./mlops/electricity-gas-analytic/):** A web-based dashboard that analyzes and visualizes energy consumption data from CSV files. It features a Python/Pandas backend for data processing and a modern React frontend (using Tailwind CSS and Chart.js) to display usage patterns, cost trends, and a professional report with savings recommendations.
 
 ### 4. [Python Automation Scripts](./Python_scripts/)
 
 A collection of practical Python scripts for AWS automation and learning microservice architectures.
 
-*   **Microservices Practice:** A step-by-step evolution of a simple Flask app into a complete microservices architecture, incorporating an API Gateway, service discovery with Consul, centralized logging with the ELK Stack, and monitoring with Prometheus & Grafana.
-*   **AWS EC2 Agent Checker:** A modular tool to scan EC2 instances across multiple AWS accounts and report on the status of various agents (e.g., Airlock, Dynatrace).
-*   **AWS Resource Management:** Scripts for managing EC2 tags and IAM users across multiple accounts, and a utility for safely terminating EC2 instances.
-
-### 5. [Classic Games in Python](./Python_scripts/tiny-games/)
-
-A collection of classic board and card games implemented in Python. This project showcases object-oriented programming and GUI development with `pygame`.
-
-*   **Games Included:** Gomoku (Five in a Row), Dou Di Zhu (Card Game), and a text-based Mahjong.
-*   **Technologies:** Python, Pygame.
+*   **[Microservices Practice](./Python_scripts/Python-practice/):** A step-by-step evolution of a simple Flask app into a complete microservices architecture, incorporating an API Gateway, service discovery with Consul, centralized logging with the ELK Stack, and monitoring with Prometheus & Grafana.
+*   **[AWS EC2 Agent Checker](./Python_scripts/agent-checker/):** A modular tool to scan EC2 instances across multiple AWS accounts and report on the status of various agents (e.g., Airlock, Dynatrace).
+*   **[AWS Resource Management](./Python_scripts/mutiple-aws-accounts/):** Scripts for managing EC2 tags and IAM users across multiple accounts, and a utility for safely terminating EC2 instances.
+*   **[Classic Games in Python](./Python_scripts/tiny-games/):** A collection of classic board and card games implemented in Python. This project showcases object-oriented programming and GUI development with `pygame`.
 
 ---
 
