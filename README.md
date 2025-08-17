@@ -44,6 +44,7 @@ This section showcases my journey into MLOps, covering the end-to-end lifecycle 
 *   **PeppaPig Exploratory Data Analysis:** This was a linguistic analysis project to evaluate the language, themes, and emotional tone of the children's show "Peppa Pig" (specifically, the first four seasons) to determine its suitability for a pre-kindergarten audience.
 *   **Pneumonia Detection from Chest X-Rays:** An end-to-end image classification project. It includes data acquisition from Kaggle, model training with PyTorch on AWS SageMaker, and deployment as a containerized Flask API with a web frontend.
 *   **Local MLOps Project**: demonstrates a complete MLOps workflow for a simple machine learning task in my local PC using Nvidia RTX3070Ti: classifying the Iris dataset. It integrates several key MLOps tools DVC, MLflow, and Airflow to create a versioned, reproducible, and automated pipeline.
+*   **[Electricity & Gas Consumption Analysis](./mlops/electricity-gas-analytic/):** A web-based dashboard that analyzes and visualizes energy consumption data from CSV files. It features a Python/Pandas backend for data processing and a modern React frontend (using Tailwind CSS and Chart.js) to display usage patterns, cost trends, and a professional report with savings recommendations.
 
 ### 4. [Python Automation Scripts](./Python_scripts/)
 
@@ -52,6 +53,13 @@ A collection of practical Python scripts for AWS automation and learning microse
 *   **Microservices Practice:** A step-by-step evolution of a simple Flask app into a complete microservices architecture, incorporating an API Gateway, service discovery with Consul, centralized logging with the ELK Stack, and monitoring with Prometheus & Grafana.
 *   **AWS EC2 Agent Checker:** A modular tool to scan EC2 instances across multiple AWS accounts and report on the status of various agents (e.g., Airlock, Dynatrace).
 *   **AWS Resource Management:** Scripts for managing EC2 tags and IAM users across multiple accounts, and a utility for safely terminating EC2 instances.
+
+### 5. [Classic Games in Python](./Python_scripts/tiny-games/)
+
+A collection of classic board and card games implemented in Python. This project showcases object-oriented programming and GUI development with `pygame`.
+
+*   **Games Included:** Gomoku (Five in a Row), Dou Di Zhu (Card Game), and a text-based Mahjong.
+*   **Technologies:** Python, Pygame.
 
 ---
 
