@@ -2,3 +2,9 @@
 *.pub
 ec2-bastion/aws_ec2.yaml
 ec2-deploy/aws_ec2.yaml
+
+# gemini-cli settings
+.gemini/
+
+# GitHub App credentials
+gha-creds-*.json
