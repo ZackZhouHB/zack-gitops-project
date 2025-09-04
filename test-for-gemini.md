@@ -1,163 +1,138 @@
-# Gemini CLI Assistant
+run-gemini-cli is a GitHub Action that integrates Gemini into your development workflow via the Gemini CLI. It acts both as an autonomous agent for critical routine coding tasks, and an on-demand collaborator you can quickly delegate work to.
 
-In this guide you will learn how to use the Gemini CLI Assistant via GitHub Actions. It serves as an on-demand collaborator you can quickly delegate work to, invoked directly in GitHub Pull Request and Issue comments to perform a wide range of tasks—from code analysis and modifications to project management. When you invoke the workflow via `@gemini-cli`, it uses a customizable set of tools to understand the context, execute your request, and respond within the same thread.
+Use it to perform GitHub pull request reviews, triage issues, perform code analysis and modification, and more using Gemini conversationally (e.g., @gemini-cli fix this issue) directly inside your GitHub repositories.
 
-- [Gemini CLI Assistant](#gemini-cli-assistant)
-  - [Overview](#overview)
-  - [Features](#features)
-  - [Setup](#setup)
-    - [Prerequisites](#prerequisites)
-    - [Setup Methods](#setup-methods)
-  - [Usage](#usage)
-    - [Supported Triggers](#supported-triggers)
-    - [How to Invoke the Gemini CLI Workflow](#how-to-invoke-the-gemini-cli-workflow)
-  - [Interaction Flow](#interaction-flow)
-  - [Configuration](#configuration)
-  - [Examples](#examples)
-    - [Asking a Question](#asking-a-question)
-    - [Requesting a Code Change](#requesting-a-code-change)
-    - [Summarizing an Issue](#summarizing-an-issue)
 
-## Overview
+Quick Start
+1. Get a Gemini API Key
+2. Add it as a GitHub Secret
+3. Update your .gitignore
+4. Choose a Workflow
+5. Try it out!
 
-Unlike specialized Gemini CLI workflows for [pull request reviews](../pr-review) or [issue triage](../issue-triage), the Gemini CLI Assistant is designed to handle a broad variety of requests, from answering questions about the code to performing complex code modifications, as demonstrated further in this document.
+Workflows
+Gemini Dispatch
+Issue Triage
+Pull Request Review
+Gemini CLI Assistant
 
-## Features
 
-- **Conversational Interface**: You can interact with the Gemini AI assistant directly in GitHub Issue and PR comments.
-- **Repository Interaction**: The Gemini CLI can read files, view diffs in Pull Requests, and inspect Issue details.
-- **Code Modification**: The Gemini CLI is capable of writing to files, committing changes, and pushing to the branch.
-- **Customizable Toolset**: You can define exactly which shell commands and tools the Gemini AI is allowed to use.
-- **Flexible Prompting**: You can tailor the Gemini CLI's role, instructions, and guidelines to fit your project's needs.
+Features
+Automation: Trigger workflows based on events (e.g. issue opening) or schedules (e.g. nightly).
+On-demand Collaboration: Trigger workflows in issue and pull request comments by mentioning the Gemini CLI (e.g., @gemini-cli /review).
+Extensible with Tools: Leverage Gemini models' tool-calling capabilities to interact with other CLIs like the GitHub CLI (gh).
+Customizable: Use a GEMINI.md file in your repository to provide project-specific instructions and context to Gemini CLI.
 
-## Setup
+Quick Start
+Get started with Gemini CLI in your repository in just a few minutes:
 
-For detailed setup instructions, including prerequisites and authentication, please refer to the main [Getting Started](../../../README.md#quick-start) section and [Authentication documentation](../../../docs/authentication.md).
+1. Get a Gemini API Key
+Obtain your API key from Google AI Studio with generous free-of-charge quotas
 
-### Prerequisites
+2. Add it as a GitHub Secret
+Store your API key as a secret named GEMINI_API_KEY in your repository:
 
-Add the following entries to your `.gitignore` file to prevent Gemini CLI artifacts from being committed:
+Go to your repository's Settings > Secrets and variables > Actions
+Click New repository secret
+Name: GEMINI_API_KEY, Value: your API key
 
-```gitignore
+3. Update your .gitignore
+Add the following entries to your .gitignore file:
+
 # gemini-cli settings
 .gemini/
 
 # GitHub App credentials
 gha-creds-*.json
-```
 
-### Setup Methods
+4. get and test Workflow
+You have two options to set up a workflow:
 
-To use this workflow, you can utilize either of the following methods:
-1. Run the `/setup-github` command in Gemini CLI on your terminal to set up workflows for your repository.
-2. Copy the workflow files into your repository's `.github/workflows` directory:
+Start the Gemini CLI in your terminal under local repo folder, In Gemini CLI in your terminal, type:
 
-```bash
-mkdir -p .github/workflows
-curl -o .github/workflows/gemini-dispatch.yml https://raw.githubusercontent.com/google-github-actions/run-gemini-cli/main/examples/workflows/gemini-dispatch/gemini-dispatch.yml
-curl -o .github/workflows/gemini-invoke.yml https://raw.githubusercontent.com/google-github-actions/run-gemini-cli/main/examples/workflows/gemini-assistant/gemini-invoke.yml
-```
+/setup-github
 
-## Dependencies
+5. Try it out!
+Pull Request Review:
 
-This workflow relies on the [gemini-dispatch.yml](../gemini-dispatch/gemini-dispatch.yml) workflow to route requests to the appropriate workflow.
+Here I created a test branch, made change to create a new markdown file, then create a pull request in your repository and request gemini to run and trigger automatic review by Comment @gemini-cli /review on an existing pull request to manually trigger a review
 
-## Usage
+@gemini-cli Please explain what the test-for-gemini.md file does.
 
-### Supported Triggers
+Workflows
+This action provides several pre-built workflows for different use cases. Each workflow is designed to be copied into your repository's .github/workflows directory and customized as needed.
 
-The Gemini CLI Assistant workflow is triggered by new comments in:
+Gemini Dispatch
+This workflow acts as a central dispatcher for Gemini CLI, routing requests to the appropriate workflow based on the triggering event and the command provided in the comment. For a detailed guide on how to set up the dispatch workflow, go to the Gemini Dispatch workflow documentation.
 
-- GitHub Pull Request reviews
-- GitHub Pull Request review comments
-- GitHub Issues
+Issue Triage
+This action can be used to triage GitHub Issues automatically or on a schedule. For a detailed guide on how to set up the issue triage system, go to the GitHub Issue Triage workflow documentation.
 
-The Gemini CLI Assistant workflow is intentionally configured *not* to respond to comments containing `/review` or `/triage` to avoid conflicts with other dedicated workflows (such as [the Gemini CLI Pull Request workflow](../pr-review) or [the issue triage workflow](../issue-triage)).
+Pull Request Review
+This action can be used to automatically review pull requests when they are opened. For a detailed guide on how to set up the pull request review system, go to the GitHub PR Review workflow documentation.
 
-### How to Invoke the Gemini CLI Workflow
+Gemini CLI Assistant
+This type of action can be used to invoke a general-purpose, conversational Gemini AI assistant within the pull requests and issues to perform a wide range of tasks. For a detailed guide on how to set up the general-purpose Gemini CLI workflow, go to the Gemini Assistant workflow documentation.
 
-To use the general GitHub CLI workflow, just mention `@gemini-cli` in a comment in a GitHub Pull Request or an Issue, followed by your request. For example:
+you see when I update the commant in PR conversation, it triggered the action workflow, first with Dispatch yml, then it detected my request and choose the review yml, then offer me recommendation and put in the PR conversation
 
-```
-@gemini-cli Please explain what the `main.go` file does.
-```
+Cloclusion
 
-```
-@gemini-cli Refactor the `calculateTotal` function in `src/utils.js` to improve readability.
-```
+This run-gemini-cli github action workflow doesn’t replace human review, but it’s like having a tireless reviewer that handles boring checks and gives immediate explanations. Humans can then focus on design, architecture, and business logic.
 
-## Interaction Flow
+How this improves over manual PR review
 
-The workflow follows a clear, multi-step process to handle requests:
+Automated triage & context check
 
-```mermaid
-flowchart TD
-    subgraph "User Interaction"
-        A[User posts comment with '@gemini-cli <request>']
-        F{Approve plan?}
-    end
+Gemini can catch low-level issues (missing newlines, lint problems, style, docs) without needing a human to even look.
 
-    subgraph "Gemini CLI Workflow"
-        B[Acknowledge Request]
-        C[Checkout Code]
-        D[Run Gemini]
-        E{Is a plan required?}
-        G[Post Plan for Approval]
-        H[Execute Request]
-        I{Request involves code changes?}
-        J[Commit and Push Changes]
-        K[Post Final Response]
-    end
+That saves reviewers from wasting mental effort on trivial formatting/style details.
 
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E -- Yes --> G
-    G --> F
-    F -- Yes --> H
-    F -- No --> K
-    E -- No --> H
-    H --> I
-    I -- Yes --> J
-    J --> K
-    I -- No --> K
-```
+On-demand explanations
 
-1.  **Acknowledge**: The action first posts a brief comment to let the user know the request has been received.
-2.  **Plan (if needed)**: For requests that may involve code changes or complex actions, the AI will first create a step-by-step plan. It will post this plan as a comment and wait for the user to approve it by replying with `@gemini-cli plan#123 approved`. This ensures the user has full control before any changes are made.
-3.  **Execute**: Once the plan is approved (or if no plan was needed), it runs the Gemini model, providing it with the user's request, repository context, and a set of tools.
-4.  **Commit (if needed)**: If the AI uses tools to modify files, it will automatically commit and push the changes to the branch.
-5.  **Respond**: The AI posts a final, comprehensive response as a comment on the issue or pull request.
+You (or any collaborator) can type @gemini-cli Please explain… to get contextual explanations of files, changes, or why a modification matters.
 
-## Configuration
+In manual reviews, you’d need to ask the author and wait — now you get it instantly.
 
-The Gemini CLI system prompt, located in the `prompt` input, defines the Gemini AI's role and instructions. You can edit this prompt to, for example:
+Faster feedback loop
 
-- Change its persona or primary function.
-- Add project-specific guidelines or context.
-- Instruct it to format its output in a specific way.
+Gemini reviews as soon as a PR is opened (thanks to pull_request.opened event).
 
-## Examples
+Humans don’t always review immediately — Gemini ensures every PR gets some feedback right away.
 
-More Gemini CLI Assistant workflow examples:
+Standardized review quality
 
-### Asking a Question
+Humans vary in thoroughness. Gemini enforces a baseline (e.g., documentation check, structure, formatting).
 
-```
-@gemini-cli What is the purpose of the `telemetry.js` script?
-```
+This ensures consistent standards across the repo.
 
-### Requesting a Code Change
+Reduces reviewer fatigue
 
-```
-@gemini-cli In `package.json`, please add a new script called "test:ci" that runs `npm test`.
-```
+Developers can focus on high-level design/logic decisions, while Gemini handles repetitive, mechanical checks.
 
-### Summarizing an Issue
+That makes human review time more valuable.
 
-```
-@gemini-cli Can you summarize the main points of this issue thread for me?
-```
+Traceable & reproducible
 
-[Google AI Studio]: https://aistudio.google.com/apikey
+Every Gemini action run is logged under GitHub Actions.
+
+That means you can always inspect how/why it made a comment — unlike a human’s “gut feel.”
+
+🚀 Possible Improvements for This Workflow
+
+Looking at the YAML you pasted, a few enhancements could make it even stronger:
+
+Run static analysis automatically
+Add jobs to run eslint, flake8, pylint, or prettier depending on project type, so Gemini’s review can include real lint results.
+
+Auto-fix trivial issues
+Instead of only commenting “missing newline”, Gemini could push a patch commit with that newline (with approval from repo settings).
+
+Configurable prompts
+Add a repo-level config (e.g., .gemini.yml) that specifies what Gemini should always check (docs coverage, test presence, changelog update, etc.).
+
+Require Gemini review before merge
+Protect branches so PRs need at least one “reviewed by gemini-cli” check before merge. Ensures baseline automated QA.
+
+Smarter comment parsing
+Right now it looks for @gemini-cli at the start of a comment. You could extend this so people can just mention anywhere in the body.
