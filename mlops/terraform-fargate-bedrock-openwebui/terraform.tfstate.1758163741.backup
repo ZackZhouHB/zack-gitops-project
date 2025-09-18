@@ -1,0 +1,1012 @@
+{
+  "version": 4,
+  "terraform_version": "1.13.1",
+  "serial": 44,
+  "lineage": "fb4e8d4d-2246-b549-dd76-6bee15cdb391",
+  "outputs": {
+    "alb_dns_name": {
+      "value": "openwebui-fargate-alb-1315837569.ap-southeast-2.elb.amazonaws.com",
+      "type": "string"
+    },
+    "bedrock_gateway_ecr_repository_url": {
+      "value": "615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/bedrock-gateway",
+      "type": "string"
+    },
+    "ecs_cluster_name": {
+      "value": "openwebui-cluster",
+      "type": "string"
+    },
+    "ecs_service_name": {
+      "value": "openwebui-service",
+      "type": "string"
+    },
+    "openwebui_url": {
+      "value": "http://openwebui-fargate-alb-1315837569.ap-southeast-2.elb.amazonaws.com",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "aws_subnets",
+      "name": "default",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "filter": [
+              {
+                "name": "vpc-id",
+                "values": [
+                  "vpc-0fac7e61518b2788e"
+                ]
+              }
+            ],
+            "id": "ap-southeast-2",
+            "ids": [
+              "subnet-0289ea81eb5ac7a76",
+              "subnet-0646fe221b6c47504",
+              "subnet-03da7c27bb83f8091"
+            ],
+            "tags": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "aws_vpc",
+      "name": "default",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-southeast-2:615299759525:vpc/vpc-0fac7e61518b2788e",
+            "cidr_block": "172.31.0.0/16",
+            "cidr_block_associations": [
+              {
+                "association_id": "vpc-cidr-assoc-03019b2cdbdef9886",
+                "cidr_block": "172.31.0.0/16",
+                "state": "associated"
+              }
+            ],
+            "default": true,
+            "dhcp_options_id": "dopt-0c1edc5988eb9ad67",
+            "enable_dns_hostnames": true,
+            "enable_dns_support": true,
+            "enable_network_address_usage_metrics": false,
+            "filter": null,
+            "id": "vpc-0fac7e61518b2788e",
+            "instance_tenancy": "default",
+            "ipv6_association_id": "",
+            "ipv6_cidr_block": "",
+            "main_route_table_id": "rtb-0eb03d5fe543a576b",
+            "owner_id": "615299759525",
+            "state": null,
+            "tags": {
+              "Name": "Docusign-default-VPC"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_cloudwatch_log_group",
+      "name": "bedrock_gateway_logs",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:logs:ap-southeast-2:615299759525:log-group:/ecs/bedrock-gateway",
+            "id": "/ecs/bedrock-gateway",
+            "kms_key_id": "",
+            "log_group_class": "STANDARD",
+            "name": "/ecs/bedrock-gateway",
+            "name_prefix": "",
+            "retention_in_days": 7,
+            "skip_destroy": false,
+            "tags": {
+              "Name": "bedrock-gateway-logs",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "bedrock-gateway-logs",
+              "createdby": "cloudteam"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_cloudwatch_log_group",
+      "name": "openwebui_logs",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:logs:ap-southeast-2:615299759525:log-group:/ecs/openwebui",
+            "id": "/ecs/openwebui",
+            "kms_key_id": "",
+            "log_group_class": "STANDARD",
+            "name": "/ecs/openwebui",
+            "name_prefix": "",
+            "retention_in_days": 7,
+            "skip_destroy": false,
+            "tags": {
+              "Name": "openwebui-logs",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "openwebui-logs",
+              "createdby": "cloudteam"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_ecr_repository",
+      "name": "bedrock_gateway",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ecr:ap-southeast-2:615299759525:repository/bedrock-gateway",
+            "encryption_configuration": [
+              {
+                "encryption_type": "AES256",
+                "kms_key": ""
+              }
+            ],
+            "force_delete": null,
+            "id": "bedrock-gateway",
+            "image_scanning_configuration": [
+              {
+                "scan_on_push": true
+              }
+            ],
+            "image_tag_mutability": "MUTABLE",
+            "name": "bedrock-gateway",
+            "registry_id": "615299759525",
+            "repository_url": "615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/bedrock-gateway",
+            "tags": {
+              "Name": "bedrock-gateway",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "bedrock-gateway",
+              "createdby": "cloudteam"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_ecs_cluster",
+      "name": "openwebui_cluster",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ecs:ap-southeast-2:615299759525:cluster/openwebui-cluster",
+            "configuration": [],
+            "id": "arn:aws:ecs:ap-southeast-2:615299759525:cluster/openwebui-cluster",
+            "name": "openwebui-cluster",
+            "service_connect_defaults": [],
+            "setting": [
+              {
+                "name": "containerInsights",
+                "value": "enabled"
+              }
+            ],
+            "tags": {
+              "Name": "openwebui-cluster",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "openwebui-cluster",
+              "createdby": "cloudteam"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_ecs_service",
+      "name": "openwebui_service",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "alarms": [],
+            "availability_zone_rebalancing": "DISABLED",
+            "capacity_provider_strategy": [],
+            "cluster": "arn:aws:ecs:ap-southeast-2:615299759525:cluster/openwebui-cluster",
+            "deployment_circuit_breaker": [
+              {
+                "enable": false,
+                "rollback": false
+              }
+            ],
+            "deployment_controller": [
+              {
+                "type": "ECS"
+              }
+            ],
+            "deployment_maximum_percent": 200,
+            "deployment_minimum_healthy_percent": 100,
+            "desired_count": 2,
+            "enable_ecs_managed_tags": false,
+            "enable_execute_command": false,
+            "force_delete": null,
+            "force_new_deployment": null,
+            "health_check_grace_period_seconds": 0,
+            "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
+            "id": "arn:aws:ecs:ap-southeast-2:615299759525:service/openwebui-cluster/openwebui-service",
+            "launch_type": "FARGATE",
+            "load_balancer": [
+              {
+                "container_name": "openwebui",
+                "container_port": 8080,
+                "elb_name": "",
+                "target_group_arn": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:targetgroup/openwebui-fargate-tg/4c899a240ed1221d"
+              }
+            ],
+            "name": "openwebui-service",
+            "network_configuration": [
+              {
+                "assign_public_ip": true,
+                "security_groups": [
+                  "sg-0631038775f2749fc"
+                ],
+                "subnets": [
+                  "subnet-0289ea81eb5ac7a76",
+                  "subnet-03da7c27bb83f8091",
+                  "subnet-0646fe221b6c47504"
+                ]
+              }
+            ],
+            "ordered_placement_strategy": [],
+            "placement_constraints": [],
+            "platform_version": "LATEST",
+            "propagate_tags": "NONE",
+            "scheduling_strategy": "REPLICA",
+            "service_connect_configuration": [],
+            "service_registries": [],
+            "tags": {
+              "Name": "openwebui-service",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "openwebui-service",
+              "createdby": "cloudteam"
+            },
+            "task_definition": "arn:aws:ecs:ap-southeast-2:615299759525:task-definition/openwebui-task:6",
+            "timeouts": null,
+            "triggers": {},
+            "volume_configuration": [],
+            "vpc_lattice_configurations": [],
+            "wait_for_steady_state": false
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_cloudwatch_log_group.bedrock_gateway_logs",
+            "aws_cloudwatch_log_group.openwebui_logs",
+            "aws_ecr_repository.bedrock_gateway",
+            "aws_ecs_cluster.openwebui_cluster",
+            "aws_ecs_task_definition.openwebui_task",
+            "aws_iam_role.ecs_execution_role",
+            "aws_iam_role.ecs_task_role",
+            "aws_lb.openwebui_alb",
+            "aws_lb_listener.openwebui_listener",
+            "aws_lb_target_group.openwebui_tg",
+            "aws_security_group.alb_sg",
+            "aws_security_group.ecs_sg",
+            "data.aws_subnets.default",
+            "data.aws_vpc.default"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_ecs_task_definition",
+      "name": "openwebui_task",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ecs:ap-southeast-2:615299759525:task-definition/openwebui-task:6",
+            "arn_without_revision": "arn:aws:ecs:ap-southeast-2:615299759525:task-definition/openwebui-task",
+            "container_definitions": "[{\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"ap-southeast-2\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"curl -f http://localhost:80/health || exit 1\"],\"interval\":30,\"retries\":3,\"startPeriod\":60,\"timeout\":5},\"image\":\"615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/bedrock-gateway:latest\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-stream-prefix\":\"ecs\",\"awslogs-group\":\"/ecs/bedrock-gateway\",\"awslogs-region\":\"ap-southeast-2\"}},\"mountPoints\":[],\"name\":\"bedrock-gateway\",\"portMappings\":[{\"containerPort\":80,\"hostPort\":80,\"protocol\":\"tcp\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"dependsOn\":[{\"condition\":\"HEALTHY\",\"containerName\":\"bedrock-gateway\"}],\"environment\":[{\"name\":\"DATA_DIR\",\"value\":\"/app/backend/data\"},{\"name\":\"OPENAI_API_BASE_URL\",\"value\":\"http://localhost:8000/api/v1\"},{\"name\":\"OPENAI_API_KEY\",\"value\":\"bedrock\"},{\"name\":\"WEBUI_SECRET_KEY\",\"value\":\"your-secret-key-here\"}],\"essential\":true,\"image\":\"ghcr.io/open-webui/open-webui:main\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-stream-prefix\":\"ecs\",\"awslogs-group\":\"/ecs/openwebui\",\"awslogs-region\":\"ap-southeast-2\"}},\"mountPoints\":[],\"name\":\"openwebui\",\"portMappings\":[{\"containerPort\":8080,\"hostPort\":8080,\"protocol\":\"tcp\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "cpu": "2048",
+            "enable_fault_injection": false,
+            "ephemeral_storage": [],
+            "execution_role_arn": "arn:aws:iam::615299759525:role/ecs-openwebui-execution-role",
+            "family": "openwebui-task",
+            "id": "openwebui-task",
+            "inference_accelerator": [],
+            "ipc_mode": "",
+            "memory": "4096",
+            "network_mode": "awsvpc",
+            "pid_mode": "",
+            "placement_constraints": [],
+            "proxy_configuration": [],
+            "requires_compatibilities": [
+              "FARGATE"
+            ],
+            "revision": 6,
+            "runtime_platform": [],
+            "skip_destroy": false,
+            "tags": {
+              "Name": "openwebui-task",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "openwebui-task",
+              "createdby": "cloudteam"
+            },
+            "task_role_arn": "arn:aws:iam::615299759525:role/ecs-openwebui-task-role",
+            "track_latest": false,
+            "volume": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "aws_cloudwatch_log_group.bedrock_gateway_logs",
+            "aws_cloudwatch_log_group.openwebui_logs",
+            "aws_ecr_repository.bedrock_gateway",
+            "aws_iam_role.ecs_execution_role",
+            "aws_iam_role.ecs_task_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_ecs_task_definition",
+      "name": "openwebui_task_simple",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ecs:ap-southeast-2:615299759525:task-definition/openwebui-task:1",
+            "arn_without_revision": "arn:aws:ecs:ap-southeast-2:615299759525:task-definition/openwebui-task",
+            "container_definitions": "[{\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"ap-southeast-2\"}],\"essential\":true,\"image\":\"your-dockerhub/bedrock-gateway:latest\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/bedrock-gateway\",\"awslogs-region\":\"ap-southeast-2\",\"awslogs-stream-prefix\":\"ecs\"}},\"mountPoints\":[],\"name\":\"bedrock-gateway\",\"portMappings\":[{\"containerPort\":8000,\"hostPort\":8000,\"protocol\":\"tcp\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"OPENAI_API_BASE_URL\",\"value\":\"http://localhost:8000/api/v1\"}],\"essential\":true,\"image\":\"ghcr.io/open-webui/open-webui:main\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/openwebui\",\"awslogs-region\":\"ap-southeast-2\",\"awslogs-stream-prefix\":\"ecs\"}},\"mountPoints\":[],\"name\":\"openwebui\",\"portMappings\":[{\"containerPort\":8080,\"hostPort\":8080,\"protocol\":\"tcp\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "cpu": "1024",
+            "enable_fault_injection": false,
+            "ephemeral_storage": [],
+            "execution_role_arn": "arn:aws:iam::615299759525:role/ecs-openwebui-execution-role",
+            "family": "openwebui-task",
+            "id": "openwebui-task",
+            "inference_accelerator": [],
+            "ipc_mode": "",
+            "memory": "2048",
+            "network_mode": "awsvpc",
+            "pid_mode": "",
+            "placement_constraints": [],
+            "proxy_configuration": [],
+            "requires_compatibilities": [
+              "FARGATE"
+            ],
+            "revision": 1,
+            "runtime_platform": [],
+            "skip_destroy": false,
+            "tags": {},
+            "tags_all": {},
+            "task_role_arn": "arn:aws:iam::615299759525:role/ecs-openwebui-task-role",
+            "track_latest": false,
+            "volume": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "aws_cloudwatch_log_group.bedrock_gateway_logs",
+            "aws_cloudwatch_log_group.openwebui_logs",
+            "aws_iam_role.ecs_execution_role",
+            "aws_iam_role.ecs_task_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "ecs_execution_role",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::615299759525:role/ecs-openwebui-execution-role",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2025-09-18T01:52:00Z",
+            "description": "",
+            "force_detach_policies": false,
+            "id": "ecs-openwebui-execution-role",
+            "inline_policy": [],
+            "managed_policy_arns": [
+              "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+            ],
+            "max_session_duration": 3600,
+            "name": "ecs-openwebui-execution-role",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Name": "ecs-openwebui-execution-role",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "ecs-openwebui-execution-role",
+              "createdby": "cloudteam"
+            },
+            "unique_id": "AROAY6QVZHWSXY6CH5URN"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "ecs_task_role",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::615299759525:role/ecs-openwebui-task-role",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2025-09-18T01:52:00Z",
+            "description": "",
+            "force_detach_policies": false,
+            "id": "ecs-openwebui-task-role",
+            "inline_policy": [
+              {
+                "name": "BedrockAccessPolicy",
+                "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"bedrock:*\"],\"Effect\":\"Allow\",\"Resource\":\"*\"}]}"
+              }
+            ],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "ecs-openwebui-task-role",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Name": "ecs-openwebui-task-role",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "ecs-openwebui-task-role",
+              "createdby": "cloudteam"
+            },
+            "unique_id": "AROAY6QVZHWS2EL7ETJLL"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "bedrock_policy",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "ecs-openwebui-task-role:BedrockAccessPolicy",
+            "name": "BedrockAccessPolicy",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"bedrock:*\"],\"Effect\":\"Allow\",\"Resource\":\"*\"}]}",
+            "role": "ecs-openwebui-task-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ecs_task_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "ecs_execution_role_policy",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "ecs-openwebui-execution-role-20250918015200058000000002",
+            "policy_arn": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+            "role": "ecs-openwebui-execution-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ecs_execution_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_lb",
+      "name": "openwebui_alb",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access_logs": [
+              {
+                "bucket": "",
+                "enabled": false,
+                "prefix": ""
+              }
+            ],
+            "arn": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:loadbalancer/app/openwebui-fargate-alb/a41cc05766356af4",
+            "arn_suffix": "app/openwebui-fargate-alb/a41cc05766356af4",
+            "client_keep_alive": 3600,
+            "connection_logs": [
+              {
+                "bucket": "",
+                "enabled": false,
+                "prefix": ""
+              }
+            ],
+            "customer_owned_ipv4_pool": "",
+            "desync_mitigation_mode": "defensive",
+            "dns_name": "openwebui-fargate-alb-1315837569.ap-southeast-2.elb.amazonaws.com",
+            "dns_record_client_routing_policy": null,
+            "drop_invalid_header_fields": false,
+            "enable_cross_zone_load_balancing": true,
+            "enable_deletion_protection": false,
+            "enable_http2": true,
+            "enable_tls_version_and_cipher_suite_headers": false,
+            "enable_waf_fail_open": false,
+            "enable_xff_client_port": false,
+            "enable_zonal_shift": false,
+            "enforce_security_group_inbound_rules_on_private_link_traffic": "",
+            "id": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:loadbalancer/app/openwebui-fargate-alb/a41cc05766356af4",
+            "idle_timeout": 60,
+            "internal": false,
+            "ip_address_type": "ipv4",
+            "ipam_pools": [],
+            "load_balancer_type": "application",
+            "minimum_load_balancer_capacity": [],
+            "name": "openwebui-fargate-alb",
+            "name_prefix": "",
+            "preserve_host_header": false,
+            "security_groups": [
+              "sg-008e8ea64d10da99d"
+            ],
+            "subnet_mapping": [
+              {
+                "allocation_id": "",
+                "ipv6_address": "",
+                "outpost_id": "",
+                "private_ipv4_address": "",
+                "subnet_id": "subnet-0289ea81eb5ac7a76"
+              },
+              {
+                "allocation_id": "",
+                "ipv6_address": "",
+                "outpost_id": "",
+                "private_ipv4_address": "",
+                "subnet_id": "subnet-03da7c27bb83f8091"
+              },
+              {
+                "allocation_id": "",
+                "ipv6_address": "",
+                "outpost_id": "",
+                "private_ipv4_address": "",
+                "subnet_id": "subnet-0646fe221b6c47504"
+              }
+            ],
+            "subnets": [
+              "subnet-0289ea81eb5ac7a76",
+              "subnet-03da7c27bb83f8091",
+              "subnet-0646fe221b6c47504"
+            ],
+            "tags": {
+              "Name": "openwebui-fargate-alb",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "openwebui-fargate-alb",
+              "createdby": "cloudteam"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-0fac7e61518b2788e",
+            "xff_header_processing_mode": "append",
+            "zone_id": "Z1GM3OXH4ZPM65"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6NjAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_security_group.alb_sg",
+            "data.aws_subnets.default",
+            "data.aws_vpc.default"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_lb_listener",
+      "name": "openwebui_listener",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "alpn_policy": null,
+            "arn": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:listener/app/openwebui-fargate-alb/a41cc05766356af4/1d7a6fd30be1c208",
+            "certificate_arn": null,
+            "default_action": [
+              {
+                "authenticate_cognito": [],
+                "authenticate_oidc": [],
+                "fixed_response": [],
+                "forward": [],
+                "order": 1,
+                "redirect": [],
+                "target_group_arn": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:targetgroup/openwebui-fargate-tg/4c899a240ed1221d",
+                "type": "forward"
+              }
+            ],
+            "id": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:listener/app/openwebui-fargate-alb/a41cc05766356af4/1d7a6fd30be1c208",
+            "load_balancer_arn": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:loadbalancer/app/openwebui-fargate-alb/a41cc05766356af4",
+            "mutual_authentication": [],
+            "port": 80,
+            "protocol": "HTTP",
+            "routing_http_request_x_amzn_mtls_clientcert_header_name": null,
+            "routing_http_request_x_amzn_mtls_clientcert_issuer_header_name": null,
+            "routing_http_request_x_amzn_mtls_clientcert_leaf_header_name": null,
+            "routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name": null,
+            "routing_http_request_x_amzn_mtls_clientcert_subject_header_name": null,
+            "routing_http_request_x_amzn_mtls_clientcert_validity_header_name": null,
+            "routing_http_request_x_amzn_tls_cipher_suite_header_name": null,
+            "routing_http_request_x_amzn_tls_version_header_name": null,
+            "routing_http_response_access_control_allow_credentials_header_value": "",
+            "routing_http_response_access_control_allow_headers_header_value": "",
+            "routing_http_response_access_control_allow_methods_header_value": "",
+            "routing_http_response_access_control_allow_origin_header_value": "",
+            "routing_http_response_access_control_expose_headers_header_value": "",
+            "routing_http_response_access_control_max_age_header_value": "",
+            "routing_http_response_content_security_policy_header_value": "",
+            "routing_http_response_server_enabled": true,
+            "routing_http_response_strict_transport_security_header_value": "",
+            "routing_http_response_x_content_type_options_header_value": "",
+            "routing_http_response_x_frame_options_header_value": "",
+            "ssl_policy": "",
+            "tags": {},
+            "tags_all": {},
+            "tcp_idle_timeout_seconds": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsInVwZGF0ZSI6MzAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "aws_lb.openwebui_alb",
+            "aws_lb_target_group.openwebui_tg",
+            "aws_security_group.alb_sg",
+            "data.aws_subnets.default",
+            "data.aws_vpc.default"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_lb_target_group",
+      "name": "openwebui_tg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:targetgroup/openwebui-fargate-tg/4c899a240ed1221d",
+            "arn_suffix": "targetgroup/openwebui-fargate-tg/4c899a240ed1221d",
+            "connection_termination": null,
+            "deregistration_delay": "300",
+            "health_check": [
+              {
+                "enabled": true,
+                "healthy_threshold": 2,
+                "interval": 30,
+                "matcher": "200",
+                "path": "/",
+                "port": "traffic-port",
+                "protocol": "HTTP",
+                "timeout": 5,
+                "unhealthy_threshold": 2
+              }
+            ],
+            "id": "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:targetgroup/openwebui-fargate-tg/4c899a240ed1221d",
+            "ip_address_type": "ipv4",
+            "lambda_multi_value_headers_enabled": false,
+            "load_balancer_arns": [
+              "arn:aws:elasticloadbalancing:ap-southeast-2:615299759525:loadbalancer/app/openwebui-fargate-alb/a41cc05766356af4"
+            ],
+            "load_balancing_algorithm_type": "round_robin",
+            "load_balancing_anomaly_mitigation": "off",
+            "load_balancing_cross_zone_enabled": "use_load_balancer_configuration",
+            "name": "openwebui-fargate-tg",
+            "name_prefix": "",
+            "port": 8080,
+            "preserve_client_ip": null,
+            "protocol": "HTTP",
+            "protocol_version": "HTTP1",
+            "proxy_protocol_v2": false,
+            "slow_start": 0,
+            "stickiness": [
+              {
+                "cookie_duration": 86400,
+                "cookie_name": "",
+                "enabled": false,
+                "type": "lb_cookie"
+              }
+            ],
+            "tags": {
+              "Name": "openwebui-fargate-tg",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "openwebui-fargate-tg",
+              "createdby": "cloudteam"
+            },
+            "target_failover": [
+              {
+                "on_deregistration": null,
+                "on_unhealthy": null
+              }
+            ],
+            "target_group_health": [
+              {
+                "dns_failover": [
+                  {
+                    "minimum_healthy_targets_count": "1",
+                    "minimum_healthy_targets_percentage": "off"
+                  }
+                ],
+                "unhealthy_state_routing": [
+                  {
+                    "minimum_healthy_targets_count": 1,
+                    "minimum_healthy_targets_percentage": "off"
+                  }
+                ]
+              }
+            ],
+            "target_health_state": [
+              {
+                "enable_unhealthy_connection_termination": null,
+                "unhealthy_draining_interval": null
+              }
+            ],
+            "target_type": "ip",
+            "vpc_id": "vpc-0fac7e61518b2788e"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "data.aws_vpc.default"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "alb_sg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-southeast-2:615299759525:security-group/sg-008e8ea64d10da99d",
+            "description": "Managed by Terraform",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-008e8ea64d10da99d",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "",
+                "from_port": 80,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 80
+              },
+              {
+                "cidr_blocks": [
+                  "10.103.0.0/16",
+                  "10.104.0.0/16",
+                  "10.102.2.0/24",
+                  "10.80.0.0/22",
+                  "10.80.4.0/22",
+                  "10.80.8.0/22"
+                ],
+                "description": "",
+                "from_port": 80,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 80
+              }
+            ],
+            "name": "alb-sg20250918015158011900000001",
+            "name_prefix": "alb-sg",
+            "owner_id": "615299759525",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Name": "alb-sg",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "alb-sg",
+              "createdby": "cloudteam"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-0fac7e61518b2788e"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "data.aws_vpc.default"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "ecs_sg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-southeast-2:615299759525:security-group/sg-0631038775f2749fc",
+            "description": "Managed by Terraform",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-0631038775f2749fc",
+            "ingress": [
+              {
+                "cidr_blocks": [],
+                "description": "",
+                "from_port": 8000,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": true,
+                "to_port": 8000
+              },
+              {
+                "cidr_blocks": [],
+                "description": "",
+                "from_port": 8080,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [
+                  "sg-008e8ea64d10da99d"
+                ],
+                "self": false,
+                "to_port": 8080
+              }
+            ],
+            "name": "ecs-sg20250918015200417100000003",
+            "name_prefix": "ecs-sg",
+            "owner_id": "615299759525",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Name": "ecs-sg",
+              "createdby": "cloudteam"
+            },
+            "tags_all": {
+              "Name": "ecs-sg",
+              "createdby": "cloudteam"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-0fac7e61518b2788e"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_security_group.alb_sg",
+            "data.aws_vpc.default"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

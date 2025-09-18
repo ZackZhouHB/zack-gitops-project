@@ -1,0 +1,17 @@
+# Custom OpenWebUI Dockerfile
+# Based on the official OpenWebUI image with corporate customizations
+
+FROM ghcr.io/open-webui/open-webui:main
+
+# Add any corporate customizations here
+# For example, custom themes, plugins, or configurations
+
+# Set default environment variables for Bedrock integration
+ENV OPENAI_API_BASE_URL=http://localhost:8000/api/v1
+ENV OPENAI_API_KEY=bedrock
+
+# Optional: Add custom branding or configurations
+# COPY custom-config.json /app/backend/data/
+# COPY custom-theme.css /app/static/
+
+# The base image already has the correct EXPOSE and CMD
