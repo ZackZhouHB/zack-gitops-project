@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openwebui-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openwebui
+  template:
+    metadata:
+      labels:
+        app: openwebui
+    spec:
+      containers:
+      - name: openwebui
+        image: ghcr.io/open-webui/open-webui:main
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/backend/data
+        env:
+        - name: DATA_DIR
+          value: "/app/backend/data"
+        - name: WEBUI_SECRET_KEY_FILE
+          value: "/app/backend/data/.webui_secret_key"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      
+      - name: bedrock-gateway
+        image: zackz001/openwebui-bedrock-gateway:v1  # Update with your DockerHub image
+        ports:
+        - containerPort: 80
+        envFrom:
+        - secretRef:
+            name: aws-credentials
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: openwebui-data
