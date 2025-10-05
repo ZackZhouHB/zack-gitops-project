@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS EKS RAG System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 AWS EKS RAG System</h1>
+            <p>Document-based Q&A with Weaviate + S3 + Bedrock on EKS</p>
+            <div id="session-info" style="font-size: 12px; color: #666; margin-top: 5px;">Loading session...</div>
+        </header>
+
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">Weaviate:</span>
+                <span id="weaviate-status" class="status-value">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">S3:</span>
+                <span id="s3-status" class="status-value">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Bedrock:</span>
+                <span id="bedrock-status" class="status-value">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Documents:</span>
+                <span id="document-count" class="status-value">0</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('documents')">📄 Documents</button>
+            <button class="tab-button" onclick="showTab('settings')">⚙️ Settings</button>
+            <button class="tab-button" onclick="showTab('query')">💬 Query</button>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documents-tab" class="tab-content active">
+            <div class="section">
+                <h3>📁 Document Management</h3>
+                <div class="document-actions">
+                    <input type="file" id="file-upload" accept=".txt,.md,.pdf,.docx,.xlsx,.pptx,.csv" style="display: none;" onchange="uploadFile()">
+                    <button onclick="document.getElementById('file-upload').click()" class="secondary-btn">📤 Upload File</button>
+                    <button onclick="processAllDocuments()" class="secondary-btn">⚡ Process & Index</button>
+                    <button onclick="refreshDocuments()" class="secondary-btn">🔄 Refresh</button>
+                </div>
+                <div class="help-text">
+                    <strong>Supported formats:</strong> PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), CSV, Text (.txt), Markdown (.md)
+                </div>
+                <div id="documents-list" class="documents-list">
+                    Loading documents...
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div class="section">
+                <h3>🧠 Embedding Model</h3>
+                <div class="settings-group">
+                    <label for="embedding-model">Model:</label>
+                    <select id="embedding-model">
+                        <option value="all-MiniLM-L6-v2" selected>all-MiniLM-L6-v2 (Fast, 384 dim)</option>
+                        <option value="all-mpnet-base-v2">all-mpnet-base-v2 (Balanced, 768 dim)</option>
+                        <option value="multi-qa-MiniLM-L6-cos-v1">multi-qa-MiniLM-L6-cos-v1 (Q&A optimized)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>📝 Chunking Strategy</h3>
+                <div class="settings-group">
+                    <label for="chunk-size">Chunk Size:</label>
+                    <select id="chunk-size">
+                        <option value="256">256 tokens (Small chunks)</option>
+                        <option value="512" selected>512 tokens (Balanced)</option>
+                        <option value="1024">1024 tokens (Large chunks)</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="chunk-overlap">Overlap:</label>
+                    <select id="chunk-overlap">
+                        <option value="50">50 tokens</option>
+                        <option value="100" selected>100 tokens</option>
+                        <option value="200">200 tokens</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="chunking-method">Method:</label>
+                    <select id="chunking-method">
+                        <option value="recursive" selected>Recursive Text Splitter</option>
+                        <option value="semantic">Semantic Chunking</option>
+                        <option value="sentence">Sentence-based</option>
+                    </select>
+                </div>
+                <button onclick="applySettings()" class="primary-btn">💾 Apply Settings</button>
+            </div>
+
+            <div class="section">
+                <h3>📊 Vector Database Status</h3>
+                <div id="vector-stats" class="vector-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Indexed Documents:</span>
+                        <span id="indexed-count" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Vector Dimensions:</span>
+                        <span id="vector-dims" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Chunks:</span>
+                        <span id="chunk-count" class="stat-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Query Tab -->
+        <div id="query-tab" class="tab-content">
+            <div class="section">
+                <h3>💬 Ask Questions</h3>
+                <div class="query-form">
+                    <textarea id="question-input" placeholder="Ask a question about your documents..." rows="3"></textarea>
+                    <div class="query-controls">
+                        <label>
+                            Top Results: 
+                            <select id="top-k-select">
+                                <option value="3">3</option>
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
+                            </select>
+                        </label>
+                        <button onclick="askQuestion()">🔍 Ask</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>📋 Conversation History</h3>
+                <div id="conversation-history" class="conversation-history">
+                    <p class="empty-state">No questions asked yet. Start by asking a question above!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Processing...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

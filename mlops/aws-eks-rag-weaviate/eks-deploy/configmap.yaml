@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-config
+  namespace: rag-system
+data:
+  AWS_REGION: "ap-southeast-2"
+  BEDROCK_MODEL_ID: "apac.anthropic.claude-sonnet-4-20250514-v1:0"
+  EFS_MOUNT_PATH: "/efs"
+  LOG_LEVEL: "INFO"
+  S3_BUCKET_NAME: "eks-rag-weaviate-documents-2kif5iiw"
+  KENDRA_INDEX_ID: "not-used"
+  KENDRA_DATA_SOURCE_ID: "not-used"
+  WEAVIATE_HOST: "weaviate-service.rag-system.svc.cluster.local"
+  WEAVIATE_PORT: "8080"

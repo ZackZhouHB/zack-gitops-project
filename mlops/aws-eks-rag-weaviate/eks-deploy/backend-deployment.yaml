@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rag-backend
+  namespace: rag-system
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::615299759525:role/eks-rag-weaviate-rag-backend-role
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-backend
+  namespace: rag-system
+  labels:
+    app: rag-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: rag-backend
+  template:
+    metadata:
+      labels:
+        app: rag-backend
+    spec:
+      serviceAccountName: rag-backend
+      containers:
+      - name: rag-backend
+        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:issue
+        ports:
+        - containerPort: 8000
+        env:
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: AWS_REGION
+        - name: BEDROCK_MODEL_ID
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: BEDROCK_MODEL_ID
+        - name: EFS_MOUNT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: EFS_MOUNT_PATH
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: LOG_LEVEL
+        - name: S3_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: S3_BUCKET_NAME
+        - name: KENDRA_INDEX_ID
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: KENDRA_INDEX_ID
+        - name: KENDRA_DATA_SOURCE_ID
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: KENDRA_DATA_SOURCE_ID
+        - name: WEAVIATE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: WEAVIATE_HOST
+        - name: WEAVIATE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: WEAVIATE_PORT
+        volumeMounts:
+        - name: efs-chat-history
+          mountPath: /efs
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: efs-chat-history
+        persistentVolumeClaim:
+          claimName: efs-chat-history-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-backend-service
+  namespace: rag-system
+  labels:
+    app: rag-backend
+spec:
+  selector:
+    app: rag-backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
