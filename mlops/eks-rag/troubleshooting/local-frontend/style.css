@@ -1,0 +1,192 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+header {
+    background: #6c757d; /* Muted Grey Header */
+    color: white;
+    padding: 20px 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2em;
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+header p {
+    font-size: 1em;
+    opacity: 0.9;
+    color: #ecf0f1;
+}
+
+.status-panel {
+    background: #ffffff;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.status-value {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.tabs {
+    display: flex;
+    background: #ffffff;
+    border-bottom: 2px solid #6c757d;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 15px 20px;
+    border: none;
+    background: #f8f9fa;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: #495057;
+    border-right: 1px solid #dee2e6;
+}
+
+.tab-button:last-child {
+    border-right: none;
+}
+
+.tab-button:hover {
+    background: #e9ecef;
+}
+
+.tab-button.active {
+    background: #6c757d; /* Muted Grey Active Tab */
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.tab-content { display: none; padding: 30px; }
+.tab-content.active { display: block; }
+
+.section {
+    margin-bottom: 30px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 8px;
+    border-left: 4px solid #6c757d; /* Muted Grey Section Border */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.section h3 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 1.3em;
+}
+
+.document-actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.help-text { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #6c757d; font-size: 0.9em; color: #495057; }
+.documents-list { background: white; border-radius: 6px; padding: 20px; min-height: 100px; }
+.query-form { display: flex; flex-direction: column; gap: 15px; }
+
+#question-input {
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.query-controls { display: flex; justify-content: flex-end; align-items: center; gap: 15px; }
+.conversation-history { background: white; border-radius: 6px; padding: 20px; min-height: 100px; max-height: 600px; overflow-y: auto; }
+.empty-state { text-align: center; color: #6c757d; font-style: italic; padding: 40px; }
+
+/* --- BUTTON STYLES --- */
+button, .secondary-btn {
+    padding: 10px 18px;
+    border: 1px solid #ccc !important;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f0f0f0 !important; /* Light Grey for ALL buttons */
+    color: #333 !important;
+}
+
+button:hover, .secondary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: #e9e9e9 !important;
+    border-color: #bbb !important;
+}
+
+.collapsible-trigger {
+    background: none !important;
+    border: none !important;
+    color: #6c757d !important; /* Muted Grey Link */
+    text-decoration: none !important;
+    padding: 5px 0 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    font-weight: bold;
+    text-align: left;
+}
+
+.collapsible-trigger:hover {
+    text-decoration: underline !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+#document-action-status {
+    display: flex;
+    align-items: center;
+    min-height: 2.5em; /* Give it a consistent height */
+    font-size: 0.9em;
+}
+
+/* Other styles remain the same */
+.loading-overlay, .loading-spinner, .alert, etc... are unchanged.

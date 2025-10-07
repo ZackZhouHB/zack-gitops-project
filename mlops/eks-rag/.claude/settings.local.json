@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export:*)",
+      "Bash(aws sts get-caller-identity:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl exec:*)",
+      "Bash(kubectl edit:*)",
+      "Bash(kubectl patch:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(curl:*)",
+      "Bash(docker build:*)",
+      "Bash(aws ecr get-login-password:*)",
+      "Bash(docker login:*)",
+      "Bash(docker push:*)",
+      "Bash(kubectl rollout restart:*)",
+      "Bash(kubectl --profile sandboxtest get pods:*)",
+      "Bash(aws configure:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(chmod:*)",
+      "Bash(./validate-communication.sh:*)",
+      "Bash(timeout:*)",
+      "Bash(kubectl run:*)",
+      "Bash(python:*)",
+      "Bash(sed:*)",
+      "Bash(cp:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,20 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::615299759525:oidc-provider/oidc.eks.ap-southeast-2.amazonaws.com/id/F56552DAD24F640E521C05E877614E06"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "oidc.eks.ap-southeast-2.amazonaws.com/id/F56552DAD24F640E521C05E877614E06:sub": [
+                        "system:serviceaccount:rag-system:rag-backend",
+                        "system:serviceaccount:openwebui:openwebui-sa"
+                    ]
+                }
+            }
+        }
+    ]
+}

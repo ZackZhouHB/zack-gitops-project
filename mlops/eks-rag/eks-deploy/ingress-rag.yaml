@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rag-ingress
+  namespace: rag-system
+  annotations:
+    # Ingress Core
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+
+    # Grouping
+    alb.ingress.kubernetes.io/group.name: unified-alb-group
+    alb.ingress.kubernetes.io/group.order: '2'
+
+    # Health Checks
+    alb.ingress.kubernetes.io/healthcheck-path: / # Frontend health check
+
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /rag
+            pathType: Prefix
+            backend:
+              service:
+                name: rag-frontend-service
+                port:
+                  number: 80

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openwebui-deployment
+  namespace: openwebui
+  labels:
+    app: openwebui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openwebui
+  template:
+    metadata:
+      labels:
+        app: openwebui
+    spec:
+      serviceAccountName: openwebui-sa
+      containers:
+      - name: openwebui
+        image: ghcr.io/open-webui/open-webui:main
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATA_DIR
+          value: "/app/backend/data"
+        - name: WEBUI_SECRET_KEY_FILE
+          value: "/app/backend/data/.webui_secret_key"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/backend/data
+          subPath: openwebui
+        resources:
+          requests:
+            memory: "600Mi"
+            cpu: "150m"
+          limits:
+            memory: "1200Mi"
+            cpu: "400m"
+        
+      - name: bedrock-gateway
+        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/bedrock-gateway:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: AWS_REGION
+          value: "ap-southeast-2"
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "100m"
+          limits:
+            memory: "400Mi"
+            cpu: "200m"
+      
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: openwebui-data-final
