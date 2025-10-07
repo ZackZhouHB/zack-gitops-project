@@ -40,6 +40,8 @@ A collection of advanced projects demonstrating modern GitOps principles and Kub
 
 This section showcases my journey into MLOps, covering the end-to-end lifecycle of machine learning models.
 
+*   **[AI based RAG on EKS using BedRock and Weaviate](./mlops/eks-rag/):** A production-ready Retrieval-Augmented Generation (RAG) system on EKS for querying internal documents. It features a FastAPI backend, a Weaviate vector database, and a React frontend, using Amazon Bedrock for text generation.
+*   **[Serverless AI Chatbot using OpenWebUI on Fargate](./mlops/terraform-fargate-bedrock-openwebui/):** A serverless deployment of OpenWebUI with AWS Bedrock, using ECS Fargate for compute and ECR for container images. This project demonstrates a cost-effective, scalable architecture for hosting AI chat interfaces.
 *   **[Oscar Best Picture Prediction](./mlops/oscar-model/):** A data science project that predicts the Best Picture winner at the Academy Awards. It highlights data engineering, feature selection, and the importance of choosing the right model (LightGBM) and evaluation metrics for imbalanced datasets.
 *   **[PeppaPig Exploratory Data Analysis](./mlops/peppapig/):** This was a linguistic analysis project to evaluate the language, themes, and emotional tone of the children's show "Peppa Pig" (specifically, the first four seasons) to determine its suitability for a pre-kindergarten audience.
 *   **[Pneumonia Detection from Chest X-Rays](./mlops/image-class/):** An end-to-end image classification project. It includes data acquisition from Kaggle, model training with PyTorch on AWS SageMaker, and deployment as a containerized Flask API with a web frontend.
