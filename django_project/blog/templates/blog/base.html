@@ -16,6 +16,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
+    
+    <style>
+    @media (min-width: 992px) {
+        .col-lg-3 {
+            position: relative;
+        }
+        .col-lg-3 .content-section {
+            position: fixed !important;
+            top: 80px !important;
+            width: 255px !important;
+            max-height: calc(100vh - 100px) !important;
+            overflow-y: auto !important;
+            padding: 1.5rem !important;
+        }
+        .sidebar-actions {
+            gap: 0.4rem !important;
+        }
+        .action-btn {
+            padding: 0.5rem !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
+        }
+    }
+    </style>
 
     {% if title %}
         <title>Zack's Blog - {{ title }}</title>
@@ -70,7 +96,7 @@
           <div class="content-section">
             <div class="sidebar-profile">
               <h3 class="sidebar-title">Welcome</h3>
-                        <p class="tech-tags-text">Sharing ##AWS ##DevOps ##Kubenetes ##MLOps</p>  
+                        <p class="tech-tags-text">##AWS ##Kubenetes ##MLOps ##Cloud Native</p>  
             </div>
             <div class="sidebar-actions">
               <a href="https://github.com/ZackZhouHB/zack-gitops-project/tree/editing" target="_blank" rel="noopener noreferrer" class="action-btn github-btn">
@@ -80,6 +106,10 @@
               <a href="https://www.credly.com/users/zhou-zack" target="_blank" rel="noopener noreferrer" class="action-btn credly-btn">
                 <i class="fas fa-medal"></i>
                 Badges & Certifications
+              </a>
+              <a href="https://www.credly.com/users/hongbo-zhou.7c69d229/badges#credly" target="_blank" rel="noopener noreferrer" class="action-btn aws-ml-btn">
+                <i class="fas fa-award"></i>
+                AWS ML Badges - NEW !
               </a>
             </div>
           </div>

@@ -525,9 +525,11 @@ main.container {
 }
 
 /* Make sidebar sticky on larger screens */
-.col-lg-3 .content-section {
-  position: sticky;
-  top: 80px; /* Account for fixed navbar height */
+@media (min-width: 992px) {
+  .col-lg-3 .content-section {
+    position: sticky !important;
+    top: 80px !important; /* Account for fixed navbar height */
+  }
 }
 
 .col-lg-4 h3 {
