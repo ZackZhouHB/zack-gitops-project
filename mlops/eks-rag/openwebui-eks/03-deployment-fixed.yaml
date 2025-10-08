@@ -32,10 +32,10 @@ spec:
           subPath: openwebui
         resources:
           requests:
-            memory: "600Mi"
+            memory: "1Gi"
             cpu: "150m"
           limits:
-            memory: "1200Mi"
+            memory: "2Gi"
             cpu: "400m"
         
       - name: bedrock-gateway

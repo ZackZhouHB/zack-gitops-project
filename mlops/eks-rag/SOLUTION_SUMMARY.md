@@ -31,8 +31,8 @@ This solution implements a production-ready **Retrieval-Augmented Generation (RA
                     ▼              ▼              ▼
         ┌─────────────────┐ ┌─────────────┐ ┌─────────────┐
         │       S3        │ │   Bedrock   │ │     EFS     │
-        │ Document Store  │ │ Claude 3.5  │ │ Chat History│
-        │ File Upload     │ │ Haiku Model │ │ Persistence │
+        │ Document Store  │ │ Claude 4.0  │ │ Chat History│
+        │ File Upload     │ │Sonnet Model │ │ Persistence │
         └─────────────────┘ └─────────────┘ └─────────────┘
 ```
 
@@ -263,8 +263,8 @@ spec:
 - **Persistent Volumes**: EBS storage for vector index persistence
 - **Resource Limits**: Memory and CPU constraints for stable operation
 
-#### **LLM: Amazon Bedrock Sonnet 4.0**
-- **Cost Optimization**: Haiku model balances performance and cost
+#### **LLM: Amazon Bedrock Anthropic Claude Sonnet 4**
+- **Cost Optimization**: Anthropic Claude Sonnet 4 model balances performance and cost
 - **Streaming Responses**: Real-time response generation
 - **Context Window**: Large context for comprehensive document analysis
 - **AWS Integration**: Native IAM-based authentication

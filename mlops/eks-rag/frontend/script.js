@@ -1,7 +1,77 @@
 const API_BASE_URL = window.location.origin + '/api';
+const ACCESS_CODE = 'cloudteam';
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing...');
+    console.log('DOM loaded, checking authentication...');
+    
+    // Check if session is authenticated
+    if (!sessionStorage.getItem('authenticated')) {
+        showAccessModal();
+        return;
+    }
+    
+    // Initialize app if authenticated
+    initializeApp();
+});
+
+function showAccessModal() {
+    const overlay = document.createElement('div');
+    overlay.id = 'access-modal';
+    overlay.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 30px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <div style="font-size: 1.5em; margin-bottom: 20px; color: #333;">🔒 Access Required</div>
+            <div style="margin-bottom: 20px; color: #666;">Enter access code to continue:</div>
+            <input type="password" id="access-code-input" placeholder="Access Code" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; margin-bottom: 20px; text-align: center;">
+            <div id="access-error" style="color: red; margin-bottom: 15px; min-height: 20px;"></div>
+            <button onclick="checkAccessCode()" style="background: #007bff; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; cursor: pointer; width: 100%;">Submit</button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Focus on input
+    setTimeout(() => {
+        document.getElementById('access-code-input').focus();
+    }, 100);
+    
+    // Handle Enter key
+    document.getElementById('access-code-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkAccessCode();
+        }
+    });
+}
+
+function checkAccessCode() {
+    const input = document.getElementById('access-code-input');
+    const error = document.getElementById('access-error');
+    const code = input.value.trim();
+    
+    if (code === ACCESS_CODE) {
+        sessionStorage.setItem('authenticated', 'true');
+        document.getElementById('access-modal').remove();
+        initializeApp();
+    } else {
+        error.textContent = 'Invalid access code. Please try again.';
+        input.value = '';
+        input.focus();
+    }
+}
+
+function initializeApp() {
     try {
         checkAPIHealth();
         refreshVectorStats();
@@ -11,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Initialization error:', error);
         document.getElementById('session-info').textContent = 'Session: Initialization error - check console';
     }
-});
+}
 
 async function loadDocumentCount() {
     try {
@@ -236,6 +306,20 @@ function showDeleteModal(filename, onConfirm) {
     
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
+    overlay.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        z-index: 9999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
     overlay.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-header">
@@ -257,7 +341,7 @@ function showDeleteModal(filename, onConfirm) {
     
     // Force reflow and show with animation
     overlay.offsetHeight;
-    overlay.classList.add('show');
+    overlay.style.opacity = '1';
     
     // Close on ESC key
     const handleEsc = (e) => {
