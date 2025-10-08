@@ -42,10 +42,10 @@ spec:
           subPath: weaviate_data
         resources:
           requests:
-            memory: "2Gi"
-            cpu: "100m"
+            memory: "1Gi"
+            cpu: "50m"
           limits:
-            memory: "4Gi"
+            memory: "2Gi"
             cpu: "500m"
       - name: t2v-transformers
         image: semitechnologies/transformers-inference:sentence-transformers-all-MiniLM-L6-v2
@@ -56,8 +56,8 @@ spec:
           value: "0"
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "100m"
+            memory: "800Mi"
+            cpu: "50m"
           limits:
             memory: "2Gi"
             cpu: "500m"
