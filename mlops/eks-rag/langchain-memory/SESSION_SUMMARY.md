@@ -229,11 +229,11 @@ If issues arise during deployment:
 
 ```bash
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 

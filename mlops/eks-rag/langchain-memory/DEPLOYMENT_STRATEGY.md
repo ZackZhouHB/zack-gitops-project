@@ -7,7 +7,7 @@
 - **Namespace 2:** `langchain` - LangChain RAG (current)
 - **Node Group:** `langchain-nodes` (label: `node-group=langchain`)
 - **IAM Role:** `eks-rag-weaviate-rag-backend-role`
-- **S3 Bucket:** `eks-rag-langchain-docs-615299759525`
+- **S3 Bucket:** `eks-rag-langchain-docs-xx88accountid`
 - **EFS:** Shared across namespaces
 
 ## ✅ RECOMMENDED: In-Place Update (Option 1)
@@ -30,14 +30,14 @@
 ```bash
 # Just update the image tag
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
   -n langchain
 ```
 
 #### 2. Update Frontend Deployment
 ```bash
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
   -n langchain
 ```
 
@@ -55,7 +55,7 @@ kubectl set env deployment/rag-backend-langchain \
 
 #### S3 Bucket Structure
 ```
-eks-rag-langchain-docs-615299759525/
+eks-rag-langchain-docs-xx88accountid/
 ├── documents/              # Current: v1.0-stable documents
 ├── langchain-memory/       # New: v1.1-memory documents (optional)
 └── processed/              # Shared processed files
@@ -88,11 +88,11 @@ env:
 ```bash
 # Instant rollback to v1.0-stable
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 
@@ -120,7 +120,7 @@ metadata:
   name: rag-memory-service-account
   namespace: langchain-memory
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::615299759525:role/eks-rag-weaviate-rag-backend-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::xx88accountid:role/eks-rag-weaviate-rag-backend-role
 ```
 
 **Note:** Same IAM role ARN - no new IAM role needed!
@@ -150,7 +150,7 @@ spec:
 ```yaml
 env:
 - name: S3_BUCKET_NAME
-  value: "eks-rag-langchain-docs-615299759525"
+  value: "eks-rag-langchain-docs-xx88accountid"
 - name: S3_DOCUMENT_PREFIX
   value: "langchain-memory/"  # Different prefix
 ```
@@ -216,23 +216,23 @@ docker build -t rag-frontend-langchain:v1.1-memory frontend/
 # 2. Tag and push to ECR
 aws ecr get-login-password --region ap-southeast-2 | \
   docker login --username AWS --password-stdin \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com
 
 docker tag rag-backend-langchain:v1.1-memory \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
 
 docker tag rag-frontend-langchain:v1.1-memory \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
 
 # 3. Update deployments (in-place)
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
   -n langchain
 
 # 4. Wait for rollout
@@ -264,7 +264,7 @@ kubectl set env deployment/rag-backend-langchain \
 ### Current Resources (Unchanged)
 - **Node Group:** `langchain-nodes` (1 node, t3.large)
 - **IAM Role:** `eks-rag-weaviate-rag-backend-role`
-- **S3 Bucket:** `eks-rag-langchain-docs-615299759525`
+- **S3 Bucket:** `eks-rag-langchain-docs-xx88accountid`
 - **EFS:** Existing mount
 - **Service Account:** `rag-service-account`
 
@@ -295,7 +295,7 @@ The IAM role already trusts the service account:
 {
   "Effect": "Allow",
   "Principal": {
-    "Federated": "arn:aws:iam::615299759525:oidc-provider/..."
+    "Federated": "arn:aws:iam::xx88accountid:oidc-provider/..."
   },
   "Action": "sts:AssumeRoleWithWebIdentity",
   "Condition": {

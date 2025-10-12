@@ -36,18 +36,18 @@ This is an enhanced version of the LangChain RAG system with **ChatGPT-style con
 
 **Backend:**
 ```
-615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
 ```
 
 **Frontend:**
 ```
-615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
 ```
 
 **Stable Baseline (langchain-way):**
 ```
-615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
-615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
+xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
+xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
 ```
 
 ## Quick Start
@@ -59,17 +59,17 @@ This is an enhanced version of the LangChain RAG system with **ChatGPT-style con
 cd backend
 docker build -t rag-backend-langchain:v1.1-memory .
 docker tag rag-backend-langchain:v1.1-memory \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
 aws ecr get-login-password --region ap-southeast-2 --profile sandboxtest | \
-  docker login --username AWS --password-stdin 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+  docker login --username AWS --password-stdin xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
 
 # Frontend
 cd ../frontend
 docker build -t rag-frontend-langchain:v1.1-memory .
 docker tag rag-frontend-langchain:v1.1-memory \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
 ```
 
 ### 2. Deploy to Kubernetes
@@ -77,12 +77,12 @@ docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langc
 ```bash
 # Update backend
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
   -n langchain
 
 # Update frontend
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
   -n langchain
 
 # Monitor rollout
@@ -95,11 +95,11 @@ kubectl rollout status deployment/rag-frontend-langchain -n langchain
 ```bash
 # Rollback to stable langchain-way version
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 

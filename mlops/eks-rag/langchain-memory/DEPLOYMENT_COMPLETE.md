@@ -7,8 +7,8 @@
 ## Deployment Summary
 
 ### Images Built & Pushed
-- ✅ Backend: `615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory`
-- ✅ Frontend: `615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory`
+- ✅ Backend: `xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory`
+- ✅ Frontend: `xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory`
 
 ### Deployments Updated
 - ✅ `rag-backend-langchain` - Successfully rolled out
@@ -32,7 +32,7 @@ weaviate-langchain-0                      2/2     Running   1          153m
 - ✅ Service Account: `rag-service-account` (existing)
 - ✅ IAM Role: `eks-rag-weaviate-rag-backend-role` (existing)
 - ✅ Node Group: `langchain-nodes` (existing)
-- ✅ S3 Bucket: `eks-rag-langchain-docs-615299759525` (existing)
+- ✅ S3 Bucket: `eks-rag-langchain-docs-xx88accountid` (existing)
 - ✅ EFS: Shared mount (existing)
 - ✅ Weaviate: `weaviate-service.langchain` (existing)
 
@@ -87,11 +87,11 @@ curl http://rag-langchain-1a69a9e5d1d2a04e.elb.ap-southeast-2.amazonaws.com/api/
 ```bash
 # Instant rollback to v1.0-stable
 kubectl set image deployment/rag-backend-langchain \
-  rag-backend-langchain=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  rag-backend-langchain=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  rag-frontend-langchain=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  rag-frontend-langchain=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 

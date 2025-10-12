@@ -29,14 +29,14 @@ spec:
                 - t3-large-al2023-nodegroup
       containers:
       - name: rag-backend-langchain
-        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+        image: xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
         ports:
         - containerPort: 8000
         env:
         - name: AWS_REGION
           value: "ap-southeast-2"
         - name: S3_BUCKET_NAME
-          value: "eks-rag-langchain-docs-615299759525"
+          value: "eks-rag-langchain-docs-xx88accountid"
         - name: WEAVIATE_HOST
           value: "weaviate-service.langchain.svc.cluster.local"
         - name: WEAVIATE_PORT

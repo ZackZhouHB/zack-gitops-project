@@ -10,28 +10,28 @@ This document outlines the implementation plan for adding ChatGPT-style consecut
 
 **Backend Image (Current Working Version):**
 ```
-615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
+xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
 ```
 
 **Frontend Image (Current Working Version):**
 ```
-615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
+xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
 ```
 
 **Action Required:** Tag and push current working images before making changes:
 
 ```bash
 # Backend
-docker pull 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
-docker tag 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest \
-           615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
+docker pull xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker tag xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest \
+           xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable
 
 # Frontend
-docker pull 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
-docker tag 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest \
-           615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
+docker pull xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker tag xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest \
+           xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable
 ```
 
 ## Recommended Approach: In-Place Updates
@@ -49,11 +49,11 @@ docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langc
 ```bash
 # If issues occur, rollback to stable version:
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 
@@ -1470,22 +1470,22 @@ watch -n 1 'curl -s http://localhost:8000/api/metrics/memory | jq'
 cd backend
 docker build -t rag-backend-langchain:v1.1-chat .
 docker tag rag-backend-langchain:v1.1-chat \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-chat
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-chat
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-chat
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-chat
 
 cd ../frontend
 docker build -t rag-frontend-langchain:v1.1-chat .
 docker tag rag-frontend-langchain:v1.1-chat \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-chat
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-chat
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-chat
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-chat
 
 # 2. Update deployments
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-chat \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-chat \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-chat \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-chat \
   -n langchain
 
 # 3. Monitor rollout
@@ -1503,11 +1503,11 @@ kubectl port-forward -n langchain svc/rag-frontend-service 8080:80
 ```bash
 # Rollback to stable version
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 

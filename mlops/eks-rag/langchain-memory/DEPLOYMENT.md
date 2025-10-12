@@ -80,7 +80,7 @@ cat > trust-policy.json <<EOF
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::615299759525:oidc-provider/oidc.eks.ap-southeast-2.amazonaws.com/id/<OIDC_ID>"
+        "Federated": "arn:aws:iam::xx88accountid:oidc-provider/oidc.eks.ap-southeast-2.amazonaws.com/id/<OIDC_ID>"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
@@ -103,7 +103,7 @@ aws iam create-role \
 # Attach policy to role
 aws iam attach-role-policy \
   --role-name eks-rag-weaviate-rag-backend-role \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --profile sandboxtest
 ```
 
@@ -125,18 +125,18 @@ If you're updating an existing deployment:
 ```bash
 # List existing policy versions
 aws iam list-policy-versions \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --profile sandboxtest
 
 # Delete old versions if at limit (max 5 versions)
 aws iam delete-policy-version \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --version-id v2 \
   --profile sandboxtest
 
 # Create new policy version
 aws iam create-policy-version \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --policy-document file://iam-policy.json \
   --set-as-default \
   --profile sandboxtest
@@ -161,7 +161,7 @@ metadata:
   name: rag-service-account
   namespace: langchain
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::615299759525:role/eks-rag-weaviate-rag-backend-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::xx88accountid:role/eks-rag-weaviate-rag-backend-role
 ```
 
 Apply:
@@ -181,13 +181,13 @@ kubectl get sa rag-service-account -n langchain -o yaml
 
 ```bash
 # Create bucket with unique name
-aws s3 mb s3://eks-rag-langchain-docs-615299759525 \
+aws s3 mb s3://eks-rag-langchain-docs-xx88accountid \
   --region ap-southeast-2 \
   --profile sandboxtest
 
 # Enable versioning (optional)
 aws s3api put-bucket-versioning \
-  --bucket eks-rag-langchain-docs-615299759525 \
+  --bucket eks-rag-langchain-docs-xx88accountid \
   --versioning-configuration Status=Enabled \
   --profile sandboxtest
 ```
@@ -288,14 +288,14 @@ cd langchain-way/backend
 docker build -t rag-backend-langchain:latest .
 
 # Tag for ECR
-docker tag rag-backend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker tag rag-backend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
 
 # Login to ECR
 aws ecr get-login-password --region ap-southeast-2 --profile sandboxtest | \
-  docker login --username AWS --password-stdin 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com
+  docker login --username AWS --password-stdin xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com
 
 # Push image
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
 ```
 
 ### 2. Create Backend Deployment
@@ -321,14 +321,14 @@ spec:
       serviceAccountName: rag-service-account
       containers:
       - name: backend
-        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+        image: xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
         ports:
         - containerPort: 8000
         env:
         - name: AWS_REGION
           value: "ap-southeast-2"
         - name: S3_BUCKET_NAME
-          value: "eks-rag-langchain-docs-615299759525"
+          value: "eks-rag-langchain-docs-xx88accountid"
         - name: WEAVIATE_HOST
           value: "weaviate-service.langchain.svc.cluster.local"
         - name: WEAVIATE_PORT
@@ -400,10 +400,10 @@ cd langchain-way/frontend
 docker build -t rag-frontend-langchain:latest .
 
 # Tag for ECR
-docker tag rag-frontend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker tag rag-frontend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
 
 # Push image
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
 ```
 
 ### 2. Create Frontend Deployment
@@ -428,7 +428,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+        image: xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
         ports:
         - containerPort: 80
         resources:
@@ -537,7 +537,7 @@ kubectl logs -n langchain -l app=rag-backend-langchain --tail=100
 ```bash
 # Check IAM policy has GetInferenceProfile
 aws iam get-policy-version \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --version-id v7 \
   --profile sandboxtest
 ```
@@ -584,8 +584,8 @@ cd langchain-way/backend
 
 # Rebuild and push
 docker build -t rag-backend-langchain:latest .
-docker tag rag-backend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker tag rag-backend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
 
 # Restart deployment
 kubectl rollout restart deployment/rag-backend-langchain -n langchain
@@ -597,13 +597,13 @@ kubectl rollout status deployment/rag-backend-langchain -n langchain
 ```bash
 # Delete old version if at limit
 aws iam delete-policy-version \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --version-id v2 \
   --profile sandboxtest
 
 # Create new version
 aws iam create-policy-version \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --policy-document file://iam-policy.json \
   --set-as-default \
   --profile sandboxtest
@@ -621,10 +621,10 @@ kubectl delete namespace langchain
 
 ```bash
 # Empty bucket first
-aws s3 rm s3://eks-rag-langchain-docs-615299759525 --recursive --profile sandboxtest
+aws s3 rm s3://eks-rag-langchain-docs-xx88accountid --recursive --profile sandboxtest
 
 # Delete bucket
-aws s3 rb s3://eks-rag-langchain-docs-615299759525 --profile sandboxtest
+aws s3 rb s3://eks-rag-langchain-docs-xx88accountid --profile sandboxtest
 ```
 
 ### Delete IAM Resources
@@ -633,7 +633,7 @@ aws s3 rb s3://eks-rag-langchain-docs-615299759525 --profile sandboxtest
 # Detach policy from role
 aws iam detach-role-policy \
   --role-name eks-rag-weaviate-rag-backend-role \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --profile sandboxtest
 
 # Delete role
@@ -643,7 +643,7 @@ aws iam delete-role \
 
 # Delete policy
 aws iam delete-policy \
-  --policy-arn arn:aws:iam::615299759525:policy/eks-rag-weaviate-rag-backend-policy \
+  --policy-arn arn:aws:iam::xx88accountid:policy/eks-rag-weaviate-rag-backend-policy \
   --profile sandboxtest
 ```
 
@@ -657,7 +657,7 @@ set -e
 
 NAMESPACE="langchain"
 REGION="ap-southeast-2"
-ACCOUNT_ID="615299759525"
+ACCOUNT_ID="xx88accountid"
 ECR_REPO="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 
 echo "=== Deploying LangChain RAG System ==="

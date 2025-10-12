@@ -39,7 +39,7 @@ spec:
             cpu: "300m"
         
       - name: bedrock-gateway
-        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/bedrock-gateway:latest
+        image: xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/bedrock-gateway:latest
         ports:
         - containerPort: 80
         env:

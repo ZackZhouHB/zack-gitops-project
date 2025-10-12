@@ -19,8 +19,8 @@ EFS_FILE_SYSTEM_ID=$(terraform output -raw efs_file_system_id)
 cd ..
 
 # ECR URIs
-ECR_BACKEND_URI="615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-backend:latest"
-ECR_FRONTEND_URI="615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-frontend:latest"
+ECR_BACKEND_URI="xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-backend:latest"
+ECR_FRONTEND_URI="xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-frontend:latest"
 
 echo "Using values:"
 echo "S3 Bucket: $S3_BUCKET_NAME"

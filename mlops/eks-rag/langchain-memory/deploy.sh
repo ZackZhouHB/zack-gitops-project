@@ -55,22 +55,22 @@ print_status "Prerequisites check passed!"
 print_status "Step 1: Building and pushing Docker images..."
 
 # Get ECR login
-aws ecr get-login-password --region ${AWS_REGION} --profile ${AWS_PROFILE} | docker login --username AWS --password-stdin 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com
+aws ecr get-login-password --region ${AWS_REGION} --profile ${AWS_PROFILE} | docker login --username AWS --password-stdin xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com
 
 # Build and push backend
 print_status "Building LangChain backend..."
 cd backend
 docker build -t rag-backend-langchain .
-docker tag rag-backend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker tag rag-backend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
 cd ..
 
 # Build and push frontend
 print_status "Building LangChain frontend..."
 cd frontend
 docker build -t rag-frontend-langchain .
-docker tag rag-frontend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker tag rag-frontend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
 cd ..
 
 print_status "Docker images pushed successfully!"

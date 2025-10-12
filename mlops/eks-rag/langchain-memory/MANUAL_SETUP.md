@@ -51,19 +51,19 @@ sed -i 's/MANUAL_S3_BUCKET_NAME/your-actual-bucket-name/g' k8s-deploy/backend-de
 ### 5. Build and Push Images
 ```bash
 # Get ECR login
-aws ecr get-login-password --region ap-southeast-2 --profile sandboxtest | docker login --username AWS --password-stdin 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com
+aws ecr get-login-password --region ap-southeast-2 --profile sandboxtest | docker login --username AWS --password-stdin xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com
 
 # Build and push backend
 cd backend
 docker build -t rag-backend-langchain .
-docker tag rag-backend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker tag rag-backend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
 
 # Build and push frontend
 cd ../frontend
 docker build -t rag-frontend-langchain .
-docker tag rag-frontend-langchain:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker tag rag-frontend-langchain:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
 ```
 
 ## Deployment

@@ -4,4 +4,4 @@ metadata:
   name: openwebui-sa
   namespace: openwebui
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::615299759525:role/eks-rag-weaviate-rag-backend-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::xx88accountid:role/eks-rag-weaviate-rag-backend-role

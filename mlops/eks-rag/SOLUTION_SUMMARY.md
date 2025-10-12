@@ -92,10 +92,10 @@ cd backend/
 docker build -t backend:latest .
 
 # 2. Tag for ECR
-docker tag backend:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:stable
+docker tag backend:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:stable
 
 # 3. Push to ECR
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:stable
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:stable
 ```
 
 #### **Frontend Deployment**
@@ -105,10 +105,10 @@ cd frontend/
 docker build -t frontend:latest .
 
 # 2. Tag for ECR
-docker tag frontend:latest 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-frontend:stable
+docker tag frontend:latest xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-frontend:stable
 
 # 3. Push to ECR
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-frontend:stable
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-frontend:stable
 ```
 
 ### **Kubernetes Manifests Deployment**
@@ -205,7 +205,7 @@ spec:
     spec:
       containers:
       - name: rag-backend
-        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:stable
+        image: xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:stable
         ports:
         - containerPort: 8000
         env:

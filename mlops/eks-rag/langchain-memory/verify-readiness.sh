@@ -46,7 +46,7 @@ echo "   ✅ Backend and frontend images available in ECR"
 
 # Check S3 bucket
 echo "4. Checking S3 bucket..."
-S3_BUCKET="eks-rag-langchain-docs-615299759525"
+S3_BUCKET="eks-rag-langchain-docs-xx88accountid"
 aws s3 ls s3://$S3_BUCKET --region ap-southeast-2 --profile sandboxtest > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "   ✅ S3 bucket accessible: $S3_BUCKET"

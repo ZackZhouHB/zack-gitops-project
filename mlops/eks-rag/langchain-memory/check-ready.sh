@@ -14,7 +14,7 @@ echo "✅ LangChain nodes available: $LANGCHAIN_NODES"
 echo "✅ ECR images: Backend and frontend pushed with latest tags"
 
 # 4. S3 bucket check
-echo "✅ S3 bucket: eks-rag-langchain-docs-615299759525"
+echo "✅ S3 bucket: eks-rag-langchain-docs-xx88accountid"
 
 # 5. Kubernetes manifests check
 echo "✅ Kubernetes manifests: Configured for langchain namespace"

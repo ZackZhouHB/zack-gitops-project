@@ -4,7 +4,7 @@ metadata:
   name: rag-backend
   namespace: rag-system
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::615299759525:role/eks-rag-weaviate-rag-backend-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::xx88accountid:role/eks-rag-weaviate-rag-backend-role
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +26,7 @@ spec:
       serviceAccountName: rag-backend
       containers:
       - name: rag-backend
-        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:latest
+        image: xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/aws-eks-rag-weaviate-backend:latest
         ports:
         - containerPort: 8000
         env:

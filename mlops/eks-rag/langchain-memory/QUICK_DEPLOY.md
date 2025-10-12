@@ -27,17 +27,17 @@ docker build -t rag-frontend-langchain:v1.1-memory .
 # Login to ECR
 aws ecr get-login-password --region ap-southeast-2 | \
   docker login --username AWS --password-stdin \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com
 
 # Tag and push backend
 docker tag rag-backend-langchain:v1.1-memory \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory
 
 # Tag and push frontend
 docker tag rag-frontend-langchain:v1.1-memory \
-  615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+  xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory
 ```
 
 ### Step 3: Deploy to EKS (1 minute)
@@ -45,12 +45,12 @@ docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langc
 ```bash
 # Update backend
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory \
   -n langchain
 
 # Update frontend
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory \
   -n langchain
 
 # Wait for rollout
@@ -78,11 +78,11 @@ If something goes wrong:
 
 ```bash
 kubectl set image deployment/rag-backend-langchain \
-  backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
+  backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.0-stable \
   -n langchain
 
 kubectl set image deployment/rag-frontend-langchain \
-  frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
+  frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.0-stable \
   -n langchain
 ```
 
@@ -179,13 +179,13 @@ After deployment:
 cd /mnt/f/zack-gitops-project/mlops/eks-rag/langchain-memory && \
 docker build -t rag-backend-langchain:v1.1-memory backend/ && \
 docker build -t rag-frontend-langchain:v1.1-memory frontend/ && \
-aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com && \
-docker tag rag-backend-langchain:v1.1-memory 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory && \
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory && \
-docker tag rag-frontend-langchain:v1.1-memory 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory && \
-docker push 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory && \
-kubectl set image deployment/rag-backend-langchain backend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory -n langchain && \
-kubectl set image deployment/rag-frontend-langchain frontend=615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory -n langchain && \
+aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com && \
+docker tag rag-backend-langchain:v1.1-memory xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory && \
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory && \
+docker tag rag-frontend-langchain:v1.1-memory xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory && \
+docker push xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory && \
+kubectl set image deployment/rag-backend-langchain backend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:v1.1-memory -n langchain && \
+kubectl set image deployment/rag-frontend-langchain frontend=xx88accountid.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:v1.1-memory -n langchain && \
 kubectl rollout status deployment/rag-backend-langchain -n langchain && \
 kubectl rollout status deployment/rag-frontend-langchain -n langchain && \
 echo "✅ Deployment complete!"
