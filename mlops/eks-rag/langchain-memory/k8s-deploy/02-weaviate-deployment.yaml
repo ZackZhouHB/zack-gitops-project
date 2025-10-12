@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: weaviate-langchain
+  namespace: langchain
+spec:
+  serviceName: weaviate-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weaviate-langchain
+  template:
+    metadata:
+      labels:
+        app: weaviate-langchain
+    spec:
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: t3-large-al2023-nodegroup
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - t3-large-al2023-nodegroup
+      containers:
+      - name: weaviate
+        image: semitechnologies/weaviate:1.25.5
+        ports:
+        - containerPort: 8082
+        command: ["/bin/weaviate"]
+        args: ["--host", "0.0.0.0", "--port", "8082", "--scheme", "http"]
+        env:
+        - name: QUERY_DEFAULTS_LIMIT
+          value: "25"
+        - name: AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED
+          value: "true"
+        - name: PERSISTENCE_DATA_PATH
+          value: "/var/lib/weaviate"
+        - name: DEFAULT_VECTORIZER_MODULE
+          value: "text2vec-transformers"
+        - name: ENABLE_MODULES
+          value: "text2vec-transformers"
+        - name: TRANSFORMERS_INFERENCE_API
+          value: "http://127.0.0.1:8080"
+        - name: CLUSTER_HOSTNAME
+          value: "node1"
+        volumeMounts:
+        - name: shared-efs
+          mountPath: /var/lib/weaviate
+          subPath: langchain_weaviate_data
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "50m"
+          limits:
+            memory: "2Gi"
+            cpu: "500m"
+      - name: t2v-transformers
+        image: semitechnologies/transformers-inference:sentence-transformers-all-MiniLM-L6-v2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ENABLE_CUDA
+          value: "0"
+        resources:
+          requests:
+            memory: "800Mi"
+            cpu: "50m"
+          limits:
+            memory: "2Gi"
+            cpu: "500m"
+      volumes:
+      - name: shared-efs
+        persistentVolumeClaim:
+          claimName: efs-langchain-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: weaviate-service
+  namespace: langchain
+spec:
+  selector:
+    app: weaviate-langchain
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: t2v-transformers
+  namespace: langchain
+spec:
+  selector:
+    app: weaviate-langchain
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP

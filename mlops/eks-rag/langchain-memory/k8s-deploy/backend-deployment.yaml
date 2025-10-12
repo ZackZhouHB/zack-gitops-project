@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-backend-langchain
+  namespace: langchain
+  labels:
+    app: rag-backend-langchain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-backend-langchain
+  template:
+    metadata:
+      labels:
+        app: rag-backend-langchain
+    spec:
+      serviceAccountName: rag-service-account
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: t3-large-al2023-nodegroup  # Deploy to dedicated LangChain node group
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - t3-large-al2023-nodegroup
+      containers:
+      - name: rag-backend-langchain
+        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-backend-langchain:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: AWS_REGION
+          value: "ap-southeast-2"
+        - name: S3_BUCKET_NAME
+          value: "eks-rag-langchain-docs-615299759525"
+        - name: WEAVIATE_HOST
+          value: "weaviate-service.langchain.svc.cluster.local"
+        - name: WEAVIATE_PORT
+          value: "8080"
+        - name: WEAVIATE_CLASS_NAME
+          value: "DocumentsLangChain"
+        - name: BEDROCK_MODEL_ID
+          value: "apac.anthropic.claude-sonnet-4-20250514-v1:0"
+        - name: EMBEDDING_MODEL_ID
+          value: "amazon.titan-embed-text-v2:0"
+        - name: EFS_MOUNT_PATH
+          value: "/efs"
+        - name: EFS_CHAT_SUBDIR
+          value: "chat_history"
+        - name: CHUNK_SIZE
+          value: "1000"
+        - name: CHUNK_OVERLAP
+          value: "200"
+        - name: MAX_TOKENS
+          value: "4000"
+        - name: TEMPERATURE
+          value: "0.1"
+        volumeMounts:
+        - name: shared-efs
+          mountPath: /efs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: shared-efs
+        persistentVolumeClaim:
+          claimName: efs-langchain-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-backend-langchain-service
+  namespace: langchain
+  labels:
+    app: rag-backend-langchain
+spec:
+  selector:
+    app: rag-backend-langchain
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP

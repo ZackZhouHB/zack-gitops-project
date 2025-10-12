@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: langchain
+  labels:
+    name: langchain
+    purpose: aws-eks-rag-langchain

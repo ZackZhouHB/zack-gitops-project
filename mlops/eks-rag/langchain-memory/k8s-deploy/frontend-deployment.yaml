@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-frontend-langchain
+  namespace: langchain
+  labels:
+    app: rag-frontend-langchain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-frontend-langchain
+  template:
+    metadata:
+      labels:
+        app: rag-frontend-langchain
+    spec:
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: t3-large-al2023-nodegroup  # Deploy to dedicated LangChain node group
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - t3-large-al2023-nodegroup
+      containers:
+      - name: rag-frontend-langchain
+        image: 615299759525.dkr.ecr.ap-southeast-2.amazonaws.com/rag-frontend-langchain:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-frontend-langchain-service
+  namespace: langchain
+  labels:
+    app: rag-frontend-langchain
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-name: "rag-langchain"
+spec:
+  selector:
+    app: rag-frontend-langchain
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  type: LoadBalancer
