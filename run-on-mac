@@ -1,0 +1,1 @@
+cd /Users/zz/work/zack-gitops-project/django_project/docker && docker run -d -p 8000:8000 -v /Users/zz/work/zack-gitops-project/:/home/workspace -w /home/workspace/django_project --name python-Dj-zack docker-python-dev python manage.py runserver 0.0.0.0:8000
