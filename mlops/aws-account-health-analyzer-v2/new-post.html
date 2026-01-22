@@ -1,0 +1,246 @@
+<p>I constantly rely on AWS Billing and Cost Management and Trusted Advisor to monitor costs and security. However, manual billing reviews are time-consuming, and raw Cost Explorer data doesn't provide the full picture. What if an intelligent program could proactively call the Billing and Trusted Advisor APIs, retrieve the raw data, and pass it to an LLM for in-depth analysis of account health—then deliver actionable insights and AI-powered recommendations? That would save a significant amount of time and effort.</p>
+
+<p>This post documents building a <strong>multi-account</strong> serverless billing and health analyzer powered by Amazon Bedrock — evolving from a single-account prototype to a production-ready solution that analyses multiple AWS accounts with a cost-optimised two-stage LLM pipeline.</p>
+
+<b>The Evolution: From v1 to v2</b>
+
+<p>The original v1 solution worked well for a single account, but faced challenges when scaling:</p>
+<ul>
+  <li><strong>Limited data coverage:</strong> Only 9 Trusted Advisor checks out of 537 available</li>
+  <li><strong>Single account only:</strong> No cross-account visibility</li>
+  <li><strong>Expensive for rich data:</strong> Sending all raw data to a powerful model is wasteful</li>
+</ul>
+
+<p>The v2 solution addresses these with a <strong>two-stage LLM pipeline</strong> and <strong>multi-account support</strong>:</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+# v2 Architecture: Two-Stage LLM Pipeline
+
+EventBridge (Monthly 1st @ 9AM)
+       │
+       ▼
+Lambda (per account group)
+  ├── PARALLEL DATA COLLECTION (up to 4 accounts simultaneously)
+  │   ├── Cost Explorer (3 months + anomalies)
+  │   ├── AWS Health API (maintenance, outages, deprecations)
+  │   └── Trusted Advisor (ALL 537 checks per account)
+  │
+  ├── STAGE 1: Claude Haiku 4.5 (cheap & fast)
+  │   └── Filter raw data → extract only actionable items
+  │
+  ├── STAGE 2: Claude Opus 4.5 (powerful)
+  │   └── Generate executive report with prioritised recommendations
+  │
+  └── SNS Email with [group-name] subject
+
+# Why Two Stages?
+┌─────────────────────────────────────────────────────────────────┐
+│ Raw Data (~200KB)  →  Haiku Filter  →  Filtered (~5KB)  →  Opus │
+│                                                                 │
+│ Cost: ~$0.80/run (single model)  vs  ~$0.40/run (two-stage)    │
+└─────────────────────────────────────────────────────────────────┘
+
+Haiku handles the "grunt work" of filtering noise.
+Opus focuses on generating strategic insights from high-signal data.
+</pre>
+
+<b>Key Improvements in v2</b>
+
+<ul>
+  <li><strong>Multi-Account Support:</strong> Analyse 2-10+ accounts per group with parallel data collection via cross-account IAM roles</li>
+  <li><strong>Full Trusted Advisor Coverage:</strong> All 537 checks instead of just 9 — no blind spots</li>
+  <li><strong>AWS Health API Integration:</strong> Scheduled maintenance, ongoing issues, EOL/deprecation notices</li>
+  <li><strong>Cost Anomaly Detection:</strong> Automatic detection of unusual spending patterns</li>
+  <li><strong>Account Groups:</strong> Deploy separate stacks per team/project with independent schedules</li>
+  <li><strong>Executive-Friendly Reports:</strong> ~2000 words, tables, per-account cost breakdown, prioritised actions</li>
+</ul>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+# Account Groups Configuration (app.py)
+account_groups = {
+    "platform-team": {
+        "accounts": [
+            {"id": "111111111111", "name": "dev"},
+            {"id": "222222222222", "name": "staging"},
+            {"id": "333333333333", "name": "prod"}
+        ],
+        "email": "platform-leads@example.com"
+    },
+    "data-team": {
+        "accounts": [
+            {"id": "444444444444", "name": "data-dev"},
+            {"id": "555555555555", "name": "data-prod"}
+        ],
+        "email": "data-leads@example.com"
+    }
+}
+
+# Each group gets its own Lambda, SNS topic, and monthly schedule
+# Adding a new group = edit config + deploy IAM role to member accounts + cdk deploy
+</pre>
+
+<b>Implementation Journey: Challenges & Solutions</b>
+
+<ul>
+  <li>
+    <p><b>Bedrock Marketplace Permissions</b><br>
+    New Bedrock models (Haiku 4.5, Opus 4.5) failed with <code>AccessDeniedException</code> on first Lambda invoke. <strong>Solution:</strong> Manually invoke each model once via CLI to enable account-wide access — Lambda role cannot be the "first invoker" for Marketplace models.</p>
+  </li>
+
+  <li>
+    <p><b>Trusted Advisor Timeout with Multiple Accounts</b><br>
+    Sequential API calls for 537 checks × N accounts caused Lambda timeouts. <strong>Solution:</strong> Implemented parallel data collection using <code>ThreadPoolExecutor</code> with max 4 workers — 4 accounts now complete in ~160s (same as 1 account).</p>
+  </li>
+
+  <li>
+    <p><b>Cost Drivers Combined Instead of Per-Account</b><br>
+    Stage 1 prompt was aggregating costs across all accounts. <strong>Solution:</strong> Updated prompt to explicitly preserve per-account <code>top_5_services</code> structure — now shows separate cost breakdown for each account.</p>
+  </li>
+
+  <li>
+    <p><b>Model Selection: Sonnet vs Opus</b><br>
+    Tested both Claude Sonnet 4.5 and Opus 4.5 for Stage 2 analysis. <strong>Decision:</strong> Selected Opus for better formatting, effort estimates, and business impact statements — marginal cost increase (~$0.02/run) is negligible for monthly runs.</p>
+  </li>
+</ul>
+
+<b>Deployment with AWS CDK</b>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+# 1. Deploy IAM role to each member account
+$ aws cloudformation deploy \
+  --template-file member-role.yaml \
+  --stack-name HealthAnalyzerRole \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides TrustedAccountId=&lt;MAIN_ACCOUNT_ID&gt; \
+  --profile &lt;MEMBER_ACCOUNT_PROFILE&gt;
+
+# 2. Configure account groups in app.py
+
+# 3. Deploy all stacks
+$ cdk deploy --all --profile &lt;YOUR_PROFILE&gt;
+
+# 4. Confirm SNS email subscription
+
+# 5. Test manually
+$ aws lambda invoke \
+  --function-name HealthAnalyzer-&lt;GROUP_NAME&gt;-HealthAnalyzer* \
+  --invocation-type Event \
+  --profile &lt;YOUR_PROFILE&gt; \
+  /tmp/test.json
+
+# Check completion (~4 minutes later)
+$ aws logs filter-log-events \
+  --log-group-name /aws/lambda/HealthAnalyzer-&lt;GROUP&gt;-* \
+  --filter-pattern "\"AWS Health Analyzer Complete\"" \
+  --profile &lt;YOUR_PROFILE&gt;
+</pre>
+
+<b>Sample Report Output</b>
+
+<p>The AI-powered report now covers multiple accounts with per-account breakdown:</p>
+
+<pre style="background-color: #f5f5f5; padding: 15px; white-space: pre-wrap; word-wrap: break-word; max-width: 100%; overflow-x: auto;">
+Subject: [platform-team] AWS Health Report - 2026-01-22
+
+## Executive Summary
+Brief overview of key findings across all 3 accounts...
+
+## Cost Analysis
+| Account | Current Month | Previous Month | Change |
+|---------|---------------|----------------|--------|
+| dev     | $1,234        | $1,100         | +12%   |
+| staging | $567          | $590           | -4%    |
+| prod    | $2,100        | $2,050         | +2%    |
+| TOTAL   | $3,901        | $3,740         | +4%    |
+
+### Top 5 Cost Drivers - dev
+| Service | Cost | % of Total |
+|---------|------|------------|
+| EC2     | $500 | 40%        |
+| S3      | $300 | 24%        |
+...
+
+### Top 5 Cost Drivers - staging
+...
+
+## Platform Alerts
+| Priority | Service | Date   | Action Required          |
+|----------|---------|--------|--------------------------|
+| High     | RDS     | Feb 15 | MySQL 5.7 EOL migration  |
+...
+
+## Security Findings
+| Severity | Count | Top Issue           |
+|----------|-------|---------------------|
+| Critical | 2     | Public S3 buckets   |
+| High     | 5     | Open security groups|
+...
+
+## Top 5 Recommended Actions
+| Priority | Action                  | Owner    | Timeline |
+|----------|-------------------------|----------|----------|
+| 1        | Fix public S3 buckets   | Security | 24 hours |
+| 2        | Migrate RDS to MySQL 8  | DBA      | 2 weeks  |
+...
+</pre>
+
+<b>Cost Comparison</b>
+
+<table style="border-collapse: collapse; width: 100%;">
+  <tr style="background-color: #f5f5f5;">
+    <th style="border: 1px solid #ddd; padding: 8px;">Metric</th>
+    <th style="border: 1px solid #ddd; padding: 8px;">v1 (Single Account)</th>
+    <th style="border: 1px solid #ddd; padding: 8px;">v2 (Multi-Account)</th>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">Accounts</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">1</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">2-10+</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">Trusted Advisor Checks</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">9</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">537 per account</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">AWS Health API</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">❌</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">✅</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">Cost Anomalies</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">❌</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">✅</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">LLM Pipeline</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">Single model</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">Two-stage (Haiku→Opus)</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">Cost per Run (2 accounts)</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">~$0.50</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">~$0.41</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">Annual Cost (monthly runs)</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">~$6</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">~$5-10</td>
+  </tr>
+</table>
+
+<b>Lessons Learned</b>
+
+<ul>
+  <li><strong>Two-stage LLM pipelines</strong> reduce costs while maintaining quality — use cheap models for filtering, expensive models for insights</li>
+  <li><strong>Parallel execution</strong> is essential for multi-account scaling — ThreadPoolExecutor makes 4 accounts as fast as 1</li>
+  <li><strong>Account groups</strong> provide flexibility — different teams get independent reports and schedules</li>
+  <li><strong>Prompt engineering matters</strong> — explicit structure in prompts prevents unwanted aggregation</li>
+  <li><strong>Cross-account IAM</strong> with least-privilege enables secure multi-account access</li>
+</ul>
+
+<b>Conclusion</b>
+
+<p>Building a multi-account health analyzer with Amazon Bedrock demonstrates how modern cloud engineers can leverage serverless + AI to create intelligent automation that scales. The two-stage LLM pipeline (Haiku for filtering, Opus for analysis) provides enterprise-grade insights at ~$0.40 per run — less than a cup of coffee for comprehensive health reports across multiple AWS accounts.</p>
+
+<p>The complete implementation — including CDK stack definitions, Lambda code, member account IAM role template, and comprehensive documentation — is available at <a href="https://github.com/ZackZhouHB/zack-gitops-project/tree/editing/mlops/aws-account-health-analyzer-v2">my GitHub repository</a>. Special thanks to Amazon Q for assistance throughout this journey.</p>

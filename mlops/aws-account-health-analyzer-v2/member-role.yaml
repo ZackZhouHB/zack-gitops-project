@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM Role for Health Analyzer cross-account access
+
+Parameters:
+  TrustedAccountId:
+    Type: String
+    Default: '111111111111'
+    Description: AWS Account ID where Lambda runs (main account)
+
+Resources:
+  HealthAnalyzerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: HealthAnalyzerReadOnly
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${TrustedAccountId}:root'
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: HealthAnalyzerPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ce:GetCostAndUsage
+                  - ce:GetAnomalies
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - support:DescribeTrustedAdvisorChecks
+                  - support:DescribeTrustedAdvisorCheckResult
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - health:DescribeEvents
+                  - health:DescribeEventDetails
+                  - health:DescribeAffectedEntities
+                Resource: '*'
+
+Outputs:
+  RoleArn:
+    Value: !GetAtt HealthAnalyzerRole.Arn
+    Description: ARN of the Health Analyzer role
