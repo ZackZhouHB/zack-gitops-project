@@ -48,3 +48,26 @@
 {"timestamp": "2026-01-27T10:20:35.011870", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
 {"timestamp": "2026-01-27T10:21:17.497726", "action": "PIPELINE_JOB_RUN", "user_id": "admin", "details": {"job": "blog-sync", "source_type": "web", "synced": 12, "skipped": 0}, "sources_accessed": []}
 {"timestamp": "2026-01-27T10:27:35.883088", "action": "QUERY", "user_id": "anonymous", "details": {"question": "Hello, remember me", "response_time_ms": 4011.06}, "sources_accessed": ["http://host.docker.internal:8000/post/148/", "http://host.docker.internal:8000/post/148/", "http://host.docker.internal:8000/post/148/", "http://host.docker.internal:8000/post/143/", "http://host.docker.internal:8000/post/143/"]}
+{"timestamp": "2026-01-27T13:29:10.896475", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T13:29:25.904189", "action": "QUERY", "user_id": "admin", "details": {"question": "post 156 summary", "response_time_ms": 5514.37}, "sources_accessed": ["http://host.docker.internal:8000/post/156/", "http://host.docker.internal:8000/post/156/", "http://host.docker.internal:8000/post/156/", "http://host.docker.internal:8000/post/156/", "http://host.docker.internal:8000/post/156/"]}
+{"timestamp": "2026-01-27T14:02:04.651952", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:02:18.071689", "action": "AGENT_QUERY", "user_id": "anonymous", "details": {"query": "What documents do I have?", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:03:17.197966", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:03:27.820420", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What is todays date?", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:03:34.441422", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What is 25 * 4?", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:03:44.004079", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "List all my documents", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:04:07.356475", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:04:16.086858", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What is todays date?", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:04:24.429076", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "Calculate 25 * 4", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:04:29.371375", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "List all my documents", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:04:37.745727", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What did I upload today?", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:05:13.198766", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:05:24.224327", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What is todays date?", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:05:29.249888", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "Calculate 25 * 4", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:05:41.447647", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "List all documents", "tools_used": ["search_docs", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:05:55.449535", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:06:03.432273", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What is todays date?", "tools_used": ["search_docs", "get_date", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:06:11.442171", "action": "AUTH", "user_id": "admin", "details": {"auth_action": "login", "success": true}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:06:15.780075", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "Calculate 25 * 4", "tools_used": ["calculate", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:06:19.316418", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "List all documents", "tools_used": ["list_sources", "answer"]}, "sources_accessed": []}
+{"timestamp": "2026-01-27T14:06:25.479773", "action": "AGENT_QUERY", "user_id": "admin", "details": {"query": "What documents were uploaded today?", "tools_used": ["search_docs", "list_sources", "get_date", "answer"]}, "sources_accessed": []}

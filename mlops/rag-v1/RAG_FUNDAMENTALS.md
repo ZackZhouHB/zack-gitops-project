@@ -265,8 +265,58 @@ Thought: Now I can answer the question
 Action: generate_answer(context)
 ```
 
+### Our Implementation (5 Tools)
+
+| Tool | Description | Trigger |
+|------|-------------|---------|
+| `search_docs` | RAG search | what, how, why, explain |
+| `list_sources` | List documents | list, all documents |
+| `calculate` | Math operations | numbers with +/-/*// |
+| `get_date` | Current date/time | today, date, now |
+| `compare_docs` | Compare docs | compare, versus |
+
+```bash
+# Test agent
+curl -X POST http://localhost:8001/agent \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is todays date?"}'
+# Result: tools_used: ["get_date", "search_docs", "answer"]
+
+curl -X POST http://localhost:8001/agent \
+  -d '{"query": "Calculate 25 * 4"}'
+# Result: tools_used: ["calculate", "answer"], answer: "100"
+```
+
+### Enterprise Agent Patterns
+
+**Multi-Tool Agents:**
+```
+Agent Tools: search_docs, query_database, call_api, 
+             send_email, create_ticket, human_handoff
+```
+
+**Multi-Agent Systems:**
+```
+Router Agent → Specialist Agents (Finance, HR, IT Support)
+```
+
+**AWS Bedrock Agents (Managed):**
+```
+Knowledge Base (RAG) + Action Groups (Lambda) + Guardrails
+```
+
+### Cloud Deployment Options
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| Custom (EKS) | Full control | Maintain code |
+| Bedrock Agent | Managed, guardrails | Less flexibility |
+
 **Interview Answer:**
-> "We implement the ReAct pattern for agentic queries. The agent reasons about what tools to use, executes them, observes results, and iterates until it can answer. This enables multi-step tasks like 'find all documents about AWS and summarize the key points' that pure RAG can't handle."
+> "We implement the ReAct pattern with 5 tools: search, list, calculate, date, and compare. For production, I'd consider Bedrock Agents which provide managed orchestration, built-in guardrails, and Lambda-based action groups for external integrations like ticket creation or API calls."
+
+See `AGENT.md` for full documentation.
 
 ---
 
@@ -375,3 +425,193 @@ Action: generate_answer(context)
 
 **Interview Answer:**
 > "This demo covers the RAG patterns. For production, I'd add Bedrock Guardrails for content filtering, Redis for session scaling, real OAuth for connectors, and full observability with CloudWatch and X-Ray. The architecture is designed to swap these in without changing the core logic."
+
+
+---
+
+## Part 16: Cloud Deployment (AWS Production)
+
+### Local vs Cloud Architecture
+
+```
+LOCAL (rag-v1)                    CLOUD (rag-cloud)
+─────────────────                 ─────────────────
+Docker Compose          →         EKS (Kubernetes)
+Weaviate (1536-dim)     →         OpenSearch Serverless (1024-dim)
+In-memory queue         →         SQS
+In-memory cache         →         Redis on EKS
+Nginx container         →         S3 + CloudFront
+localhost               →         ALB + CloudFront
+Mock JWT                →         Cognito (optional)
+```
+
+### Cloud Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              USERS                                       │
+└─────────────────────────────────┬───────────────────────────────────────┘
+                                  │
+┌─────────────────────────────────▼───────────────────────────────────────┐
+│                           CloudFront                                     │
+│                      (CDN + HTTPS + Caching)                            │
+└──────────────┬──────────────────────────────────────┬───────────────────┘
+               │                                      │
+┌──────────────▼──────────────┐        ┌──────────────▼──────────────┐
+│      S3 (Frontend)          │        │         ALB                 │
+│   React Static Assets       │        │   Application Load Balancer │
+└─────────────────────────────┘        └──────────────┬──────────────┘
+                                                      │
+┌─────────────────────────────────────────────────────▼───────────────────┐
+│                              EKS Cluster                                 │
+│  ┌────────────────────────────────────────────────────────────────────┐ │
+│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐    │ │
+│  │  │ Backend Pod     │  │ Worker Pod      │  │ Redis (Helm)    │    │ │
+│  │  │ (FastAPI)       │  │ (SQS Consumer)  │  │ (Cache)         │    │ │
+│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘    │ │
+│  └────────────────────────────────────────────────────────────────────┘ │
+└──────┬──────────────────┬──────────────────┬────────────────────────────┘
+       │                  │                  │
+┌──────▼──────┐    ┌──────▼──────┐    ┌──────▼──────┐    ┌─────────────┐
+│ OpenSearch  │    │   Bedrock   │    │     S3      │    │     SQS     │
+│ Serverless  │    │             │    │  Documents  │    │ Ingest Queue│
+│ (1024-dim)  │    │• Titan v2   │    │             │    │             │
+│             │    │• Claude 3   │    │             │    │             │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+```
+
+### Key Technical Differences
+
+| Aspect | Local (rag-v1) | Cloud (rag-cloud) |
+|--------|----------------|-------------------|
+| Vector DB | Weaviate (1536-dim) | OpenSearch Serverless (1024-dim) |
+| Embedding | Titan v1 | Titan v2 |
+| Search | `script_score` + cosine | Native kNN (no script_score) |
+| Doc IDs | Custom IDs allowed | Auto-generated only |
+| Queue | In-memory | SQS |
+| Frontend | Nginx container | S3 + CloudFront |
+
+### OpenSearch Serverless Gotchas
+
+**1. No script_score with cosineSimilarity**
+```python
+# ❌ Doesn't work in Serverless
+"script_score": {"script": {"source": "cosineSimilarity(params.query_vector, 'vector')"}}
+
+# ✅ Use native kNN instead
+"knn": {"vector": {"vector": query_vector, "k": top_k}}
+```
+
+**2. No custom document IDs**
+```python
+# ❌ Doesn't work
+self.client.index(index=name, id=doc_id, body=body)
+
+# ✅ Let OpenSearch generate ID
+self.client.index(index=name, body=body)
+```
+
+**3. Different embedding dimensions**
+```python
+# Local: Titan v1 = 1536 dimensions
+# Cloud: Titan v2 = 1024 dimensions
+def create_index(self, dimension: int = 1024):  # Changed from 1536
+```
+
+### Cost Analysis (ap-southeast-2)
+
+| Service | Monthly Cost |
+|---------|--------------|
+| EKS Control Plane | $73 |
+| EC2 (t3.large node) | $61 |
+| OpenSearch Serverless (2 OCUs) | $86 |
+| NAT Gateway | $32 |
+| ALB | $16 |
+| S3, SQS, DynamoDB | ~$5 |
+| **Infrastructure Total** | **~$272** |
+| Bedrock (moderate usage) | ~$28 |
+| **Grand Total** | **~$300/month** |
+
+### Cost Optimization Options
+
+1. **Spot Instances** for EKS nodes (-60-70%)
+2. **Schedule OpenSearch** off-hours (50% savings)
+3. **Remove NAT Gateway** if public subnets acceptable
+4. **Aggressive CloudFront caching** to reduce Bedrock calls
+
+### Deployment Steps (Summary)
+
+```bash
+# 1. Infrastructure (Terraform)
+cd terraform && terraform apply
+
+# 2. Configure kubectl
+aws eks update-kubeconfig --name rag-cloud-dev
+
+# 3. Build & push images
+docker build -t rag-cloud-backend ./backend
+docker push <ecr-url>/rag-cloud-dev-backend:latest
+
+# 4. Create IAM roles (IRSA)
+aws iam create-role --role-name rag-cloud-backend-role ...
+
+# 5. Deploy to K8s
+kubectl apply -f k8s/
+
+# 6. Install ALB controller
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller
+
+# 7. Deploy frontend
+npm run build && aws s3 sync dist/ s3://frontend-bucket/
+```
+
+### Interview Answer: "How would you deploy this to production?"
+
+> "I'd use EKS for container orchestration, OpenSearch Serverless for managed vector search, and S3+CloudFront for the frontend. Key changes from local: Titan v2 embeddings (1024-dim), native kNN instead of script_score, SQS for async processing. IAM roles via IRSA for pod-level permissions. The architecture costs ~$300/month for dev, with options to optimize using Spot instances and scheduled scaling."
+
+### Cleanup Order (Important!)
+
+```bash
+# 1. CloudFront (disable first, wait, then delete)
+# 2. K8s resources (removes ALB)
+# 3. IAM roles (created outside Terraform)
+# 4. Empty S3 buckets
+# 5. Terraform destroy
+```
+
+**Why this order?** CloudFront takes 5+ minutes to disable. K8s ingress creates ALB that must be deleted before VPC. S3 buckets must be empty before Terraform can delete them.
+
+---
+
+## Part 17: Complete Feature Matrix
+
+All 26 features work in both local and cloud deployments:
+
+| # | Feature | Local | Cloud | Notes |
+|---|---------|-------|-------|-------|
+| 1 | Health Check | ✅ | ✅ | Same |
+| 2 | JWT Auth | ✅ | ✅ | Same |
+| 3 | RBAC | ✅ | ✅ | Same |
+| 4 | Sync Upload | ✅ | ✅ | Same |
+| 5 | Async Upload | ✅ | ✅ | SQS-backed |
+| 6 | Vector Search | ✅ | ✅ | Different backend |
+| 7 | Hybrid Search | ✅ | ✅ | Adapted query |
+| 8 | Reranking | ✅ | ✅ | Same |
+| 9 | Query | ✅ | ✅ | Same |
+| 10 | Streaming | ✅ | ✅ | Same |
+| 11 | Model Routing | ✅ | ✅ | Same |
+| 12 | Memory | ✅ | ✅ | Same |
+| 13 | ReAct Agent | ✅ | ✅ | Same |
+| 14 | Caching | ✅ | ✅ | Redis |
+| 15 | Rate Limiting | ✅ | ✅ | Same |
+| 16 | Audit Logs | ✅ | ✅ | Same |
+| 17 | Usage Tracking | ✅ | ✅ | Same |
+| 18 | Web Connector | ✅ | ✅ | Same |
+| 19 | Pipelines | ✅ | ✅ | Same |
+| 20 | Source Filter | ✅ | ✅ | Same |
+| 21 | Chat History | ✅ | ✅ | localStorage |
+| 22 | Delete Docs | ✅ | ✅ | Same |
+| 23 | Markdown Render | ✅ | ✅ | Same |
+| 24 | Multi-chat | ✅ | ✅ | Same |
+| 25 | PII Filter | ✅ | ✅ | Same |
+| 26 | Input Validation | ✅ | ✅ | Same |
