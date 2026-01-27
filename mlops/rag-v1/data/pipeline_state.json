@@ -1,0 +1,16 @@
+{
+  "jobs": {
+    "blog-sync": {
+      "source_type": "web",
+      "source_config": {
+        "base_url": "http://host.docker.internal:8000",
+        "pattern": "/post/",
+        "limit": 20
+      },
+      "schedule": "*/5",
+      "last_run": "2026-01-27T10:21:17.495830",
+      "last_hash": null,
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,42 @@
+services:
+  weaviate:
+    image: semitechnologies/weaviate:1.24.1
+    ports:
+      - "8080:8080"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      CLUSTER_HOSTNAME: "node1"
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+  backend:
+    build: ./backend
+    ports:
+      - "8001:8000"
+    environment:
+      - WEAVIATE_HOST=weaviate
+      - WEAVIATE_PORT=8080
+      - AWS_PROFILE=sandboxtest
+      - AWS_REGION=us-east-1
+      - BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
+      - EMBEDDING_MODEL_ID=${EMBEDDING_MODEL_ID:-amazon.titan-embed-text-v1}
+    volumes:
+      - ./data:/app/data
+      - ~/.aws:/root/.aws
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - weaviate
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  weaviate_data:
