@@ -581,6 +581,28 @@ const newChat = () => {
 
 ## Interview Checklist
 
+### LangChain Usage
+
+| Component | LangChain | Why |
+|-----------|-----------|-----|
+| Text Splitter | ✅ `RecursiveCharacterTextSplitter` | Well-tested chunking with overlap |
+| Embeddings | ❌ Direct boto3 | More control over Bedrock params |
+| LLM | ❌ Direct boto3 | Full control, easier debugging |
+| Chains | ❌ Custom | Simpler, no hidden abstractions |
+| Agents | ❌ Custom ReAct | Demonstrate understanding |
+| Vector Store | ❌ Direct Weaviate | No wrapper overhead |
+
+**Why Minimal LangChain?**
+1. **More control** - Direct boto3 calls give full control over Bedrock parameters
+2. **Less abstraction** - Easier to explain in interviews
+3. **Fewer dependencies** - LangChain API changes frequently
+4. **Better debugging** - No hidden magic, clear error traces
+
+**Interview Talking Point:**
+> "We use LangChain's text splitter for chunking because it's well-tested, but we use direct boto3 calls for Bedrock embeddings and LLM. This gives us more control and makes the code easier to understand and debug. In production, you might use LangChain more heavily if your team is familiar with it, but for this demo I wanted to show the underlying mechanics."
+
+---
+
 ### Questions You Can Now Answer
 
 1. **"How do you build a RAG system?"**
