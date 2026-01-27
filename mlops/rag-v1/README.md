@@ -135,7 +135,8 @@ http://localhost:3000
 
 ### Agent
 - ✅ ReAct pattern with multi-step reasoning
-- ✅ Tool registry (search, calculate, lookup)
+- ✅ 5 tools: search_docs, list_sources, calculate, get_date, compare_docs
+- ✅ Rule-based tool selection for reliability
 
 ### Frontend
 - ✅ React chat interface
@@ -349,9 +350,11 @@ rag-v1/
 
 ## Documentation
 
-- **design.md** - Detailed architecture, patterns, and production recommendations
+- **[GUIDE.md](GUIDE.md)** - Local setup and testing guide
+- **[design.md](design.md)** - Detailed architecture, patterns, and production recommendations
+- **[AGENT.md](AGENT.md)** - Agent patterns and tools documentation
+- **[RAG_FUNDAMENTALS.md](RAG_FUNDAMENTALS.md)** - Interview preparation guide
 - **progress.md** - Development timeline and feature checklist
-- **RAG_FUNDAMENTALS.md** - Interview preparation guide
 
 ---
 
