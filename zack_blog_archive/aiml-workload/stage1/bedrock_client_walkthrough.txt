@@ -1,0 +1,536 @@
+## Section 1: Imports & Config
+
+python
+import json          # Bedrock API uses JSON for request/response bodies
+import time          # To measure latency
+from dataclasses import dataclass  # Clean way to define data structures
+from enum import Enum              # Type-safe constants (prevents typos)
+from typing import Generator       # Type hint for streaming function
+import boto3         # AWS SDK for Python
+
+REGION = "ap-southeast-2"
+PROFILE = "default"
+
+
+Why these choices:
+- dataclass - Python 3.7+ feature, auto-generates __init__, __repr__. Cleaner than plain
+dict
+- Enum - If you typo "anthropic.claude-3-haiku...", you get runtime error. With Enum, IDE
+catches it immediately
+- boto3.Session - Allows specifying profile/region explicitly (important when you have
+multiple AWS accounts)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 2: Model Enum
+
+python
+class Model(Enum):
+    HAIKU = "anthropic.claude-3-haiku-20240307-v1:0"      # Fast, cheap
+    SONNET = "anthropic.claude-3-5-sonnet-20241022-v2:0"  # Powerful
+
+
+Why Enum instead of strings:
+
+python
+# BAD - easy to typo, no autocomplete
+client.invoke(prompt, model="anthropic.claude-3-haiku-20240307-v1:0")
+
+# GOOD - IDE autocomplete, typo = immediate error
+client.invoke(prompt, model=Model.HAIKU)
+
+
+Real-world benefit: When AWS releases new model versions, you update ONE place.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 3: Pricing Dictionary
+
+python
+PRICING = {
+    Model.HAIKU: {"input": 0.00025, "output": 0.00125},
+    Model.SONNET: {"input": 0.003, "output": 0.015},
+}
+
+
+Why track pricing in code:
+- Calculate cost per request in real-time
+- Set budget alerts
+- Compare models for cost optimization
+- Generate reports for finance team
+
+Note: Prices are per 1K tokens. Sonnet output is 12x more expensive than Haiku.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 4: Usage Dataclass
+
+python
+@dataclass
+class Usage:
+    input_tokens: int
+    output_tokens: int
+    model: Model
+    latency_ms: float
+
+    @property
+    def cost_usd(self) -> float:
+        p = PRICING[self.model]
+        return (self.input_tokens * p["input"] + self.output_tokens * p["output"]) / 1000
+
+
+Why a dataclass:
+- Groups related data together
+- @property computes cost on-demand (not stored, always fresh)
+- Can be serialized to JSON for logging/monitoring
+
+Real-world use: Every LLM call returns a Usage object. You can:
+- Log to CloudWatch
+- Store in DynamoDB for billing
+- Aggregate for dashboards
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 5: BedrockClient.__init__
+
+python
+def __init__(self, profile: str = PROFILE, region: str = REGION):
+    session = boto3.Session(profile_name=profile, region_name=region)
+    self.client = session.client("bedrock-runtime")
+    self.total_usage: list[Usage] = []
+
+
+Why boto3.Session instead of boto3.client directly:
+
+python
+# This uses default profile/region from environment
+client = boto3.client("bedrock-runtime")
+
+# This is explicit - works in multi-account setups
+session = boto3.Session(profile_name="prod", region_name="us-east-1")
+client = session.client("bedrock-runtime")
+
+
+bedrock-runtime vs bedrock:
+- bedrock - Management API (list models, create guardrails)
+- bedrock-runtime - Inference API (invoke models)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 6: invoke() Method
+
+python
+def invoke(self, prompt: str, model: Model = Model.HAIKU, max_tokens: int = 1024, use_guardrail: bool = False):
+    body = {
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}]
+    }
+
+
+The request body structure:
+- anthropic_version - Required by Claude models, specifies API version
+- max_tokens - Limit output length (controls cost + prevents runaway responses)
+- messages - Chat format with roles (user, assistant, system)
+
+Why messages format (not just a string):
+- Supports multi-turn conversations
+- Can include system prompts
+- Industry standard (OpenAI, Anthropic, etc. all use this)
+
+python
+    kwargs = {"modelId": model.value, "body": json.dumps(body)}
+    if use_guardrail:
+        kwargs["guardrailIdentifier"] = GUARDRAIL_ID
+        kwargs["guardrailVersion"] = GUARDRAIL_VERSION
+
+    response = self.client.invoke_model(**kwargs)
+
+
+Why **kwargs pattern:
+- Conditionally add parameters without messy if/else
+- Clean way to build dynamic API calls
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 7: invoke_stream() Method
+
+python
+def invoke_stream(self, prompt: str, model: Model = Model.SONNET, max_tokens: int = 1024) -> Generator[str, None, Usage]:
+    response = self.client.invoke_model_with_response_stream(...)
+
+    for event in response["body"]:
+        chunk = json.loads(event["chunk"]["bytes"])
+        if chunk["type"] == "content_block_delta":
+            yield chunk["delta"]["text"]  # <-- This is the magic
+
+
+Why yield (Generator pattern):
+
+python
+# WITHOUT streaming - wait for entire response
+response = client.invoke(prompt)  # 5 second wait
+print(response)  # All at once
+
+# WITH streaming - process as it arrives
+for chunk in client.invoke_stream(prompt):
+    print(chunk, end="")  # Prints word by word
+
+
+The event types from Bedrock:
+- message_start - Contains input token count
+- content_block_delta - Contains actual text chunks
+- message_delta - Contains output token count (at end)
+
+Real-world architecture:
+Browser ←WebSocket← API Gateway ←← Lambda ←← Bedrock (streaming)
+         chunks flow back in real-time
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 8: smart_route() Method
+
+python
+def smart_route(self, prompt: str, max_tokens: int = 1024):
+    simple_keywords = ["summarize", "translate", "list", "extract", "yes or no"]
+    is_simple = len(prompt) < 500 or any(kw in prompt.lower() for kw in simple_keywords)
+    model = Model.HAIKU if is_simple else Model.SONNET
+    return self.invoke(prompt, model=model, max_tokens=max_tokens)
+
+
+Why route between models:
+
+| Query Type | Model | Cost |
+|------------|-------|------|
+| "Translate hello to French" | Haiku | $0.0005 |
+| "Design a distributed system for..." | Sonnet | $0.006 |
+
+This is a simple heuristic. Production systems use:
+- ML classifier to detect task complexity
+- User tier (free users → Haiku, premium → Sonnet)
+- Fallback chains (try Haiku, if bad response → retry Sonnet)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 9: estimate_workload_cost()
+
+python
+@staticmethod
+def estimate_workload_cost(queries_per_day: int, ...):
+    daily_input_cost = (queries_per_day * avg_input_tokens * p["input"]) / 1000
+    daily_output_cost = (queries_per_day * avg_output_tokens * p["output"]) / 1000
+
+
+Why @staticmethod:
+- Doesn't need self (no instance state)
+- Can call without creating client: BedrockClient.estimate_workload_cost(1000)
+
+Real-world use case:
+- PM asks: "How much will this feature cost at 10K users/day?"
+- You run: estimate_workload_cost(queries_per_day=10000)
+- Answer: "$50/day with Haiku, $600/day with Sonnet"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Summary: Design Patterns Used
+
+| Pattern | Where | Why |
+|---------|-------|-----|
+| Enum | Model | Type safety, single source of truth |
+| Dataclass | Usage | Clean data structure with computed properties |
+| Generator | invoke_stream | Memory-efficient streaming |
+| Strategy | smart_route | Swap routing logic easily |
+| Factory | __init__ | Encapsulate boto3 setup |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 10: RateLimiter Class (Production Feature)
+
+```python
+class RateLimitExceeded(Exception):
+    """Raised when user exceeds their rate limit."""
+    pass
+
+
+class RateLimiter:
+    def __init__(self, requests_per_minute: int = 60):
+        self.rpm = requests_per_minute
+        self.buckets: dict[str, list[float]] = defaultdict(list)
+    
+    def check(self, user_id: str) -> bool:
+        now = time.time()
+        minute_ago = now - 60
+        
+        # Remove timestamps older than 1 minute
+        self.buckets[user_id] = [ts for ts in self.buckets[user_id] if ts > minute_ago]
+        
+        if len(self.buckets[user_id]) >= self.rpm:
+            raise RateLimitExceeded(f"User '{user_id}' exceeded {self.rpm} requests/minute")
+        
+        self.buckets[user_id].append(now)
+        return True
+```
+
+### Why Rate Limiting?
+
+The Problem:
+```
+Normal user: 10 queries/day      → $0.06
+Buggy script: 10,000 queries/hr  → $600 (oops!)
+Malicious user: infinite loop    → bankruptcy
+```
+
+The Solution:
+```
+User makes request 1-60  → ✅ Allowed
+User makes request 61    → ❌ RateLimitExceeded
+User waits 1 minute      → ✅ Allowed again
+```
+
+### How Token Bucket Works
+
+```
+Time 0:00  - User A requests → bucket: [0:00]           → Allowed (1/60)
+Time 0:01  - User A requests → bucket: [0:00, 0:01]     → Allowed (2/60)
+...
+Time 0:30  - User A requests → bucket: [0:00...0:30]    → Allowed (31/60)
+...
+Time 0:59  - User A requests → bucket: [0:00...0:59]    → Allowed (60/60)
+Time 0:59  - User A requests → bucket is FULL           → ❌ BLOCKED
+Time 1:01  - User A requests → bucket: [0:01...1:01]    → Allowed (0:00 expired)
+```
+
+### Real-World Use Cases
+
+| Scenario | Rate Limit |
+|----------|------------|
+| Free tier users | 10 rpm |
+| Pro tier users | 100 rpm |
+| Enterprise API keys | 1000 rpm |
+| Internal services | No limit (trusted) |
+
+### Why defaultdict?
+
+```python
+# Without defaultdict - need to check if key exists
+if user_id not in self.buckets:
+    self.buckets[user_id] = []
+self.buckets[user_id].append(timestamp)
+
+# With defaultdict - automatically creates empty list
+self.buckets[user_id].append(timestamp)  # Just works
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 11: invoke_with_retry() Method (Production Feature)
+
+```python
+def invoke_with_retry(
+    self,
+    prompt: str,
+    model: Model = Model.HAIKU,
+    max_tokens: int = 1024,
+    max_retries: int = 3,
+    base_delay: float = 1.0
+) -> tuple[str, Usage]:
+    retryable_errors = ["ThrottlingException", "ServiceUnavailableException"]
+    
+    for attempt in range(max_retries):
+        try:
+            return self.invoke(prompt, model, max_tokens)
+        
+        except ClientError as e:
+            error_code = e.response.get("Error", {}).get("Code", "")
+            
+            if error_code not in retryable_errors:
+                raise  # Don't retry auth errors, bad requests, etc.
+            
+            if attempt == max_retries - 1:
+                raise  # Final attempt, give up
+            
+            # Exponential backoff with jitter
+            delay = base_delay * (2 ** attempt)
+            jitter = random.uniform(0, delay * 0.1)
+            time.sleep(delay + jitter)
+```
+
+### Why Retry Logic?
+
+The Problem - Without Retry:
+```
+Request 1: ✅ Success
+Request 2: ✅ Success
+Request 3: ❌ ThrottlingException → APP CRASHES
+```
+
+The Problem - With Naive Retry:
+```python
+while True:
+    try:
+        response = client.invoke(...)
+        break
+    except:
+        continue  # Immediately retry → makes throttling WORSE
+```
+
+The Solution - Exponential Backoff:
+```
+Attempt 1: ❌ Failed  → Wait 1 second
+Attempt 2: ❌ Failed  → Wait 2 seconds
+Attempt 3: ❌ Failed  → Wait 4 seconds
+Attempt 4: ✅ Success!
+```
+
+### Why Exponential (not Linear)?
+
+Linear backoff (1s, 2s, 3s, 4s):
+- Still hammers the API frequently
+- Slow to back off when system is overloaded
+
+Exponential backoff (1s, 2s, 4s, 8s):
+- Quickly reduces pressure on overloaded system
+- Gives system time to recover
+- Industry standard (AWS, Google, etc. all recommend this)
+
+### Why Jitter?
+
+The "Thundering Herd" Problem:
+```
+Time 0:00 - 100 requests all fail (throttled)
+Time 0:01 - 100 requests all retry at exactly 1 second → ALL FAIL AGAIN
+Time 0:03 - 100 requests all retry at exactly 2 seconds → ALL FAIL AGAIN
+```
+
+With Jitter (random 0-10% added):
+```
+Time 0:00 - 100 requests all fail
+Time 0:01 - Request 1 retries at 1.03s
+Time 0:01 - Request 2 retries at 0.98s
+Time 0:01 - Request 3 retries at 1.07s
+...spread out, system can handle it
+```
+
+### Which Errors to Retry?
+
+| Error | Retry? | Why |
+|-------|--------|-----|
+| ThrottlingException | ✅ Yes | Temporary, will succeed later |
+| ServiceUnavailableException | ✅ Yes | Temporary outage |
+| ValidationException | ❌ No | Bad request, won't fix itself |
+| AccessDeniedException | ❌ No | Auth problem, need to fix code |
+| ModelNotReadyException | ✅ Yes | Model warming up |
+
+### Real-World Configuration
+
+```python
+# Development - fail fast, see errors quickly
+invoke_with_retry(prompt, max_retries=2, base_delay=0.5)
+
+# Production - be patient, maximize success rate
+invoke_with_retry(prompt, max_retries=5, base_delay=1.0)
+
+# Batch processing - very patient, running overnight anyway
+invoke_with_retry(prompt, max_retries=10, base_delay=2.0)
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Section 12: invoke_for_user() Method
+
+```python
+def invoke_for_user(
+    self,
+    prompt: str,
+    user_id: str,
+    model: Model = Model.HAIKU,
+    max_tokens: int = 1024
+) -> tuple[str, Usage]:
+    self.rate_limiter.check(user_id)  # Raises if exceeded
+    return self.invoke(prompt, model, max_tokens)
+```
+
+### Why a Separate Method?
+
+This combines rate limiting with invocation for multi-tenant apps:
+
+```python
+# Single-tenant (internal tool) - no rate limiting needed
+response = client.invoke(prompt)
+
+# Multi-tenant (SaaS product) - must rate limit per user
+response = client.invoke_for_user(prompt, user_id="customer_123")
+```
+
+### Real-World Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Your SaaS App                        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   Customer A          Customer B          Customer C    │
+│   (Free tier)         (Pro tier)          (Enterprise)  │
+│   10 rpm limit        100 rpm limit       1000 rpm      │
+│        │                   │                   │        │
+│        └───────────────────┼───────────────────┘        │
+│                            ▼                            │
+│                  invoke_for_user()                      │
+│                  (checks rate limit)                    │
+│                            │                            │
+│                            ▼                            │
+│                       Bedrock                           │
+└─────────────────────────────────────────────────────────┘
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Updated Summary: All Design Patterns
+
+| Pattern | Where | Why |
+|---------|-------|-----|
+| Enum | Model | Type safety, single source of truth |
+| Dataclass | Usage | Clean data structure with computed properties |
+| Generator | invoke_stream | Memory-efficient streaming |
+| Strategy | smart_route | Swap routing logic easily |
+| Factory | __init__ | Encapsulate boto3 setup |
+| **Token Bucket** | RateLimiter | Industry-standard rate limiting algorithm |
+| **Exponential Backoff** | invoke_with_retry | Graceful handling of transient failures |
+| **Jitter** | invoke_with_retry | Prevent thundering herd problem |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Interview Questions These Features Prepare You For
+
+Q: "How do you handle API throttling in production?"
+A: "Exponential backoff with jitter. Start at 1 second, double each retry, add 
+   random jitter to prevent thundering herd. Only retry transient errors like 
+   ThrottlingException, not auth or validation errors."
+
+Q: "How do you prevent a single user from burning your LLM budget?"
+A: "Token bucket rate limiting per user. Track request timestamps, reject if 
+   exceeds limit. Different limits for different tiers - free users get 10 rpm, 
+   enterprise gets 1000 rpm."
+
+Q: "What's the thundering herd problem?"
+A: "When many requests fail simultaneously and all retry at the same time, 
+   overwhelming the system again. Solved by adding random jitter to retry delays."
+
+Q: "Why exponential backoff instead of linear?"
+A: "Exponential backs off faster when system is overloaded, giving it time to 
+   recover. Linear (1s, 2s, 3s) still hammers the system too frequently."
