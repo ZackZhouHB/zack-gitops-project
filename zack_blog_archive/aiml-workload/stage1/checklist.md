@@ -11,7 +11,8 @@
 ### Fundamentals (Quick)
 - [x] AWS CLI + SSO configured
 - [x] Bedrock model access confirmed (Claude 3.5 Sonnet v2, Haiku)
-- [ ] Ollama setup (deferred to desktop at home)
+- [x] Ollama setup - remote access from MacBook to Desktop PC (WSL2)
+- [x] Unified LLM client (`llm_client.py`) - switch Bedrock/Ollama with one config
 
 ### Enterprise Bedrock Patterns
 

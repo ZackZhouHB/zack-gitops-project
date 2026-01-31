@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  namespace: ai-platform
+  labels:
+    app: vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        args:
+        - --model=Qwen/Qwen2.5-3B-Instruct
+        - --gpu-memory-utilization=0.85
+        - --max-model-len=4096
+        - --dtype=half
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: "16Gi"
+          requests:
+            nvidia.com/gpu: 1
+            memory: "12Gi"
+        ports:
+        - containerPort: 8000
+          name: http
+        # Probes disabled during initial model download
+        # Re-enable after model is cached
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8000
+        #   initialDelaySeconds: 180
+        #   periodSeconds: 10
+        #   timeoutSeconds: 5
+        #   failureThreshold: 30
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8000
+        #   initialDelaySeconds: 300
+        #   periodSeconds: 30
+        #   timeoutSeconds: 5
+        #   failureThreshold: 10
+        env:
+        - name: HUGGING_FACE_HUB_TOKEN
+          value: ""
+        - name: HF_HOME
+          value: "/model-cache"
+        volumeMounts:
+        - name: model-cache
+          mountPath: /model-cache
+      volumes:
+      - name: model-cache
+        persistentVolumeClaim:
+          claimName: model-cache
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-server
+  namespace: ai-platform
+spec:
+  selector:
+    app: vllm
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  type: ClusterIP
