@@ -1,33 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ai-gateway
+  name: rag-backend
   namespace: ai-platform
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ai-gateway
+      app: rag-backend
   template:
     metadata:
       labels:
-        app: ai-gateway
+        app: rag-backend
     spec:
       containers:
-      - name: gateway
-        image: ai-gateway:v5
+      - name: rag-backend
+        image: rag-backend:v1
         imagePullPolicy: Never
         ports:
-        - containerPort: 8080
+        - containerPort: 8001
         env:
+        - name: LLM_BACKEND
+          value: "vllm"
         - name: VLLM_URL
           value: "http://llm-server:8000"
+        - name: EMBED_BACKEND
+          value: "ollama"
         - name: OLLAMA_URL
           value: "http://192.168.50.61:11434"
-        - name: BEDROCK_REGION
-          value: "ap-southeast-2"
-        - name: DEFAULT_BACKEND
-          value: "vllm"
+        - name: EMBED_MODEL
+          value: "nomic-embed-text"
+        - name: WEAVIATE_URL
+          value: "http://weaviate:8080"
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
@@ -53,25 +57,25 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 8001
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 8001
           initialDelaySeconds: 10
           periodSeconds: 30
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ai-gateway
+  name: rag-backend
   namespace: ai-platform
 spec:
   selector:
-    app: ai-gateway
+    app: rag-backend
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 8001
+    targetPort: 8001
   type: ClusterIP

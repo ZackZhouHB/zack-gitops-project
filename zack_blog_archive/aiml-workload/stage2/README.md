@@ -82,25 +82,13 @@
 - [x] Smart routing endpoint (auto-selects best backend)
 - [x] Fallback pattern implemented
 
-### Phase 2.5: Observability (Next)
-- [ ] Deploy Prometheus + Grafana
-- [ ] Create LLM-specific metrics
-- [ ] Build dashboard for AI workloads
-- [ ] Set up alerting rules
+### Phase 2.5: Observability ✅ COMPLETED
+- [x] Add Prometheus metrics to AI Gateway
+- [x] Deploy Prometheus + Grafana to monitoring namespace
+- [x] Create AI Gateway dashboard with LLM-specific KPIs
+- [x] Verify metrics scraping and visualization
 
-### Phase 2.4: AI Gateway
-- [ ] Build FastAPI routing service
-- [ ] Implement backend switching (vLLM / Bedrock / Ollama)
-- [ ] Add rate limiting, health checks
-- [ ] Implement circuit breaker pattern
-
-### Phase 2.5: Observability
-- [ ] Deploy Prometheus + Grafana
-- [ ] Create LLM-specific metrics
-- [ ] Build dashboard for AI workloads
-- [ ] Set up alerting rules
-
-### Phase 2.6: RAG Pipeline
+### Phase 2.6: RAG Pipeline (Future)
 - [ ] Document ingestion pipeline
 - [ ] Embedding generation
 - [ ] Retrieval + generation flow

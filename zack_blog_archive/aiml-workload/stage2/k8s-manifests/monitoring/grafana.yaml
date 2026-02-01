@@ -1,0 +1,243 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provider
+  namespace: monitoring
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        folder: ''
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-ai
+  namespace: monitoring
+data:
+  ai-gateway.json: |
+    {
+      "annotations": {"list": []},
+      "title": "AI Gateway Dashboard",
+      "uid": "ai-gateway",
+      "version": 1,
+      "panels": [
+        {
+          "title": "Requests per Second",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+          "targets": [{
+            "expr": "rate(ai_gateway_requests_total[1m])",
+            "legendFormat": "{{backend}} - {{status}}"
+          }]
+        },
+        {
+          "title": "Request Latency (p95)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0},
+          "targets": [{
+            "expr": "histogram_quantile(0.95, rate(ai_gateway_request_latency_seconds_bucket[5m]))",
+            "legendFormat": "{{backend}}"
+          }]
+        },
+        {
+          "title": "Backend Health",
+          "type": "stat",
+          "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0},
+          "targets": [{
+            "expr": "ai_gateway_backend_healthy",
+            "legendFormat": "{{backend}}"
+          }],
+          "options": {"colorMode": "value"}
+        },
+        {
+          "title": "Total Requests by Backend",
+          "type": "piechart",
+          "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+          "targets": [{
+            "expr": "sum(ai_gateway_requests_total) by (backend)",
+            "legendFormat": "{{backend}}"
+          }]
+        },
+        {
+          "title": "Tokens Generated",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+          "targets": [{
+            "expr": "rate(ai_gateway_tokens_generated_total[1m]) * 60",
+            "legendFormat": "{{backend}} tokens/min"
+          }]
+        },
+        {
+          "title": "Error Rate",
+          "type": "stat",
+          "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+          "targets": [{
+            "expr": "sum(rate(ai_gateway_requests_total{status=\"error\"}[5m])) / sum(rate(ai_gateway_requests_total[5m])) * 100",
+            "legendFormat": "Error %"
+          }],
+          "options": {"colorMode": "value"}
+        },
+        {
+          "title": "Latency Heatmap",
+          "type": "heatmap",
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+          "targets": [{
+            "expr": "sum(rate(ai_gateway_request_latency_seconds_bucket[1m])) by (le)",
+            "format": "heatmap",
+            "legendFormat": "{{le}}"
+          }]
+        },
+        {
+          "title": "--- RAG System ---",
+          "type": "text",
+          "gridPos": {"h": 2, "w": 24, "x": 0, "y": 24},
+          "options": {"mode": "markdown", "content": "## RAG Backend Metrics"}
+        },
+        {
+          "title": "RAG Queries Total",
+          "type": "stat",
+          "gridPos": {"h": 6, "w": 6, "x": 0, "y": 26},
+          "targets": [{
+            "expr": "rag_queries_total",
+            "legendFormat": "{{status}}"
+          }],
+          "options": {"colorMode": "value", "graphMode": "area"}
+        },
+        {
+          "title": "RAG Query Rate",
+          "type": "timeseries",
+          "gridPos": {"h": 6, "w": 9, "x": 6, "y": 26},
+          "targets": [{
+            "expr": "rate(rag_queries_total[1m])",
+            "legendFormat": "{{status}}"
+          }]
+        },
+        {
+          "title": "Documents Indexed",
+          "type": "stat",
+          "gridPos": {"h": 6, "w": 5, "x": 15, "y": 26},
+          "targets": [{
+            "expr": "rag_documents_indexed_total",
+            "legendFormat": "docs"
+          }],
+          "options": {"colorMode": "value"}
+        },
+        {
+          "title": "RAG Success Rate",
+          "type": "gauge",
+          "gridPos": {"h": 6, "w": 4, "x": 20, "y": 26},
+          "targets": [{
+            "expr": "sum(rag_queries_total{status=\"success\"}) / sum(rag_queries_total) * 100",
+            "legendFormat": "success %"
+          }],
+          "options": {"min": 0, "max": 100}
+        },
+        {
+          "title": "RAG Query Latency (p50/p95/p99)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+          "targets": [
+            {"expr": "histogram_quantile(0.50, rate(rag_query_latency_seconds_bucket[5m]))", "legendFormat": "p50"},
+            {"expr": "histogram_quantile(0.95, rate(rag_query_latency_seconds_bucket[5m]))", "legendFormat": "p95"},
+            {"expr": "histogram_quantile(0.99, rate(rag_query_latency_seconds_bucket[5m]))", "legendFormat": "p99"}
+          ]
+        },
+        {
+          "title": "RAG Latency Distribution",
+          "type": "heatmap",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+          "targets": [{
+            "expr": "sum(rate(rag_query_latency_seconds_bucket[1m])) by (le)",
+            "format": "heatmap",
+            "legendFormat": "{{le}}"
+          }]
+        }
+      ],
+      "time": {"from": "now-1h", "to": "now"},
+      "refresh": "10s"
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:10.2.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "true"
+        - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+          value: "Viewer"
+        volumeMounts:
+        - name: datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: dashboards-provider
+          mountPath: /etc/grafana/provisioning/dashboards
+        - name: dashboards
+          mountPath: /var/lib/grafana/dashboards
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: datasources
+        configMap:
+          name: grafana-datasources
+      - name: dashboards-provider
+        configMap:
+          name: grafana-dashboards-provider
+      - name: dashboards
+        configMap:
+          name: grafana-dashboard-ai
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  selector:
+    app: grafana
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP

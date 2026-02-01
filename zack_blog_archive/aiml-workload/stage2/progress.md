@@ -68,19 +68,20 @@
 
 ### AI Platform Namespace
 - vLLM: Running with Qwen2.5-3B-Instruct (GPU)
-- AI Gateway: Running (routes to vLLM/Ollama/Bedrock)
+- AI Gateway: Running v4 (with Prometheus metrics)
 - PVC: model-cache (50Gi) mounted at /model-cache
 - Secret: aws-credentials (for Bedrock access)
 - Services: llm-server:8000, ai-gateway:8080
 
-### Cleaned Up
-- Removed: rag-backend, rag-frontend (default namespace)
-- Removed: weaviate namespace
+### Monitoring Namespace
+- Prometheus: Running, scraping ai-gateway every 15s
+- Grafana: Running, accessible via port 3000
+- Dashboard: "AI Gateway Dashboard" pre-configured
 
-### Ollama Models Available
-- qwen3-coder:latest (30.5B)
-- gpt-oss-gpu:latest (20.9B)
-- gpt-oss:latest (20.9B)
+### Port Forwards (Windows)
+- 2222 → WSL:22 (SSH)
+- 11434 → WSL:11434 (Ollama)
+- 3000 → WSL:3000 (Grafana) - requires kubectl port-forward running
 
 ---
 
@@ -118,7 +119,9 @@ Build a **local AI platform** that simulates 3 enterprise patterns:
 - [x] Gateway routing to Ollama tested ✅ (fixed num_predict issue)
 - [x] Gateway routing to Bedrock tested ✅ (AWS creds via K8s secret)
 - [x] Smart routing endpoint working ✅
-- [ ] Observability (Prometheus/Grafana)
+- [x] Prometheus metrics added to gateway ✅
+- [x] Prometheus + Grafana deployed ✅
+- [x] AI Gateway dashboard created ✅
 - [ ] Vector database (deferred to RAG stage)
 
 ---
@@ -138,8 +141,14 @@ Build a **local AI platform** that simulates 3 enterprise patterns:
 | File | Purpose |
 |------|---------|
 | `stage2/README.md` | Objectives and tasks |
-| `stage2/progress.md` | This file |
+| `stage2/progress.md` | Session context and progress tracking |
+| `stage2/day2.md` | Day 2 detailed notes (observability) |
 | `stage2/commands-log.md` | Command history |
+| `stage2/src/gateway/main.py` | AI Gateway with Prometheus metrics |
+| `stage2/k8s-manifests/vllm-deployment.yaml` | vLLM on GPU |
+| `stage2/k8s-manifests/ai-gateway.yaml` | Gateway deployment |
+| `stage2/k8s-manifests/monitoring/prometheus.yaml` | Prometheus config |
+| `stage2/k8s-manifests/monitoring/grafana.yaml` | Grafana + dashboard |
 
 ### Root
 | File | Purpose |
