@@ -17,12 +17,12 @@ from .config import settings
 from .chunker import SmartChunker, ChunkStrategy
 from .retriever import HybridRetriever, LLMReranker
 from .evaluation import RAGEvaluator, TestSuiteBuilder, BASELINE_TEST_CASES
-from .loaders import PDFLoader, WordLoader, ExcelLoader, LoadedDocument
+from .loaders import PDFLoader, WordLoader, ExcelLoader, WebLoader, ConfluenceLoader, LoadedDocument
 
 logging.basicConfig(level=logging.INFO, format='{"time":"%(asctime)s","level":"%(levelname)s","msg":"%(message)s"}')
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="RAG Enhanced", version="2.0.0")
+app = FastAPI(title="RAG Enhanced", version="2.1.0")
 
 # Prometheus metrics
 RAG_QUERIES = Counter('rag_queries_total', 'Total RAG queries', ['search_type', 'status'])
@@ -43,6 +43,7 @@ evaluator = None
 pdf_loader = PDFLoader()
 word_loader = WordLoader()
 excel_loader = ExcelLoader()
+web_loader = None  # Initialized on first use
 
 # Request/Response models
 class QueryRequest(BaseModel):
@@ -309,6 +310,150 @@ async def list_documents():
             "chunks": group.get("meta", {}).get("count", 0)
         })
     return {"documents": sources}
+
+
+class BlogIngestRequest(BaseModel):
+    base_url: str = "http://localhost:8000"
+    max_posts: Optional[int] = 20
+
+
+@app.post("/ingest/blog")
+async def ingest_blog(request: BlogIngestRequest):
+    """Ingest blog posts from a URL"""
+    global web_loader
+    
+    web_loader = WebLoader(base_url=request.base_url)
+    
+    # Discover and load posts
+    documents = web_loader.load_all_posts(max_posts=request.max_posts)
+    
+    if not documents:
+        raise HTTPException(status_code=404, detail="No blog posts found")
+    
+    total_chunks = 0
+    for doc in documents:
+        # Chunk the content
+        chunks = chunker.chunk(doc.content, doc.filename, "blog")
+        
+        # Index chunks
+        for chunk in chunks:
+            vector = embed_text(chunk.content)
+            weaviate_client.data_object.create(
+                class_name=settings.weaviate_class,
+                data_object=chunk.to_dict(),
+                vector=vector
+            )
+        
+        total_chunks += len(chunks)
+        DOCS_INDEXED.labels(source_type="blog").inc()
+        CHUNKS_CREATED.labels(strategy="recursive").inc(len(chunks))
+    
+    logger.info(f"Ingested {len(documents)} blog posts, {total_chunks} chunks")
+    
+    return {
+        "status": "ok",
+        "posts_ingested": len(documents),
+        "total_chunks": total_chunks,
+        "base_url": request.base_url
+    }
+
+
+@app.post("/ingest/url")
+async def ingest_url(url: str):
+    """Ingest a single URL"""
+    global web_loader
+    
+    if web_loader is None:
+        web_loader = WebLoader()
+    
+    doc = web_loader.load_url(url)
+    chunks = chunker.chunk(doc.content, url, "web")
+    
+    for chunk in chunks:
+        vector = embed_text(chunk.content)
+        weaviate_client.data_object.create(
+            class_name=settings.weaviate_class,
+            data_object=chunk.to_dict(),
+            vector=vector
+        )
+    
+    DOCS_INDEXED.labels(source_type="web").inc()
+    CHUNKS_CREATED.labels(strategy="recursive").inc(len(chunks))
+    
+    return {"status": "ok", "url": url, "chunks": len(chunks)}
+
+
+class ConfluenceIngestRequest(BaseModel):
+    base_url: str = "https://confluence.example.com"
+    space_key: Optional[str] = None  # If None, load all spaces
+    mock: bool = True  # Use mock data for learning
+    username: Optional[str] = None  # Required if mock=False
+    api_token: Optional[str] = None  # Required if mock=False
+
+
+@app.post("/ingest/confluence")
+async def ingest_confluence(request: ConfluenceIngestRequest):
+    """
+    Ingest Confluence pages.
+    
+    Mock mode (default): Uses sample enterprise data for learning.
+    Live mode: Requires username and api_token.
+    
+    Example mock request:
+        {"mock": true}
+    
+    Example live request:
+        {
+            "base_url": "https://yourcompany.atlassian.net",
+            "space_key": "TEAM",
+            "mock": false,
+            "username": "email@company.com",
+            "api_token": "your-token"
+        }
+    """
+    try:
+        confluence = ConfluenceLoader(
+            base_url=request.base_url,
+            username=request.username,
+            api_token=request.api_token,
+            mock=request.mock
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    # Load pages
+    if request.space_key:
+        documents = confluence.load_space(request.space_key)
+    else:
+        documents = confluence.load_all_spaces()
+    
+    if not documents:
+        raise HTTPException(status_code=404, detail="No pages found")
+    
+    total_chunks = 0
+    for doc in documents:
+        chunks = chunker.chunk(doc.content, doc.filename, "confluence")
+        
+        for chunk in chunks:
+            vector = embed_text(chunk.content)
+            weaviate_client.data_object.create(
+                class_name=settings.weaviate_class,
+                data_object=chunk.to_dict(),
+                vector=vector
+            )
+        
+        total_chunks += len(chunks)
+        DOCS_INDEXED.labels(source_type="confluence").inc()
+        CHUNKS_CREATED.labels(strategy="recursive").inc(len(chunks))
+    
+    logger.info(f"Ingested {len(documents)} Confluence pages, {total_chunks} chunks")
+    
+    return {
+        "status": "ok",
+        "mode": "mock" if request.mock else "live",
+        "pages_ingested": len(documents),
+        "total_chunks": total_chunks
+    }
 
 
 @app.delete("/documents/{source}")

@@ -75,12 +75,12 @@ class WordLoader:
 
 
 class ExcelLoader:
-    """Load Microsoft Excel (.xlsx) documents"""
+    """Load Microsoft Excel (.xlsx) documents - Row-level chunking for better retrieval"""
     
     def load(self, file_content: bytes, filename: str) -> LoadedDocument:
         """
         Extract data from Excel workbook.
-        Each sheet becomes a section with table data.
+        Each row becomes a searchable text block with header context.
         """
         wb = load_workbook(io.BytesIO(file_content), data_only=True)
         
@@ -97,7 +97,18 @@ class ExcelLoader:
                 if any(cell is not None for cell in row):
                     rows.append([str(cell) if cell is not None else "" for cell in row])
             
-            if rows:
+            if rows and len(rows) > 1:
+                header = rows[0]
+                total_rows += len(rows) - 1
+                
+                # Create row-level chunks with header context
+                for i, row in enumerate(rows[1:], 1):
+                    row_text = f"Sheet: {sheet_name}, Row {i}\n"
+                    for col_idx, cell in enumerate(row):
+                        if col_idx < len(header) and cell:
+                            row_text += f"{header[col_idx]}: {cell}\n"
+                    sections.append(row_text.strip())
+            elif rows:
                 total_rows += len(rows)
                 # Convert to markdown table
                 section = f"## Sheet: {sheet_name}\n\n"
