@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Reusable EC2 + security group for zackblog Django origin migration"
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: zackblog
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Existing EC2 key pair name in target account/region
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t2.micro
+      - t3.micro
+      - t3.small
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+  SshCidr:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: CIDR allowed to SSH to instance (recommended your_ip/32)
+  RootVolumeSize:
+    Type: Number
+    Default: 20
+    MinValue: 8
+    MaxValue: 64
+  AmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+  RepoUrl:
+    Type: String
+    Default: https://github.com/ZackZhouHB/zack-gitops-project.git
+  RepoBranch:
+    Type: String
+    Default: editing
+
+Resources:
+  ZackBlogSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for zackblog EC2 origin
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SshCidr
+          Description: SSH access
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: 0.0.0.0/0
+          Description: Django app port (legacy compatibility)
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-sg"
+
+  ZackBlogInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref ZackBlogSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp3
+            VolumeSize: !Ref RootVolumeSize
+            DeleteOnTermination: true
+      Tags:
+        - Key: Name
+          Value: !Ref ProjectName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+
+          apt-get update -y
+          apt-get install -y docker.io git ca-certificates curl
+          systemctl enable docker
+          systemctl start docker
+          usermod -aG docker ubuntu || true
+
+          if [ ! -d /home/ubuntu/zack-gitops-project/.git ]; then
+            sudo -u ubuntu git clone --branch ${RepoBranch} ${RepoUrl} /home/ubuntu/zack-gitops-project
+          else
+            cd /home/ubuntu/zack-gitops-project
+            sudo -u ubuntu git fetch origin
+            sudo -u ubuntu git checkout ${RepoBranch}
+            sudo -u ubuntu git pull --ff-only origin ${RepoBranch}
+          fi
+
+          chown -R ubuntu:ubuntu /home/ubuntu/zack-gitops-project
+
+Outputs:
+  InstanceId:
+    Value: !Ref ZackBlogInstance
+  PublicIp:
+    Value: !GetAtt ZackBlogInstance.PublicIp
+  PublicDnsName:
+    Value: !GetAtt ZackBlogInstance.PublicDnsName
+  SecurityGroupId:
+    Value: !Ref ZackBlogSecurityGroup
