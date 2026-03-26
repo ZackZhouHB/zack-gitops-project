@@ -1,0 +1,65 @@
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - AGENT_BACKEND_URL=http://agent-backend:8001
+    depends_on:
+      - agent-backend
+    restart: unless-stopped
+
+  agent-backend:
+    build: ./agent-backend
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    volumes:
+      - ~/.aws:/root/.aws:ro
+      - ./documents:/app/documents
+    depends_on:
+      vectordb:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  vectordb:
+    image: semitechnologies/weaviate:latest
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      DEFAULT_VECTORIZER_MODULE: none
+      CLUSTER_HOSTNAME: node1
+    volumes:
+      - ./data/weaviate:/var/lib/weaviate
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent
+      POSTGRES_DB: agent_db
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./agent-backend/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

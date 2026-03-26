@@ -1,0 +1,115 @@
+AI Engineer - Conversational. Leading the day-to-day advancement of AI transformation at a fast-paced and leading adventure retailer.
+
+Are you driven by innovation and thrive on building scalable, high-impact conversational AI solutions? At 4WD Supacentre, we don't just keep up with change — we drive it. As an AI Engineer – Conversational, you'll play a pivotal role in shaping how our customers interact with us, both online and over the phone. From intelligent website chat to AI-powered voice in our contact centre, you'll be hands-on in building the next generation of customer experience. Join us at our Sydney Olympic Park Office, NSW. This role calls for a genuine expert in conversational AI — someone who has spent the last 3+ years immersed in building and delivering real-world chat and voice solutions, and brings 10+ years of broader technology experience to back it up. This is a hands-on role sitting within a team of around 15 talented technology specialists. Given the calibre we're seeking, only candidates who closely meet or exceed these requirements will be contacted.
+
+About the Role
+
+As an AI Engineer – Conversational at 4WD Supacentre, you'll take ownership of designing, building and deploying AI-driven chat and voice solutions that transform the way our customers engage with us. This is a hands-on, technical role working within a fast-moving team that values delivery and innovation in equal measure. Reporting to the Technology & Project Director.
+
+We are on an exciting journey to implement AI chat across our ecommerce website and AI voice within our contact centre environment. We currently operate Salesforce for both voice calls and website chat. We are open to best-of-breed conversational AI tooling to complement it. You'll evaluate, recommend and implement the right solutions, integrating them seamlessly into our existing technology landscape.
+
+This is a rare opportunity to shape conversational AI capability from the ground up inside a growing Australian retail business.
+
+
+Role Responsibilities
+
+Design and implement AI-powered chat solutions for the 4WD Supacentre website, delivering intelligent, personalised customer interactions
+
+Architect and deploy AI voice solutions within the contact centre environment, reducing handling time and improving customer experience
+
+Work closing with our internal team on system integrations that can be leveraged by the conversational AI systems to automate and enrich requests and experiences with our customers
+
+Evaluate and recommend conversational AI platforms and tooling suited to a retail and ecommerce environment
+
+Integrate conversational AI solutions with Salesforce CRM and other existing business systems
+
+Build, train and continuously improve NLP models, intents, entities and conversation flows
+
+Define and monitor key performance metrics for chat and voice AI solutions (containment rate, CSAT, deflection, resolution)
+
+Collaborate with contact centre, digital and ecommerce teams to align AI capabilities with business needs
+
+Manage third-party vendor relationships for conversational AI platforms and voice providers
+
+Document technical designs, integration architectures and operational runbooks
+
+Stay current with advancements in generative AI and large language models (LLMs) and apply them where appropriate
+
+Support QA and testing of conversation flows prior to go-live
+
+Contribute to the broader AI transformation roadmap across the business
+
+About you
+
+You are a technically sharp and commercially aware AI engineer who gets genuine satisfaction from seeing a well-built conversation flow delight a customer. You have implemented AI conversational solutions in a large multi-store retailer in Australia, either via conversational chat on an ecommerce platform, and/or you have implemented conversation voice for a call centre. You are deeply skilled at AI conversational implementations, and have done it multiple times successfully at scale. You are a great team player, with this burning feeling inside to achieve more, to not settle for average. You are someone who never says, ‘it cannot be done’, but rather leave no stone unturned to overcome difficulties.
+
+
+You'll Bring:
+
+Proven hands-on experience designing and deploying conversational AI solutions — chatbots, virtual agents or AI voice
+
+Deep knowledge of one or more conversational AI platforms such as Salesforce Einstein Bots, Amazon Lex, Nuance, Eleven Labs, Genesys AI, LivePerson, Cognigy, Kore.ai or similar
+
+Experience integrating AI chat and voice solutions with CRM platforms, particularly Salesforce Service Cloud
+
+Strong understanding of NLP/NLU concepts including intent classification, entity extraction and dialogue management
+
+Experience with AI voice solutions and telephony platforms such as Genesys Cloud, Amazon Connect, Twilio, Eleven Labs or similar
+
+Proficiency with APIs and integration patterns (REST, webhooks) to connect AI platforms with back-end systems
+
+Familiarity with large language models (LLMs) and generative AI and how they can be applied within conversational experiences
+
+Experience defining and tracking conversational AI KPIs and iterating on performance
+
+Strong documentation skills — able to produce clear technical and functional specifications
+
+Excellent communication skills with the ability to work across technical and non-technical stakeholders
+
+Required Skills and Qualifications:
+
+3+ years experience working in conversational AI products and solutions (non negotiable)
+
+Demonstrated end-to-end delivery of AI chat or voice conversational solutions in a commercial environment
+
+5+ years working in a retailer / ecommerce environment in Australia
+
+5+ years in a technology engineering or AI/ML role
+
+Experience with contact centre platforms such as Amazon Connect, Salesforce Voice or Twilio
+
+Experience working in a retail or ecommerce business in Australia
+
+Strong proficiency with cloud platforms — AWS, Google Cloud or Azure
+
+Bachelor's degree in Computer Science, Information Technology or a related field
+
+Strong proficiency in Agile, Scrum or hybrid delivery methodologies
+
+Bachelor's degree in Computer Science or Information Technology
+
+Beneficial Skills and Qualifications (but not essential):
+
+Hands-on experience with Salesforce Service Cloud
+
+Experience with integration platforms such as Workato
+
+Experience working in a business with their own distribution centres / warehouses
+
+Experience with SAP, Salesforce, UKG, Magento, Shopify
+
+Agile or Scrum Master certification
+
+Experience working with third-party vendors and managing external delivery partners
+
+What’s in it for you?
+
+Competitive remuneration package
+
+Exclusive employee discounts on the Adventure Kings product range
+
+5 days per week at our Sydney Olympic Park Office
+
+Parking provided
+
+Be part of a dynamic, rapidly evolving, fast-growing company
