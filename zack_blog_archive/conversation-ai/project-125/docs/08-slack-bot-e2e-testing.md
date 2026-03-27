@@ -149,7 +149,7 @@ OAuth & Permissions → Reinstall to Workspace → Allow
 **Step 6: Add Token to .env**
 ```bash
 # In project-125/.env
-SLACK_APP_TOKEN=xapp-your-slack-app-level-token-here
+SLACK_APP_TOKEN=xapp-1-A0AP69X381G-...
 ```
 
 ### 2.3 Running the Bot
