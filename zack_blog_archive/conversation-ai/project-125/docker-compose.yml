@@ -1,0 +1,143 @@
+# ─────────────────────────────────────────────────────────
+# Project 125 — Docker Compose (Self-Contained)
+# ─────────────────────────────────────────────────────────
+# All services in one stack. Just run: docker compose up -d
+#
+# NOTE: Weaviate data is shared with platform-health-agent via bind mount.
+#       If data is empty, run the ingestion pipeline first:
+#         cd ../platform-health-agent && docker compose up -d
+#         python agent-backend/ingest.py
+# ─────────────────────────────────────────────────────────
+
+services:
+  # ── Infrastructure ──
+
+  vectordb:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.28.4
+    container_name: project-125-vectordb
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      DEFAULT_VECTORIZER_MODULE: none
+      CLUSTER_HOSTNAME: node1
+    volumes:
+      - ../platform-health-agent/data/weaviate:/var/lib/weaviate
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: project-125-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent
+      POSTGRES_DB: agent_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Jira MCP Server ──
+  jira-mcp:
+    build:
+      context: ./mcp-servers/jira-server
+      dockerfile: Dockerfile
+    container_name: project-125-jira-mcp
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8002/mcp/ || curl -sf http://localhost:8002/ || exit 0"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # ── Slack MCP Server ──
+  slack-mcp:
+    build:
+      context: ./mcp-servers/slack-server
+      dockerfile: Dockerfile
+    container_name: project-125-slack-mcp
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8003/mcp/ || curl -sf http://localhost:8003/ || exit 0"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # ── Agent Backend ──
+  agent-backend:
+    build:
+      context: ./agent-backend
+      dockerfile: Dockerfile
+    container_name: project-125-backend
+    ports:
+      - "8010:8010"
+    env_file:
+      - .env
+    environment:
+      - WEAVIATE_URL=http://vectordb:8080
+      - POSTGRES_URL=postgresql://agent:agent@postgres:5432/agent_db
+    volumes:
+      - ~/.aws:/root/.aws
+      - ./mcp-servers/jira-server/jira_client.py:/app/clients/jira_client.py:ro
+      - ./mcp-servers/slack-server/slack_client.py:/app/clients/slack_client.py:ro
+    depends_on:
+      vectordb:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # ── Streamlit Frontend ──
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: project-125-frontend
+    ports:
+      - "8502:8502"
+    environment:
+      - AGENT_BACKEND_URL=http://agent-backend:8010
+    depends_on:
+      agent-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8502/_stcore/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

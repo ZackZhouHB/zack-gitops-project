@@ -1,0 +1,40 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── Environment ──
+.env
+.env.local
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ── Docker ──
+data/
+*.log
+
+# ── Terraform (if needed later) ──
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# ── Eval outputs ──
+eval/reports/*.json
+eval/reports/*.html
+
+# ── OS ──
+Thumbs.db
