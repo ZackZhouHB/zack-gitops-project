@@ -64,6 +64,7 @@ params:
   ShowShareButtons: false
   ShowRssButtonInSectionTermList: true
   mainSections: [posts]
+  infiniteScroll: true
 
   assets:
     favicon: /favicon.ico
