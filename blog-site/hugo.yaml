@@ -62,7 +62,7 @@ params:
   ShowCodeCopyButtons: true
   ShowToc: false
   ShowShareButtons: false
-  ShowRssButtonInSectionTermList: true
+  ShowRssButtonInSectionTermList: false
   mainSections: [posts]
   infiniteScroll: true
 
@@ -89,9 +89,6 @@ params:
     - name: credly
       title: Badges & Certifications
       url: https://www.credly.com/users/zhou-zack
-    - name: rss
-      title: RSS
-      url: index.xml
 
   editPost:
     URL: https://github.com/ZackZhouHB/zack-gitops-project/tree/editing/blog-site/content
