@@ -1,0 +1,107 @@
+baseURL: https://zackblog.work/
+locale: en-au
+title: Zack's Blog
+theme: PaperMod
+
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+
+pagination:
+  pagerSize: 10
+
+permalinks:
+  page:
+    posts: /posts/:slug/
+
+taxonomies:
+  category: categories
+
+outputs:
+  home: [HTML, RSS, JSON]
+
+markup:
+  goldmark:
+    renderer:
+      # Legacy posts keep a few inline HTML tags (<mark>, <ins>).
+      unsafe: true
+  highlight:
+    noClasses: false
+
+menu:
+  main:
+    - identifier: posts
+      name: Posts
+      url: /posts/
+      weight: 10
+    - identifier: categories
+      name: Categories
+      url: /categories/
+      weight: 20
+    - identifier: archives
+      name: Archive
+      url: /archives/
+      weight: 30
+    - identifier: search
+      name: Search
+      url: /search/
+      weight: 40
+    - identifier: about
+      name: About Me
+      url: /about/
+      weight: 50
+
+params:
+  env: production
+  description: "Zack's technical blog: AWS, Kubernetes, MLOps and Cloud Native."
+  author: Zack Zhou
+  defaultTheme: auto
+  ShowReadingTime: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowToc: false
+  ShowShareButtons: false
+  ShowRssButtonInSectionTermList: true
+  mainSections: [posts]
+
+  assets:
+    favicon: /favicon.ico
+    favicon16x16: /favicon.ico
+    favicon32x32: /favicon.ico
+    apple_touch_icon: /favicon.ico
+    safari_pinned_tab: /favicon.ico
+
+  homeInfoParams:
+    Title: "Welcome to Zack's Blog"
+    Content: >
+      Senior Cloud Engineer writing about **AWS**, **Kubernetes**, **MLOps** and **Cloud Native**.
+      Posts are hands-on notes from real projects and labs.
+
+  socialIcons:
+    - name: linkedin
+      title: LinkedIn - Hongbo Zhou
+      url: https://www.linkedin.com/in/hongbo-z-a60ab03b4
+    - name: github
+      title: GitHub - ZackZhouHB
+      url: https://github.com/ZackZhouHB/zack-gitops-project
+    - name: credly
+      title: Badges & Certifications
+      url: https://www.credly.com/users/zhou-zack
+    - name: rss
+      title: RSS
+      url: index.xml
+
+  editPost:
+    URL: https://github.com/ZackZhouHB/zack-gitops-project/tree/editing/blog-site/content
+    Text: View source
+    appendFilePath: true
+
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 2
+    keys: [title, permalink, summary, content]
