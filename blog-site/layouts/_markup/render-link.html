@@ -1,0 +1,12 @@
+{{- /* Root-relative links are resolved against baseURL; external links open in a new tab. */ -}}
+{{- $href := .Destination -}}
+{{- $u := urls.Parse $href -}}
+{{- if and (hasPrefix $href "/") (not (hasPrefix $href "//")) -}}
+  {{- $href = strings.TrimPrefix "/" $href | relURL -}}
+{{- end -}}
+<a href="{{ $href | safeURL }}"
+  {{- with .Title }} title="{{ . }}"{{ end }}
+  {{- if $u.IsAbs }} target="_blank" rel="noopener noreferrer"{{ end }}>
+  {{- .Text | safeHTML -}}
+</a>
+{{- /**/ -}}

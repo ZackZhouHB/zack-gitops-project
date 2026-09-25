@@ -1,0 +1,130 @@
+---
+title: "Move To Rancher"
+date: 2023-06-26T03:00:12Z
+slug: move-to-rancher
+categories: ["Kubernetes"]
+aliases: ["/post/58/"]
+legacy_id: 58
+---
+My current employer using Rancher, due to the vender prefers this??
+
+So far many different ways I have used to deploy k8s cluster, each with its own pros and cons.
+
+- home lab build k8s components (etcd, keepalived, apiserver, scheduler, coreDNS, calico)
+- home lab k8s cluster with kubeadm
+- k8s on AWS using kops and eksctl
+- AWS self-managed k8s cluster directly on ec2 by ansible
+
+**Rancher Support matrix**
+
+[![image tooltip here](/images/rancher1.png)](/images/rancher1.png)
+
+**Local docker Installation**
+
+To enable Rancher on homelab env, we need a Linux box to run Rancher as docker.
+
+```bash
+# Create Persisting rancher data directory to map within the Rancher Docker container
+ubuntu@ubt-server:/$ mkdir -p /path/to/rancher-data
+
+ubuntu@ubt-server:/$ sudo docker run -d --restart=unless-stopped  \
+ -p 80:80 -p 443:443  \
+ -v /path/to/rancher-data:/var/lib/rancher \
+ --privileged   rancher/rancher:latest
+d26e32094657b598f61233d0d86e448ab4bfd980763928ca6f298ae0d3774a56
+
+ubuntu@ubt-server:/$ sudo docker ps
+CONTAINER ID   IMAGE                    COMMAND           CREATED         STATUS         PORTS                                                                      NAMES
+d26e32094657   rancher/rancher:latest   "entrypoint.sh"   7 seconds ago   Up 6 seconds   0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   flamboyant_bassi
+
+ubuntu@ubt-server:/$ sudo docker logs  d26e32094657  2>&1 | grep "Bootstrap Password:"
+2023/06/29 04:07:34 [INFO] Bootstrap Password: zn7nd25rfmkm7kztkfmnk8m84gtlw76gd96sgxz8j2rdm6pnkpqgt9
+```
+
+**Rancher Web Portal login**
+
+via https://localhost/dashboard/home
+
+[![image tooltip here](/images/rancher2.png)](/images/rancher2.png)
+
+**Import existing k8s cluster vs create new k8s from rancher console**
+
+- Under "cluster management", it supports importing k8s from cloud providers to local k8s, unfortunately my previous k8s cluster is v1.28 which is too high to be imported and managed by this rancher.
+
+[![image tooltip here](/images/rancher3.png)](/images/rancher3.png)
+
+- Hence I will use Rancher to create a new one here. First prepare 3 local Linux VM boxes, come back to Rancher console under cluster management, give name to the new cluster, then run the command to initiate control plane.
+
+[![image tooltip here](/images/rancher4.png)](/images/rancher4.png)
+
+```bash
+ubuntu@rancher-master01:~$ curl --insecure -fL https://11.0.1.220/system-agent-install.sh | sudo  sh -s - --server https://11.0.1.220 --label 'cattle.io/os=linux' --token kx92bf7gxdfx2nfnl6rvw4hlmcwdxcb2rt442vgsvgb7tz29rmd4c6 --ca-checksum 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 --etcd --controlplane
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  2037k      0 --:--:-- --:--:-- --:--:-- 2151k
+[INFO]  Label: cattle.io/os=linux
+[INFO]  Role requested: etcd
+[INFO]  Role requested: controlplane
+[INFO]  Using default agent configuration directory /etc/rancher/agent
+[INFO]  Using default agent var directory /var/lib/rancher/agent
+[INFO]  Determined CA is necessary to connect to Rancher
+[INFO]  Successfully downloaded CA certificate
+[INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+[INFO]  Successfully tested Rancher connection
+[INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+[INFO]  Successfully downloaded the rancher-system-agent binary.
+[INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+[INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+[INFO]  Generating Cattle ID
+[INFO]  Successfully downloaded Rancher connection information
+[INFO]  systemd: Creating service file
+[INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+[INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+[INFO]  Starting/restarting rancher-system-agent.service
+```
+
+- Updating new machine as a K8S rancher node as control plane.
+
+[![image tooltip here](/images/rancher5.png)](/images/rancher5.png)
+
+- Then join the 2 worker nodes
+
+```bash
+ubuntu@racher-worker01:~$ curl --insecure -fL https://11.0.1.220/system-agent-install.sh | sudo  sh -s - --server https://11.0.1.220 --label 'cattle.io/os=linux' --token hdsvptc74zvzz62hw9gtt6p7m6nl5k4fs6vk92zqm4f6tvj4tf8m54 --ca-checksum 31478d0c1db90313258de7fa258cc60de1a3e67dfb2b285cb682463644474780 --worker
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 30845    0 30845    0     0  5455k      0 --:--:-- --:--:-- --:--:-- 6024k
+[INFO]  Label: cattle.io/os=linux
+[INFO]  Role requested: worker
+[INFO]  Using default agent configuration directory /etc/rancher/agent
+[INFO]  Using default agent var directory /var/lib/rancher/agent
+[INFO]  Determined CA is necessary to connect to Rancher
+[INFO]  Successfully downloaded CA certificate
+[INFO]  Value from https://11.0.1.220/cacerts is an x509 certificate
+[INFO]  Successfully tested Rancher connection
+[INFO]  Downloading rancher-system-agent binary from https://11.0.1.220/assets/rancher-system-agent-amd64
+[INFO]  Successfully downloaded the rancher-system-agent binary.
+[INFO]  Downloading rancher-system-agent-uninstall.sh script from https://11.0.1.220/assets/system-agent-uninstall.sh
+[INFO]  Successfully downloaded the rancher-system-agent-uninstall.sh script.
+[INFO]  Generating Cattle ID
+[INFO]  Successfully downloaded Rancher connection information
+[INFO]  systemd: Creating service file
+[INFO]  Creating environment file /etc/systemd/system/rancher-system-agent.env
+[INFO]  Enabling rancher-system-agent.service
+Created symlink /etc/systemd/system/multi-user.target.wants/rancher-system-agent.service → /etc/systemd/system/rancher-system-agent.service.
+[INFO]  Starting/restarting rancher-system-agent.service
+```
+
+[![image tooltip here](/images/rancher6.png)](/images/rancher6.png)
+
+- Create zackweb and joesite as deployment from Rancher console
+
+[![image tooltip here](/images/rancher7.png)](/images/rancher7.png)
+[![image tooltip here](/images/rancher8.png)](/images/rancher8.png)
+
+**Conclusion**
+
+Now we can use Rancher to deploy a local k8s cluster based on 3 Linux machines without any trouble just a few commands. Then we will be able to create deployment and service in Rancher console instead of using “kubectl” all the time. It also provides an app market for most popular helm charts ready to be installed with just one click, like Istio and Prometheus. The only downside is, Rancher itself requires resources to run, which may impact the performance and resources on each node. It also brings complexity in upgrade for both Rancher and k8s. Overall, I love the concept and tools that Rancher provides to manage k8s clusters. I will explore more in the next blog.
+
+[![image tooltip here](/images/rancher9.png)](/images/rancher9.png)

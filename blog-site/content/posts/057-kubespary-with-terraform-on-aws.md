@@ -1,0 +1,241 @@
+---
+title: "Kubespary with Terraform on AWS"
+date: 2023-05-24T02:40:31Z
+slug: kubespary-with-terraform-on-aws
+categories: ["Kubernetes"]
+aliases: ["/post/57/"]
+legacy_id: 57
+---
+Kubespary is a powerful and highly configurable tool that automates and supports deployment on various cloud providers (AWS, GCE, Azure, etc.) and on-premises infrastructure. In this post I will run its build-in Terraform and ansible code to provision a k8s cluster based on AWS EC2.
+
+**Benefit of Kubespary**
+
+We can define specific settings in `cluster-config.yaml` for networking, authentication, and other Kubernetes features, it also supports for multiple networking plugins (Calico, Flannel, Weave Net, etc.), By managing hosts file and rerun the playbook to make add or remove nodes easily, Integrated CI/CD Pipelines and Infrastructure as Code (IaC) with Terraform and Ansible to achieve automation.
+
+**Kubespary on Local Lab**
+
+In local machine, ensure
+
+- `Git`, `Ansible`, `Python`, `Terraform` installed
+- 5 VM ready with ssh configured
+- clone the Kubespray git repo in a python virtual environment to install Kubespray required packages based on its `requirements.txt` file
+- create a local folder under inventory `homelab-k8s`, create a `hosts.yaml` to define the local nodes, create a `cluster-config.yaml` to define specific cofiguration of the k8s cluster
+- run the playbook to have a k8s cluster ready to use
+
+```bash
+# ensure 5 vms ready with ssh
+ssh-keygen -t rsa -b 2048
+ssh-copy-id ubuntu@11.0.1.121  # Repeat for other VMs
+
+# clone kubespray repo
+git clone https://github.com/kubernetes-sigs/kubespray.git
+
+# create a python virtual environment
+python3 -m venv kubespray-venv
+source kubespray-venv/bin/activate
+
+# install kubespray required packages
+cd kubespray
+pip install -U -r requirements.txt
+
+#  create a local folder under inventory, manage hosts and cluster configure
+mkdir -p inventory/homelab-k8s
+
+vim inventory/homelab-k8s/hosts.yaml
+
+all:
+  hosts:
+    node1:
+      ansible_host: 11.0.1.121
+      ip: 11.0.1.121
+    node2:
+      ansible_host: 11.0.1.122
+      ip: 11.0.1.122
+    node3:
+      ansible_host: 11.0.1.123
+      ip: 11.0.1.123
+    node4:
+      ansible_host: 11.0.1.124
+      ip: 11.0.1.124
+    node5:
+      ansible_host: 11.0.1.125
+      ip: 11.0.1.125
+  children:
+    kube_control_plane:
+      hosts:
+        node1:
+    kube_node:
+      hosts:
+        node2:
+        node3:
+        node4:
+        node5:
+    etcd:
+      hosts:
+        node1:
+        node2:
+        node3:
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    calico_rr:
+      hosts: {}
+
+vim inventory/homelab-k8s/cluster-config.yaml
+
+cluster_name: kubespray-k8s
+kube_version: v1.30.4
+
+# run  the playbook to create the cluster
+ansible-playbook -i inventory/homelab-k8s/hosts.yaml -e inventory/homelab-k8s/cluster-config.yaml \
+--user=ubuntu \
+--become \
+--become-user=root \
+cluster.yml
+```
+
+Ansible will execute for 15-20mins, then a cluster is ready
+
+```bash
+ubuntu@node1:~$ kubectl get node -o wide
+NAME    STATUS   ROLES           AGE    VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+node1   Ready    control-plane    28m   v1.31.1   11.0.1.121    <none>        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node2   Ready    <none>           28m   v1.31.1   11.0.1.122    <none>        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node3   Ready    <none>           28m   v1.31.1   11.0.1.123    <none>        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node4   Ready    <none>           28m   v1.31.1   11.0.1.124    <none>        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+node5   Ready    <none>           28m   v1.31.1   11.0.1.125    <none>        Ubuntu 22.04.4 LTS   5.15.0-97-generic   containerd://1.7.22
+```
+
+**Kubespray on AWS EC2 with Terraform**
+
+now let's move to cloud practice on AWS with Kubespray,
+
+- Move to terraform aws folder, fill out `credentials.tfvars` with our AWS credentials
+- Fill desired cluster config like instance type, count and AMI in `terraform.tfvars`
+- Create 1 ec2 master node and 1 ec2 worker node using terraform.
+
+```bash
+cd kubespray/contrib/terraform/aws/
+
+#AWS Access Key
+AWS_ACCESS_KEY_ID = "zzzz"
+#AWS Secret Key
+AWS_SECRET_ACCESS_KEY = "zzzz"
+#EC2 SSH Key Name
+AWS_SSH_KEY_NAME = "zzzzzzzzzz"
+#AWS Region
+AWS_DEFAULT_REGION = "ap-southeast-2"
+
+vim terraform.tfvars
+
+#Global Vars
+aws_cluster_name = "zack-ec2-k8s-cluster-via-kubespray"
+
+#VPC Vars
+aws_vpc_cidr_block       = "10.250.192.0/18"
+aws_cidr_subnets_private = ["10.250.192.0/20", "10.250.208.0/20"]
+aws_cidr_subnets_public  = ["10.250.224.0/20", "10.250.240.0/20"]
+
+#Bastion Host
+aws_bastion_size = "t2.micro"
+
+#Kubernetes Cluster
+
+aws_kube_master_num  = 1
+aws_kube_master_size = "t3.small"
+
+aws_etcd_num  = 3
+aws_etcd_size = "t2.medium"
+
+aws_kube_worker_num  = 1
+aws_kube_worker_size = "t3.small"
+
+#Settings AWS ELB
+
+aws_elb_api_port                = 6443
+k8s_secure_api_port             = 6443
+kube_insecure_apiserver_address = "0.0.0.0"
+
+default_tags = {
+  #  Env = "devtest"
+  #  Product = "kubernetes"
+}
+
+inventory_file = "../../../inventory/hosts"
+
+# create ec2 by terraform
+terraform init
+terraform plan -var-file=credentials.tfvars
+terraform apply -var-file=credentials.tfvars
+
+# Terraform output
+aws_nlb_api_fqdn = "kubernetes-nlb-devtest-a9cae6ee92bc1b6e.elb.ap-southeast-2.amazonaws.com:6443"
+bastion_ip = "54.206.92.197"
+default_tags = tomap({})
+etcd = "10.250.202.194"
+inventory = "
+[all]
+ip-10-250-202-194.ap-southeast-2.compute.internal ansible_host=10.250.202.194
+ip-10-250-196-14.ap-southeast-2.compute.internal ansible_host=10.250.196.14
+
+bastion ansible_host=54.206.92.197
+
+[bastion]
+bastion ansible_host=54.206.92.197
+
+[kube_control_plane]
+ip-10-250-202-194.ap-southeast-2.compute.internal
+
+[kube_node]
+ip-10-250-196-14.ap-southeast-2.compute.internal
+
+[etcd]
+ip-10-250-202-194.ap-southeast-2.compute.internal
+
+[calico_rr]
+
+[k8s_cluster:children]
+kube_node
+kube_control_plane
+calico_rr
+
+[k8s_cluster:vars]
+apiserver_loadbalancer_domain_name="kubernetes-nlb-devtest-a9cae6ee92bc1b6e.elb.ap-southeast-2.amazonaws.com"
+"
+
+masters = "10.250.202.194"
+workers = "10.250.196.14"
+```
+
+Ansible will pass the ec2 ip into kubespray hosts file, lets verify the hosts file is correct, configure ssh key agent so the playbook can communicate with AWS ec2, then run the playbook to install kubernetes cluster.
+
+```bash
+# verify hosts
+cd ~/kubespray
+cat inventory/hosts
+
+# enable ssh key agent
+cat “” > ~/.ssh/zzz.pem
+eval $(ssh-agent)
+ssh-add -D
+ssh-add ~/.ssh/zzz.pem
+
+# execute playbook to deploy k8s cluster
+ansible-playbook -i ./inventory/hosts ./cluster.yml -e ansible_user=ubuntu -b --become-user=root
+```
+
+```bash
+# configure kubeconfig to manage cluster
+ubuntu@ip-10-250-202-194:~$ mkdir -p /home/ubuntu/.kube
+ubuntu@ip-10-250-202-194:~$ sudo cp /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+ubuntu@ip-10-250-202-194:~$ sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
+ubuntu@ip-10-250-202-194:~$ kubectl get nodes
+NAME                                                STATUS   ROLES           AGE   VERSION
+ip-10-250-196-14.ap-southeast-2.compute.internal    Ready    <none>          22m   v1.31.1
+ip-10-250-202-194.ap-southeast-2.compute.internal   Ready    control-plane   22m   v1.31.1
+```
+
+**Conclusion**
+
+Now we are able to create k8s cluster using Kubespray locally and with cloud providers like AWS, The combination of automated deployment, cloud infrastructure management, offers me hands-on experience and valuable skills for building and maintaining scalable, secure applications in diverse environments. This is a great starting point for anyone looking to explore Kubernetes and cloud computing. I hope this tutorial has been helpful in anyone's journey to learn Kubernetes and cloud computing.

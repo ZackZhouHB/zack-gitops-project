@@ -1,0 +1,279 @@
+---
+title: "EKS - Cluster Autoscaler and Horizontal Pod Autoscaler (HPA)"
+date: 2024-09-12T04:18:19Z
+slug: eks-cluster-autoscaler-and-horizontal-pod-autoscaler-hpa
+categories: ["Kubernetes"]
+aliases: ["/post/82/"]
+legacy_id: 82
+---
+"Explore how pods and EC2 nodes can be scaled in EKS cluster "
+
+**Autoscaler and Horizontal Pod Autoscaler (HPA) Practice on EKS**
+
+In last post, I was able to deploy EKS cluster via Jenkins and Terraform:
+
+- [Jenkins - Multi-Destnation Continuse Deployment with Terraform](/posts/jenkins-multi-destination-cd-pipeline-with-terraform/)
+
+This post walks through the process of setting up an Autoscaler and Horizontal Pod Autoscaler (HPA) in an Amazon EKS cluster. We will explore how to dynamically scale the number of nodes in EKS cluster and how to autoscale K8S pods based on CPU utilization using HPA.
+
+**Prerequisites:**
+
+- Use the `AWS CLI` to update kubeconfig so that kubectl can communicate with the EKS cluster
+
+```bash
+$ aws eks --region ap-southeast-2 update-kubeconfig --name module-eks-cluster
+Updated context arn:aws:eks:ap-southeast-2:851725491342:cluster/module-eks-cluster in C:\Users\zack\.kube\config
+
+Verify that the nodes are ready:
+$ kubectl.exe get node
+NAME                                              STATUS   ROLES    AGE     VERSION
+ip-172-31-37-57.ap-southeast-2.compute.internal   Ready    <none>   2m40s   v1.31.0-eks-a737599
+```
+
+- Deploy the `Cluster Autoscaler` from the official Kubernetes Autoscaler GitHub repository, The Cluster Autoscaler automatically adjusts the number of nodes in eks cluster based on the resource requirements of the workloads.
+
+```bash
+$ kubectl.exe apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/refs/heads/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-one-asg.yaml
+serviceaccount/cluster-autoscaler created
+clusterrole.rbac.authorization.k8s.io/cluster-autoscaler created
+role.rbac.authorization.k8s.io/cluster-autoscaler created
+clusterrolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
+rolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
+deployment.apps/cluster-autoscaler created
+```
+
+- Modify the Autoscaler Parameters to tuning Scale-Up and Down Behavior.
+
+Customized Autoscaler parameters to add arguments to control the scaling behavior, such as the `minimum and maximum node counts`, the `time between scale-down events`, `stabilization window` and `cooldown period`.
+
+```bash
+$ kubectl -n kube-system edit deployment.apps/cluster-autoscaler
+deployment.apps/cluster-autoscaler edited
+
+      labels:
+        app: cluster-autoscaler
+    spec:
+      containers:
+      - command:
+        - ./cluster-autoscaler
+        - --cluster-name=module-eks-cluster
+        - --v=4
+        - --stderrthreshold=info
+        - --cloud-provider=aws
+        - --skip-nodes-with-local-storage=false
+        - --balance-similar-node-groups
+        - --skip-nodes-with-system-pods=false
+        - --scale-down-unneeded-time=1m
+        - --scale-down-delay-after-add=1m
+        - --nodes=1:3:eks-module-eks-cluster-node-group-5ec93604-4bdc-a740-1fcc-707afc8431b
+```
+
+**HPA testing based on Pod CPU utilization metric**
+
+- Now, let's deploy zackweb and set up an `Horizontal Pod Autoscaler (HPA)` to scale the number of pods based on CPU utilization.
+
+```yaml
+$ cat deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zackblog
+spec:
+  replicas: 1  # Start with 1 replica
+  selector:
+    matchLabels:
+      app: zackblog
+  template:
+    metadata:
+      labels:
+        app: zackblog
+    spec:
+      containers:
+      - name: zackblog
+        image: zackz001/gitops-jekyll:latest
+        resources:
+          requests:
+            cpu: "500m"  # 0.5 vCPU
+            memory: "512Mi"  # 0.5 GiB
+          limits:
+            cpu: "1"  # 1 vCPU
+            memory: "1Gi"  # 1 GiB
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zackblog
+spec:
+  selector:
+    app: zackblog  # This must match the labels in the Deployment
+  ports:
+    - protocol: TCP
+      port: 80        # Port that the service will expose
+      targetPort: 80 # Port that the container listens on
+  type: LoadBalancer
+
+kubectl.exe apply -f deployment.yaml
+deployment.apps/zackblog created
+service/zackblog created
+```
+
+- Set Resource Requests and Limits, and Configure Horizontal Pod Autoscaler (HPA) to automatically scale the deployment based on CPU usage
+
+```bash
+$ kubectl set resources deployment zackblog --limits=cpu=200m,memory=200Mi --requests=cpu=100m,memory=100Mi
+deployment.apps/zackblog resource requirements updated
+
+kubectl autoscale deployment zackblog --cpu-percent=50 --min=1 --max=3
+
+$ kubectl get hpa zackblog
+NAME       REFERENCE             TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+zackblog   Deployment/zackblog   cpu: <unknown>/50%   1         3         1          18s
+```
+
+- Generate CPU Load to Test the HPA
+
+To test the HPA, we need to generate CPU load by running a busybox container to repeatedly request the zackblog service.
+
+```bash
+kubectl run -i --tty load-generator --image=busybox /bin/sh
+# Inside the busybox shell, run this:
+while true; do wget -q -O- http://zackblog > /dev/null; sleep 0.5; done
+```
+
+- Monitor the HPA and Scaling Events, As CPU utilization increases, the HPA will automatically scale the number of pods:
+
+```bash
+$ kubectl.exe get po
+NAME                       READY   STATUS             RESTARTS      AGE
+load-generator             1/1     Running            0             2m6s
+zackblog-95f746486-wlmgx   1/1     Running            0             6m20s
+
+kubectl get hpa zackblog -w
+NAME       REFERENCE             TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+zackblog   Deployment/zackblog   cpu: 0%/50%   1         10        1          12m
+zackblog   Deployment/zackblog   cpu: 92%/50%  1         10        2          5m
+zackblog   Deployment/zackblog   cpu: 52%/50%  1         10        3          2m
+
+kubectl get hpa zackblog -w
+zackblog   Deployment/zackblog   cpu: 37%/50%   1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 38%/50%   1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 6%/50%    1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 0%/50%    1         10        3          27m
+zackblog   Deployment/zackblog   cpu: 0%/50%    1         10        1          28m
+```
+
+It can be seen that pods got scaled up to 3 when CPU utilization reached 92% and scaled down to 1 when CPU utilization dropped below 50%.
+
+**Testing EKS Cluster Autoscaler by changing deployment replicas:**
+
+`EKS Cluster Autoscaler` comes with scale-in and scale-out policies, which define when nodes should be added or removed. The Cluster Autoscaler adds nodes when there aren't enough resources to schedule pending pods and removes nodes when they are underutilized.
+
+- Change the resource limitation for zackblog deployment for EKS node autoscaler testing, Set zackweb deployment with requests cpu 500m. As the EKS node group with a t3.small instance type (2c2g), which means one node can only handle one pod, so to make the Autoscaler testing easier to achieve.
+
+```bash
+$ vim deployment.yaml
+
+        resources:
+          requests:
+            cpu: "500m"  # 0.5 vCPU
+            memory: "512Mi"  # 0.5 GiB
+          limits:
+            cpu: "1"  # 1 vCPU
+            memory: "1Gi"  # 1 GiB
+```
+
+- Gracefully increase the number of deployment replicas to 2, to test EKS node scale up
+
+```bash
+$ kubectl scale deployment zackblog --replicas=2
+deployment.apps/zackblog scaled
+
+$ kubectl.exe get po
+NAME                        READY   STATUS             RESTARTS      AGE
+load-generator              1/1     Running            0             7m39s
+zackblog-7f67584fbd-47jvt   1/1     Running            0             31s
+zackblog-7f67584fbd-9gtfn   0/1     Pending            0             6s
+
+$ kubectl.exe describe po zackblog-7f67584fbd-9gtfn
+
+Events:
+  Type     Reason            Age   From                Message
+  ----     ------            ----  ----                -------
+  Warning  FailedScheduling  18s   default-scheduler   0/1 nodes are available: 1 Insufficient memory. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.
+  Normal   TriggeredScaleUp  9s    cluster-autoscaler  pod triggered scale-up: [{eks-module-eks-cluster-node-group-5ec93604-4bdc-a740-1fcc-707afc8431b3 1->2 (max: 3)}]
+
+$ kubectl.exe get node
+NAME                                               STATUS   ROLES    AGE   VERSION
+ip-172-31-15-152.ap-southeast-2.compute.internal   Ready    <none>   31s   v1.31.0-eks-a737599
+ip-172-31-37-57.ap-southeast-2.compute.internal    Ready    <none>   37m   v1.31.0-eks-a737599
+
+$ kubectl.exe get po
+NAME                        READY   STATUS             RESTARTS        AGE
+load-generator              1/1     Running            0               9m14s
+zackblog-7f67584fbd-47jvt   1/1     Running            0               2m6s
+zackblog-7f67584fbd-9gtfn   1/1     Running            0               101s
+```
+
+It can be seen that pod `zackblog-7f67584fbd-9gtfn` was in pending state due to waiting for node to be scale-up, once we have 2 nodes in EKS cluster, that pod can be scheduled and run.
+
+- Increase the number of deployment replicas to 3, to trigger EKS node scale up again
+
+```bash
+$ kubectl scale deployment zackblog --replicas=3
+deployment.apps/zackblog scaled
+
+$ kubectl.exe get po
+NAME                        READY   STATUS             RESTARTS        AGE
+load-generator              1/1     Running            0               9m44s
+zackblog-7f67584fbd-47jvt   1/1     Running            0               2m36s
+zackblog-7f67584fbd-9gtfn   1/1     Running            0               2m11s
+zackblog-7f67584fbd-f5s9d   1/1     Running            0               3s
+
+$ kubectl.exe get po -o wide
+NAME                        READY   STATUS    RESTARTS   AGE     IP              NODE                                               NOMINATED NODE   READINESS GATES
+zackblog-7f67584fbd-47jvt   1/1     Running   0          5m58s   172.31.37.227   ip-172-31-37-57.ap-southeast-2.compute.internal    <none>           <none>
+zackblog-7f67584fbd-9gtfn   1/1     Running   0          5m33s   172.31.5.139    ip-172-31-15-152.ap-southeast-2.compute.internal   <none>           <none>
+zackblog-7f67584fbd-vzcx4   1/1     Running   0          2m3s    172.31.18.111   ip-172-31-20-24.ap-southeast-2.compute.internal    <none>           <none>
+```
+
+Now EKS scale up to 3 nodes to handle the replica increase again.
+
+- Change the number of deployment replicas down to 1, to trigger EKS node scale down, and monitor by autoscaler log file to see the scale down behavior:
+
+```bash
+$ kubectl scale deployment zackblog --replicas=1
+
+$ kubectl -n kube-system logs -f deployment/cluster-autoscaler
+
+I1008 12:53:22.686377       1 static_autoscaler.go:598] Starting scale down
+I1008 12:53:22.686430       1 nodes.go:123] ip-172-31-15-152.ap-southeast-2.compute.internal was unneeded for 40.253885622s
+I1008 12:53:22.686452       1 nodes.go:123] ip-172-31-37-57.ap-southeast-2.compute.internal was unneeded for 1m0.362059191s
+I1008 12:53:22.686502       1 cluster.go:153] ip-172-31-37-57.ap-southeast-2.compute.internal for removal
+I1008 12:53:22.686644       1 hinting_simulator.go:77] Pod kube-system/cluster-autoscaler-5767f77d77-xgfjq can be moved to ip-172-31-20-24.ap-southeast-2.compute.internal
+I1008 12:53:22.686717       1 hinting_simulator.go:77] Pod kube-system/coredns-7575495454-9n6kd can be moved to ip-172-31-15-152.ap-southeast-2.compute.internal
+I1008 12:53:22.686832       1 hinting_simulator.go:77] Pod kube-system/coredns-7575495454-dxzdc can be moved to ip-172-31-15-152.ap-southeast-2.compute.internal
+I1008 12:53:22.686875       1 cluster.go:176] node ip-172-31-37-57.ap-southeast-2.compute.internal may be removed
+I1008 12:53:22.705270       1 delete.go:103] Successfully added ToBeDeletedTaint on node ip-172-31-37-57.ap-southeast-2.compute.internal
+I1008 12:53:22.705367       1 actuator.go:212] Scale-down: removing node ip-172-31-37-57.ap-southeast-2.compute.internal, utilization: {0.23316062176165803 0.49755477462428627 0 memory 0.49755477462428627}, pods to reschedule: cluster-autoscaler-5767f77d77-xgfjq,coredns-7575495454-9n6kd,coredns-7575495454-dxzdc
+
+$ kubectl.exe get node
+NAME                                               STATUS                        ROLES    AGE     VERSION
+ip-172-31-15-152.ap-southeast-2.compute.internal   NotReady,SchedulingDisabled   <none>   9m10s   v1.31.0-eks-a737599
+ip-172-31-20-24.ap-southeast-2.compute.internal    Ready                         <none>   6m59s   v1.31.0-eks-a737599
+ip-172-31-37-57.ap-southeast-2.compute.internal    Ready,SchedulingDisabled      <none>   45m     v1.31.0-eks-a737599
+
+$ kubectl.exe get node
+NAME                                              STATUS   ROLES    AGE     VERSION
+ip-172-31-20-24.ap-southeast-2.compute.internal   Ready    <none>   7m58s   v1.31.0-eks-a737599
+```
+
+It can be seen that Cluster Autoscaler identified nodes that were underutilized or idle and marked them as "unneeded." It simulated moving the existing pods to other nodes. Once it determined that the pods could be rescheduled, it marked the node for deletion (using a ToBeDeletedTaint), preventing new workloads from being scheduled. Finally, the node was removed from the cluster, and the pods were successfully rescheduled on other nodes.
+
+This behavior ensures that the cluster's resources are used efficiently, scaling down when there is no workload, thereby reducing costs.
+
+[![image tooltip here](/images/eks1.png)](/images/eks1.png)
+
+**Conclusion:**
+
+By following these steps, we can effectively manage the scaling of k8s applications and nodes in an EKS cluster using both the Cluster Autoscaler and Horizontal Pod Autoscaler (HPA). These tools ensure that the infrastructure adapts to varying workloads, optimizing resource utilization and costs.
