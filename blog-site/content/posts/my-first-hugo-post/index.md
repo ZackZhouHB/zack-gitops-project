@@ -1,7 +1,7 @@
 ---
 title: My First Hugo Post test
 date: 2026-09-26T09:22:57+10:00
-draft: true
+draft: false
 categories:
   - General
 ---
