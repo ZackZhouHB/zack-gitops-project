@@ -1,0 +1,60 @@
+{{- /* Infinite scroll for post lists: fetches the next static page (/page/N/) and appends its entries. Without JS the normal "Next" button still works. */ -}}
+{{- if and site.Params.infiniteScroll .IsNode }}
+<script>
+(function () {
+  var footer = document.querySelector("main .page-footer");
+  var next = footer && footer.querySelector(".pagination a.next");
+  if (!next || !("IntersectionObserver" in window)) return;
+
+  var loading = false;
+  var status = document.createElement("p");
+  status.className = "infinite-scroll-status";
+  status.style.cssText = "text-align:center;opacity:.7;margin:1rem 0;";
+
+  var prev = footer.querySelector(".pagination a.prev");
+  if (prev) prev.style.display = "none";
+
+  var observer = new IntersectionObserver(function (entries) {
+    if (entries[0].isIntersecting) loadNext();
+  }, { rootMargin: "600px 0px" });
+  observer.observe(footer);
+
+  function loadNext() {
+    if (loading || !next) return;
+    loading = true;
+    status.textContent = "Loading more posts…";
+    footer.before(status);
+
+    fetch(next.href)
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        return r.text();
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        doc.querySelectorAll("main article.post-entry").forEach(function (a) {
+          footer.before(document.importNode(a, true));
+        });
+        var newNext = doc.querySelector("main .page-footer .pagination a.next");
+        status.remove();
+        loading = false;
+        if (newNext) {
+          next.href = newNext.href;
+          // Re-observe so a still-visible footer (tall screens) triggers the next page too.
+          observer.unobserve(footer);
+          observer.observe(footer);
+        } else {
+          next = null;
+          observer.disconnect();
+          footer.remove();
+        }
+      })
+      .catch(function () {
+        status.textContent = "Couldn't load more posts. Use the Next button below.";
+        observer.disconnect();
+        loading = false;
+      });
+  }
+})();
+</script>
+{{- end }}
