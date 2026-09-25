@@ -31,18 +31,17 @@ content/posts/eks-cost-tuning/
 ```bash
 cd blog-site
 git pull                                          # 1. sync
-hugo new content posts/eks-cost-tuning/index.md   # 2. create (draft: true)
+hugo new content posts/eks-cost-tuning/index.md   # 2. create (draft: false, slug = folder name)
 hugo server -D                                    # 3. preview at http://localhost:1313 (live reload)
 #    edit index.md; drop or paste images into the folder; reference as ![alt](diagram.png)
-#    set draft: false when ready
 git add content/posts/eks-cost-tuning             # 4. publish
 git commit -m "post: EKS cost tuning"
 git push                                          # 5. GitHub Actions builds, checks links, deploys (~1 min)
 ```
 
 - Front matter: `title`, `date`, `draft`, `categories` (AWS, Kubernetes, DevOps, Machine Learning, Python, General), optional `slug`.
-- The URL is `/posts/<slug>/`. The slug defaults to the title, e.g. `/posts/eks-cost-tuning/`.
-- `draft: true` posts only show with `hugo server -D`. They are never published.
+- The URL is `/posts/<slug>/`. New posts get `slug` = folder name, e.g. `/posts/eks-cost-tuning/`.
+- New posts start as `draft: false`. To keep a work-in-progress post off the site, set `draft: true` (it then only shows with `hugo server -D`).
 - VS Code: pasting an image into `index.md` saves it into the same folder automatically.
 - Legacy posts are single files in `content/posts/` with images in `static/images/` (`/images/...`). Both styles work.
 - Optional review flow: push a branch and open a PR. CI builds and link-checks it; merging deploys it.
@@ -64,6 +63,14 @@ git clone --filter=blob:none --sparse git@github.com:ZackZhouHB/zack-gitops-proj
 cd zackblog && git sparse-checkout set blog-site .github
 git submodule update --init blog-site/themes/PaperMod
 ```
+
+## Theme overrides
+
+`layouts/` overrides a few PaperMod files. After updating the theme submodule, re-check them against `themes/PaperMod/layouts/`:
+
+- `baseof.html`, `rss.xml`, `_partials/templates/opengraph.html`: replace Hugo-deprecated `.Language.LanguageDirection` / `.LanguageCode` (drop these once upstream fixes them)
+- `_markup/render-image.html`, `_markup/render-link.html`: resolve root-relative paths against `baseURL`
+- `_partials/extend_footer.html`: infinite scroll
 
 ## Migration from Django
 

@@ -1,5 +1,5 @@
 {{- /* Infinite scroll for post lists: fetches the next static page (/page/N/) and appends its entries. Without JS the normal "Next" button still works. */ -}}
-{{- if and site.Params.infiniteScroll .IsNode }}
+{{- if and site.Params.infiniteScroll (not .IsPage) }}
 <script>
 (function () {
   var footer = document.querySelector("main .page-footer");
