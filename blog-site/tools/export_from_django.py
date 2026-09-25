@@ -35,6 +35,9 @@ AUTHOR_CATEGORY = {
     "joez": "Joe's Corner",
 }
 
+# Authors whose posts are kept in the repo but not published (see archive/joe/README.md).
+ARCHIVED_AUTHORS = {"joez"}
+
 PRE_RE = re.compile(r"<pre\b[^>]*>(.*?)</pre>", re.S | re.I)
 CODE_OPEN_RE = re.compile(r"^\s*<code\b([^>]*)>", re.I)
 CODE_CLOSE_RE = re.compile(r"</code>\s*$", re.I)
@@ -178,10 +181,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--archive-out", default="archive/joe/posts", help="destination for ARCHIVED_AUTHORS posts")
     args = ap.parse_args()
 
     out = Path(args.out)
+    archive_out = Path(args.archive_out)
     out.mkdir(parents=True, exist_ok=True)
+    archive_out.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(args.db)
     rows = conn.execute(
         "SELECT p.id, p.title, p.content, p.date_posted, u.username "
@@ -204,7 +210,8 @@ def main():
             "---",
             "",
         ]
-        path = out / f"{pid:03d}-{slugs[pid]}.md"
+        dest = archive_out if username in ARCHIVED_AUTHORS else out
+        path = dest / f"{pid:03d}-{slugs[pid]}.md"
         path.write_text("\n".join(front) + convert(content, permalinks), encoding="utf-8")
 
     print(f"Exported {len(rows)} posts to {out}")

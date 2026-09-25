@@ -27,7 +27,7 @@ hugo server -D                             # preview at http://localhost:1313
 # set draft: false, then commit and push to editing
 ```
 
-Front matter fields: `title`, `date`, `categories` (AWS, Kubernetes, DevOps, Machine Learning, Python, General, Joe's Corner), optional `slug`.
+Front matter fields: `title`, `date`, `categories` (AWS, Kubernetes, DevOps, Machine Learning, Python, General), optional `slug`.
 
 ## Local development
 
@@ -46,6 +46,7 @@ hugo --gc --baseURL / -d public-check && lychee --offline --root-dir "$PWD/publi
 - The rest is rendered with python-markdown (same as django-markdownx), then converted with markdownify.
 - Legacy URLs `/post/<id>/` redirect to the new `/posts/<slug>/` via Hugo `aliases`.
 - Django authors (`zack-aws`, `zack-kubernetes`, ...) became categories.
+- Joe's 20 posts are archived (kept in git, not published) in [`archive/joe/`](archive/joe/README.md).
 
 Re-run (one-off, overwrites exported posts):
 
