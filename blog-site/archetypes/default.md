@@ -5,4 +5,8 @@ draft: true
 categories: ["General"]
 ---
 
-Write the post here. Images go in `static/images/` and are referenced as `![alt](/images/name.png)`.
+Write the post here.
+
+Put images in this post's folder (next to this index.md) and reference them by file name:
+
+![Architecture diagram](diagram.png)

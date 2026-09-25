@@ -19,23 +19,50 @@ content/posts/*.md ──git push──▶ GitHub Actions ──▶ GitHub Pages
 
 ## Write a new post
 
-```bash
-cd blog-site
-hugo new content posts/my-new-post.md      # created as draft
-# put images in static/images/ and reference them as ![alt](/images/name.png)
-hugo server -D                             # preview at http://localhost:1313
-# set draft: false, then commit and push to editing
+Each post is a folder (a Hugo "page bundle") with its text and images together:
+
+```
+content/posts/eks-cost-tuning/
+├── index.md        # the post
+├── diagram.png     # images live next to it
+└── result.png
 ```
 
-Front matter fields: `title`, `date`, `categories` (AWS, Kubernetes, DevOps, Machine Learning, Python, General), optional `slug`.
+```bash
+cd blog-site
+git pull                                          # 1. sync
+hugo new content posts/eks-cost-tuning/index.md   # 2. create (draft: true)
+hugo server -D                                    # 3. preview at http://localhost:1313 (live reload)
+#    edit index.md; drop or paste images into the folder; reference as ![alt](diagram.png)
+#    set draft: false when ready
+git add content/posts/eks-cost-tuning             # 4. publish
+git commit -m "post: EKS cost tuning"
+git push                                          # 5. GitHub Actions builds, checks links, deploys (~1 min)
+```
+
+- Front matter: `title`, `date`, `draft`, `categories` (AWS, Kubernetes, DevOps, Machine Learning, Python, General), optional `slug`.
+- The URL is `/posts/<slug>/`. The slug defaults to the title, e.g. `/posts/eks-cost-tuning/`.
+- `draft: true` posts only show with `hugo server -D`. They are never published.
+- VS Code: pasting an image into `index.md` saves it into the same folder automatically.
+- Legacy posts are single files in `content/posts/` with images in `static/images/` (`/images/...`). Both styles work.
+- Optional review flow: push a branch and open a PR. CI builds and link-checks it; merging deploys it.
 
 ## Local development
 
 ```bash
 git submodule update --init --recursive    # fetch the theme
 brew install hugo lychee
-hugo server                                # live reload
-hugo --gc --baseURL / -d public-check && lychee --offline --root-dir "$PWD/public-check" 'public-check/**/*.html'
+hugo server -D                             # live reload, drafts included
+# same link check as CI:
+hugo --gc --baseURL / -d public-check && lychee --offline --root-dir "$PWD/public-check" 'public-check/**/*.html'; rm -rf public-check
+```
+
+A lightweight blog-only checkout (no need for the rest of the monorepo):
+
+```bash
+git clone --filter=blob:none --sparse git@github.com:ZackZhouHB/zack-gitops-project.git zackblog
+cd zackblog && git sparse-checkout set blog-site .github
+git submodule update --init blog-site/themes/PaperMod
 ```
 
 ## Migration from Django
